@@ -15,6 +15,7 @@ import {
 	type MonsterSpawn,
 } from "../../rules/combat";
 import { getMonster } from "../../srd";
+import { checkBudget } from "../../rules/encounter-budget";
 import { applyCombatResult, combatOpts, combatState, isPcTurn } from "../combat";
 import { S, newId, tool, withState, type StateTxn, type ToolFactory } from "../context";
 import { applyDamageToCharacter, healCharacter } from "../derived";
@@ -85,14 +86,37 @@ function turnStatus(state: GameState): string {
 		: `\nNext turn: ${cur.name} [${cur.id}] (round ${e.round}). Resolve it with monster_turn.`;
 }
 
-export const startCombatTool = tool<{ monsters: SpawnArg[]; pcSurprised?: boolean }>(
+/**
+ * Enforces the solo encounter budget for the campaign difficulty and keeps
+ * allies weaker than the player. Returns a note for the DM; throws when over
+ * budget unless the DM gives an override reason (still capped).
+ */
+function budgetGate(state: GameState, spawns: MonsterSpawn[], override?: string): string {
+	const level = state.character.classes.reduce((n, k) => n + k.level, 0);
+	const living = state.encounter?.status === "active" ? Object.values(state.encounter.combatants).filter((c) => !c.dead && c.kind !== "pc") : [];
+	const xpOf = (c: { stats?: { xp?: number } }) => c.stats?.xp ?? 0;
+	const enemies = [...living.filter((c) => c.side === "enemy").map(xpOf), ...spawns.filter((s) => (s.side ?? "enemy") === "enemy").map((s) => s.stats.xp ?? 0)];
+	const allies = [...living.filter((c) => c.side === "party").map(xpOf), ...spawns.filter((s) => s.side === "party").map((s) => s.stats.xp ?? 0)];
+	const b = checkBudget(level, state.settings.structure.difficulty, enemies, allies);
+	const problems: string[] = [];
+	const hardCap = Math.round(b.cap * 1.5);
+	if (!b.ok) problems.push(`enemies are ${b.adjustedXp} adjusted XP (${b.band}) but the ${state.settings.structure.difficulty} cap for a level ${level} solo character is ${b.cap} — use fewer or weaker monsters`);
+	if (!b.allyOk) problems.push(`allies total ${b.allyXp} XP but may not exceed ${b.allyCap} (the player must stay the strongest on their side) — keep strong NPCs out of the fight narratively, or stat them as weaker creatures (e.g. 'guard', 'commoner', 'acolyte')`);
+	if (problems.length && (!override || b.adjustedXp > hardCap)) {
+		throw new Error(`Encounter refused: ${problems.join("; ")}.${override && b.adjustedXp > hardCap ? ` Even with an override the hard limit is ${hardCap}.` : " Pass override='<story reason>' only for a deliberate set-piece."}`);
+	}
+	return `${b.summary}${problems.length ? ` OVERRIDE (${override}): ${problems.join("; ")}.` : ""}`;
+}
+
+export const startCombatTool = tool<{ monsters: SpawnArg[]; pcSurprised?: boolean; override?: string }>(
 	"start_combat",
-	"Start a combat encounter on the active map with SRD monsters. Rolls initiative; returns the order. Switches the view to the map and the ambience to combat.",
-	S.obj({ monsters: spawnSchema, pcSurprised: S.bool() }, ["monsters"]),
+	"Start a combat encounter on the active map with SRD monsters. The engine enforces a solo-character XP budget for the campaign difficulty and caps allies (side='party') so the player stays the protagonist; it refuses over-budget encounters. Rolls initiative; returns the order. Switches the view to the map and the ambience to combat.",
+	S.obj({ monsters: spawnSchema, pcSurprised: S.bool(), override: S.str("Story reason to exceed the budget for a deliberate set-piece (still capped at 1.5×)") }, ["monsters"]),
 	async (a, ctx) =>
 		withState(ctx, (tx) => {
 			const { state, rng } = tx;
 			if (state.encounter?.status === "active") throw new Error("Combat already active; use add_monsters.");
+			const budgetNote = budgetGate(state, toSpawns(state, a.monsters), a.override);
 			const map = state.activeMapId ? state.maps[state.activeMapId] : undefined;
 			if (!map) throw new Error("No active map. Call generate_map first.");
 			const res = startCombat({ encounterId: newId("enc"), map, character: state.character, monsters: toSpawns(state, a.monsters), pcSurprised: a.pcSurprised }, rng, combatOpts(state));
@@ -102,7 +126,7 @@ export const startCombatTool = tool<{ monsters: SpawnArg[]; pcSurprised?: boolea
 			if (state.ambience !== "boss") state.ambience = "combat";
 			state.scene.mood = "combat";
 			const ids = Object.values(state.encounter!.combatants).map((c) => `${c.name} [${c.id}] @${map.entities.find((e) => e.id === c.entityId)?.x},${map.entities.find((e) => e.id === c.entityId)?.y}`);
-			return `${log}\nCombatants: ${ids.join("; ")}${turnStatus(state)}${autoUntilPc(tx, false)}`;
+			return `${budgetNote}\n${log}\nCombatants: ${ids.join("; ")}${turnStatus(state)}${autoUntilPc(tx, false)}`;
 		}),
 );
 
@@ -159,12 +183,16 @@ export const autoMonsterTurnsTool = tool<Record<string, never>>(
 	async (_a, ctx) => withState(ctx, (tx) => autoUntilPc(tx, true).trim() || `Nothing to run.${turnStatus(tx.state)}`),
 );
 
-export const addMonstersTool = tool<{ monsters: SpawnArg[] }>(
+export const addMonstersTool = tool<{ monsters: SpawnArg[]; override?: string }>(
 	"add_monsters",
-	"Add reinforcements to the active combat.",
-	S.obj({ monsters: spawnSchema }, ["monsters"]),
+	"Add reinforcements to the active combat (counted against the same encounter budget as start_combat, including living combatants).",
+	S.obj({ monsters: spawnSchema, override: S.str("Story reason to exceed the budget") }, ["monsters"]),
 	async (a, ctx) =>
-		withState(ctx, (tx) => applyCombatResult(tx, addMonsters(combatState(tx.state), tx.rng, toSpawns(tx.state, a.monsters), combatOpts(tx.state)))),
+		withState(ctx, (tx) => {
+			const spawns = toSpawns(tx.state, a.monsters);
+			const note = budgetGate(tx.state, spawns, a.override);
+			return `${note}\n${applyCombatResult(tx, addMonsters(combatState(tx.state), tx.rng, spawns, combatOpts(tx.state)))}`;
+		}),
 );
 
 export const removeCombatantTool = tool<{ combatantId: string; reason?: string }>(
