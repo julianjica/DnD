@@ -20,7 +20,7 @@ export async function GET(req: NextRequest, ctx: RouteContext<"/api/campaigns/[i
 		const multiclass = ["barbarian", "bard", "cleric", "druid", "fighter", "monk", "paladin", "ranger", "rogue", "sorcerer", "warlock", "wizard"].filter(
 			(c) => state.character.classes.some((k) => k.classId === c) || canMulticlass(state.character, c),
 		);
-		return Response.json({ available: available(state), options, classes: multiclass.map((c) => ({ id: c, name: getClass(c)?.name ?? c })) });
+		return Response.json({ available: available(state), options, classes: multiclass.map((c) => ({ index: c, name: getClass(c)?.name ?? c })) });
 	} catch (error) {
 		return jsonError(error instanceof Error ? error.message : String(error));
 	}

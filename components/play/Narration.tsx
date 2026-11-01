@@ -1,0 +1,251 @@
+"use client";
+
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { Dices, Send, Square, ScrollText, Sparkles, Wrench, ChevronDown } from "lucide-react";
+import type { GameState, LogEntry, RollRecord } from "@/lib/game/types";
+import type { LiveTurn, LiveTool } from "./useGame";
+
+/** Minimal inline markdown: **bold**, *italic*, "quotes" styled. */
+function inline(text: string): ReactNode[] {
+	const out: ReactNode[] = [];
+	const re = /(\*\*[^*]+\*\*|\*[^*\n]+\*|_[^_\n]+_|"[^"\n]{2,}")/g;
+	let last = 0;
+	let i = 0;
+	for (const m of text.matchAll(re)) {
+		if (m.index! > last) out.push(text.slice(last, m.index));
+		const tok = m[0];
+		if (tok.startsWith("**")) out.push(<strong key={i++} className="text-gold-2 font-semibold">{tok.slice(2, -2)}</strong>);
+		else if (tok.startsWith("*") || tok.startsWith("_")) out.push(<em key={i++}>{tok.slice(1, -1)}</em>);
+		else out.push(<span key={i++} className="text-parchment-2 italic">{tok}</span>);
+		last = m.index! + tok.length;
+	}
+	if (last < text.length) out.push(text.slice(last));
+	return out;
+}
+
+export function Prose({ text, dropCap = false }: { text: string; dropCap?: boolean }) {
+	const paras = text.split(/\n{2,}/).map((p) => p.trim()).filter(Boolean);
+	return (
+		<div className="narration space-y-3 text-text">
+			{paras.map((p, i) =>
+				/^#{1,3}\s/.test(p) ? (
+					<h3 key={i} className="heading text-base">{p.replace(/^#+\s*/, "")}</h3>
+				) : /^[-*]\s/m.test(p) ? (
+					<ul key={i} className="list-disc pl-6 space-y-1">{p.split("\n").map((l, j) => <li key={j}>{inline(l.replace(/^[-*]\s*/, ""))}</li>)}</ul>
+				) : (
+					<p key={i} className={dropCap && i === 0 ? "first-letter:float-left first-letter:font-display first-letter:text-5xl first-letter:leading-[0.85] first-letter:mr-2 first-letter:mt-1 first-letter:text-gold" : ""}>
+						{p.split("\n").map((line, j, arr) => (
+							<span key={j}>
+								{inline(line)}
+								{j < arr.length - 1 && <br />}
+							</span>
+						))}
+					</p>
+				),
+			)}
+		</div>
+	);
+}
+
+function RollChip({ roll }: { roll: RollRecord }) {
+	const nat = roll.dice.find((d) => d.sides === 20 && !d.dropped)?.value;
+	const tone = roll.critical === "hit" || nat === 20 ? "border-gold text-gold-2" : roll.critical === "miss" || nat === 1 ? "border-crimson text-crimson-2" : roll.success === false ? "text-dim" : "text-text";
+	return (
+		<div className={`inline-flex items-center gap-2 rounded-md border border-line bg-bg-2/70 px-2.5 py-1 text-xs ${tone}`} title={roll.dice.map((d) => `d${d.sides}:${d.value}${d.dropped ? "✗" : ""}`).join(" ")}>
+			<Dices size={13} className="shrink-0 opacity-80" />
+			<span className="text-dim">{roll.label}</span>
+			<span className="font-semibold tabular-nums">{roll.total}</span>
+			{roll.target !== undefined && <span className={roll.success ? "text-emerald" : "text-crimson-2"}>{roll.success ? "✓" : "✗"} {roll.target}</span>}
+		</div>
+	);
+}
+
+const TOOL_LABEL: Record<string, string> = {
+	set_scene: "Setting the scene",
+	generate_map: "Drawing the map",
+	place_entity: "Placing tokens",
+	start_combat: "Rolling initiative",
+	monster_turn: "Enemy turn",
+	auto_monster_turns: "Enemy turns",
+	lookup_srd: "Consulting the rules",
+	ability_check: "Ability check",
+	saving_throw: "Saving throw",
+	roll: "Rolling dice",
+	add_npc: "New character",
+	add_quest: "New quest",
+	update_quest: "Quest updated",
+	give_item: "Loot",
+	journal_note: "Journal",
+	suggest_actions: "Options",
+	set_ambience: "Ambience",
+	travel: "Travelling",
+	reveal_location: "New location",
+};
+
+function ToolStrip({ tools }: { tools: { name: string; summary?: string; isError?: boolean; status?: string }[] }) {
+	const [open, setOpen] = useState(false);
+	const shown = tools.filter((t) => !["suggest_actions", "set_ambience", "journal_note", "dm_note", "get_state"].includes(t.name));
+	if (!shown.length) return null;
+	return (
+		<div className="mt-2 text-xs text-faint">
+			<button className="inline-flex items-center gap-1 hover:text-dim" onClick={() => setOpen((o) => !o)}>
+				<Wrench size={12} /> {shown.length} engine action{shown.length > 1 ? "s" : ""}
+				<ChevronDown size={12} className={open ? "rotate-180 transition" : "transition"} />
+			</button>
+			{open && (
+				<ul className="mt-1 space-y-0.5 border-l border-line pl-3">
+					{shown.map((t, i) => (
+						<li key={i} className={t.isError ? "text-crimson-2" : ""}>
+							<span className="text-dim">{TOOL_LABEL[t.name] ?? t.name}</span>
+							{t.summary ? ` — ${t.summary.split("\n")[0].slice(0, 140)}` : ""}
+						</li>
+					))}
+				</ul>
+			)}
+		</div>
+	);
+}
+
+function Entry({ e }: { e: LogEntry }) {
+	if (e.role === "player")
+		return (
+			<div className="flex justify-end">
+				<div className="max-w-[85%] rounded-xl rounded-br-sm border border-gold/30 bg-gold/10 px-4 py-2 font-serif text-[1.05rem] italic text-parchment">{e.text}</div>
+			</div>
+		);
+	if (e.role === "roll") return e.roll ? <RollChip roll={e.roll} /> : null;
+	if (e.role === "system") return <div className="text-center text-xs uppercase tracking-widest text-faint">{e.text}</div>;
+	return (
+		<div>
+			{e.text && <Prose text={e.text} />}
+			{e.tools && <ToolStrip tools={e.tools} />}
+		</div>
+	);
+}
+
+function LiveView({ live }: { live: LiveTurn }) {
+	const running = live.tools.filter((t: LiveTool) => t.status === "start");
+	return (
+		<div className="space-y-3">
+			{live.player && (
+				<div className="flex justify-end">
+					<div className="max-w-[85%] rounded-xl rounded-br-sm border border-gold/30 bg-gold/10 px-4 py-2 font-serif text-[1.05rem] italic text-parchment">{live.player}</div>
+				</div>
+			)}
+			{live.rolls.length > 0 && <div className="flex flex-wrap gap-1.5">{live.rolls.map((r) => <RollChip key={r.id} roll={r} />)}</div>}
+			{live.text ? <Prose text={live.text} /> : null}
+			<div className="flex items-center gap-2 text-sm text-dim">
+				<span className="inline-flex gap-1">
+					<span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold [animation-delay:-0.3s]" />
+					<span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold [animation-delay:-0.15s]" />
+					<span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold" />
+				</span>
+				<span className="font-fell italic">{running.length ? `${TOOL_LABEL[running[running.length - 1].name] ?? "The DM is working"}…` : live.text ? "The DM narrates…" : "The DM considers…"}</span>
+			</div>
+		</div>
+	);
+}
+
+export function Narration(props: {
+	state: GameState;
+	log: LogEntry[];
+	live: LiveTurn | null;
+	busy: boolean;
+	onSend: (text: string) => void;
+	onAbort: () => void;
+	onRollPending: () => void;
+}) {
+	const { state, log, live, busy } = props;
+	const [text, setText] = useState("");
+	const scroller = useRef<HTMLDivElement>(null);
+	const stick = useRef(true);
+
+	useEffect(() => {
+		const el = scroller.current;
+		if (el && stick.current) el.scrollTop = el.scrollHeight;
+	}, [log, live]);
+
+	const submit = (t: string) => {
+		const v = t.trim();
+		if (!v || busy) return;
+		props.onSend(v);
+		setText("");
+		stick.current = true;
+	};
+
+	const inCombat = state.encounter?.status === "active";
+	return (
+		<div className="flex h-full min-h-0 flex-col">
+			<div
+				ref={scroller}
+				className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-5"
+				onScroll={(e) => {
+					const el = e.currentTarget;
+					stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+				}}
+			>
+				{log.length === 0 && !live && (
+					<div className="flex h-full flex-col items-center justify-center gap-3 text-center text-dim">
+						<ScrollText className="text-gold" />
+						<p className="font-fell text-lg italic">Your tale has yet to be told…</p>
+					</div>
+				)}
+				{log.map((e, i) => (
+					<Entry key={e.id ?? i} e={e} />
+				))}
+				{live && <LiveView live={live} />}
+			</div>
+
+			<div className="border-t border-line bg-bg-2/60 px-4 py-3">
+				{state.pendingRoll && !busy && (
+					<button className="btn btn-gold mb-3 w-full justify-center py-2.5" onClick={props.onRollPending}>
+						<Dices size={18} /> Roll: {state.pendingRoll.label}
+						{state.pendingRoll.dc ? <span className="opacity-70">(DC {state.pendingRoll.dc})</span> : null}
+					</button>
+				)}
+				{!busy && state.suggestions.length > 0 && !inCombat && (
+					<div className="mb-2.5 flex flex-wrap gap-1.5">
+						{state.suggestions.map((s) => (
+							<button key={s} className="chip hover:border-gold hover:text-gold-2" onClick={() => submit(s)}>
+								<Sparkles size={12} className="text-gold" /> {s}
+							</button>
+						))}
+					</div>
+				)}
+				{inCombat && !busy && (
+					<p className="mb-2 text-xs text-dim">In combat: use the action bar on the map. You can still speak or describe something unusual here.</p>
+				)}
+				<form
+					className="flex items-end gap-2"
+					onSubmit={(e) => {
+						e.preventDefault();
+						submit(text);
+					}}
+				>
+					<textarea
+						className="input min-h-[46px] resize-none font-serif text-[1.02rem]"
+						rows={text.split("\n").length > 2 ? 4 : 2}
+						placeholder={busy ? "The DM is narrating…" : "What do you do?"}
+						value={text}
+						onChange={(e) => setText(e.target.value)}
+						onKeyDown={(e) => {
+							if (e.key === "Enter" && !e.shiftKey) {
+								e.preventDefault();
+								submit(text);
+							}
+						}}
+					/>
+					{busy ? (
+						<button type="button" className="btn btn-danger h-[46px]" onClick={props.onAbort} title="Stop the DM">
+							<Square size={16} />
+						</button>
+					) : (
+						<button type="submit" className="btn btn-gold h-[46px]" disabled={!text.trim()} title="Send (Enter)">
+							<Send size={16} />
+						</button>
+					)}
+				</form>
+			</div>
+		</div>
+	);
+}
