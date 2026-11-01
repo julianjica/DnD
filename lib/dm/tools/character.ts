@@ -102,7 +102,7 @@ export const awardXp = tool<{ xp: number; reason: string }>(
 			const before = canLevelUp(state.character);
 			state.character.xp += a.xp;
 			const can = canLevelUp(state.character);
-			if (can && !before) fx({ kind: "sfx", sound: "level_up" });
+			if (can && !before) fx({ kind: "sfx", sound: "levelup" });
 			return `+${a.xp} XP (${a.reason}). Total ${state.character.xp}.${can ? " The player can LEVEL UP (they will do it from the character sheet)." : ""}`;
 		}),
 );
@@ -114,7 +114,7 @@ export const grantLevelUp = tool<{ reason: string }>(
 	async (a, ctx) =>
 		withState(ctx, ({ state, fx }) => {
 			state.levelUpsGranted = (state.levelUpsGranted ?? 0) + 1;
-			fx({ kind: "sfx", sound: "level_up" });
+			fx({ kind: "sfx", sound: "levelup" });
 			return `Level-up granted (${a.reason}).`;
 		}),
 );

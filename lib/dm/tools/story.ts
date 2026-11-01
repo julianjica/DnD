@@ -3,6 +3,7 @@ import { roll, signed } from "../../rules/dice";
 import { S, newId, tool, withState, type ToolFactory } from "../context";
 import { loadState } from "../../store/campaigns";
 import { randomPortrait } from "../../art/portrait";
+import { SFX_NAMES } from "../../audio/ambience";
 
 const SCENE_KINDS: SceneKind[] = ["tavern", "town", "forest", "dungeon", "cave", "mountain", "coast", "swamp", "desert", "castle", "temple", "camp", "road", "crypt", "plains", "ship", "underdark"];
 const MOODS: Mood[] = ["calm", "mysterious", "tense", "combat", "triumphant", "somber", "festive", "eerie"];
@@ -86,7 +87,7 @@ export const setAmbience = tool<{ track: AmbienceTrack }>(
 export const playSfx = tool<{ sound: string }>(
 	"play_sfx",
 	"Play a one-shot sound effect.",
-	S.obj({ sound: S.str(undefined, ["door", "coin", "sword", "spell", "thunder", "scream", "creak", "splash", "explosion", "magic", "chest", "level_up", "death"]) }, ["sound"]),
+	S.obj({ sound: S.str(undefined, SFX_NAMES) }, ["sound"]),
 	async (a, ctx) => {
 		ctx.emit({ type: "fx", fx: { kind: "sfx", sound: a.sound } });
 		return "ok";
@@ -241,7 +242,7 @@ export const addQuest = tool<{ title: string; summary: string; objectives: strin
 				giverNpcId: a.giverNpcId,
 				reward: a.reward,
 			});
-			ctx.emit({ type: "fx", fx: { kind: "sfx", sound: "quest" } });
+			ctx.emit({ type: "fx", fx: { kind: "sfx", sound: "book" } });
 			return `Quest added: ${a.title} [${id}]`;
 		}),
 );
@@ -297,7 +298,7 @@ export const giveItem = tool<{ name: string; quantity?: number; ref?: string; de
 				enrichItem(item);
 				state.character.inventory.push(item);
 			}
-			ctx.emit({ type: "fx", fx: { kind: "sfx", sound: "chest" } });
+			ctx.emit({ type: "fx", fx: { kind: "sfx", sound: "gem" } });
 			return `Gave ${qty} × ${a.name}.`;
 		}),
 );
