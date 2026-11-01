@@ -1,11 +1,9 @@
-/** English UI strings (source of truth). Add keys here first, then to es.ts. */
-export const en = {
-	"lang.label": "Language",
-	"common.back": "Back",
-	"common.cancel": "Cancel",
-	"common.save": "Save",
-	"common.close": "Close",
-	"common.loading": "Loading…",
-} as const satisfies Record<string, string>;
+import * as common from "./parts/common";
+import * as setup from "./parts/setup";
+import * as play from "./parts/play";
+import * as enums from "./parts/enums";
+
+/** English UI strings (source of truth), merged from ./parts. */
+export const en = { ...common.en, ...setup.en, ...play.en, ...enums.en };
 
 export type Messages = { [K in keyof typeof en]: string };
