@@ -167,7 +167,11 @@ export function randomPortrait(rng: Rng, speciesId?: string): PortraitSpec {
 
 	const accessory = pickWeighted(rng, [["none", 9], ["hood", 1.5], ["helmet", 1], ["circlet", 1], ["eyepatch", 0.5], ["scar", 1.5], ["earrings", 1], ["warpaint", sp === "orc" || sp === "half-orc" || sp === "goliath" ? 1.5 : 0.4], ["headband", 0.6]]);
 
+	// Gender decides facial hair (and the face shape in portraitTraits).
+	const gender: "female" | "male" = rng.next() < 0.5 ? "female" : "male";
+	if (gender === "female") facialHair = "none";
 	return {
+		gender,
 		seed,
 		skinTone,
 		hairStyle,
@@ -211,7 +215,17 @@ export interface PortraitTraits {
 	female: boolean;
 }
 
-const CLOTH = ["#6b2a2a", "#2f4a36", "#2c3b5c", "#5a4630", "#4a3a5a", "#3c3c40", "#7a5a2a", "#1f3a3f", "#5c2d44"];
+/** Consume the same rng draws either way so seeded faces stay stable. */
+function pickOr<T>(rng: ArtRng, v: T | undefined, list: readonly T[]): T {
+	const r = rng.pick(list);
+	return v ?? r;
+}
+function ageOr(rng: ArtRng, v: number | undefined): number {
+	const r = rng.next() < 0.75 ? rng.range(0, 0.4) : rng.range(0.5, 1);
+	return v ?? r;
+}
+
+export const CLOTH = ["#6b2a2a", "#2f4a36", "#2c3b5c", "#5a4630", "#4a3a5a", "#3c3c40", "#7a5a2a", "#1f3a3f", "#5c2d44"];
 const TRIM = ["#c9a24a", "#b8b8b8", "#8a5a2a", "#d8c8a0", "#9a3a2a"];
 
 export function portraitTraits(spec: PortraitSpec, speciesHint?: string): PortraitTraits {
@@ -227,7 +241,8 @@ export function portraitTraits(spec: PortraitSpec, speciesHint?: string): Portra
 	let chin = { oval: 150, square: 150, long: 156, round: 146, heart: 151, draconic: 160 }[head] + rng.range(-2, 2);
 	if (stocky) { width += 2; jaw += 4; }
 	if (small) { width += 1; chin -= 4; jaw += 1; }
-	const female = rng.next() < 0.5;
+	const rolledFemale = rng.next() < 0.5;
+	const female = spec.gender ? spec.gender === "female" : rolledFemale;
 	if (female && !stocky) { jaw -= 2.5; chin -= 1; }
 	return {
 		head,
@@ -243,10 +258,10 @@ export function portraitTraits(spec: PortraitSpec, speciesHint?: string): Portra
 		mouthWidth: 11 + rng.range(-1.5, 2.5),
 		browThick: (stocky ? 3.6 : 2.4) + rng.range(-0.5, 0.8) - (female ? 0.6 : 0),
 		browAngle: rng.range(-4, 6),
-		clothing: rng.pick(CLOTH),
+		clothing: pickOr(rng, spec.clothing, CLOTH),
 		clothingTrim: rng.pick(TRIM),
-		clothingStyle: rng.pick(["tunic", "armor", "robe", "leather", "cloak"] as const),
-		age: rng.next() < 0.75 ? rng.range(0, 0.4) : rng.range(0.5, 1),
+		clothingStyle: pickOr(rng, spec.clothingStyle, ["tunic", "armor", "robe", "leather", "cloak"] as const),
+		age: ageOr(rng, spec.age),
 		female,
 	};
 }

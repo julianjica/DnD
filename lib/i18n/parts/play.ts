@@ -31,6 +31,8 @@ export const en = {
 
 	// character sheet
 	"play.sheet.levelXp": "Level {n} · {xp} XP",
+	"play.portrait.title": "Character appearance",
+	"play.portrait.edit": "Edit appearance",
 	"play.sheet.levelUp": "Level up!",
 	"play.sheet.hp": "Hit points",
 	"play.sheet.tempHp": "(+{n} temp)",
@@ -261,6 +263,8 @@ export const es: { [K in keyof typeof en]: string } = {
 	"play.tab.codex": "Códice",
 
 	"play.sheet.levelXp": "Nivel {n} · {xp} PX",
+	"play.portrait.title": "Apariencia del personaje",
+	"play.portrait.edit": "Editar apariencia",
 	"play.sheet.levelUp": "¡Subir de nivel!",
 	"play.sheet.hp": "Puntos de golpe",
 	"play.sheet.tempHp": "(+{n} temp.)",

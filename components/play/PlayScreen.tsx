@@ -14,6 +14,7 @@ import { Stage } from "./Stage";
 import { SavesDialog } from "./SavesDialog";
 import { SettingsDrawer } from "./SettingsDrawer";
 import { LevelUpDialog } from "./LevelUpDialog";
+import { PortraitDialog } from "./PortraitDialog";
 import { useT } from "@/components/i18n/I18nProvider";
 import { useEngineText } from "@/components/i18n/useEngineText";
 import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
@@ -36,7 +37,7 @@ export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 	const { t, te, lang } = useT();
 	const { le } = useEngineText();
 	const { state } = game;
-	const [dialog, setDialog] = useState<"saves" | "settings" | "levelup" | null>(null);
+	const [dialog, setDialog] = useState<"saves" | "settings" | "levelup" | "portrait" | null>(null);
 	const openedRef = useRef(false);
 	const lastFx = useRef<string | null>(null);
 
@@ -133,7 +134,7 @@ export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 					)}
 				</section>
 				<aside className="min-h-0 border-l border-line bg-panel/60">
-					<Sidebar state={state} onLevelUp={() => setDialog("levelup")} actions={{ act: (a) => void game.act(a), busy: game.busy }} />
+					<Sidebar state={state} onLevelUp={() => setDialog("levelup")} actions={{ act: (a) => void game.act(a), busy: game.busy, editPortrait: () => setDialog("portrait") }} />
 				</aside>
 			</main>
 
@@ -141,6 +142,7 @@ export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 
 			{dialog === "saves" && <SavesDialog id={id} onClose={() => setDialog(null)} onLoaded={() => void game.refresh()} />}
 			{dialog === "settings" && <SettingsDrawer state={state} onClose={() => setDialog(null)} onSave={game.patchSettings} />}
+			{dialog === "portrait" && <PortraitDialog id={id} state={state} onClose={() => setDialog(null)} onSaved={(s) => game.setState(s)} />}
 			{dialog === "levelup" && <LevelUpDialog id={id} state={state} onClose={() => setDialog(null)} onDone={() => void game.refresh()} />}
 		</div>
 	);

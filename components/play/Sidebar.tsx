@@ -16,6 +16,8 @@ const ABIL: Ability[] = ["str", "dex", "con", "int", "wis", "cha"];
 export interface SheetActions {
 	act: (a: PlayerCombatAction) => void;
 	busy: boolean;
+	/** Opens the appearance editor for the player's portrait. */
+	editPortrait?: () => void;
 }
 
 const CONSUMABLE = /potion|elixir|ration|torch|oil|scroll|antitoxin|candle|holy water|acid|alchemist|healer|caltrop|ball bearing|chalk|food|wine|ale\b/i;
@@ -83,7 +85,9 @@ function SheetTab({ state, onLevelUp, actions }: { state: GameState; onLevelUp: 
 	return (
 		<div className="space-y-4">
 			<div className="flex items-center gap-3">
-				<Portrait spec={c.portrait} size={84} speciesId={c.speciesId} />
+				<button type="button" className="shrink-0 rounded-lg transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-gold" onClick={actions.editPortrait} title={t("play.portrait.edit")} aria-label={t("play.portrait.edit")}>
+					<Portrait spec={c.portrait} size={84} speciesId={c.speciesId} />
+				</button>
 				<div className="min-w-0">
 					<div className="heading truncate text-lg">{c.name}</div>
 					<div className="text-sm text-dim">

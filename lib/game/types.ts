@@ -189,6 +189,13 @@ export interface PortraitSpec {
 	/** Species-driven features: "pointed_ears", "horns", "tusks", "scales" … */
 	features: string[];
 	background: string; // color/pattern key
+	/** Explicit look; when absent these are derived from the seed (older saves). */
+	gender?: "female" | "male";
+	/** 0 young … 1 old. */
+	age?: number;
+	clothingStyle?: "tunic" | "armor" | "robe" | "leather" | "cloak";
+	/** Clothing color (hex). */
+	clothing?: string;
 }
 
 export interface Character {

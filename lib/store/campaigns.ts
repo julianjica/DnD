@@ -3,6 +3,7 @@ import path from "node:path";
 import { PATHS } from "../config";
 import type { GameState, LogEntry } from "../game/types";
 import { repairWorld } from "../maps/world";
+import { repairNpcPortraits } from "../art/appearance";
 
 /**
  * Campaign storage: plain files under data/campaigns/<id>/
@@ -69,7 +70,10 @@ export function campaignExists(id: string): boolean {
 export function loadState(id: string): GameState {
 	const state = JSON.parse(fs.readFileSync(path.join(dirOf(id), "state.json"), "utf8")) as GameState;
 	// Older saves could place DM-revealed locations in the sea.
-	if (state.world && repairWorld(state.world)) saveState(state);
+	const fixedWorld = !!state.world && repairWorld(state.world);
+	// Older saves drew NPC portraits at random; match them to their descriptions once.
+	const fixedNpcs = !!state.npcs && repairNpcPortraits(state.npcs);
+	if (fixedWorld || fixedNpcs) saveState(state);
 	return state;
 }
 

@@ -3,7 +3,7 @@ import { roll, signed } from "../../rules/dice";
 import { S, newId, tool, withState, type ToolFactory } from "../context";
 import { findItem } from "../resources";
 import { loadState } from "../../store/campaigns";
-import { randomPortrait } from "../../art/portrait";
+import { appearanceFromText, applyAppearance, portraitFromAppearance, type Appearance } from "../../art/appearance";
 import { SFX_NAMES } from "../../audio/ambience";
 
 const SCENE_KINDS: SceneKind[] = ["tavern", "town", "forest", "dungeon", "cave", "mountain", "coast", "swamp", "desert", "castle", "temple", "camp", "road", "crypt", "plains", "ship", "underdark"];
@@ -159,9 +159,26 @@ export const dmNote = tool<{ text: string }>(
 		}),
 );
 
-export const addNpc = tool<{ name: string; role: string; speciesId?: string; disposition?: "friendly" | "neutral" | "hostile" | "unknown"; description: string; secret?: string; statBlock?: string; present?: boolean }>(
+const appearanceSchema = S.obj(
+	{
+		gender: S.str(undefined, ["female", "male"]),
+		age: S.str(undefined, ["child", "young", "adult", "middle-aged", "old", "ancient"]),
+		skin: S.str(undefined, ["pale", "fair", "olive", "tan", "brown", "dark", "red", "purple", "blue", "green", "grey", "gold"]),
+		hair: S.str(undefined, ["bald", "short", "cropped", "long", "ponytail", "braids", "bun", "topknot", "mohawk", "wild", "curly", "shaved_sides"]),
+		hairColor: S.str(undefined, ["black", "dark-brown", "brown", "auburn", "red", "ginger", "blonde", "platinum", "grey", "white", "blue", "purple", "green"]),
+		facialHair: S.str(undefined, ["none", "stubble", "mustache", "goatee", "short_beard", "full_beard", "braided_beard", "sideburns"]),
+		eyes: S.str(undefined, ["brown", "amber", "green", "blue", "grey", "gold", "red", "violet", "white"]),
+		headwear: S.str(undefined, ["none", "hood", "helmet", "circlet", "crown", "headband"]),
+		mark: S.str(undefined, ["none", "scar", "eyepatch", "warpaint", "earrings", "freckles"]),
+		clothing: S.str(undefined, ["tunic", "armor", "robe", "leather", "cloak"]),
+		clothingColor: S.str(undefined, ["red", "green", "blue", "brown", "purple", "grey", "black", "white", "gold"]),
+	},
+	[],
+);
+
+export const addNpc = tool<{ name: string; role: string; speciesId?: string; disposition?: "friendly" | "neutral" | "hostile" | "unknown"; description: string; secret?: string; statBlock?: string; present?: boolean; appearance?: Appearance }>(
 	"add_npc",
-	"Introduce a new NPC into the codex (portrait generated). present=true adds them to the current scene.",
+	"Introduce a new NPC into the codex. Their portrait is drawn from `appearance` — ALWAYS fill it to match the description (gender, age, hair, beard, headwear, clothing…), so the picture shows who you describe. present=true adds them to the current scene.",
 	S.obj(
 		{
 			name: S.str(),
@@ -172,6 +189,7 @@ export const addNpc = tool<{ name: string; role: string; speciesId?: string; dis
 			secret: S.str("DM-only motives/secrets"),
 			statBlock: S.str("SRD monster index to use if they fight, e.g. 'bandit-captain'"),
 			present: S.bool(),
+			appearance: appearanceSchema,
 		},
 		["name", "role", "description"],
 	),
@@ -189,7 +207,8 @@ export const addNpc = tool<{ name: string; role: string; speciesId?: string; dis
 				statBlock: a.statBlock,
 				alive: true,
 				locationId: state.world.currentLocationId,
-				portrait: randomPortrait(rng, a.speciesId ?? "human"),
+				// Explicit appearance wins; anything unstated is read from the description.
+				portrait: portraitFromAppearance(rng, a.speciesId ?? "human", { age: "adult", ...appearanceFromText(`${a.role}. ${a.description}`), ...(a.appearance ?? {}) }),
 				firstMetDay: state.time.day,
 			};
 			if (a.present) state.scene.npcIds = [...state.scene.npcIds, id];
@@ -197,9 +216,9 @@ export const addNpc = tool<{ name: string; role: string; speciesId?: string; dis
 		}),
 );
 
-export const updateNpc = tool<{ id: string; disposition?: "friendly" | "neutral" | "hostile" | "unknown"; description?: string; secret?: string; alive?: boolean; present?: boolean; role?: string }>(
+export const updateNpc = tool<{ id: string; disposition?: "friendly" | "neutral" | "hostile" | "unknown"; description?: string; secret?: string; alive?: boolean; present?: boolean; role?: string; appearance?: Appearance }>(
 	"update_npc",
-	"Update an NPC (disposition, description, secret, alive, present in scene).",
+	"Update an NPC (disposition, description, secret, alive, present in scene). Pass `appearance` to fix or change how their portrait looks (e.g. they put on a helmet, or the portrait doesn't match).",
 	S.obj(
 		{
 			id: S.str(),
@@ -209,13 +228,15 @@ export const updateNpc = tool<{ id: string; disposition?: "friendly" | "neutral"
 			role: S.str(),
 			alive: S.bool(),
 			present: S.bool(),
+			appearance: appearanceSchema,
 		},
 		["id"],
 	),
 	async (a, ctx) =>
-		withState(ctx, ({ state }) => {
+		withState(ctx, ({ state, rng }) => {
 			const npc = state.npcs[a.id];
 			if (!npc) throw new Error(`Unknown NPC ${a.id}`);
+			if (a.appearance) npc.portrait = applyAppearance(rng, npc.portrait, npc.speciesId, a.appearance);
 			if (a.disposition) npc.disposition = a.disposition;
 			if (a.description) npc.description = a.description;
 			if (a.secret !== undefined) npc.secret = a.secret;
