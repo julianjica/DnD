@@ -1,4 +1,4 @@
-import type { Combatant, PlayerCombatAction, SpellInfo } from "../../game/types";
+import type { Character, Combatant, PlayerCombatAction, SpellInfo } from "../../game/types";
 import { abilityMod, signed, type Rng } from "../dice";
 import { performAttack } from "./attack";
 import {
@@ -59,15 +59,19 @@ const POTIONS: [RegExp, string][] = [
 	[/potion of healing/i, "2d4+2"],
 ];
 
-function builtinItem(name: string): ItemUseOutcome | undefined {
+export function builtinItem(name: string): ItemUseOutcome | undefined {
 	for (const [re, heal] of POTIONS) if (re.test(name)) return { heal, cost: "bonus", consume: true };
 	return undefined;
 }
 
 function builtinFeature(ctx: Ctx, name: string): FeatureUseOutcome | undefined {
+	return builtinFeatureFor(ctx.character, name);
+}
+
+export function builtinFeatureFor(character: Character | undefined, name: string): FeatureUseOutcome | undefined {
 	const n = name.toLowerCase();
 	if (n === "second wind") {
-		const lvl = ctx.character?.classes.find((k) => k.classId === "fighter")?.level ?? 1;
+		const lvl = character?.classes.find((k) => k.classId === "fighter")?.level ?? 1;
 		return { heal: `1d10+${lvl}`, cost: "bonus" };
 	}
 	if (n === "action surge") return { grantAction: true, cost: "free" };

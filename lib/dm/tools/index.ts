@@ -4,10 +4,11 @@ import { enrichItem } from "../items";
 import { CHARACTER_TOOLS } from "./character";
 import { COMBAT_TOOLS } from "./combat";
 import { MAP_TOOLS } from "./map";
+import { RESOURCE_TOOLS } from "./resources";
 import { STORY_TOOLS, setItemEnricher } from "./story";
 
 setItemEnricher(enrichItem);
 
 export function allTools(ctx: ToolContext): DmTool[] {
-	return [...STORY_TOOLS, ...CHARACTER_TOOLS, ...MAP_TOOLS, ...COMBAT_TOOLS].map((f) => f(ctx));
+	return [...STORY_TOOLS, ...CHARACTER_TOOLS, ...RESOURCE_TOOLS, ...MAP_TOOLS, ...COMBAT_TOOLS].map((f) => f(ctx));
 }

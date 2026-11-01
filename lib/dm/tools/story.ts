@@ -1,6 +1,7 @@
 import type { AmbienceTrack, GameState, InventoryItem, Mood, SceneKind, TimeOfDay, Weather } from "../../game/types";
 import { roll, signed } from "../../rules/dice";
 import { S, newId, tool, withState, type ToolFactory } from "../context";
+import { findItem } from "../resources";
 import { loadState } from "../../store/campaigns";
 import { randomPortrait } from "../../art/portrait";
 import { SFX_NAMES } from "../../audio/ambience";
@@ -305,14 +306,15 @@ export const giveItem = tool<{ name: string; quantity?: number; ref?: string; de
 
 export const removeItem = tool<{ name: string; quantity?: number }>(
 	"remove_item",
-	"Remove (consume, lose, give away) items from the player's inventory, by name or item id.",
+	"Remove items the player loses, sells or gives away (for USING/consuming an item call use_item instead). Fails if they don't have enough.",
 	S.obj({ name: S.str("Item name or id"), quantity: S.int(undefined, 1) }, ["name"]),
 	async (a, ctx) =>
 		withState(ctx, ({ state }) => {
 			const inv = state.character.inventory;
-			const item = inv.find((i) => i.id === a.name) ?? inv.find((i) => i.name.toLowerCase() === a.name.toLowerCase());
-			if (!item) throw new Error(`Player has no ${a.name}`);
-			const qty = Math.min(a.quantity ?? 1, item.quantity);
+			const item = findItem(state.character, a.name);
+			if (!item) throw new Error(`Player has no ${a.name}. Inventory: ${inv.map((i) => `${i.name} x${i.quantity}`).join(", ") || "empty"}.`);
+			const qty = a.quantity ?? 1;
+			if (qty > item.quantity) throw new Error(`Player only has ${item.quantity} × ${item.name}.`);
 			item.quantity -= qty;
 			if (item.quantity <= 0) state.character.inventory = inv.filter((i) => i !== item);
 			return `Removed ${qty} × ${item.name}.`;

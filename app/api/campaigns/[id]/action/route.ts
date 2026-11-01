@@ -5,6 +5,7 @@ import { isTurnRunning, runTurn } from "@/lib/dm/turn";
 import { withState, type ClientEvent } from "@/lib/dm/context";
 import { isPcTurn, playerCombatAction } from "@/lib/dm/combat";
 import { exploreMove } from "@/lib/dm/explore";
+import { castSpell, spendFeatureUse, consumeItem } from "@/lib/dm/resources";
 import { jsonError, sseResponse } from "@/lib/server/sse";
 
 /**
@@ -26,10 +27,15 @@ export async function POST(req: NextRequest, ctx: RouteContext<"/api/campaigns/[
 		let handOff = false;
 		let notes: string[] = [];
 		try {
+			let used: string | undefined;
 			const exploring = await withState(tctx, (tx) => {
 				if (tx.state.encounter?.status !== "active") {
-					if (action.type !== "move") throw new Error("Not in combat.");
-					exploreMove(tx.state, action.path);
+					// Out of combat: free movement, or spending a resource from the sheet.
+					if (action.type === "move") exploreMove(tx.state, action.path);
+					else if (action.type === "use_item") used = consumeItem(tx, { item: action.itemId });
+					else if (action.type === "use_feature") used = spendFeatureUse(tx, { feature: action.featureId });
+					else if (action.type === "cast") used = castSpell(tx, { spell: action.spell, slotLevel: action.slotLevel || undefined });
+					else throw new Error("Not in combat.");
 					return true;
 				}
 				if (!isPcTurn(tx.state)) throw new Error("It is not your turn.");
@@ -42,6 +48,20 @@ export async function POST(req: NextRequest, ctx: RouteContext<"/api/campaigns/[
 				}
 				return false;
 			});
+			if (exploring && used) {
+				await runTurn({
+					campaignId: id,
+					text: `(I use this from my character sheet.)`,
+					displayText: used.split(". ")[0].replace(/\.$/, "") + ".",
+					systemNotes: [
+						"The player used a resource from their sheet; the engine has ALREADY applied it (do NOT call cast_spell/use_item/use_feature for it again):",
+						used,
+						"Narrate the effect in the fiction (briefly), resolving anything the engine left to you, then suggest_actions.",
+					],
+					emit,
+				});
+				return;
+			}
 			if (exploring) {
 				emit({ type: "done" });
 				return;

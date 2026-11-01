@@ -2,13 +2,42 @@
 
 import { useMemo, useState } from "react";
 import { Backpack, BookOpen, Feather, Scroll, Shield, Sparkles, Users, Heart, Swords, ArrowUpCircle, Coins } from "lucide-react";
-import type { Ability, GameState } from "@/lib/game/types";
+import type { Ability, GameState, InventoryItem, PlayerCombatAction } from "@/lib/game/types";
 import { deriveSheet } from "@/lib/rules/character";
 import { getSpell } from "@/lib/srd";
 import { signed } from "@/lib/rules/dice";
 import Portrait from "@/components/art/Portrait";
 
 const ABIL: [Ability, string][] = [["str", "STR"], ["dex", "DEX"], ["con", "CON"], ["int", "INT"], ["wis", "WIS"], ["cha", "CHA"]];
+
+/** Lets the sidebar spend resources through the engine (never locally). */
+export interface SheetActions {
+	act: (a: PlayerCombatAction) => void;
+	busy: boolean;
+}
+
+const CONSUMABLE = /potion|elixir|ration|torch|oil|scroll|antitoxin|candle|holy water|acid|alchemist|healer|caltrop|ball bearing|chalk|food|wine|ale\b/i;
+export function isConsumable(i: InventoryItem): boolean {
+	return ["potion", "scroll", "consumable", "food"].includes(i.category) || CONSUMABLE.test(i.name);
+}
+
+function UseBtn({ label, onClick, disabled, title }: { label: string; onClick: () => void; disabled: boolean; title?: string }) {
+	return (
+		<button
+			type="button"
+			className="rounded border border-gold/50 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-gold-2 transition hover:bg-gold/15 disabled:cursor-not-allowed disabled:opacity-40"
+			disabled={disabled}
+			title={title}
+			onClick={(e) => {
+				e.preventDefault();
+				e.stopPropagation();
+				onClick();
+			}}
+		>
+			{label}
+		</button>
+	);
+}
 
 type Tab = "sheet" | "inventory" | "spells" | "quests" | "journal" | "codex";
 
@@ -41,7 +70,7 @@ function Stat({ label, value, sub }: { label: string; value: string | number; su
 	);
 }
 
-function SheetTab({ state, onLevelUp }: { state: GameState; onLevelUp: () => void }) {
+function SheetTab({ state, onLevelUp, actions }: { state: GameState; onLevelUp: () => void; actions: SheetActions }) {
 	const c = state.character;
 	const sheet = useMemo(() => {
 		try {
@@ -138,7 +167,12 @@ function SheetTab({ state, onLevelUp }: { state: GameState; onLevelUp: () => voi
 							<details key={f.id} className="rounded-md bg-bg-2/60 px-2 py-1 text-sm">
 								<summary className="flex cursor-pointer justify-between">
 									<span>{f.name}</span>
-									{f.uses && <span className="text-xs text-gold">{f.uses.max - f.uses.used}/{f.uses.max}</span>}
+									{f.uses && (
+										<span className="flex items-center gap-2">
+											<span className="text-xs text-gold">{f.uses.max - f.uses.used}/{f.uses.max}</span>
+											<UseBtn label="Use" onClick={() => actions.act({ type: "use_feature", featureId: f.id })} disabled={actions.busy || f.uses.used >= f.uses.max} title={`Recharges on a ${f.uses.recharge} rest`} />
+										</span>
+									)}
 								</summary>
 								<p className="mt-1 whitespace-pre-line text-xs text-dim">{f.description}</p>
 							</details>
@@ -150,7 +184,7 @@ function SheetTab({ state, onLevelUp }: { state: GameState; onLevelUp: () => voi
 	);
 }
 
-function InventoryTab({ state }: { state: GameState }) {
+function InventoryTab({ state, actions }: { state: GameState; actions: SheetActions }) {
 	const c = state.character;
 	const cur = c.currency;
 	return (
@@ -169,7 +203,10 @@ function InventoryTab({ state }: { state: GameState }) {
 								{i.name}
 								{i.quantity > 1 && <span className="text-dim"> ×{i.quantity}</span>}
 							</span>
-							<span className="shrink-0 text-xs text-faint">{i.weapon ? `${i.weapon.damage} ${i.weapon.damageType}` : i.armor ? `AC ${i.armor.baseAc}` : i.category}</span>
+							<span className="flex shrink-0 items-center gap-2">
+								<span className="text-xs text-faint">{i.weapon ? `${i.weapon.damage} ${i.weapon.damageType}` : i.armor ? `AC ${i.armor.baseAc}` : i.category}</span>
+								{isConsumable(i) && <UseBtn label="Use" onClick={() => actions.act({ type: "use_item", itemId: i.id })} disabled={actions.busy} />}
+							</span>
 						</summary>
 						{(i.description || i.weapon?.properties.length) && (
 							<p className="mt-1 whitespace-pre-line text-xs text-dim">
@@ -184,7 +221,33 @@ function InventoryTab({ state }: { state: GameState }) {
 	);
 }
 
-function SpellsTab({ state }: { state: GameState }) {
+function CastButton({ state, spell, actions }: { state: GameState; spell: { index: string; level: number }; actions: SheetActions }) {
+	const sc = state.character.spellcasting!;
+	const levels: number[] = [];
+	if (spell.level > 0)
+		for (let l = spell.level; l <= 9; l++) {
+			const left = (sc.slots[l - 1] ?? 0) - (sc.slotsUsed[l - 1] ?? 0) + (sc.pact && sc.pact.level === l ? sc.pact.max - sc.pact.used : 0);
+			if (left > 0) levels.push(l);
+		}
+	const [lvl, setLvl] = useState<number>(levels[0] ?? spell.level);
+	if (state.encounter?.status === "active") return <span className="text-[10px] text-faint" title="In combat, cast from the action bar under the map.">action bar</span>;
+	const none = spell.level > 0 && levels.length === 0;
+	const slot = levels.includes(lvl) ? lvl : levels[0];
+	return (
+		<span className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+			{levels.length > 1 && (
+				<select className="rounded border border-line bg-bg px-0.5 text-[10px]" value={slot} onChange={(e) => setLvl(+e.target.value)}>
+					{levels.map((l) => (
+						<option key={l} value={l}>L{l}</option>
+					))}
+				</select>
+			)}
+			<UseBtn label="Cast" onClick={() => actions.act({ type: "cast", spell: spell.index, slotLevel: spell.level === 0 ? 0 : slot })} disabled={actions.busy || none} title={none ? "No spell slots left" : undefined} />
+		</span>
+	);
+}
+
+function SpellsTab({ state, actions }: { state: GameState; actions: SheetActions }) {
 	const sc = state.character.spellcasting;
 	if (!sc) return <p className="text-sm text-dim">You don&apos;t cast spells.</p>;
 	const spells = [...new Set(sc.classes.flatMap((k) => [...k.cantrips, ...k.prepared]))].map((s) => getSpell(s)).filter(Boolean);
@@ -213,7 +276,10 @@ function SpellsTab({ state }: { state: GameState }) {
 							<details key={s!.index} className="rounded-md bg-bg-2/60 px-2 py-1 text-sm">
 								<summary className="flex cursor-pointer justify-between gap-2">
 									<span>{s!.name}</span>
-									<span className="text-xs text-faint">{s!.castingTime}{s!.concentration ? " · C" : ""}</span>
+									<span className="flex items-center gap-2">
+										<span className="text-xs text-faint">{s!.castingTime}{s!.concentration ? " · C" : ""}</span>
+										<CastButton state={state} spell={s!} actions={actions} />
+									</span>
 								</summary>
 								<p className="mt-1 text-xs text-faint">{s!.range} · {s!.duration}</p>
 								<p className="mt-1 whitespace-pre-line text-xs text-dim">{s!.description}</p>
@@ -294,7 +360,7 @@ const TABS: { id: Tab; label: string; icon: typeof Heart }[] = [
 	{ id: "codex", label: "Codex", icon: Users },
 ];
 
-export function Sidebar({ state, onLevelUp }: { state: GameState; onLevelUp: () => void }) {
+export function Sidebar({ state, onLevelUp, actions }: { state: GameState; onLevelUp: () => void; actions: SheetActions }) {
 	const [tab, setTab] = useState<Tab>("sheet");
 	const activeQuests = state.quests.filter((q) => q.status === "active").length;
 	return (
@@ -315,9 +381,9 @@ export function Sidebar({ state, onLevelUp }: { state: GameState; onLevelUp: () 
 				))}
 			</div>
 			<div className="min-h-0 flex-1 overflow-y-auto p-4">
-				{tab === "sheet" && <SheetTab state={state} onLevelUp={onLevelUp} />}
-				{tab === "inventory" && <InventoryTab state={state} />}
-				{tab === "spells" && <SpellsTab state={state} />}
+				{tab === "sheet" && <SheetTab state={state} onLevelUp={onLevelUp} actions={actions} />}
+				{tab === "inventory" && <InventoryTab state={state} actions={actions} />}
+				{tab === "spells" && <SpellsTab state={state} actions={actions} />}
 				{tab === "quests" && <QuestsTab state={state} />}
 				{tab === "journal" && <JournalTab state={state} />}
 				{tab === "codex" && <CodexTab state={state} />}

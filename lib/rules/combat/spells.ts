@@ -18,7 +18,7 @@ export function spellRangeFeet(spell: SpellInfo): number {
 	return 0;
 }
 
-function pickByKey(table: Record<number, string> | undefined, level: number): string | undefined {
+export function pickByKey(table: Record<number, string> | undefined, level: number): string | undefined {
 	if (!table) return undefined;
 	const keys = Object.keys(table).map(Number).sort((a, b) => a - b);
 	let best: number | undefined;

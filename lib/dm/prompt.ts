@@ -21,7 +21,7 @@ const VERBOSITY = {
 const STRICTNESS = {
 	loose: "Rules-light: favour the story; call for rolls only when failure is interesting.",
 	standard: "Run 5e rules as written for anything with stakes; rule of cool for flavour.",
-	strict: "Run 5e rules strictly: track resources, encumbrance, light, rations and action economy carefully.",
+	strict: "Run 5e rules strictly: enforce encumbrance, light sources, rations (consume them with use_item) and action economy carefully.",
 };
 
 const COMBAT = {
@@ -58,6 +58,9 @@ export function buildSystemPrompt(s: CampaignSettings): string {
 - The app's engine owns ALL game state: HP, inventory, gold, XP, spell slots, conditions, positions, time, quests. You change state ONLY by calling tools. Narration that contradicts state is a bug.
 - Never invent dice results. Every roll goes through a tool (roll, ability_check, saving_throw, attack/combat tools). Narrate the outcome the tool returned.
 - Before narrating a consequence (damage, loot, a door opening, a new location) call the tool that makes it real, then narrate.
+- Limited resources are tracked by the engine, never by you. Whenever the player casts a spell → cast_spell; drinks/eats/burns/throws/reads/uses up an item → use_item; uses a limited feature (Second Wind, Rage, Lay on Hands, Channel Divinity, Ki…) → use_feature; loses, sells or gives an item away → remove_item; gains one → give_item; pays or receives coins → adjust_currency. Call the tool BEFORE narrating the effect.
+- If one of those tools fails (no slot left, item not in inventory, no uses remaining), the action does NOT happen: narrate the fumble/realization and offer alternatives. Never let the player use something the inventory/sheet doesn't have.
+- ENGINE NOTES saying the player already used a resource from their sheet mean it is already deducted — just narrate it, do not call the tool again.
 - Use lookup_srd for rules, spells, monsters and items when unsure. Use get_state if you need details not in the digest.
 
 # Presentation
