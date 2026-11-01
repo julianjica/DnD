@@ -15,6 +15,7 @@ import { SavesDialog } from "./SavesDialog";
 import { SettingsDrawer } from "./SettingsDrawer";
 import { LevelUpDialog } from "./LevelUpDialog";
 import { useT } from "@/components/i18n/I18nProvider";
+import { useEngineText } from "@/components/i18n/useEngineText";
 import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
 
 const TIME_ICON = { dawn: Sunrise, day: Sun, dusk: Sunset, night: Moon };
@@ -33,6 +34,7 @@ export function PlayLoading() {
 export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 	const game = useGame(id);
 	const { t, te, lang } = useT();
+	const { le } = useEngineText();
 	const { state } = game;
 	const [dialog, setDialog] = useState<"saves" | "settings" | "levelup" | null>(null);
 	const openedRef = useRef(false);
@@ -64,7 +66,7 @@ export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 		return (
 			<div className="grid h-screen place-items-center">
 				<div className="panel p-6 text-center">
-					<p className="mb-3 text-crimson-2">{game.error ?? t("play.notFound")}</p>
+					<p className="mb-3 text-crimson-2">{game.error ? le(game.error) : t("play.notFound")}</p>
 					<Link href="/" className="btn">{t("play.backHome")}</Link>
 				</div>
 			</div>
@@ -112,7 +114,7 @@ export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 
 			{game.error && (
 				<div className="flex items-center gap-2 border-b border-crimson/40 bg-crimson/10 px-4 py-1.5 text-sm text-crimson-2">
-					<AlertTriangle size={15} /> <span className="min-w-0 flex-1 truncate">{game.error}</span>
+					<AlertTriangle size={15} /> <span className="min-w-0 flex-1 truncate" title={le(game.error)}>{le(game.error)}</span>
 					<button onClick={() => game.setError(null)} title={t("play.dismiss")} aria-label={t("play.dismiss")}><X size={14} /></button>
 				</div>
 			)}

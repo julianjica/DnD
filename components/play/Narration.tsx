@@ -5,6 +5,7 @@ import { Dices, Send, Square, ScrollText, Sparkles, Wrench, ChevronDown } from "
 import type { GameState, LogEntry, RollRecord } from "@/lib/game/types";
 import type { LiveTurn, LiveTool } from "./useGame";
 import { useT } from "@/components/i18n/I18nProvider";
+import { useEngineText } from "@/components/i18n/useEngineText";
 
 /** Minimal inline markdown: **bold**, *italic*, "quotes" styled. */
 function inline(text: string): ReactNode[] {
@@ -49,12 +50,13 @@ export function Prose({ text, dropCap = false }: { text: string; dropCap?: boole
 }
 
 function RollChip({ roll }: { roll: RollRecord }) {
+	const { le } = useEngineText();
 	const nat = roll.dice.find((d) => d.sides === 20 && !d.dropped)?.value;
 	const tone = roll.critical === "hit" || nat === 20 ? "border-gold text-gold-2" : roll.critical === "miss" || nat === 1 ? "border-crimson text-crimson-2" : roll.success === false ? "text-dim" : "text-text";
 	return (
 		<div className={`inline-flex items-center gap-2 rounded-md border border-line bg-bg-2/70 px-2.5 py-1 text-xs ${tone}`} title={roll.dice.map((d) => `d${d.sides}:${d.value}${d.dropped ? "✗" : ""}`).join(" ")}>
 			<Dices size={13} className="shrink-0 opacity-80" />
-			<span className="text-dim">{roll.label}</span>
+			<span className="text-dim">{le(roll.label)}</span>
 			<span className="font-semibold tabular-nums">{roll.total}</span>
 			{roll.target !== undefined && <span className={roll.success ? "text-emerald" : "text-crimson-2"}>{roll.success ? "✓" : "✗"} {roll.target}</span>}
 		</div>
@@ -63,6 +65,7 @@ function RollChip({ roll }: { roll: RollRecord }) {
 
 function ToolStrip({ tools }: { tools: { name: string; summary?: string; isError?: boolean; status?: string }[] }) {
 	const { t, te } = useT();
+	const { tryLe } = useEngineText();
 	const [open, setOpen] = useState(false);
 	const shown = tools.filter((t) => !["suggest_actions", "set_ambience", "journal_note", "dm_note", "get_state"].includes(t.name));
 	if (!shown.length) return null;
@@ -74,12 +77,17 @@ function ToolStrip({ tools }: { tools: { name: string; summary?: string; isError
 			</button>
 			{open && (
 				<ul className="mt-1 space-y-0.5 border-l border-line pl-3">
-					{shown.map((tool, i) => (
-						<li key={i} className={tool.isError ? "text-crimson-2" : ""}>
-							<span className="text-dim">{te("tool", tool.name)}</span>
-							{tool.summary ? ` — ${tool.summary.split("\n")[0].slice(0, 140)}` : ""}
-						</li>
-					))}
+					{shown.map((tool, i) => {
+						// The summary is DM-facing English: show it inline only when it translates, else as a hover title.
+						const raw = tool.summary?.split("\n")[0] ?? "";
+						const summary = raw ? tryLe(raw) : null;
+						return (
+							<li key={i} className={tool.isError ? "text-crimson-2" : ""} title={raw && summary === null ? tool.summary : undefined}>
+								<span className="text-dim">{te("tool", tool.name)}</span>
+								{summary ? ` — ${summary.slice(0, 140)}` : ""}
+							</li>
+						);
+					})}
 				</ul>
 			)}
 		</div>
@@ -87,10 +95,11 @@ function ToolStrip({ tools }: { tools: { name: string; summary?: string; isError
 }
 
 function Entry({ e }: { e: LogEntry }) {
+	const { playerLine } = useEngineText();
 	if (e.role === "player")
 		return (
 			<div className="flex justify-end">
-				<div className="max-w-[85%] rounded-xl rounded-br-sm border border-gold/30 bg-gold/10 px-4 py-2 font-serif text-[1.05rem] italic text-parchment">{e.text}</div>
+				<div className="max-w-[85%] rounded-xl rounded-br-sm border border-gold/30 bg-gold/10 px-4 py-2 font-serif text-[1.05rem] italic text-parchment">{playerLine(e.text)}</div>
 			</div>
 		);
 	if (e.role === "roll") return e.roll ? <RollChip roll={e.roll} /> : null;
@@ -105,12 +114,13 @@ function Entry({ e }: { e: LogEntry }) {
 
 function LiveView({ live }: { live: LiveTurn }) {
 	const { t, te } = useT();
+	const { playerLine } = useEngineText();
 	const running = live.tools.filter((tool: LiveTool) => tool.status === "start");
 	return (
 		<div className="space-y-3">
 			{live.player && (
 				<div className="flex justify-end">
-					<div className="max-w-[85%] rounded-xl rounded-br-sm border border-gold/30 bg-gold/10 px-4 py-2 font-serif text-[1.05rem] italic text-parchment">{live.player}</div>
+					<div className="max-w-[85%] rounded-xl rounded-br-sm border border-gold/30 bg-gold/10 px-4 py-2 font-serif text-[1.05rem] italic text-parchment">{playerLine(live.player)}</div>
 				</div>
 			)}
 			{live.rolls.length > 0 && <div className="flex flex-wrap gap-1.5">{live.rolls.map((r) => <RollChip key={r.id} roll={r} />)}</div>}
@@ -138,6 +148,7 @@ export function Narration(props: {
 }) {
 	const { state, log, live, busy } = props;
 	const { t } = useT();
+	const { le } = useEngineText();
 	const [text, setText] = useState("");
 	const scroller = useRef<HTMLDivElement>(null);
 	const stick = useRef(true);
@@ -181,7 +192,7 @@ export function Narration(props: {
 			<div className="border-t border-line bg-bg-2/60 px-4 py-3">
 				{state.pendingRoll && !busy && (
 					<button className="btn btn-gold mb-3 w-full justify-center py-2.5" onClick={props.onRollPending}>
-						<Dices size={18} /> {t("play.narr.roll", { label: state.pendingRoll.label })}
+						<Dices size={18} /> {t("play.narr.roll", { label: le(state.pendingRoll.label) })}
 						{state.pendingRoll.dc ? <span className="opacity-70">{t("play.narr.dc", { n: state.pendingRoll.dc })}</span> : null}
 					</button>
 				)}

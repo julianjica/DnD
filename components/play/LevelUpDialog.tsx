@@ -5,13 +5,15 @@ import { ArrowUpCircle } from "lucide-react";
 import type { GameState } from "@/lib/game/types";
 import { Modal } from "./Modal";
 import { useT } from "@/components/i18n/I18nProvider";
+import { useEngineText } from "@/components/i18n/useEngineText";
 
 interface Ref { index: string; name: string }
 interface Opt { id: string; label: string; choose: number; options: Ref[] }
 interface Options { classId: string; newClassLevel: number; newTotalLevel: number; averageHp: number; hitDie: number; features: { index: string; name: string; description?: string }[]; choices: Opt[]; multiclass: { ok: boolean; reasons: string[] } }
 
 export function LevelUpDialog({ id, state, onClose, onDone }: { id: string; state: GameState; onClose: () => void; onDone: () => void }) {
-	const { t, te } = useT();
+	const { t, te, ts } = useT();
+	const { le } = useEngineText();
 	const [classId, setClassId] = useState(state.character.classes[0].classId);
 	const [data, setData] = useState<{ options: Options; classes: Ref[] } | null>(null);
 	const [picks, setPicks] = useState<Record<string, string[]>>({});
@@ -84,7 +86,7 @@ export function LevelUpDialog({ id, state, onClose, onDone }: { id: string; stat
 								{o.features.length > 0 && (
 									<ul className="mt-3 space-y-1 font-serif text-sm">
 										{o.features.map((f) => (
-											<li key={f.index}><strong>{f.name}</strong>{f.description ? ` — ${f.description.slice(0, 220)}${f.description.length > 220 ? "…" : ""}` : ""}</li>
+											<li key={f.index}><strong>{ts(f.name)}</strong>{f.description ? ` — ${ts(f.description).slice(0, 220)}${ts(f.description).length > 220 ? "…" : ""}` : ""}</li>
 										))}
 									</ul>
 								)}
@@ -92,12 +94,12 @@ export function LevelUpDialog({ id, state, onClose, onDone }: { id: string; stat
 							{o.choices.map((c) => (
 								<div key={c.id}>
 									<div className="mb-1.5 text-sm">
-										{c.label} <span className="text-faint">{t("play.lvl.choose", { n: c.choose, k: (picks[c.id] ?? []).length })}</span>
+										{le(c.label)} <span className="text-faint">{t("play.lvl.choose", { n: c.choose, k: (picks[c.id] ?? []).length })}</span>
 									</div>
 									<div className="flex flex-wrap gap-1.5">
 										{c.options.map((op) => (
 											<button key={op.index} className="chip" data-active={(picks[c.id] ?? []).includes(op.index)} onClick={() => toggle(c, op.index)}>
-												{op.name}
+												{le(op.name)}
 											</button>
 										))}
 									</div>
@@ -106,14 +108,14 @@ export function LevelUpDialog({ id, state, onClose, onDone }: { id: string; stat
 							<p className="text-xs text-faint">{t("play.lvl.defaults")}</p>
 						</>
 					)}
-					{err && <p className="text-sm text-crimson-2">{err}</p>}
+					{err && <p className="text-sm text-crimson-2">{le(err)}</p>}
 					<button className="btn btn-gold w-full justify-center" disabled={busy || !o} onClick={submit}>
 						<ArrowUpCircle size={16} /> {t("play.lvl.submit")}
 					</button>
 				</div>
 			)}
 			{!data && !err && <p className="text-dim">{t("play.lvl.loading")}</p>}
-			{!data && err && <p className="text-crimson-2">{err}</p>}
+			{!data && err && <p className="text-crimson-2">{le(err)}</p>}
 		</Modal>
 	);
 }

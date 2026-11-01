@@ -8,6 +8,7 @@ import type { DiceEngine, DiceTheme } from "./diceEngine";
 import { DieGlyph } from "./DieGlyph";
 import { outcomeText, rollChips, signedMod } from "./rollFormat";
 import { useT } from "@/components/i18n/I18nProvider";
+import { useEngineText } from "@/components/i18n/useEngineText";
 
 export interface DiceTrayHandle {
 	/** Animates a roll. Resolves when that roll is dismissed (click, Esc, auto-dismiss or clear()). */
@@ -228,6 +229,7 @@ export function DiceTray({
 
 function ResultCard({ rec, flat }: { rec: RollRecord; flat: boolean }) {
 	const { t } = useT();
+	const { le } = useEngineText();
 	const crit = critKind(rec);
 	const chips = rollChips(rec);
 	const outcomeKey = outcomeText(rec);
@@ -258,7 +260,7 @@ function ResultCard({ rec, flat }: { rec: RollRecord; flat: boolean }) {
 				}}
 			>
 				{crit && <div className={clsx("dh-dice-sheen pointer-events-none absolute inset-0", crit === "gold" ? "dh-gold" : "dh-red")} />}
-				<div className="relative truncate text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-200/75">{rec.label}</div>
+				<div className="relative truncate text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-200/75">{le(rec.label)}</div>
 				<div className="relative mt-1 flex items-center justify-center gap-3">
 					<span
 						className={clsx(

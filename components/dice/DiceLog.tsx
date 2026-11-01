@@ -5,6 +5,7 @@ import type { RollRecord } from "@/lib/game/types";
 import { DieGlyph } from "./DieGlyph";
 import { critKind, outcomeText, rollChips, signedMod } from "./rollFormat";
 import { useT } from "@/components/i18n/I18nProvider";
+import { useEngineText } from "@/components/i18n/useEngineText";
 
 export interface DiceLogProps {
 	rolls: RollRecord[];
@@ -18,6 +19,7 @@ export interface DiceLogProps {
 /** Compact list of recent rolls with per-die breakdown. */
 export function DiceLog({ rolls, max = 8, className, onSelect }: DiceLogProps) {
 	const { t } = useT();
+	const { le } = useEngineText();
 	const recent = [...rolls].sort((a, b) => b.ts - a.ts).slice(0, max);
 	if (!recent.length) return <div className={clsx("px-2 py-3 text-xs italic text-stone-500", className)}>{t("play.dice.noRolls")}</div>;
 	return (
@@ -45,7 +47,7 @@ export function DiceLog({ rolls, max = 8, className, onSelect }: DiceLogProps) {
 							</span>
 							<span className="min-w-0 flex-1">
 								<span className="flex items-baseline gap-1.5">
-									<span className="truncate text-xs font-medium text-stone-200">{rec.label}</span>
+									<span className="truncate text-xs font-medium text-stone-200">{le(rec.label)}</span>
 									{outcome && (
 										<span
 											className={clsx(
