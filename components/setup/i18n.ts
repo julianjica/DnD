@@ -30,6 +30,6 @@ export function choiceLabel(ch: Pick<OptionChoice, "id" | "label">, t: Tr, names
 	if (id.endsWith(":cantrip")) return t("choice.speciesCantrip");
 	if (id === "half-elf:skills") return t("choice.skillVersatility");
 	if (id.endsWith(":draconic-ancestry")) return t("choice.draconicAncestry");
-	if (id === "dwarf:tools") return t("choice.toolProficiency");
+	if (id.endsWith(":tools")) return t("choice.toolProficiency");
 	return ch.label;
 }

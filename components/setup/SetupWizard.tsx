@@ -71,7 +71,7 @@ export function SetupWizard() {
 
 	return (
 		<div className="mx-auto flex w-full max-w-[1400px] flex-col px-6 pb-28">
-			<header className="flex items-center justify-between py-5">
+			<header className="flex flex-wrap items-center justify-between gap-2 py-5">
 				<Link href="/" className="group flex items-center gap-2 font-display text-lg tracking-wider text-gold-2">
 					<Home className="size-4 text-gold/70 group-hover:text-gold-2" /> DungeonHarness
 				</Link>
