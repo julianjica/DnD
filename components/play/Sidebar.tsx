@@ -384,7 +384,7 @@ export function Sidebar({ state, onLevelUp, actions }: { state: GameState; onLev
 						className={`relative flex min-w-0 flex-col items-center gap-0.5 px-0.5 py-2 text-[9px] uppercase tracking-wide transition ${tab === tb.id ? "text-gold-2" : "text-faint hover:text-dim"}`}
 					>
 						<tb.icon size={16} />
-						<span className="hidden max-w-full truncate @[460px]:block">{t(tb.label)}</span>
+						<span className="hidden max-w-full truncate @[420px]:block">{t(tb.label)}</span>
 						{tab === tb.id && <span className="absolute inset-x-2 bottom-0 h-0.5 rounded bg-gold" />}
 						{tb.id === "quests" && activeQuests > 0 && <span className="absolute right-2 top-1 rounded-full bg-gold px-1 text-[9px] text-ink">{activeQuests}</span>}
 					</button>

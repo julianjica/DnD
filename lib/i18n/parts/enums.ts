@@ -221,6 +221,8 @@ export const en = {
 	"enum.category.magic": "Magic Item",
 	"enum.category.treasure": "Treasure",
 	"enum.category.misc": "Miscellaneous",
+	"enum.category.key": "Key",
+	"enum.category.quest": "Quest item",
 
 	// currency
 	"enum.currency.pp": "pp",
@@ -490,6 +492,8 @@ export const es: { [K in keyof typeof en]: string } = {
 	"enum.category.magic": "Objeto mágico",
 	"enum.category.treasure": "Tesoro",
 	"enum.category.misc": "Varios",
+	"enum.category.key": "Llave",
+	"enum.category.quest": "Objeto de misión",
 
 	"enum.currency.pp": "ppt",
 	"enum.currency.gp": "po",
