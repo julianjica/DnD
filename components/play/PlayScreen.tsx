@@ -76,7 +76,7 @@ export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 	return (
 		<div className="flex h-screen flex-col overflow-hidden">
 			{/* Top bar */}
-			<header className="flex h-12 shrink-0 items-center gap-3 border-b border-line bg-bg-2/80 px-3 backdrop-blur">
+			<header className="relative z-40 flex h-12 shrink-0 items-center gap-3 border-b border-line bg-bg-2/80 px-3 backdrop-blur">
 				<Link href="/" className="text-faint hover:text-gold" title={t("play.home")} aria-label={t("play.home")}>
 					<Home size={18} />
 				</Link>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import clsx from "clsx";
 import { Music, Sparkles, Volume2, VolumeX } from "lucide-react";
 import type { AmbienceTrack } from "@/lib/game/types";
@@ -69,8 +69,10 @@ export default function AmbiencePlayer(props: AmbiencePlayerProps) {
 	const [localMusic, setLocalMusic] = useState(props.musicVolume);
 	const [localSfx, setLocalSfx] = useState(props.sfxVolume);
 	const muted = props.muted ?? localMuted;
-	const music = props.onMusicVolumeChange ? props.musicVolume : localMusic;
-	const sfx = props.onSfxVolumeChange ? props.sfxVolume : localSfx;
+	// Sliders always render the local value (instant feedback while dragging);
+	// the parent is told after a short pause so it can persist without lag.
+	const music = localMusic;
+	const sfx = localSfx;
 
 	// Re-seed uncontrolled sliders when the parent changes the value (adjust state during render).
 	const [seenMusic, setSeenMusic] = useState(props.musicVolume);
@@ -111,8 +113,54 @@ export default function AmbiencePlayer(props: AmbiencePlayerProps) {
 		props.onMutedChange?.(next);
 		void getAmbienceEngine()?.unlock();
 	};
-	const changeMusic = (v: number) => (props.onMusicVolumeChange ? props.onMusicVolumeChange(v) : setLocalMusic(v));
-	const changeSfx = (v: number) => (props.onSfxVolumeChange ? props.onSfxVolumeChange(v) : setLocalSfx(v));
+	const timers = useRef<{ music?: ReturnType<typeof setTimeout>; sfx?: ReturnType<typeof setTimeout> }>({});
+	const changeMusic = (v: number) => {
+		setLocalMusic(v);
+		clearTimeout(timers.current.music);
+		if (props.onMusicVolumeChange) timers.current.music = setTimeout(() => props.onMusicVolumeChange?.(v), 400);
+	};
+	const changeSfx = (v: number) => {
+		setLocalSfx(v);
+		clearTimeout(timers.current.sfx);
+		if (props.onSfxVolumeChange) timers.current.sfx = setTimeout(() => props.onSfxVolumeChange?.(v), 400);
+	};
+
+	// Compact popover: opens on hover or click, stays open while pointer is inside
+	// or a slider is being dragged, closes shortly after leaving / on outside click.
+	const [open, setOpen] = useState(false);
+	const [pinned, setPinned] = useState(false);
+	const rootRef = useRef<HTMLDivElement>(null);
+	const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+	const dragging = useRef(false);
+	const show = () => {
+		clearTimeout(closeTimer.current);
+		setOpen(true);
+	};
+	const hideSoon = () => {
+		clearTimeout(closeTimer.current);
+		closeTimer.current = setTimeout(() => {
+			if (!dragging.current) setOpen(false);
+		}, 350);
+	};
+	useEffect(() => {
+		if (!compact) return;
+		const up = () => {
+			dragging.current = false;
+		};
+		const outside = (e: PointerEvent) => {
+			if (rootRef.current && !rootRef.current.contains(e.target as Node)) {
+				setPinned(false);
+				setOpen(false);
+			}
+		};
+		window.addEventListener("pointerup", up);
+		window.addEventListener("pointerdown", outside);
+		return () => {
+			window.removeEventListener("pointerup", up);
+			window.removeEventListener("pointerdown", outside);
+		};
+	}, [compact]);
+	const panelOpen = open || pinned;
 
 	const locked = !engineState.unlocked;
 	const MuteIcon = muted ? VolumeX : Volume2;
@@ -126,6 +174,10 @@ export default function AmbiencePlayer(props: AmbiencePlayerProps) {
 
 	return (
 		<div
+			ref={rootRef}
+			onPointerEnter={compact ? show : undefined}
+			onPointerLeave={compact ? () => !pinned && hideSoon() : undefined}
+			onClick={compact ? () => setPinned(true) : undefined}
 			className={clsx(
 				"group relative inline-flex items-center gap-2 rounded-lg border border-amber-200/15 bg-stone-950/70 px-2 py-1.5 text-stone-200 shadow-lg backdrop-blur-sm",
 				className,
@@ -145,9 +197,18 @@ export default function AmbiencePlayer(props: AmbiencePlayerProps) {
 				<MuteIcon className="size-4" />
 			</button>
 			{compact ? (
-				<div className="pointer-events-none absolute right-0 top-full z-50 mt-1 w-56 rounded-lg border border-amber-200/15 bg-stone-950/95 p-3 opacity-0 shadow-xl transition-opacity group-focus-within:pointer-events-auto group-focus-within:opacity-100 group-hover:pointer-events-auto group-hover:opacity-100">
-					{sliders}
-					<TrackLine track={track} locked={locked} />
+				// pt-1.5 (not margin) so the pointer never leaves the hover area on its way down.
+				<div
+					className={clsx("absolute right-0 top-full z-50 w-56 pt-1.5 transition-opacity", panelOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0")}
+					onPointerDown={() => {
+						dragging.current = true;
+						setPinned(true);
+					}}
+				>
+					<div className="rounded-lg border border-amber-200/15 bg-stone-950/95 p-3 shadow-xl">
+						{sliders}
+						<TrackLine track={track} locked={locked} />
+					</div>
 				</div>
 			) : (
 				<div className="flex min-w-44 flex-col gap-1">
