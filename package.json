@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -p ${PORT:-4242}",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p ${PORT:-4242}",
     "lint": "eslint",
     "test": "tsx --test \"tests/**/*.test.ts\"",
     "typecheck": "tsc --noEmit"

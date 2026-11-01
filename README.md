@@ -25,7 +25,7 @@ An AI Dungeon Master for **solo D&D 5e**, served locally in your browser. The DM
 
 ```bash
 npm install
-npm run dev            # http://localhost:3000
+npm run dev            # http://localhost:4242 (PORT=xxxx npm run dev to change)
 ```
 
 Requirements:
