@@ -18,25 +18,28 @@ import { SheetPreview, usePreview } from "./SheetPreview";
 import { randomName } from "./names";
 import { patchCharacter, type StepProps } from "./types";
 import { optionsFor, speciesCantripPicks, subclassAvailable, type CharacterDraft } from "./wizardState";
+import { useT } from "@/components/i18n/I18nProvider";
+import type { MessageKey } from "@/lib/i18n";
+import { srdName } from "./i18n";
 
 type Sub = "origins" | "abilities" | "choices" | "equipment" | "persona";
-const SUBS: { id: Sub; label: string; icon: ComponentType<{ className?: string }> }[] = [
-	{ id: "origins", label: "Origins", icon: UserRound },
-	{ id: "abilities", label: "Abilities", icon: Dices },
-	{ id: "choices", label: "Skills & Spells", icon: Sparkles },
-	{ id: "equipment", label: "Equipment", icon: Backpack },
-	{ id: "persona", label: "Persona & Portrait", icon: Drama },
+const SUBS: { id: Sub; label: MessageKey; icon: ComponentType<{ className?: string }> }[] = [
+	{ id: "origins", label: "char.tab.origins", icon: UserRound },
+	{ id: "abilities", label: "char.tab.abilities", icon: Dices },
+	{ id: "choices", label: "char.tab.choices", icon: Sparkles },
+	{ id: "equipment", label: "char.tab.equipment", icon: Backpack },
+	{ id: "persona", label: "char.tab.persona", icon: Drama },
 ];
 
 const CLASS_ICON: Record<string, ComponentType<{ className?: string }>> = {
 	barbarian: Axe, bard: Music, cleric: Sun, druid: Leaf, fighter: Sword, monk: HandFist, paladin: ShieldHalf, ranger: Target, rogue: Eye, sorcerer: Flame, warlock: Skull, wizard: WandSparkles,
 };
 
-const abil = (a: string) => a.toUpperCase();
-const bonusText = (b: Partial<Record<string, number>>) =>
+type Te = (group: string, id: string) => string;
+const bonusText = (b: Partial<Record<string, number>>, te: Te) =>
 	Object.entries(b)
 		.filter(([, v]) => v)
-		.map(([k, v]) => `${abil(k)} +${v}`)
+		.map(([k, v]) => `${te("abilityShort", k)} +${v}`)
 		.join(", ");
 
 /** Drops picks that are no longer valid after a species/class/background change. */
@@ -82,7 +85,11 @@ export function CharacterStep({ draft, update }: StepProps) {
 	const c = draft.character;
 	const level = draft.settings.structure.startingLevel;
 	const [sub, setSub] = useState<Sub>("origins");
-	const { opts, error: optsError } = useMemo(() => optionsFor(c), [c]);
+	const { t, te, lang } = useT();
+	const abil = (a: string) => te("abilityShort", a);
+	const bonus = (b: Partial<Record<string, number>>) => bonusText(b, te);
+	const nm = (group: string, x: { index: string; name: string }) => srdName(lang, group, x.index, x.name);
+	const speedText = (s: { speed: number; darkvision?: number }) => `${t("char.speed", { n: s.speed })}${s.darkvision ? ` · ${t("char.darkvision", { n: s.darkvision })}` : ""}`;	const { opts, error: optsError } = useMemo(() => optionsFor(c), [c]);
 	const preview = usePreview(c, level, opts);
 	const set = (patch: Partial<CharacterDraft>) => patchCharacter(update, patch);
 	const setOrigins = (patch: Partial<CharacterDraft>) => update((d) => ({ ...d, character: withOrigins(d.character, patch) }));
@@ -100,25 +107,31 @@ export function CharacterStep({ draft, update }: StepProps) {
 	const knownSkills = new Set([...(opts?.grantedSkills ?? []), ...Object.entries(c.choices).filter(([k]) => k.endsWith("skills")).flatMap(([, v]) => v)]);
 	const subIdx = SUBS.findIndex((s) => s.id === sub);
 	const nextSub = SUBS[subIdx + 1];
+	const names = { cls: cls ? nm("class", cls) : undefined, bg: bg ? nm("background", bg) : undefined };
+	const flavor = cls ? srdName(lang, "subclassFlavor", cls.index, cls.subclassFlavor) : "";
+	const preparedFormula =
+		opts?.preparedFormula && cls?.spellcasting
+			? t(cls.spellcasting.type === "half" ? "char.preparedFormulaHalf" : "char.preparedFormula", { abil: te("abilityShort", cls.spellcasting.ability), cls: names.cls ?? cls.name })
+			: undefined;
 
 	return (
 		<div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
 			<div className="min-w-0">
 				<div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-					<Tabs<Sub> label="Character sections" tabs={SUBS.map((s) => ({ id: s.id, label: s.label, icon: <s.icon className="size-4" /> }))} value={sub} onChange={setSub} className="min-w-0 flex-1 overflow-x-auto" />
-					<button type="button" className="btn text-sm" onClick={() => update((d) => ({ ...d, character: randomCharacter(d.character) }))} title="Random species, class, background, name and portrait">
-						<Dices className="size-4" /> Surprise me
+					<Tabs<Sub> label={t("char.sectionsAria")} tabs={SUBS.map((s) => ({ id: s.id, label: <span className="whitespace-nowrap">{t(s.label)}</span>, icon: <s.icon className="size-4" /> }))} value={sub} onChange={setSub} className="min-w-0 flex-1 overflow-x-auto" />
+					<button type="button" className="btn text-sm" onClick={() => update((d) => ({ ...d, character: randomCharacter(d.character) }))}title={t("char.surpriseTitle")}>
+							<Dices className="size-4" /> {t("char.surprise")}
 					</button>
 				</div>
 
 				{sub === "origins" && (
 					<div className="flex flex-col gap-8">
-						<Section title="Species" hint={species ? `${species.name}: ${bonusText(opts?.abilityBonuses ?? species.abilityBonuses)} · speed ${species.speed} ft${species.darkvision ? ` · darkvision ${species.darkvision} ft` : ""}` : undefined}>
+						<Section title={t("char.species")} hint={species ? `${nm("species", species)}: ${bonus(opts?.abilityBonuses ?? species.abilityBonuses)} · ${speedText(species)}` : undefined}>
 							<div className="grid grid-cols-3 gap-2 xl:grid-cols-5">
 								{SPECIES.map((s) => (
-									<Tooltip key={s.index} content={<OriginTip title={s.name} lines={[bonusText(s.abilityBonuses), `Speed ${s.speed} ft${s.darkvision ? `, darkvision ${s.darkvision} ft` : ""}`, s.traits.map((t) => t.name).join(", ")]} />}>
+									<Tooltip key={s.index} content={<OriginTip title={nm("species", s)} lines={[bonus(s.abilityBonuses), speedText(s), s.traits.map((tr) => tr.name).join(", ")]} />}>
 										<PickCard active={s.index === c.speciesId} onClick={() => setOrigins({ speciesId: s.index, subspeciesId: s.subspecies.length > 1 ? s.subspecies[0].index : undefined, portrait: newPortrait(s.index) })}>
-											{s.name}
+											{nm("species", s)}
 										</PickCard>
 									</Tooltip>
 								))}
@@ -127,26 +140,41 @@ export function CharacterStep({ draft, update }: StepProps) {
 								<div className="flex flex-wrap gap-2">
 									{species.subspecies.map((ss) => (
 										<button key={ss.index} type="button" className="chip" data-active={c.subspeciesId === ss.index} onClick={() => setOrigins({ subspeciesId: ss.index })}>
-											{ss.name}
+											{nm("subspecies", ss)}
 										</button>
 									))}
 								</div>
 							)}
-							{species && <p className="font-serif text-[15px] leading-snug text-text/80">{species.subspecies[0] && species.subspecies.length === 1 ? `${species.subspecies[0].name}. ` : ""}{species.traits.map((t) => t.name).join(" · ")}</p>}
+							{species && <p className="font-serif text-[15px] leading-snug text-text/80">{species.subspecies[0] && species.subspecies.length === 1 ? `${nm("subspecies", species.subspecies[0])}. ` : ""}{species.traits.map((tr) => tr.name).join(" · ")}</p>}
 						</Section>
 
-						<Section title="Class" hint={cls ? `d${cls.hitDie} hit die · primary ${cls.primaryAbility.map(abil).join("/")} · saves ${cls.savingThrows.map(abil).join(", ")}${cls.spellcasting ? ` · casts with ${abil(cls.spellcasting.ability)}` : ""}` : undefined}>
+						<Section
+							title={t("char.class")}
+							hint={
+								cls
+									? `${t("char.hitDieHint", { n: cls.hitDie })} · ${t("char.primaryHint", { list: cls.primaryAbility.map(abil).join("/") })} · ${t("char.savesHint", { list: cls.savingThrows.map(abil).join(", ") })}${cls.spellcasting ? ` · ${t("char.castsWith", { abil: abil(cls.spellcasting.ability) })}` : ""}`
+									: undefined
+							}
+						>
 							<div className="grid grid-cols-3 gap-2 xl:grid-cols-6">
 								{CLASSES.map((k) => {
 									const Icon = CLASS_ICON[k.index] ?? Sword;
 									return (
-										<Tooltip key={k.index} content={<OriginTip title={k.name} lines={[`Hit die d${k.hitDie}`, `Primary: ${k.primaryAbility.map(abil).join(", ")}`, `Armor: ${k.armor.join(", ") || "none"}`, k.spellcasting ? `Spellcaster (${abil(k.spellcasting.ability)})` : "Martial"]} />}>
+										<Tooltip key={k.index} content={<OriginTip
+											title={nm("class", k)}
+											lines={[
+												t("char.tip.hitDie", { n: k.hitDie }),
+												t("char.tip.primary", { list: k.primaryAbility.map(abil).join(", ") }),
+												t("char.tip.armor", { list: k.armor.map((x) => srdName(lang, "armorProf", x, x)).join(", ") || t("char.tip.none") }),
+												k.spellcasting ? t("char.tip.spellcaster", { abil: abil(k.spellcasting.ability) }) : t("char.tip.martial"),
+											]}
+										/>}>
 											<PickCard
 												active={k.index === c.classId}
 												onClick={() => setOrigins({ classId: k.index, subclassId: undefined, equipment: [], standard: assignByPriority(STANDARD_ARRAY, k.index), ...(c.rolled ? { rolledScores: assignByPriority(c.rolled, k.index) } : {}) })}
 											>
 												<Icon className="mx-auto mb-1 size-5 opacity-80" />
-												{k.name}
+												{nm("class", k)}
 											</PickCard>
 										</Tooltip>
 									);
@@ -154,33 +182,33 @@ export function CharacterStep({ draft, update }: StepProps) {
 							</div>
 							{cls && subclassAvailable(c.classId, level) && (
 								<div className="rounded-lg border border-line bg-bg-2/50 p-3">
-									<FieldLabel>{cls.subclassFlavor}</FieldLabel>
+									<FieldLabel>{flavor}</FieldLabel>
 									<div className="flex flex-wrap gap-2">
 										{cls.subclasses.map((s) => {
 											const sc = getSubclass(s);
 											const active = (c.subclassId ?? cls.subclasses[0]) === s;
 											return (
-												<Tooltip key={s} content={sc ? <OriginTip title={sc.name} lines={[sc.description.slice(0, 300)]} /> : null}>
+												<Tooltip key={s} content={sc ? <OriginTip title={nm("subclass", sc)} lines={[sc.description.slice(0, 300)]} /> : null}>
 													<button type="button" className="chip" data-active={active} aria-pressed={active} onClick={() => set({ subclassId: s })}>
-														{sc?.name ?? s}
+														{sc ? nm("subclass", sc) : s}
 													</button>
 												</Tooltip>
 											);
 										})}
 									</div>
-									{cls.subclasses.length === 1 && <p className="mt-2 text-xs text-faint">The SRD includes one {cls.subclassFlavor.toLowerCase()} for this class.</p>}
+									{cls.subclasses.length === 1 && <p className="mt-2 text-xs text-faint">{t("char.srdOne", { flavor: flavor.toLowerCase() })}</p>}
 								</div>
 							)}
 						</Section>
 
-						<Section title="Background" hint={bg ? `Skills: ${bg.skills.map((s) => getSkill(s)?.name ?? s).join(", ")} · feature: ${bg.feature.name}` : undefined}>
+						<Section title={t("char.background")} hint={bg ? t("char.bgHint", { list: bg.skills.map((s) => srdName(lang, "skill", s, getSkill(s)?.name ?? s)).join(", "), feature: bg.feature.name }) : undefined}>
 							<div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
 								{BACKGROUNDS.map((b) => (
 									<Tooltip key={b.index} content={<OriginTip title={b.feature.name} lines={[b.feature.description.slice(0, 320)]} />}>
 										<PickCard active={b.index === c.backgroundId} onClick={() => setOrigins({ backgroundId: b.index, equipment: [] })}>
 											<BookOpen className="mx-auto mb-1 size-4 opacity-70" />
-											{b.name}
-										</PickCard>
+												{nm("background", b)}
+											</PickCard>
 									</Tooltip>
 								))}
 							</div>
@@ -192,10 +220,10 @@ export function CharacterStep({ draft, update }: StepProps) {
 				{sub === "abilities" && (
 					<div className="flex flex-col gap-6">
 						<AbilityScores c={c} opts={opts} onChange={set} />
-						{bonusChoice && <ChoicePicker choice={bonusChoice} value={c.choices[bonusChoice.id]} onChange={(v) => set({ choices: { ...c.choices, [bonusChoice.id]: v ?? [] } })} />}
+						{bonusChoice && <ChoicePicker names={names} choice={bonusChoice} value={c.choices[bonusChoice.id]} onChange={(v) => set({ choices: { ...c.choices, [bonusChoice.id]: v ?? [] } })} />}
 						<p className="text-sm text-dim">
-							Species bonuses are added automatically
-							{opts && bonusText(opts.abilityBonuses) ? ` (${bonusText(opts.abilityBonuses)})` : ""}.{level > 3 ? " Ability Score Improvements from later levels are applied for you (see the preview)." : ""}
+							{t("char.bonusNote", { bonus: opts && bonus(opts.abilityBonuses) ? ` (${bonus(opts.abilityBonuses)})` : "" })}
+							{level > 3 ? t("char.asiNote") : ""}
 						</p>
 					</div>
 				)}
@@ -204,10 +232,10 @@ export function CharacterStep({ draft, update }: StepProps) {
 					<div className="flex flex-col gap-4">
 						{opts && opts.grantedSkills.length > 0 && (
 							<p className="text-sm text-dim">
-								Already proficient: <span className="text-text">{opts.grantedSkills.map((s) => getSkill(s)?.name ?? s).join(", ")}</span>
+								{t("char.alreadyProf")} <span className="text-text">{opts.grantedSkills.map((s) => srdName(lang, "skill", s, getSkill(s)?.name ?? s)).join(", ")}</span>
 							</p>
 						)}
-						{choiceList.length === 0 && <p className="text-dim">No choices to make here.</p>}
+						{choiceList.length === 0 && <p className="text-dim">{t("char.noChoices")}</p>}
 						{choiceList.map((ch) => {
 							const taken = ch.id === "cantrips" && opts ? speciesCantripPicks(c, opts) : [];
 							const choice = /expertise/.test(ch.id)
@@ -215,10 +243,10 @@ export function CharacterStep({ draft, update }: StepProps) {
 								: taken.length
 									? { ...ch, options: ch.options.filter((o) => !taken.includes(o.index)) }
 									: ch;
-							return <ChoicePicker key={ch.id} choice={choice} value={c.choices[ch.id]} onChange={(v) => set({ choices: { ...c.choices, ...(v ? { [ch.id]: v } : { [ch.id]: [] }) } })} />;
+							return <ChoicePicker key={ch.id} names={names} choice={choice} value={c.choices[ch.id]} onChange={(v) => set({ choices: { ...c.choices, ...(v ? { [ch.id]: v } : { [ch.id]: [] }) } })} />;
 						})}
-						{level > 1 && <p className="text-xs text-faint italic">Choices from levels 2–{level} (new spells, features, ASIs) are picked automatically. The preview shows the result.</p>}
-						{opts?.preparedFormula && <p className="text-xs text-faint italic">Prepared spells: {opts.preparedFormula}. You can change them after each long rest.</p>}
+						{level > 1 && <p className="text-xs text-faint italic">{t("char.laterChoices", { level })}</p>}
+						{preparedFormula && <p className="text-xs text-faint italic">{t("char.prepared", { formula: preparedFormula })}</p>}
 					</div>
 				)}
 
@@ -229,7 +257,7 @@ export function CharacterStep({ draft, update }: StepProps) {
 				{nextSub && (
 					<div className="mt-6 flex justify-end">
 						<button type="button" className="btn text-sm" onClick={() => setSub(nextSub.id)}>
-							{nextSub.label} <ChevronRight className="size-4" />
+							{t(nextSub.label)} <ChevronRight className="size-4" />
 						</button>
 					</div>
 				)}
@@ -237,7 +265,7 @@ export function CharacterStep({ draft, update }: StepProps) {
 
 			<aside className="lg:sticky lg:top-4 lg:max-h-[calc(100vh-6rem)] lg:self-start lg:overflow-y-auto">
 				<div className="mb-2 flex items-center gap-2 text-xs tracking-[0.2em] text-dim uppercase">
-					<Feather className="size-3.5 text-gold/70" /> Live character sheet
+					<Feather className="size-3.5 text-gold/70" /> {t("char.liveSheet")}
 				</div>
 				<SheetPreview preview={preview} draft={c} />
 			</aside>
@@ -274,52 +302,55 @@ function PickCard({ active, onClick, children }: { active: boolean; onClick: () 
 	);
 }
 
-const PERSONALITY: { key: keyof CharacterDraft["personality"]; label: string; from?: "personalityTraits" | "ideals" | "bonds" | "flaws"; rows: number; placeholder: string }[] = [
-	{ key: "traits", label: "Personality traits", from: "personalityTraits", rows: 2, placeholder: "I quote ancient proverbs for every occasion." },
-	{ key: "ideals", label: "Ideals", from: "ideals", rows: 2, placeholder: "Charity. I always try to help those in need." },
-	{ key: "bonds", label: "Bonds", from: "bonds", rows: 2, placeholder: "I owe my life to the priest who took me in." },
-	{ key: "flaws", label: "Flaws", from: "flaws", rows: 2, placeholder: "I trust too easily." },
-	{ key: "appearance", label: "Appearance", rows: 2, placeholder: "Tall, scarred knuckles, a cloak the color of old wine." },
-	{ key: "backstory", label: "Backstory", rows: 5, placeholder: "Where do you come from, and why did you take up the adventuring life?" },
+const pick = <T,>(xs: readonly T[]) => xs[Math.floor(Math.random() * xs.length)];
+
+// Labels: char.p.<key>, placeholders: char.ph.<key>
+const PERSONALITY: { key: keyof CharacterDraft["personality"]; from?: "personalityTraits" | "ideals" | "bonds" | "flaws"; rows: number }[] = [
+	{ key: "traits", from: "personalityTraits", rows: 2 },
+	{ key: "ideals", from: "ideals", rows: 2 },
+	{ key: "bonds", from: "bonds", rows: 2 },
+	{ key: "flaws", from: "flaws", rows: 2 },
+	{ key: "appearance", rows: 2 },
+	{ key: "backstory", rows: 5 },
 ];
 
 function PersonaPanel({ c, set }: { c: CharacterDraft; set: (p: Partial<CharacterDraft>) => void }) {
 	const bg = getBackground(c.backgroundId);
-	const pick = <T,>(xs: readonly T[]) => xs[Math.floor(Math.random() * xs.length)];
+	const { t, te, lang } = useT();
 	return (
 		<div className="flex flex-col gap-8">
 			<div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_260px]">
 				<div>
-					<FieldLabel htmlFor="char-name">Name</FieldLabel>
+					<FieldLabel htmlFor="char-name">{t("char.name")}</FieldLabel>
 					<div className="flex gap-2">
-						<input id="char-name" className="input font-display text-lg tracking-wide placeholder:font-sans placeholder:text-sm placeholder:tracking-normal" value={c.name} maxLength={60} onChange={(e) => set({ name: e.target.value })} placeholder="Leave blank for a random name" />
-						<button type="button" className="btn shrink-0" onClick={() => set({ name: randomName(c.speciesId) })} title="Random name for your species">
+						<input id="char-name" className="input font-display text-lg tracking-wide placeholder:font-sans placeholder:text-sm placeholder:tracking-normal" value={c.name} maxLength={60} onChange={(e) => set({ name: e.target.value })} placeholder={t("char.namePh")} />
+						<button type="button" className="btn shrink-0" onClick={() => set({ name: randomName(c.speciesId) })} title={t("char.randomNameTitle")} aria-label={t("char.randomNameTitle")}>
 							<Dices className="size-4" />
 						</button>
 					</div>
 				</div>
 				<div>
 					<FieldLabel htmlFor="char-align" optional>
-						Alignment
-					</FieldLabel>
-					<select id="char-align" className="input capitalize" value={c.alignment} onChange={(e) => set({ alignment: e.target.value })}>
-						<option value="">Unaligned / let it emerge</option>
+							{t("char.alignment")}
+						</FieldLabel>
+						<select id="char-align" className="input" value={c.alignment} onChange={(e) => set({ alignment: e.target.value })}>
+							<option value="">{t("char.unaligned")}</option>
 						{ALIGNMENTS.map((a) => (
 							<option key={a} value={a}>
-								{a}
+								{te("alignment", a)}
 							</option>
 						))}
 					</select>
 				</div>
 			</div>
 
-			<Section title="Portrait">
+			<Section title={t("char.portrait")}>
 				{c.portrait && <PortraitCustomizer spec={c.portrait} speciesId={c.speciesId} name={c.name} onChange={(portrait) => set({ portrait })} />}
 			</Section>
 
 			<Section
-				title="Personality"
-				hint="All optional. The DM weaves these into the story."
+				title={t("char.personality")}
+				hint={t("char.personalityHint")}
 				actions={
 					bg && (
 						<button
@@ -327,7 +358,7 @@ function PersonaPanel({ c, set }: { c: CharacterDraft; set: (p: Partial<Characte
 							className="btn py-1 text-xs"
 							onClick={() => set({ personality: { ...c.personality, traits: pick(bg.personalityTraits) ?? "", ideals: pick(bg.ideals) ?? "", bonds: pick(bg.bonds) ?? "", flaws: pick(bg.flaws) ?? "" } })}
 						>
-							<Dices className="size-3.5" /> Roll from {bg.name}
+							<Dices className="size-3.5" /> {t("char.rollFrom", { bg: srdName(lang, "background", bg.index, bg.name) })}
 						</button>
 					)
 				}
@@ -335,12 +366,13 @@ function PersonaPanel({ c, set }: { c: CharacterDraft; set: (p: Partial<Characte
 				<div className="grid gap-4 sm:grid-cols-2">
 					{PERSONALITY.map((p) => {
 						const pool = p.from && bg ? bg[p.from] : [];
+						const label = t(`char.p.${p.key}`);
 						return (
 							<div key={p.key} className={p.key === "backstory" || p.key === "appearance" ? "sm:col-span-2" : undefined}>
 								<div className="flex items-end justify-between">
-									<FieldLabel htmlFor={`p-${p.key}`}>{p.label}</FieldLabel>
+									<FieldLabel htmlFor={`p-${p.key}`}>{label}</FieldLabel>
 									{pool.length > 0 && (
-										<button type="button" className="mb-1 rounded p-0.5 text-faint hover:text-gold-2" onClick={() => set({ personality: { ...c.personality, [p.key]: pick(pool) } })} aria-label={`Suggest ${p.label}`} title="Suggest from background">
+										<button type="button" className="mb-1 rounded p-0.5 text-faint hover:text-gold-2" onClick={() => set({ personality: { ...c.personality, [p.key]: pick(pool) } })} aria-label={t("char.suggestAria", { label })} title={t("char.suggestTitle")}>
 											<Dices className="size-3.5" />
 										</button>
 									)}
@@ -350,7 +382,7 @@ function PersonaPanel({ c, set }: { c: CharacterDraft; set: (p: Partial<Characte
 									rows={p.rows}
 									className="input resize-y font-serif text-[15px]"
 									value={c.personality[p.key]}
-									placeholder={p.placeholder}
+									placeholder={t(`char.ph.${p.key}`)}
 									onChange={(e) => set({ personality: { ...c.personality, [p.key]: e.target.value } })}
 								/>
 							</div>

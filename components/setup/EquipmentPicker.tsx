@@ -6,6 +6,8 @@ import { getClass, getBackground, getEquipment } from "@/lib/srd";
 import { cn } from "@/components/ui/cn";
 import { describeOption } from "./ChoicePicker";
 import { Tooltip } from "@/components/ui/Tooltip";
+import { useT } from "@/components/i18n/I18nProvider";
+import { srdName } from "./i18n";
 
 export interface EquipmentPickerProps {
 	opts: CreationOptions;
@@ -18,6 +20,7 @@ const nameOf = (ref: string) => getEquipment(ref)?.name ?? ref;
 /** Starting equipment: one option per choice, plus category picks ("any martial weapon"). */
 export function EquipmentPicker({ opts, value, onChange }: EquipmentPickerProps) {
 	const cls = getClass(opts.classId);
+	const { t, lang } = useT();
 	const bg = getBackground(opts.backgroundId);
 	const fixed = [...(cls?.startingEquipment ?? []), ...(bg?.equipment ?? [])];
 	const get = (i: number) => value[i] ?? { option: 0, picks: [] };
@@ -31,11 +34,11 @@ export function EquipmentPicker({ opts, value, onChange }: EquipmentPickerProps)
 			{fixed.length > 0 && (
 				<div className="rounded-lg border border-line bg-bg-2/50 p-4">
 					<div className="mb-2 flex items-center gap-2 font-display text-sm tracking-wide">
-						<Backpack className="size-4 text-gold/80" /> Always included
+						<Backpack className="size-4 text-gold/80" /> {t("equip.always")}
 					</div>
 					<div className="flex flex-wrap gap-1.5">
 						{fixed.map((g, i) => (
-							<Tooltip key={`${g.ref}-${i}`} content={describeOption(g.ref)}>
+							<Tooltip key={`${g.ref}-${i}`} content={describeOption(g.ref, lang)}>
 								<span className="chip text-xs">
 									{g.qty > 1 ? `${g.qty}× ` : ""}
 									{nameOf(g.ref)}
@@ -43,7 +46,7 @@ export function EquipmentPicker({ opts, value, onChange }: EquipmentPickerProps)
 							</Tooltip>
 						))}
 						<span className="chip text-xs text-gold-2">
-							<Coins className="size-3" /> {opts.startingGold} gp
+							<Coins className="size-3" /> {t("sheet.gp", { n: opts.startingGold })}
 						</span>
 					</div>
 				</div>
@@ -56,7 +59,7 @@ export function EquipmentPicker({ opts, value, onChange }: EquipmentPickerProps)
 					<fieldset key={ec.index} className="rounded-lg border border-line bg-bg-2/50 p-4">
 						<legend className="sr-only">{ec.desc}</legend>
 						<div className="mb-2 flex items-center gap-2 text-xs tracking-wider text-dim uppercase">
-							{ec.from === "class" ? cls?.name : bg?.name} · choose one
+							{t("equip.chooseOne", { from: (ec.from === "class" ? cls && srdName(lang, "class", cls.index, cls.name) : bg && srdName(lang, "background", bg.index, bg.name)) ?? "" })}
 						</div>
 						<div className="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label={ec.desc}>
 							{ec.options.map((o, oi) => {
@@ -100,7 +103,7 @@ export function EquipmentPicker({ opts, value, onChange }: EquipmentPickerProps)
 													setAt(i, { option: sel.option, picks });
 												}}
 											>
-												<option value="">DM&apos;s choice</option>
+												<option value="">{t("equip.dmChoice")}</option>
 												{p.options.map((x) => (
 													<option key={x.index} value={x.index}>
 														{x.name}

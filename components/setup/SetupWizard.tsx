@@ -15,19 +15,25 @@ import { useEngines } from "./EnginePicker";
 import type { DraftUpdater } from "./types";
 import { DEFAULT_ENGINE_KEY, DRAFT_KEY, defaultDraft, loadDraft, loadJson, removeKey, saveJson, type WizardDraft } from "./wizardState";
 import type { EngineConfig } from "@/lib/game/types";
+import { useT } from "@/components/i18n/I18nProvider";
+import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
 
+// Labels: setup.step.<id>.title / .short / .blurb
 const STEPS = [
-	{ title: "World & Tone", short: "World", icon: Globe2, blurb: "Where does your story take place, and how should it feel?" },
-	{ title: "Campaign", short: "Campaign", icon: BookOpen, blurb: "Length, starting level, difficulty and an optional opening hook." },
-	{ title: "Your Character", short: "Character", icon: UserRound, blurb: "Build your hero: origins, abilities, gear and a face." },
-	{ title: "Dungeon Master", short: "DM & Engine", icon: Wand2, blurb: "Choose your storyteller's style and the AI that powers it." },
-	{ title: "Review", short: "Review", icon: ScrollText, blurb: "One last look before the adventure begins." },
-];
+	{ id: "world", icon: Globe2 },
+	{ id: "campaign", icon: BookOpen },
+	{ id: "character", icon: UserRound },
+	{ id: "dm", icon: Wand2 },
+	{ id: "review", icon: ScrollText },
+] as const;
+type StepId = (typeof STEPS)[number]["id"];
+const stepKey = <F extends "title" | "short" | "blurb">(id: StepId, f: F) => `setup.step.${id}.${f}` as const;
 
 export function SetupWizard() {
 	const [draft, setDraft] = useState<WizardDraft | null>(null);
 	const [confirmReset, setConfirmReset] = useState(false);
 	const engines = useEngines();
+	const { t } = useT();
 
 	useEffect(() => {
 		// localStorage is only readable after hydration.
@@ -53,7 +59,7 @@ export function SetupWizard() {
 			<div className="grid min-h-[60vh] place-items-center">
 				<div className="flex flex-col items-center gap-3 text-dim">
 					<Sparkles className="size-6 animate-pulse text-gold" />
-					<span className="font-fell italic">Unrolling the map…</span>
+					<span className="font-fell italic">{t("setup.loading")}</span>
 				</div>
 			</div>
 		);
@@ -70,11 +76,12 @@ export function SetupWizard() {
 					<Home className="size-4 text-gold/70 group-hover:text-gold-2" /> DungeonHarness
 				</Link>
 				<div className="flex items-center gap-2">
+					<LanguageSwitch className="mr-1" />
 					<button type="button" className="btn py-1.5 text-sm" onClick={() => setConfirmReset(true)}>
-						<RotateCcw className="size-4" /> Start over
+						<RotateCcw className="size-4" /> <span className="hidden sm:inline">{t("setup.startOver")}</span>
 					</button>
 					<Link href="/settings" className="btn py-1.5 text-sm">
-						<Settings className="size-4" /> Settings
+						<Settings className="size-4" /> <span className="hidden sm:inline">{t("home.settings")}</span>
 					</Link>
 				</div>
 			</header>
@@ -84,14 +91,14 @@ export function SetupWizard() {
 			<div className="mt-8 mb-6 flex flex-wrap items-end justify-between gap-4">
 				<div>
 					<div className="font-fell text-sm text-gold/80 italic">
-						Step {step + 1} of {STEPS.length}
+						{t("setup.stepOf", { n: step + 1, total: STEPS.length })}
 					</div>
-					<h1 className="heading text-3xl">{info.title}</h1>
-					<p className="mt-1 font-serif text-lg text-dim">{info.blurb}</p>
+					<h1 className="heading text-3xl">{t(stepKey(info.id, "title"))}</h1>
+					<p className="mt-1 font-serif text-lg text-dim">{t(stepKey(info.id, "blurb"))}</p>
 				</div>
 				{step < 3 && (
-					<button type="button" className="btn text-sm" onClick={() => goTo(STEPS.length - 1)} title="Every step has sensible defaults">
-						<Sparkles className="size-4 text-gold" /> Let the DM decide the rest
+					<button type="button" className="btn text-sm" onClick={() => goTo(STEPS.length - 1)} title={t("setup.skipTitle")}>
+						<Sparkles className="size-4 text-gold" /> {t("setup.skip")}
 					</button>
 				)}
 			</div>
@@ -105,18 +112,18 @@ export function SetupWizard() {
 				{step === 4 && <ReviewStep draft={draft} update={update} goTo={goTo} engines={engines} />}
 			</main>
 
-			<nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-[#120f0c]/90 backdrop-blur-md" aria-label="Wizard navigation">
+			<nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-[#120f0c]/90 backdrop-blur-md" aria-label={t("setup.navAria")}>
 				<div className="mx-auto flex max-w-[1400px] items-center justify-between gap-3 px-6 py-3">
 					<button type="button" className="btn" onClick={() => goTo(step - 1)} disabled={step === 0}>
-						<ChevronLeft className="size-4" /> Back
+						<ChevronLeft className="size-4" /> {t("common.back")}
 					</button>
-					<div className="hidden text-xs text-faint sm:block">Your progress is saved automatically.</div>
+					<div className="hidden text-xs text-faint sm:block">{t("setup.autosave")}</div>
 					{!last ? (
 						<button type="button" className="btn btn-gold" onClick={() => goTo(step + 1)}>
-							{STEPS[step + 1].short} <ChevronRight className="size-4" />
+							{t(stepKey(STEPS[step + 1].id, "short"))} <ChevronRight className="size-4" />
 						</button>
 					) : (
-						<span className="text-sm text-dim">Ready when you are.</span>
+						<span className="text-sm text-dim">{t("setup.ready")}</span>
 					)}
 				</div>
 			</nav>
@@ -124,11 +131,11 @@ export function SetupWizard() {
 			<Modal
 				open={confirmReset}
 				onClose={() => setConfirmReset(false)}
-				title="Start over?"
+				title={t("setup.reset.title")}
 				footer={
 					<>
 						<button type="button" className="btn" onClick={() => setConfirmReset(false)}>
-							Cancel
+							{t("common.cancel")}
 						</button>
 						<button
 							type="button"
@@ -139,12 +146,12 @@ export function SetupWizard() {
 								setConfirmReset(false);
 							}}
 						>
-							<RotateCcw className="size-4" /> Reset everything
+							<RotateCcw className="size-4" /> {t("setup.reset.confirm")}
 						</button>
 					</>
 				}
 			>
-				<p className="text-dim">This clears every choice in the wizard and returns to the defaults.</p>
+				<p className="text-dim">{t("setup.reset.body")}</p>
 			</Modal>
 
 			<style>{`
@@ -157,16 +164,18 @@ export function SetupWizard() {
 }
 
 function Stepper({ step, onPick }: { step: number; onPick: (i: number) => void }) {
+	const { t } = useT();
 	return (
-		<ol className="flex items-center gap-1" aria-label="Setup progress">
+		<ol className="flex items-center gap-1" aria-label={t("setup.progressAria")}>
 			{STEPS.map((s, i) => {
 				const done = i < step;
 				const active = i === step;
 				return (
-					<li key={s.title} className="flex flex-1 items-center gap-1 last:flex-none">
+					<li key={s.id} className="flex flex-1 items-center gap-1 last:flex-none">
 						<button
 							type="button"
 							onClick={() => onPick(i)}
+							title={t(stepKey(s.id, "title"))}
 							aria-current={active ? "step" : undefined}
 							className={cn("group flex items-center gap-2.5 rounded-full py-1 pr-3 pl-1 transition-colors focus-visible:outline-2 focus-visible:outline-gold", active ? "bg-gold/10" : "hover:bg-panel-2")}
 						>
@@ -178,7 +187,7 @@ function Stepper({ step, onPick }: { step: number; onPick: (i: number) => void }
 							>
 								{done ? <Check className="size-4" /> : <s.icon className="size-4" />}
 							</span>
-							<span className={cn("hidden font-display text-sm tracking-wide md:inline", active ? "text-gold-2" : done ? "text-text" : "text-faint")}>{s.short}</span>
+							<span className={cn("hidden truncate font-display text-sm tracking-wide md:inline", active ? "text-gold-2" : done ? "text-text" : "text-faint")}>{t(stepKey(s.id, "short"))}</span>
 						</button>
 						{i < STEPS.length - 1 && <span className={cn("mx-1 h-px flex-1", i < step ? "bg-gold/60" : "bg-line")} />}
 					</li>

@@ -253,5 +253,4 @@ export function swapAbilities(s: Abilities, a: Ability, b: Ability): Abilities {
 	return { ...s, [a]: s[b], [b]: s[a] };
 }
 
-export const ABILITY_NAMES: Record<Ability, string> = { str: "Strength", dex: "Dexterity", con: "Constitution", int: "Intelligence", wis: "Wisdom", cha: "Charisma" };
 export { ABILITIES };
