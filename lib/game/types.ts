@@ -523,6 +523,10 @@ export interface GameState {
 	rng: number;
 	/** DM-private campaign notes (improvised threads to remember). Not shown. */
 	dmNotes: string[];
+	/** Milestone level-ups granted by the DM and not yet taken by the player. */
+	levelUpsGranted?: number;
+	/** What the player did on their combat turn, waiting to be narrated at end of turn. */
+	combatNotes?: string[];
 }
 
 /** One line in the play log (data/campaigns/<id>/log.jsonl). */
