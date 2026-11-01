@@ -8,6 +8,8 @@ import type { GameState } from "@/lib/game/types";
 import { Portrait } from "@/components/art/Portrait";
 import { SceneArt } from "@/components/art/SceneArt";
 import { cn } from "@/components/ui/cn";
+import { useT } from "@/components/i18n/I18nProvider";
+import type { Lang } from "@/lib/i18n";
 
 type Detail = Pick<GameState, "scene"> & { character: Pick<GameState["character"], "portrait" | "speciesId"> };
 
@@ -29,22 +31,24 @@ function useDetail(id: string): Detail | null {
 	return d;
 }
 
-export function relativeTime(ts: number, now: number): string {
+export function relativeTime(ts: number, now: number, lang: Lang = "en"): string {
+	const rtf = new Intl.RelativeTimeFormat(lang, { numeric: "auto", style: "short" });
 	const s = Math.max(0, Math.round((now - ts) / 1000));
-	if (s < 60) return "just now";
+	if (s < 60) return rtf.format(0, "second");
 	const m = Math.round(s / 60);
-	if (m < 60) return `${m} min ago`;
+	if (m < 60) return rtf.format(-m, "minute");
 	const h = Math.round(m / 60);
-	if (h < 24) return `${h} h ago`;
+	if (h < 24) return rtf.format(-h, "hour");
 	const d = Math.round(h / 24);
-	if (d < 30) return `${d} day${d > 1 ? "s" : ""} ago`;
-	return new Date(ts).toLocaleDateString();
+	if (d < 30) return rtf.format(-d, "day");
+	return new Date(ts).toLocaleDateString(lang);
 }
-
-const cap = (s: string) => s.replace(/\b\w/g, (m) => m.toUpperCase());
 
 export function CampaignCard({ c, now, onDelete }: { c: CampaignSummary; now: number; onDelete: () => void }) {
 	const detail = useDetail(c.id);
+	const { lang, t, te } = useT();
+	// "fighter 3 / wizard 2" → "Fighter / Wizard" in the UI language.
+	const classes = c.classes.replace(/\s\d+/g, "").replace(/[a-z][a-z-]*/gi, (id) => te("class", id.toLowerCase()));
 	const initials = c.characterName
 		.split(/\s+/)
 		.map((w) => w[0])
@@ -73,19 +77,19 @@ export function CampaignCard({ c, now, onDelete }: { c: CampaignSummary; now: nu
 			<div className="flex min-w-0 flex-1 flex-col gap-1 p-4">
 				<h3 className="truncate font-display text-lg tracking-wide text-gold-2">{c.title}</h3>
 				<div className="truncate font-serif text-[15px] text-text">
-					{c.characterName} <span className="text-dim">· level {c.characterLevel} {cap(c.classes.replace(/\s\d+/g, ""))}</span>
+					{c.characterName} <span className="text-dim">· {t("home.card.level", { level: c.characterLevel, classes })}</span>
 				</div>
 				<div className="truncate font-fell text-sm text-dim italic">{c.sceneTitle}</div>
 				<div className="mt-auto flex items-center justify-between gap-2 pt-2">
 					<span className="inline-flex items-center gap-1 text-xs text-faint">
-						<Clock className="size-3" /> {relativeTime(c.updatedAt, now)}
+						<Clock className="size-3" /> {relativeTime(c.updatedAt, now, lang)}
 					</span>
 					<div className="flex items-center gap-1.5">
-						<button type="button" onClick={onDelete} className={cn("btn btn-danger p-2 opacity-60 transition-opacity group-hover:opacity-100 focus-visible:opacity-100")} aria-label={`Delete ${c.title}`} title="Delete">
+						<button type="button" onClick={onDelete} className={cn("btn btn-danger p-2 opacity-60 transition-opacity group-hover:opacity-100 focus-visible:opacity-100")} aria-label={t("home.card.deleteAria", { title: c.title })} title={t("home.card.delete")}>
 							<Trash2 className="size-4" />
 						</button>
 						<Link href={`/play/${encodeURIComponent(c.id)}`} className="btn btn-gold py-1.5">
-							<Play className="size-4" /> Continue
+							<Play className="size-4" /> {t("home.card.continue")}
 						</Link>
 					</div>
 				</div>

@@ -10,6 +10,8 @@ import { Divider } from "@/components/ui/Divider";
 import { Modal } from "@/components/ui/Modal";
 import { cn } from "@/components/ui/cn";
 import { EnginePicker, KeyEntry, PlanLimitBars, resolveEngine, useEngines } from "@/components/setup/EnginePicker";
+import { useT } from "@/components/i18n/I18nProvider";
+import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
 import { DEFAULT_ENGINE, DEFAULT_ENGINE_KEY, DRAFT_KEY, loadJson, removeKey, saveJson } from "@/components/setup/wizardState";
 
 type Tab = "engines" | "keys" | "defaults";
@@ -17,27 +19,31 @@ type Tab = "engines" | "keys" | "defaults";
 export function SettingsScreen() {
 	const [tab, setTab] = useState<Tab>("engines");
 	const engines = useEngines();
+	const { t } = useT();
 	return (
 		<div className="mx-auto w-full max-w-5xl px-6 pb-16">
 			<header className="flex items-center justify-between py-5">
 				<Link href="/" className="group flex items-center gap-2 font-display text-lg tracking-wider text-gold-2">
 					<Home className="size-4 text-gold/70 group-hover:text-gold-2" /> DungeonHarness
 				</Link>
-				<Link href="/new" className="btn btn-gold py-1.5 text-sm">
-					New Adventure
-				</Link>
+				<div className="flex items-center gap-3">
+					<LanguageSwitch />
+					<Link href="/new" className="btn btn-gold py-1.5 text-sm">
+						{t("home.newAdventure")}
+					</Link>
+				</div>
 			</header>
-			<h1 className="heading mt-4 text-3xl">Settings</h1>
-			<p className="mt-1 font-serif text-lg text-dim">Engines, API keys and defaults for new games. Per-campaign settings live in each game.</p>
+			<h1 className="heading mt-4 text-3xl">{t("settings.title")}</h1>
+			<p className="mt-1 font-serif text-lg text-dim">{t("settings.subtitle")}</p>
 			<Divider className="my-6" />
 			<Tabs<Tab>
-				label="Settings sections"
+				label={t("settings.sections")}
 				value={tab}
 				onChange={setTab}
 				tabs={[
-					{ id: "engines", label: "Engines", icon: <Terminal className="size-4" /> },
-					{ id: "keys", label: "API keys", icon: <KeyRound className="size-4" /> },
-					{ id: "defaults", label: "Defaults", icon: <SlidersHorizontal className="size-4" /> },
+					{ id: "engines", label: t("settings.tab.engines"), icon: <Terminal className="size-4" /> },
+					{ id: "keys", label: t("settings.tab.keys"), icon: <KeyRound className="size-4" /> },
+					{ id: "defaults", label: t("settings.tab.defaults"), icon: <SlidersHorizontal className="size-4" /> },
 				]}
 				panelClassName="pt-6"
 			>
@@ -51,23 +57,24 @@ export function SettingsScreen() {
 
 function EnginesPanel({ engines }: { engines: ReturnType<typeof useEngines> }) {
 	const { data, loading, error, reload } = engines;
+	const { t } = useT();
 	const rows = data
 		? [
-				{ id: "claude-code" as const, label: "Claude Code", icon: Terminal, st: data.status.claudeCode, hint: "Install the Claude Code CLI and sign in, or set DH_CLAUDE_CODE_PATH." },
-				{ id: "codex" as const, label: "Codex", icon: Cpu, st: data.status.codex, hint: "Install the Codex CLI and sign in, or set DH_CODEX_PATH." },
+				{ id: "claude-code" as const, label: "Claude Code", icon: Terminal, st: data.status.claudeCode, hint: t("settings.engines.hintClaude") },
+				{ id: "codex" as const, label: "Codex", icon: Cpu, st: data.status.codex, hint: t("settings.engines.hintCodex") },
 			]
 		: [];
 	return (
 		<div className="flex flex-col gap-4">
 			<div className="flex justify-end">
 				<button type="button" className="btn py-1.5 text-sm" onClick={() => void reload()} disabled={loading}>
-					<RefreshCw className={cn("size-4", loading && "animate-spin")} /> Refresh
+					<RefreshCw className={cn("size-4", loading && "animate-spin")} /> {t("settings.refresh")}
 				</button>
 			</div>
-			{error && <p className="text-sm text-crimson-2">Couldn&apos;t load engine status: {error}</p>}
+			{error && <p className="text-sm text-crimson-2">{t("settings.engines.loadError", { error })}</p>}
 			{!data && loading && (
 				<div className="flex items-center gap-2 text-dim">
-					<LoaderCircle className="size-4 animate-spin" /> Checking engines…
+					<LoaderCircle className="size-4 animate-spin" /> {t("settings.engines.checking")}
 				</div>
 			)}
 			{rows.map((r) => {
@@ -81,18 +88,18 @@ function EnginesPanel({ engines }: { engines: ReturnType<typeof useEngines> }) {
 								<StatusPill ok={r.st.available} />
 							</div>
 							<dl className="mt-3 grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
-								<dt className="text-dim">Path</dt>
+								<dt className="text-dim">{t("settings.engines.path")}</dt>
 								<dd className="truncate font-mono text-xs leading-5" title={r.st.path}>
-									{r.st.path ?? "not found"}
+									{r.st.path ?? t("settings.engines.notFound")}
 								</dd>
-								<dt className="text-dim">Version</dt>
+								<dt className="text-dim">{t("settings.engines.version")}</dt>
 								<dd className="font-mono text-xs leading-5">{r.st.version ?? "—"}</dd>
 							</dl>
 							{!r.st.available && <p className="mt-2 text-xs text-faint">{r.hint}</p>}
 						</div>
 						<div className="rounded-lg border border-line bg-bg-2/50 p-3">
-							<div className="mb-2 text-xs tracking-wider text-dim uppercase">{limit?.label ?? "Plan"} usage</div>
-							{limit ? <PlanLimitBars snap={limit} /> : <div className="text-xs text-faint">No usage data.</div>}
+							<div className="mb-2 text-xs tracking-wider text-dim uppercase">{t("settings.engines.usage", { label: limit?.label ?? t("settings.engines.plan") })}</div>
+							{limit ? <PlanLimitBars snap={limit} /> : <div className="text-xs text-faint">{t("settings.engines.noUsage")}</div>}
 						</div>
 					</div>
 				);
@@ -101,21 +108,22 @@ function EnginesPanel({ engines }: { engines: ReturnType<typeof useEngines> }) {
 				<div className="panel p-5">
 					<div className="flex items-center gap-2">
 						<KeyRound className="size-5 text-gold/80" />
-						<span className="font-display tracking-wide">API engines</span>
-						<StatusPill ok={data.status.api.providersWithKeys.length > 0} okText={`${data.status.api.providersWithKeys.length} configured`} badText="No keys" />
+						<span className="font-display tracking-wide">{t("settings.api.title")}</span>
+						<StatusPill ok={data.status.api.providersWithKeys.length > 0} okText={t("settings.api.configured", { n: data.status.api.providersWithKeys.length })} badText={t("settings.api.noKeys")} />
 					</div>
-					<p className="mt-2 text-sm text-dim">{data.status.api.providersWithKeys.length ? `Keys for: ${data.status.api.providersWithKeys.join(", ")}.` : "Add an API key to use a provider directly."}</p>
+					<p className="mt-2 text-sm text-dim">{data.status.api.providersWithKeys.length ? t("settings.api.keysFor", { list: data.status.api.providersWithKeys.join(", ") }) : t("settings.api.addHint")}</p>
 				</div>
 			)}
 		</div>
 	);
 }
 
-function StatusPill({ ok, okText = "Available", badText = "Unavailable" }: { ok: boolean; okText?: string; badText?: string }) {
+function StatusPill({ ok, okText, badText }: { ok: boolean; okText?: string; badText?: string }) {
+	const { t } = useT();
 	return (
 		<span className={cn("ml-auto inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs", ok ? "bg-emerald/15 text-emerald" : "bg-crimson/15 text-crimson-2")}>
 			{ok ? <CheckCircle2 className="size-3" /> : <XCircle className="size-3" />}
-			{ok ? okText : badText}
+			{ok ? (okText ?? t("settings.status.available")) : (badText ?? t("settings.status.unavailable"))}
 		</span>
 	);
 }
@@ -125,6 +133,7 @@ function KeysPanel({ onChanged }: { onChanged: () => void }) {
 	const [error, setError] = useState<string | null>(null);
 	const [editing, setEditing] = useState<string | null>(null);
 	const [removing, setRemoving] = useState<ApiKeyStatus | null>(null);
+	const { t } = useT();
 
 	const load = useCallback(async () => {
 		try {
@@ -156,11 +165,11 @@ function KeysPanel({ onChanged }: { onChanged: () => void }) {
 
 	return (
 		<div className="flex flex-col gap-3">
-			<p className="text-sm text-dim">Keys are stored locally on this machine. Keys set as environment variables always take precedence and can&apos;t be edited here.</p>
+			<p className="text-sm text-dim">{t("settings.keys.intro")}</p>
 			{error && <p className="text-sm text-crimson-2">{error}</p>}
 			{!keys && !error && (
 				<div className="flex items-center gap-2 text-dim">
-					<LoaderCircle className="size-4 animate-spin" /> Loading…
+					<LoaderCircle className="size-4 animate-spin" /> {t("common.loading")}
 				</div>
 			)}
 			<ul className="flex flex-col gap-2">
@@ -173,14 +182,14 @@ function KeysPanel({ onChanged }: { onChanged: () => void }) {
 							<span className="ml-auto flex items-center gap-2">
 								{k.present && <code className="rounded bg-bg-2 px-2 py-0.5 text-xs text-dim">{k.masked}</code>}
 								{k.source === "env" ? (
-									<span className="rounded-full bg-sky/15 px-2 py-0.5 text-xs text-sky">from environment</span>
+									<span className="rounded-full bg-sky/15 px-2 py-0.5 text-xs text-sky">{t("settings.keys.fromEnv")}</span>
 								) : (
 									<>
 										<button type="button" className="btn py-1 text-xs" onClick={() => setEditing(editing === k.id ? null : k.id)} aria-expanded={editing === k.id}>
-											<KeyRound className="size-3.5" /> {k.present ? "Replace" : "Add key"}
+											<KeyRound className="size-3.5" /> {k.present ? t("settings.keys.replace") : t("settings.keys.add")}
 										</button>
 										{k.present && (
-											<button type="button" className="btn btn-danger p-1.5" onClick={() => setRemoving(k)} aria-label={`Delete ${k.label} key`}>
+											<button type="button" className="btn btn-danger p-1.5" onClick={() => setRemoving(k)} aria-label={t("settings.keys.deleteAria", { label: k.label })}>
 												<Trash2 className="size-3.5" />
 											</button>
 										)}
@@ -191,7 +200,7 @@ function KeysPanel({ onChanged }: { onChanged: () => void }) {
 						{editing === k.id && (
 							<KeyEntry
 								provider={k.id}
-								label={`${k.label} API key`}
+								label={t("settings.keys.keyLabel", { label: k.label })}
 								onSaved={() => {
 									setEditing(null);
 									void load();
@@ -205,19 +214,19 @@ function KeysPanel({ onChanged }: { onChanged: () => void }) {
 			<Modal
 				open={!!removing}
 				onClose={() => setRemoving(null)}
-				title="Remove API key?"
+				title={t("settings.keys.removeTitle")}
 				footer={
 					<>
 						<button type="button" className="btn" onClick={() => setRemoving(null)}>
-							Cancel
+							{t("common.cancel")}
 						</button>
 						<button type="button" className="btn btn-danger" onClick={() => removing && void remove(removing)}>
-							<Trash2 className="size-4" /> Remove
+							<Trash2 className="size-4" /> {t("settings.keys.remove")}
 						</button>
 					</>
 				}
 			>
-				<p className="text-dim">Campaigns using {removing?.label} models will need another engine until a key is added again.</p>
+				<p className="text-dim">{t("settings.keys.removeBody", { label: removing?.label ?? "" })}</p>
 			</Modal>
 		</div>
 	);
@@ -227,6 +236,7 @@ function DefaultsPanel({ engines }: { engines: ReturnType<typeof useEngines> }) 
 	const [engine, setEngine] = useState<EngineConfig | null>(null);
 	const [saved, setSaved] = useState(false);
 	const [draftCleared, setDraftCleared] = useState(false);
+	const { t } = useT();
 
 	useEffect(() => {
 		// eslint-disable-next-line react-hooks/set-state-in-effect
@@ -235,16 +245,16 @@ function DefaultsPanel({ engines }: { engines: ReturnType<typeof useEngines> }) 
 
 	useEffect(() => {
 		if (!saved) return;
-		const t = setTimeout(() => setSaved(false), 1800);
-		return () => clearTimeout(t);
+		const timer = setTimeout(() => setSaved(false), 1800);
+		return () => clearTimeout(timer);
 	}, [saved]);
 
 	if (!engine) return null;
 	return (
 		<div className="flex flex-col gap-6">
 			<section>
-				<h2 className="heading text-lg">Default engine for new games</h2>
-				<p className="mb-4 text-sm text-dim">The setup wizard starts with this engine. If it isn&apos;t available, the first available model is used.</p>
+				<h2 className="heading text-lg">{t("settings.defaults.engineTitle")}</h2>
+				<p className="mb-4 text-sm text-dim">{t("settings.defaults.engineHint")}</p>
 				<EnginePicker
 					value={engine}
 					engines={engines}
@@ -266,17 +276,17 @@ function DefaultsPanel({ engines }: { engines: ReturnType<typeof useEngines> }) 
 							setSaved(true);
 						}}
 					>
-						Use best available
+						{t("settings.defaults.best")}
 					</button>
 					<span className={cn("inline-flex items-center gap-1 text-sm text-emerald transition-opacity", saved ? "opacity-100" : "opacity-0")} aria-live="polite">
-						<CheckCircle2 className="size-4" /> Saved
+						<CheckCircle2 className="size-4" /> {t("settings.defaults.saved")}
 					</span>
 				</div>
 			</section>
 			<Divider />
 			<section>
-				<h2 className="heading text-lg">Setup wizard</h2>
-				<p className="mb-3 text-sm text-dim">An unfinished adventure setup is kept in this browser so a refresh doesn&apos;t lose it.</p>
+				<h2 className="heading text-lg">{t("settings.defaults.wizardTitle")}</h2>
+				<p className="mb-3 text-sm text-dim">{t("settings.defaults.wizardHint")}</p>
 				<button
 					type="button"
 					className="btn btn-danger py-1.5 text-sm"
@@ -285,7 +295,7 @@ function DefaultsPanel({ engines }: { engines: ReturnType<typeof useEngines> }) 
 						setDraftCleared(true);
 					}}
 				>
-					<Trash2 className="size-4" /> {draftCleared ? "Draft cleared" : "Clear saved draft"}
+					<Trash2 className="size-4" /> {draftCleared ? t("settings.defaults.cleared") : t("settings.defaults.clear")}
 				</button>
 			</section>
 		</div>

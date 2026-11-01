@@ -3,6 +3,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { cn } from "./cn";
+import { useT } from "@/components/i18n/I18nProvider";
 
 export interface ModalProps {
 	open: boolean;
@@ -24,6 +25,7 @@ export interface ModalProps {
  */
 export function Modal({ open, onClose, title, footer, children, widthClass = "max-w-lg", dismissible = true, className }: ModalProps) {
 	const ref = useRef<HTMLDialogElement>(null);
+	const { t } = useT();
 
 	useEffect(() => {
 		const d = ref.current;
@@ -54,7 +56,7 @@ export function Modal({ open, onClose, title, footer, children, widthClass = "ma
 			`}</style>
 			{open && (
 				<div className={cn("panel relative p-6", className)}>
-					<button type="button" onClick={onClose} className="absolute top-3 right-3 rounded p-1 text-dim hover:text-gold-2 focus-visible:outline-2 focus-visible:outline-gold" aria-label="Close">
+					<button type="button" onClick={onClose} className="absolute top-3 right-3 rounded p-1 text-dim hover:text-gold-2 focus-visible:outline-2 focus-visible:outline-gold" aria-label={t("common.close")}>
 						<X className="size-4" />
 					</button>
 					{title && <h2 className="heading mb-4 pr-6 text-lg">{title}</h2>}

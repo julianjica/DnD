@@ -1,5 +1,8 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { cn } from "@/components/ui/cn";
+import { useT } from "@/components/i18n/I18nProvider";
 
 /** Labeled section block used across wizard steps. */
 export function Section({ title, hint, actions, children, className }: { title: ReactNode; hint?: ReactNode; actions?: ReactNode; children: ReactNode; className?: string }) {
@@ -18,10 +21,11 @@ export function Section({ title, hint, actions, children, className }: { title: 
 }
 
 export function FieldLabel({ children, htmlFor, optional }: { children: ReactNode; htmlFor?: string; optional?: boolean }) {
+	const { t } = useT();
 	return (
 		<label htmlFor={htmlFor} className="mb-1 flex items-baseline gap-2 text-xs font-medium tracking-wider text-dim uppercase">
 			{children}
-			{optional && <span className="text-[10px] tracking-normal text-faint normal-case">optional</span>}
+			{optional && <span className="text-[10px] tracking-normal text-faint normal-case">{t("setup.optional")}</span>}
 		</label>
 	);
 }

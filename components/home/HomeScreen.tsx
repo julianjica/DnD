@@ -10,6 +10,8 @@ import { Modal } from "@/components/ui/Modal";
 import { Divider } from "@/components/ui/Divider";
 import { cn } from "@/components/ui/cn";
 import { CampaignCard } from "./CampaignCard";
+import { useT } from "@/components/i18n/I18nProvider";
+import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
 
 const HERO_SCENES: SceneState[] = [
 	{ title: "", kind: "tavern", timeOfDay: "night", weather: "clear", mood: "festive", npcIds: [], props: [] },
@@ -20,6 +22,7 @@ const HERO_SCENES: SceneState[] = [
 const ROTATE_MS = 14000;
 
 export function HomeScreen() {
+	const { t } = useT();
 	const [campaigns, setCampaigns] = useState<CampaignSummary[] | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [toDelete, setToDelete] = useState<CampaignSummary | null>(null);
@@ -88,9 +91,10 @@ export function HomeScreen() {
 				<div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgb(0_0_0/0.15)_0%,rgb(0_0_0/0.55)_65%,rgb(0_0_0/0.85)_100%)]" />
 				<div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-bg to-transparent" />
 
-				<nav className="absolute top-0 right-0 z-10 p-5">
+				<nav className="absolute top-0 right-0 z-10 flex items-center gap-2 p-5">
+					<LanguageSwitch className="rounded-md bg-black/40 px-2 py-1.5 backdrop-blur-sm" />
 					<Link href="/settings" className="btn bg-black/40 backdrop-blur-sm">
-						<Settings className="size-4" /> Settings
+						<Settings className="size-4" /> {t("home.settings")}
 					</Link>
 				</nav>
 
@@ -101,25 +105,25 @@ export function HomeScreen() {
 						<span className="h-px w-16 bg-gradient-to-l from-transparent to-gold/80" />
 					</div>
 					<h1 className="font-display text-[clamp(2.6rem,7vw,5.5rem)] leading-none font-bold tracking-[0.08em] text-gold-2 drop-shadow-[0_4px_24px_rgb(0_0_0/0.9)]">DungeonHarness</h1>
-					<p className="mt-4 max-w-2xl font-fell text-[clamp(1.05rem,2vw,1.4rem)] text-parchment/90 italic drop-shadow-[0_2px_8px_rgb(0_0_0/0.9)]">An AI Dungeon Master for solo adventures in the world of fifth edition.</p>
+					<p className="mt-4 max-w-2xl font-fell text-[clamp(1.05rem,2vw,1.4rem)] text-parchment/90 italic drop-shadow-[0_2px_8px_rgb(0_0_0/0.9)]">{t("home.tagline")}</p>
 					<Link href="/new" className="btn btn-gold mt-8 px-7 py-3 text-lg shadow-[0_0_40px_rgb(212_166_74/0.35)]">
-						<Plus className="size-5" /> New Adventure
+						<Plus className="size-5" /> {t("home.newAdventure")}
 					</Link>
 				</div>
 			</section>
 
 			<main className="mx-auto w-full max-w-6xl flex-1 px-6 py-10">
-				<Divider label="Your Chronicles" className="mb-8" />
+				<Divider label={t("home.chronicles")} className="mb-8" />
 				{campaigns === null ? (
 					<div className="flex items-center justify-center gap-2 py-12 text-dim">
-						<LoaderCircle className="size-5 animate-spin text-gold" /> Gathering your tales…
+						<LoaderCircle className="size-5 animate-spin text-gold" /> {t("home.loading")}
 					</div>
 				) : campaigns.length === 0 ? (
 					<div className="parchment mx-auto max-w-lg p-8 text-center">
-						<p className="font-fell text-xl text-ink/80 italic">No tales have been written yet.</p>
-						<p className="mt-2 font-serif text-ink/70">Every legend begins with a single step out of the tavern door.</p>
+						<p className="font-fell text-xl text-ink/80 italic">{t("home.empty.title")}</p>
+						<p className="mt-2 font-serif text-ink/70">{t("home.empty.body")}</p>
 						<Link href="/new" className="btn btn-gold mt-5">
-							<Plus className="size-4" /> Begin your first adventure
+							<Plus className="size-4" /> {t("home.empty.cta")}
 						</Link>
 					</div>
 				) : (
@@ -137,26 +141,26 @@ export function HomeScreen() {
 			</main>
 
 			<footer className="py-6 text-center text-xs text-faint">
-				Uses the D&amp;D 5e System Reference Document 5.1 under CC-BY-4.0. Art and maps are procedurally generated.
+				{t("home.footer")}
 			</footer>
 
 			<Modal
 				open={!!toDelete}
 				onClose={() => !deleting && setToDelete(null)}
-				title="Delete this campaign?"
+				title={t("home.delete.title")}
 				footer={
 					<>
 						<button type="button" className="btn" onClick={() => setToDelete(null)} disabled={deleting}>
-							Keep it
+							{t("home.delete.keep")}
 						</button>
 						<button type="button" className="btn btn-danger" onClick={() => void confirmDelete()} disabled={deleting}>
-							{deleting ? <LoaderCircle className="size-4 animate-spin" /> : <Trash2 className="size-4" />} Delete forever
+							{deleting ? <LoaderCircle className="size-4 animate-spin" /> : <Trash2 className="size-4" />} {t("home.delete.confirm")}
 						</button>
 					</>
 				}
 			>
 				<p className="text-dim">
-					<span className="font-display text-gold-2">{toDelete?.title}</span> and all of {toDelete?.characterName}&apos;s saves, journal and history will be permanently erased.
+					<span className="font-display text-gold-2">{toDelete?.title}</span> {t("home.delete.body", { name: toDelete?.characterName ?? "" })}
 				</p>
 			</Modal>
 
