@@ -48,7 +48,7 @@ export function speciesLabel(speciesId: string, subspeciesId?: string, lang: Lan
 export function SheetPreview({ preview, draft, compact }: { preview: PreviewResult; draft: CharacterDraft; compact?: boolean }) {
 	const { character: ch, sheet, error } = preview;
 	const cls = getClass(draft.classId);
-	const { t, te, lang } = useT();
+	const { t, te, lang, ts } = useT();
 	const bg = getBackground(draft.backgroundId);
 	const subId = ch?.classes[0]?.subclassId;
 	const sub = subId ? getSubclass(subId) : undefined;
@@ -107,7 +107,7 @@ export function SheetPreview({ preview, draft, compact }: { preview: PreviewResu
 									<li key={`${at.name}-${i}`} className="flex items-baseline justify-between gap-2">
 										<span className="flex items-center gap-1 truncate">
 											<Swords className="size-3 shrink-0 text-ink/50" />
-											{at.name}
+											{ts(at.name)}
 										</span>
 										<span className="shrink-0 tabular-nums text-ink/80">
 											{signed(at.toHit)} · {at.damage} {srdName(lang, "damage", at.damageType.toLowerCase(), at.damageType).toLowerCase()}
@@ -160,8 +160,8 @@ export function SheetPreview({ preview, draft, compact }: { preview: PreviewResu
 							<Block title={t("sheet.features")}>
 								<div className="flex flex-wrap gap-1">
 									{ch.features.map((f) => (
-										<Tooltip key={f.id + f.source} content={<p>{f.description.slice(0, 400)}</p>}>
-											<span className="cursor-help rounded border border-[#b89b68]/70 bg-white/30 px-1.5 py-0.5 text-xs">{f.name}</span>
+										<Tooltip key={f.id + f.source} content={<p>{ts(f.description).slice(0, 400)}</p>}>
+											<span className="cursor-help rounded border border-[#b89b68]/70 bg-white/30 px-1.5 py-0.5 text-xs">{ts(f.name)}</span>
 										</Tooltip>
 									))}
 								</div>
@@ -177,7 +177,7 @@ export function SheetPreview({ preview, draft, compact }: { preview: PreviewResu
 							</Block>
 							<Block title={t("sheet.equipment")}>
 								<p className="text-xs leading-relaxed text-ink/80">
-									{ch.inventory.map((i) => `${i.quantity > 1 ? `${i.quantity}× ` : ""}${i.name}${i.equipped ? t("sheet.equipped") : ""}`).join(", ")}
+									{ch.inventory.map((i) => `${i.quantity > 1 ? `${i.quantity}× ` : ""}${ts(i.name)}${i.equipped ? t("sheet.equipped") : ""}`).join(", ")}
 									{ch.currency.gp ? ` · ${t("sheet.gp", { n: ch.currency.gp })}` : ""}
 								</p>
 							</Block>

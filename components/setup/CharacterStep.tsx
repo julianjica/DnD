@@ -85,7 +85,7 @@ export function CharacterStep({ draft, update }: StepProps) {
 	const c = draft.character;
 	const level = draft.settings.structure.startingLevel;
 	const [sub, setSub] = useState<Sub>("origins");
-	const { t, te, lang } = useT();
+	const { t, te, lang, ts } = useT();
 	const abil = (a: string) => te("abilityShort", a);
 	const bonus = (b: Partial<Record<string, number>>) => bonusText(b, te);
 	const nm = (group: string, x: { index: string; name: string }) => srdName(lang, group, x.index, x.name);
@@ -129,7 +129,7 @@ export function CharacterStep({ draft, update }: StepProps) {
 						<Section title={t("char.species")} hint={species ? `${nm("species", species)}: ${bonus(opts?.abilityBonuses ?? species.abilityBonuses)} · ${speedText(species)}` : undefined}>
 							<div className="grid grid-cols-3 gap-2 xl:grid-cols-5">
 								{SPECIES.map((s) => (
-									<Tooltip key={s.index} content={<OriginTip title={nm("species", s)} lines={[bonus(s.abilityBonuses), speedText(s), s.traits.map((tr) => tr.name).join(", ")]} />}>
+									<Tooltip key={s.index} content={<OriginTip title={nm("species", s)} lines={[bonus(s.abilityBonuses), speedText(s), s.traits.map((tr) => ts(tr.name)).join(", ")]} />}>
 										<PickCard active={s.index === c.speciesId} onClick={() => setOrigins({ speciesId: s.index, subspeciesId: s.subspecies.length > 1 ? s.subspecies[0].index : undefined, portrait: newPortrait(s.index) })}>
 											{nm("species", s)}
 										</PickCard>
@@ -145,7 +145,7 @@ export function CharacterStep({ draft, update }: StepProps) {
 									))}
 								</div>
 							)}
-							{species && <p className="font-serif text-[15px] leading-snug text-text/80">{species.subspecies[0] && species.subspecies.length === 1 ? `${nm("subspecies", species.subspecies[0])}. ` : ""}{species.traits.map((tr) => tr.name).join(" · ")}</p>}
+							{species && <p className="font-serif text-[15px] leading-snug text-text/80">{species.subspecies[0] && species.subspecies.length === 1 ? `${nm("subspecies", species.subspecies[0])}. ` : ""}{species.traits.map((tr) => ts(tr.name)).join(" · ")}</p>}
 						</Section>
 
 						<Section
@@ -188,7 +188,7 @@ export function CharacterStep({ draft, update }: StepProps) {
 											const sc = getSubclass(s);
 											const active = (c.subclassId ?? cls.subclasses[0]) === s;
 											return (
-												<Tooltip key={s} content={sc ? <OriginTip title={nm("subclass", sc)} lines={[sc.description.slice(0, 300)]} /> : null}>
+												<Tooltip key={s} content={sc ? <OriginTip title={nm("subclass", sc)} lines={[ts(sc.description).slice(0, 300)]} /> : null}>
 													<button type="button" className="chip" data-active={active} aria-pressed={active} onClick={() => set({ subclassId: s })}>
 														{sc ? nm("subclass", sc) : s}
 													</button>
@@ -201,10 +201,10 @@ export function CharacterStep({ draft, update }: StepProps) {
 							)}
 						</Section>
 
-						<Section title={t("char.background")} hint={bg ? t("char.bgHint", { list: bg.skills.map((s) => srdName(lang, "skill", s, getSkill(s)?.name ?? s)).join(", "), feature: bg.feature.name }) : undefined}>
+						<Section title={t("char.background")} hint={bg ? t("char.bgHint", { list: bg.skills.map((s) => srdName(lang, "skill", s, getSkill(s)?.name ?? s)).join(", "), feature: ts(bg.feature.name) }) : undefined}>
 							<div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
 								{BACKGROUNDS.map((b) => (
-									<Tooltip key={b.index} content={<OriginTip title={b.feature.name} lines={[b.feature.description.slice(0, 320)]} />}>
+									<Tooltip key={b.index} content={<OriginTip title={ts(b.feature.name)} lines={[ts(b.feature.description).slice(0, 320)]} />}>
 										<PickCard active={b.index === c.backgroundId} onClick={() => setOrigins({ backgroundId: b.index, equipment: [] })}>
 											<BookOpen className="mx-auto mb-1 size-4 opacity-70" />
 												{nm("background", b)}

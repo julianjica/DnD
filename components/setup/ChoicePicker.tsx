@@ -10,6 +10,7 @@ import { cn } from "@/components/ui/cn";
 import { useT } from "@/components/i18n/I18nProvider";
 import { translate, translateEnum, type Lang } from "@/lib/i18n";
 import { choiceLabel, srdName } from "./i18n";
+import { srdDictIfLoaded, translateSrd } from "@/lib/i18n/srd";
 
 
 function clip(s: string, n = 420) {
@@ -20,28 +21,29 @@ function clip(s: string, n = 420) {
 /** Rich hover description for any SRD option (spell, feature, skill, language, item). */
 export function describeOption(index: string, lang: Lang = "en"): ReactNode {
 	const tr = (k: Parameters<typeof translate>[1], v?: Record<string, string | number>) => translate(lang, k, v);
+	const S = (x: string | undefined) => translateSrd(lang, srdDictIfLoaded(), x);
 	const sp = getSpell(index);
 	if (sp)
 		return (
 			<div className="flex flex-col gap-1">
-				<div className="font-display text-sm text-gold-2">{sp.name}</div>
+				<div className="font-display text-sm text-gold-2">{S(sp.name)}</div>
 				<div className="text-[11px] text-dim italic">
 					{sp.level === 0 ? tr("pick.schoolCantrip", { school: srdName(lang, "school", sp.school.toLowerCase(), sp.school) }) : tr("pick.schoolLevel", { n: sp.level, school: srdName(lang, "school", sp.school.toLowerCase(), sp.school) })}
 					{sp.concentration ? tr("pick.concentration") : ""}
 					{sp.ritual ? tr("pick.ritual") : ""}
 				</div>
 				<div className="text-[11px] text-dim">
-					{sp.castingTime} · {sp.range} · {sp.duration}
+					{S(sp.castingTime)} · {S(sp.range)} · {S(sp.duration)}
 				</div>
-				<p>{clip(sp.description)}</p>
+				<p>{clip(S(sp.description))}</p>
 			</div>
 		);
 	const f = getFeature(index);
 	if (f)
 		return (
 			<div>
-				<div className="mb-1 font-display text-sm text-gold-2">{f.name}</div>
-				<p>{clip(f.description)}</p>
+				<div className="mb-1 font-display text-sm text-gold-2">{S(f.name)}</div>
+				<p>{clip(S(f.description))}</p>
 			</div>
 		);
 	const sk = getSkill(index);
@@ -51,23 +53,23 @@ export function describeOption(index: string, lang: Lang = "en"): ReactNode {
 				<div className="mb-1 font-display text-sm text-gold-2">
 						{srdName(lang, "skill", sk.index, sk.name)} <span className="text-[11px] text-dim">({translateEnum(lang, "abilityShort", sk.ability)})</span>
 				</div>
-				<p>{clip(sk.description)}</p>
+				<p>{clip(S(sk.description))}</p>
 			</div>
 		);
 	const language = getLanguage(index);
 	if (language)
 		return (
 			<div>
-				<div className="font-display text-sm text-gold-2">{language.name}</div>
+				<div className="font-display text-sm text-gold-2">{S(language.name)}</div>
 				<p className="text-dim">
 					{tr("pick.language", { type: translateEnum(lang, "languageType", language.type.toLowerCase()) })}
-					{language.script ? tr("pick.script", { script: language.script }) : ""}
+					{language.script ? tr("pick.script", { script: S(language.script) }) : ""}
 					{language.speakers.length ? tr("pick.spokenBy", { list: language.speakers.join(", ") }) : ""}
 				</p>
 			</div>
 		);
 	const eq = getEquipment(index);
-	if (eq?.description) return <p>{clip(eq.description)}</p>;
+	if (eq?.description) return <p>{clip(S(eq.description))}</p>;
 	return null;
 }
 
@@ -86,7 +88,7 @@ export function ChoicePicker({ choice, value, onChange, names = {} }: ChoicePick
 	const [q, setQ] = useState("");
 	const { t, te, lang } = useT();
 	const label = choiceLabel(choice, t, names, lang);
-	const optName = (o: { index: string; name: string }) => (ABILITY_IDS.has(o.index) ? te("ability", o.index) : getSkill(o.index) ? srdName(lang, "skill", o.index, o.name) : o.name);
+	const optName = (o: { index: string; name: string }) => (ABILITY_IDS.has(o.index) ? te("ability", o.index) : getSkill(o.index) ? srdName(lang, "skill", o.index, o.name) : translateSrd(lang, srdDictIfLoaded(), o.name));
 	const picks = (value ?? []).filter((p) => choice.options.some((o) => o.index === p));
 	const full = picks.length >= choice.choose;
 	const isSpell = choice.options.length > 0 && !!getSpell(choice.options[0].index);

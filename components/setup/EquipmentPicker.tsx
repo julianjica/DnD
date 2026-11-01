@@ -20,7 +20,7 @@ const nameOf = (ref: string) => getEquipment(ref)?.name ?? ref;
 /** Starting equipment: one option per choice, plus category picks ("any martial weapon"). */
 export function EquipmentPicker({ opts, value, onChange }: EquipmentPickerProps) {
 	const cls = getClass(opts.classId);
-	const { t, lang } = useT();
+	const { t, lang, ts } = useT();
 	const bg = getBackground(opts.backgroundId);
 	const fixed = [...(cls?.startingEquipment ?? []), ...(bg?.equipment ?? [])];
 	const get = (i: number) => value[i] ?? { option: 0, picks: [] };
@@ -57,11 +57,11 @@ export function EquipmentPicker({ opts, value, onChange }: EquipmentPickerProps)
 				let cursor = 0;
 				return (
 					<fieldset key={ec.index} className="rounded-lg border border-line bg-bg-2/50 p-4">
-						<legend className="sr-only">{ec.desc}</legend>
+						<legend className="sr-only">{ts(ec.desc)}</legend>
 						<div className="mb-2 flex items-center gap-2 text-xs tracking-wider text-dim uppercase">
 							{t("equip.chooseOne", { from: (ec.from === "class" ? cls && srdName(lang, "class", cls.index, cls.name) : bg && srdName(lang, "background", bg.index, bg.name)) ?? "" })}
 						</div>
-						<div className="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label={ec.desc}>
+						<div className="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label={ts(ec.desc)}>
 							{ec.options.map((o, oi) => {
 								const on = oi === sel.option;
 								return (
@@ -77,7 +77,7 @@ export function EquipmentPicker({ opts, value, onChange }: EquipmentPickerProps)
 										)}
 									>
 										<span className="mr-2 inline-grid size-4 place-items-center rounded-full border border-current align-[-2px]">{on && <span className="size-2 rounded-full bg-current" />}</span>
-										{o.label}
+										{ts(o.label)}
 									</button>
 								);
 							})}
@@ -87,7 +87,7 @@ export function EquipmentPicker({ opts, value, onChange }: EquipmentPickerProps)
 							cursor += p.choose;
 							return (
 								<div key={pi} className="mt-3 flex flex-wrap items-center gap-2">
-									<span className="text-xs text-dim">{p.label}:</span>
+									<span className="text-xs text-dim">{ts(p.label)}:</span>
 									{Array.from({ length: p.choose }, (_, k) => {
 										const slot = start + k;
 										return (
@@ -95,7 +95,7 @@ export function EquipmentPicker({ opts, value, onChange }: EquipmentPickerProps)
 												key={k}
 												className="input w-auto max-w-56 py-1 text-sm"
 												value={sel.picks[slot] ?? ""}
-												aria-label={`${p.label} ${k + 1}`}
+												aria-label={`${ts(p.label)} ${k + 1}`}
 												onChange={(e) => {
 													const picks = [...sel.picks];
 													while (picks.length < slot) picks.push("");
@@ -106,7 +106,7 @@ export function EquipmentPicker({ opts, value, onChange }: EquipmentPickerProps)
 												<option value="">{t("equip.dmChoice")}</option>
 												{p.options.map((x) => (
 													<option key={x.index} value={x.index}>
-														{x.name}
+														{ts(x.name)}
 													</option>
 												))}
 											</select>
