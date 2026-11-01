@@ -1,17 +1,17 @@
 "use client";
 
-import { use, useEffect, useRef } from "react";
+import { Suspense, use, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Suspense } from "react";
 import { PlayScreen } from "@/components/play/PlayScreen";
 
 function Inner({ id }: { id: string }) {
 	const params = useSearchParams();
-	const opening = useRef(params.get("opening") === "1");
+	// Captured once: the ?opening=1 flag is stripped from the URL right after.
+	const [opening] = useState(() => params.get("opening") === "1");
 	useEffect(() => {
-		if (opening.current) window.history.replaceState(null, "", `/play/${id}`);
-	}, [id]);
-	return <PlayScreen id={id} opening={opening.current} />;
+		if (opening) window.history.replaceState(null, "", `/play/${id}`);
+	}, [id, opening]);
+	return <PlayScreen id={id} opening={opening} />;
 }
 
 export default function PlayPage({ params }: PageProps<"/play/[id]">) {

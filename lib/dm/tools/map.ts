@@ -8,7 +8,7 @@ const TILES: Tile[] = ["floor", "wall", "door", "door_open", "door_locked", "sec
 
 export const SIGHT_RADIUS = 12;
 
-export function pcEntity(map: GridMap, state: GameState) {
+export function pcEntity(map: GridMap, _state?: GameState) {
 	return map.entities.find((e) => e.kind === "pc");
 }
 

@@ -115,7 +115,7 @@ export const suggestActions = tool<{ actions: string[] }>(
 		ctx.suggested = true;
 		return withState(ctx, ({ state }) => {
 			state.suggestions = a.actions.slice(0, 5);
-			return "Suggestions shown. Your turn is complete: stop now and write NOTHING more.";
+			return "Suggestions shown. If you already wrote your narration this turn, stop now and write nothing more; otherwise write it now (once), then stop.";
 		});
 	},
 );
