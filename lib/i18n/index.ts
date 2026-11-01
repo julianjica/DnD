@@ -49,3 +49,27 @@ export function displayTitle(lang: Lang, title: string): string {
 	if (!name) return title;
 	return lang === "es" ? `La historia de ${name}` : `${name}'s Tale`;
 }
+
+const PLACE_ES: [RegExp, string][] = [
+	[/^Halls of (.+)$/, "Salas de $1"], [/^(.+) Undercroft$/, "Criptas de $1"], [/^The (.+) Vaults$/, "Las bóvedas de $1"],
+	[/^(.+) Caverns$/, "Cavernas de $1"], [/^(.+) Hollows$/, "Grutas de $1"],
+	[/^(.+) Wood$/, "Bosque de $1"], [/^The (.+) Wilds$/, "Las espesuras de $1"], [/^(.+) Forest$/, "Selva de $1"],
+	[/^Mount (.+)$/, "Monte $1"], [/^(.+) Peaks$/, "Picos de $1"],
+	[/^Ruins of (.+)$/, "Ruinas de $1"], [/^Old (.+)$/, "Antigua $1"],
+	[/^Castle (.+)$/, "Castillo de $1"], [/^(.+) Keep$/, "Fortaleza de $1"],
+	[/^Temple of (.+)$/, "Templo de $1"], [/^(.+) Abbey$/, "Abadía de $1"],
+	[/^(.+) Fen$/, "Ciénaga de $1"], [/^(.+) Mire$/, "Pantano de $1"],
+	[/^(.+) Cove$/, "Cala de $1"], [/^(.+) Strand$/, "Playa de $1"],
+	[/^(.+) Camp$/, "Campamento $1"],
+	[/^(.+) Tower$/, "Torre de $1"], [/^The Spire of (.+)$/, "La aguja de $1"],
+	[/^The (.+) Stones$/, "Las piedras de $1"], [/^(.+) Monolith$/, "Monolito de $1"],
+	[/^The Realm of (.+)$/, "El Reino de $1"], [/^The Kingdom of (.+)$/, "El Señorío de $1"], [/^The Marches of (.+)$/, "Las Marcas de $1"],
+	[/^The Reaches of (.+)$/, "Los Confines de $1"], [/^The Dominion of (.+)$/, "El Dominio de $1"], [/^The Free Lands of (.+)$/, "Las Tierras Libres de $1"],
+];
+
+/** Generated English place names ("Castle X", "X Wood") shown in Spanish. Names the DM invented are left alone. */
+export function displayPlace(lang: Lang, name: string): string {
+	if (lang !== "es") return name;
+	for (const [re, out] of PLACE_ES) if (re.test(name) && !/\s/.test(name.replace(re, "$1"))) return name.replace(re, out);
+	return name;
+}

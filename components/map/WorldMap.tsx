@@ -1,5 +1,6 @@
 "use client";
 
+import { displayPlace } from "@/lib/i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { WorldLocation, WorldMap as WorldMapState } from "@/lib/game/types";
 import { paintWorldBase, paintWorldOverlay, sampleWorld } from "./art/worldPainter";
@@ -21,8 +22,13 @@ export interface WorldMapProps {
  * (identical to lib/maps/world.ts sampling), painted once per size, and
  * overlaid with routes, location icons and labels. Locations are real buttons.
  */
-export default function WorldMap({ world, onLocationClick, selectedLocationId, showUndiscovered, className }: WorldMapProps) {
-	const { t, te } = useT();
+export default function WorldMap({ world: rawWorld, onLocationClick, selectedLocationId, showUndiscovered, className }: WorldMapProps) {
+	const { t, te, lang } = useT();
+	// Generated place names follow the UI language.
+	const world = useMemo(
+		() => (lang === "en" ? rawWorld : { ...rawWorld, name: displayPlace(lang, rawWorld.name), locations: rawWorld.locations.map((l) => ({ ...l, name: displayPlace(lang, l.name) })) }),
+		[rawWorld, lang],
+	);
 	const wrapRef = useRef<HTMLDivElement>(null);
 	const baseRef = useRef<HTMLCanvasElement>(null);
 	const overRef = useRef<HTMLCanvasElement>(null);
