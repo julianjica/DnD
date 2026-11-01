@@ -122,6 +122,7 @@ export function loadDraft(): WizardDraft {
 					dm: { ...base.settings.dm, ...s.dm },
 					engine: { ...base.settings.engine, ...s.engine },
 					audio: { ...base.settings.audio, ...s.audio },
+					...(s.language ? { language: s.language } : {}),
 				}
 			: base.settings,
 		character: { ...base.character, ...saved.character, personality: { ...base.character.personality, ...saved.character?.personality } },
@@ -172,10 +173,10 @@ export function speciesCantripPicks(c: CharacterDraft, opts: CreationOptions): s
 }
 
 /** Choice ids the player hasn't fully decided (the DM / auto-pick will). */
-export function openChoices(c: CharacterDraft, opts: CreationOptions | undefined): string[] {
+export function openChoices(c: CharacterDraft, opts: CreationOptions | undefined): CreationOptions["choices"] {
 	if (!opts) return [];
 	const done = completeChoices(c, opts);
-	return opts.choices.filter((ch) => ch.choose > 0 && ch.id !== "subclass" && !done[ch.id]).map((ch) => ch.label);
+	return opts.choices.filter((ch) => ch.choose > 0 && ch.id !== "subclass" && !done[ch.id]);
 }
 
 /** Whether the class gets its subclass at or below the starting level. */

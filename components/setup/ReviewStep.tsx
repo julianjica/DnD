@@ -6,7 +6,10 @@ import { AlertTriangle, Pencil, Sparkles, LoaderCircle, Swords } from "lucide-re
 import type { GameState } from "@/lib/game/types";
 import { SceneArt } from "@/components/art/SceneArt";
 import { Divider } from "@/components/ui/Divider";
-import { DIFFICULTY_INFO, FORMAT_INFO, presetInfo } from "./presets";
+import { presetInfo } from "./presets";
+import { choiceLabel, srdName } from "./i18n";
+import { getBackground, getClass } from "@/lib/srd";
+import { LANGS } from "@/lib/i18n";
 import { SheetPreview, usePreview } from "./SheetPreview";
 import { modelKey, type useEngines } from "./EnginePicker";
 import { randomName } from "./names";
@@ -15,7 +18,7 @@ import { useT } from "@/components/i18n/I18nProvider";
 import { buildNewGameInput, DRAFT_KEY, openChoices, optionsFor, removeKey } from "./wizardState";
 
 export function ReviewStep({ draft, update, goTo, engines }: StepProps & { goTo: (step: number) => void; engines: ReturnType<typeof useEngines> }) {
-	const { lang } = useT();
+	const { lang, t, te } = useT();
 	const router = useRouter();
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -27,6 +30,10 @@ export function ReviewStep({ draft, update, goTo, engines }: StepProps & { goTo:
 	const open = openChoices(c, opts);
 	const model = engines.data?.models.find((m) => modelKey(m) === modelKey(s.engine));
 	const preset = presetInfo(s.world.preset);
+	const cls = getClass(c.classId);
+	const bg = getBackground(c.backgroundId);
+	const names = { cls: cls ? srdName(lang, "class", cls.index, cls.name) : undefined, bg: bg ? srdName(lang, "background", bg.index, bg.name) : undefined };
+	const openLabels = open.map((ch) => choiceLabel(ch, t, names)).join(", ");
 
 	const begin = async () => {
 		setBusy(true);
@@ -37,8 +44,10 @@ export function ReviewStep({ draft, update, goTo, engines }: StepProps & { goTo:
 				d = { ...draft, character: { ...c, name: randomName(c.speciesId) } };
 				update(() => d);
 			}
+			// Name the campaign client-side so the default title is in the UI language.
+			if (!d.title.trim()) d = { ...d, title: t("review.taleOf", { name: d.character.name.trim() }) };
 			const built = buildNewGameInput(d, opts);
-			if (!built) throw new Error("Roll your ability scores first (Character → Abilities).");
+			if (!built) throw new Error(t("review.rollFirst"));
 			// Narration language defaults to the UI language.
 			const body = { ...built, settings: { ...built.settings, language: d.settings.language ?? lang } };
 			const res = await fetch("/api/campaigns", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
@@ -58,39 +67,40 @@ export function ReviewStep({ draft, update, goTo, engines }: StepProps & { goTo:
 		<div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
 			<div className="flex flex-col gap-6">
 				<div className="panel overflow-hidden">
-					<SceneArt scene={{ ...preset.scene, title: draft.title.trim() || `${c.name.trim() || "Your hero"}'s Tale`, caption: s.structure.hook?.trim() || preset.blurb }} />
+					<SceneArt scene={{ ...preset.scene, title: draft.title.trim() || t("review.taleOf", { name: c.name.trim() || t("review.yourHero") }), caption: s.structure.hook?.trim() || te("presetBlurb", preset.id) }} />
 				</div>
 
 				<div className="grid gap-4 md:grid-cols-2">
-					<Card title="World & tone" onEdit={() => goTo(0)}>
-						<Row k="Setting" v={preset.name} />
+					<Card title={t("setup.step.world.title")} onEdit={() => goTo(0)}>
+						<Row k={t("review.setting")} v={te("preset", preset.id)} />
 						{s.world.customText?.trim() && <p className="font-serif text-sm text-text/80 italic">“{s.world.customText.trim()}”</p>}
-						<Row k="Tone" v={s.world.tone.length ? s.world.tone.join(", ") : "DM's call"} />
-						<Row k="Lines" v={s.world.lines.length ? s.world.lines.join(", ") : "none"} />
-						<Row k="Veils" v={s.world.veils.length ? s.world.veils.join(", ") : "none"} />
+						<Row k={t("review.tone")} v={s.world.tone.length ? s.world.tone.map((x) => te("tone", x)).join(", ") : t("review.dmCall")} />
+						<Row k={t("review.lines")} v={s.world.lines.length ? s.world.lines.join(", ") : t("review.none")} />
+						<Row k={t("review.veils")} v={s.world.veils.length ? s.world.veils.join(", ") : t("review.none")} />
 					</Card>
-					<Card title="Campaign" onEdit={() => goTo(1)}>
-						<Row k="Title" v={draft.title.trim() || "(named after your hero)"} />
-						<Row k="Format" v={FORMAT_INFO[s.structure.format].name} />
-						<Row k="Starting level" v={String(level)} />
-						<Row k="Difficulty" v={<span title={DIFFICULTY_INFO[s.structure.difficulty]} className="capitalize">{s.structure.difficulty}</span>} />
-						<Row k="Leveling" v={s.structure.leveling === "xp" ? "Experience points" : "Milestone"} />
-						<Row k="Hook" v={s.structure.hook?.trim() ? "Set" : "DM improvises"} />
+					<Card title={t("setup.step.campaign.title")} onEdit={() => goTo(1)}>
+						<Row k={t("review.title")} v={draft.title.trim() || t("review.namedAfter")} />
+						<Row k={t("review.format")} v={te("format", s.structure.format)} />
+						<Row k={t("structure.level")} v={String(level)} />
+						<Row k={t("structure.difficulty")} v={<span title={te("difficultyInfo", s.structure.difficulty)}>{te("difficulty", s.structure.difficulty)}</span>} />
+						<Row k={t("structure.leveling")} v={te("leveling", s.structure.leveling)} />
+						<Row k={t("review.hook")} v={s.structure.hook?.trim() ? t("review.hookSet") : t("review.hookImprov")} />
 					</Card>
-					<Card title="Dungeon Master" onEdit={() => goTo(3)}>
-						<Row k="Narration" v={<span className="capitalize">{s.dm.verbosity}</span>} />
-						<Row k="Rules" v={<span className="capitalize">{s.dm.rulesStrictness}</span>} />
-						<Row k="Combat" v={<span className="capitalize">{s.dm.combatFrequency}</span>} />
-						<Row k="Dice" v={s.dm.autoRollPlayer ? "Rolled for me" : "I roll"} />
-						<Row k="Persona" v={s.dm.persona?.trim() ? `${s.dm.persona.trim().slice(0, 60)}${s.dm.persona.trim().length > 60 ? "…" : ""}` : "Default"} />
-						<Row k="Audio" v={s.audio.enabled ? `On (music ${Math.round(s.audio.musicVolume * 100)}%)` : "Off"} />
+					<Card title={t("setup.step.dm.title")} onEdit={() => goTo(3)}>
+						<Row k={t("review.language")} v={LANGS.find((l) => l.id === (s.language ?? lang))?.label} />
+						<Row k={t("dm.narration")} v={te("verbosity", s.dm.verbosity)} />
+						<Row k={t("dm.rules")} v={te("strictness", s.dm.rulesStrictness)} />
+						<Row k={t("review.combat")} v={te("frequency", s.dm.combatFrequency)} />
+						<Row k={t("review.dice")} v={s.dm.autoRollPlayer ? t("review.diceAuto") : t("review.diceManual")} />
+						<Row k={t("review.persona")} v={s.dm.persona?.trim() ? `${s.dm.persona.trim().slice(0, 60)}${s.dm.persona.trim().length > 60 ? "…" : ""}` : t("review.default")} />
+						<Row k={t("review.audio")} v={s.audio.enabled ? t("review.audioOn", { n: Math.round(s.audio.musicVolume * 100) }) : t("review.off")} />
 					</Card>
-					<Card title="Engine" onEdit={() => goTo(3)}>
-						<Row k="Model" v={model?.label ?? s.engine.model} />
-						<Row k="Effort" v={s.engine.effort} />
+					<Card title={t("dm.engine")} onEdit={() => goTo(3)}>
+						<Row k={t("review.model")} v={model?.label ?? s.engine.model} />
+						<Row k={t("review.effort")} v={te("effort", s.engine.effort)} />
 						{model && !model.available && (
 							<p className="flex items-start gap-1.5 text-xs text-gold">
-								<AlertTriangle className="mt-0.5 size-3 shrink-0" /> {model.reason ?? "This model is unavailable."} You can still begin and switch engines in-game.
+								<AlertTriangle className="mt-0.5 size-3 shrink-0" /> {model.reason ?? t("review.modelUnavailable")} {t("review.switchLater")}
 							</p>
 						)}
 					</Card>
@@ -100,9 +110,9 @@ export function ReviewStep({ draft, update, goTo, engines }: StepProps & { goTo:
 					<div className="flex items-start gap-2 rounded-lg border border-dashed border-gold/40 bg-gold/5 p-3 text-sm text-dim">
 						<Sparkles className="mt-0.5 size-4 shrink-0 text-gold" />
 						<span>
-							The DM will choose for you: <span className="text-text">{open.join(", ")}</span>.{" "}
+							{t("review.dmWillChoose")} <span className="text-text">{openLabels}</span>.{" "}
 							<button type="button" className="text-gold-2 underline underline-offset-2" onClick={() => goTo(2)}>
-								Choose yourself
+								{t("review.chooseYourself")}
 							</button>
 						</span>
 					</div>
@@ -112,30 +122,31 @@ export function ReviewStep({ draft, update, goTo, engines }: StepProps & { goTo:
 			<aside className="flex flex-col gap-4 lg:sticky lg:top-4 lg:self-start">
 				<SheetPreview preview={preview} draft={c} compact />
 				<button type="button" className="text-left text-xs text-dim hover:text-gold-2" onClick={() => goTo(2)}>
-					<Pencil className="mr-1 inline size-3" /> Edit character
+					<Pencil className="mr-1 inline size-3" /> {t("review.editCharacter")}
 				</button>
 				<Divider />
 				<button type="button" onClick={() => void begin()} disabled={!canBegin} className="btn btn-gold justify-center py-3 text-lg shadow-[0_0_30px_rgb(212_166_74/0.25)]">
 					{busy ? <LoaderCircle className="size-5 animate-spin" /> : <Swords className="size-5" />}
-					{busy ? "Forging your world…" : "Begin Adventure"}
+					{busy ? t("review.forging") : t("review.begin")}
 				</button>
 				{error && (
 					<p className="flex items-start gap-1.5 text-sm text-crimson-2" role="alert">
 						<AlertTriangle className="mt-0.5 size-4 shrink-0" /> {error}
 					</p>
 				)}
-				{preview.error && <p className="text-xs text-crimson-2">Fix the character first: {preview.error}</p>}
+				{preview.error && <p className="text-xs text-crimson-2">{t("review.fixFirst", { error: preview.error })}</p>}
 			</aside>
 		</div>
 	);
 }
 
 function Card({ title, onEdit, children }: { title: string; onEdit: () => void; children: React.ReactNode }) {
+	const { t } = useT();
 	return (
 		<div className="panel flex flex-col gap-1.5 p-4">
 			<div className="mb-1 flex items-center justify-between">
 				<h3 className="heading text-sm">{title}</h3>
-				<button type="button" className="rounded p-1 text-faint hover:text-gold-2" onClick={onEdit} aria-label={`Edit ${title}`}>
+				<button type="button" className="rounded p-1 text-faint hover:text-gold-2" onClick={onEdit} aria-label={t("review.editAria", { title })}>
 					<Pencil className="size-3.5" />
 				</button>
 			</div>
