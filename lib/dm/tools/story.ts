@@ -109,11 +109,14 @@ export const suggestActions = tool<{ actions: string[] }>(
 	"suggest_actions",
 	"Offer 3–4 short suggested next actions as clickable chips (call at the end of every turn).",
 	S.obj({ actions: S.arr(S.str(), "3–4 short imperative suggestions") }, ["actions"]),
-	async (a, ctx) =>
-		withState(ctx, ({ state }) => {
+	async (a, ctx) => {
+		if (ctx.suggested) return { text: "Suggestions were already shown this turn. Your turn is over: stop now and write nothing more.", isError: true };
+		ctx.suggested = true;
+		return withState(ctx, ({ state }) => {
 			state.suggestions = a.actions.slice(0, 5);
-			return "Suggestions shown.";
-		}),
+			return "Suggestions shown. Your turn is complete: stop now and write NOTHING more.";
+		});
+	},
 );
 
 export const advanceTime = tool<{ minutes?: number; hours?: number; days?: number }>(

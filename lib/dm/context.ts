@@ -27,6 +27,8 @@ export interface ToolContext {
 	emit: (event: ClientEvent) => void;
 	/** Rolls recorded during this turn (also logged). */
 	rolls: RollRecord[];
+	/** suggest_actions already called this turn. */
+	suggested?: boolean;
 }
 
 export interface StateTxn {
