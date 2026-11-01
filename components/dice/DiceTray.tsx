@@ -7,6 +7,7 @@ import { critKind, visualDice } from "./diceGeometry";
 import type { DiceEngine, DiceTheme } from "./diceEngine";
 import { DieGlyph } from "./DieGlyph";
 import { outcomeText, rollChips, signedMod } from "./rollFormat";
+import { useT } from "@/components/i18n/I18nProvider";
 
 export interface DiceTrayHandle {
 	/** Animates a roll. Resolves when that roll is dismissed (click, Esc, auto-dismiss or clear()). */
@@ -226,9 +227,11 @@ export function DiceTray({
 }
 
 function ResultCard({ rec, flat }: { rec: RollRecord; flat: boolean }) {
+	const { t } = useT();
 	const crit = critKind(rec);
 	const chips = rollChips(rec);
-	const outcome = outcomeText(rec);
+	const outcomeKey = outcomeText(rec);
+	const outcome = outcomeKey ? t(outcomeKey) : null;
 	const glow =
 		crit === "gold"
 			? "0 0 22px rgba(255,194,61,0.85), 0 0 60px rgba(255,170,40,0.45)"
@@ -269,7 +272,7 @@ function ResultCard({ rec, flat }: { rec: RollRecord; flat: boolean }) {
 				</div>
 				{crit && (
 					<div className={clsx("relative mt-1 text-xs font-bold uppercase tracking-[0.3em]", crit === "gold" ? "text-amber-300" : "text-red-400")}>
-						{crit === "gold" ? (rec.critical === "hit" ? "Critical hit!" : "Natural 20") : rec.critical === "miss" ? "Critical miss" : "Natural 1"}
+						{t(crit === "gold" ? (rec.critical === "hit" ? "play.dice.critHitBang" : "play.dice.nat20") : rec.critical === "miss" ? "play.dice.critMiss" : "play.dice.nat1")}
 					</div>
 				)}
 				<div className="relative mt-3 flex flex-wrap items-center justify-center gap-1.5">
@@ -282,15 +285,15 @@ function ResultCard({ rec, flat }: { rec: RollRecord; flat: boolean }) {
 					<span className="font-mono">{rec.notation}</span>
 					{rec.advantage && (
 						<span className={clsx("rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider", rec.advantage === "advantage" ? "bg-emerald-900/60 text-emerald-300" : "bg-rose-900/60 text-rose-300")}>
-							{rec.advantage === "advantage" ? "Adv" : "Dis"}
+							{t(rec.advantage === "advantage" ? "play.dice.adv" : "play.dice.dis")}
 						</span>
 					)}
-					{rec.target !== undefined && <span>vs {rec.target}</span>}
+					{rec.target !== undefined && <span>{t("play.dice.vs", { n: rec.target })}</span>}
 					{outcome && !rec.critical && (
 						<span className={clsx("font-semibold uppercase tracking-wider", rec.success ? "text-emerald-400" : "text-rose-400")}>{outcome}</span>
 					)}
 				</div>
-				<div className="relative mt-2 text-[10px] uppercase tracking-widest text-stone-500">click to continue</div>
+				<div className="relative mt-2 text-[10px] uppercase tracking-widest text-stone-500">{t("play.dice.clickToContinue")}</div>
 			</div>
 		</div>
 	);

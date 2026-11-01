@@ -459,6 +459,8 @@ export interface OverlayOptions {
 	showUndiscovered?: boolean;
 	hoverId?: string | null;
 	selectedId?: string | null;
+	/** Route travel-time label (default "1 day" / "N days"). */
+	daysLabel?: (days: number) => string;
 }
 
 export function routeCurve(world: WorldMap, r: WorldMap["routes"][number], W: number, H: number): { a: [number, number]; c: [number, number]; b: [number, number] } | null {
@@ -522,7 +524,7 @@ export function paintWorldOverlay(ctx: CanvasRenderingContext2D, world: WorldMap
 		ctx.font = `italic ${Math.round(13 * u)}px ${opt.fontFamily}`;
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
-		const label = `${r.travelDays} ${r.travelDays === 1 ? "day" : "days"}`;
+		const label = opt.daysLabel ? opt.daysLabel(r.travelDays) : `${r.travelDays} ${r.travelDays === 1 ? "day" : "days"}`;
 		ctx.lineWidth = 3;
 		ctx.strokeStyle = "rgba(236,220,180,0.9)";
 		ctx.strokeText(label, px, py);

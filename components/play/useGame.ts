@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CampaignSettings, GameState, LogEntry, PlayerCombatAction, RollRecord } from "@/lib/game/types";
 import type { ClientEvent, FxEvent } from "@/lib/dm/context";
+import { useT } from "@/components/i18n/I18nProvider";
 
 export interface LiveTool {
 	id: string;
@@ -58,6 +59,13 @@ async function readSse(res: Response, onEvent: (e: ClientEvent) => void): Promis
 }
 
 export function useGame(id: string) {
+	// Error messages read the current language through a ref so switching it never re-runs effects.
+	const { t: tNow } = useT();
+	const tRef = useRef(tNow);
+	useEffect(() => {
+		tRef.current = tNow;
+	}, [tNow]);
+	const t = useCallback<typeof tNow>((key, vars) => tRef.current(key, vars), []);
 	const [state, setState] = useState<GameState | null>(null);
 	const [log, setLog] = useState<LogEntry[]>([]);
 	const [live, setLive] = useState<LiveTurn | null>(null);
@@ -71,7 +79,7 @@ export function useGame(id: string) {
 	const refresh = useCallback(async () => {
 		const res = await fetch(`/api/campaigns/${id}`, { cache: "no-store" });
 		if (!res.ok) {
-			setError((await res.json().catch(() => ({}))).error ?? `Failed to load (${res.status})`);
+			setError((await res.json().catch(() => ({}))).error ?? t("play.err.load", { status: res.status }));
 			setLoaded(true);
 			return null;
 		}
@@ -80,7 +88,7 @@ export function useGame(id: string) {
 		setLog(data.log);
 		setLoaded(true);
 		return data;
-	}, [id]);
+	}, [id, t]);
 
 	useEffect(() => {
 		// eslint-disable-next-line react-hooks/set-state-in-effect -- initial fetch
@@ -98,7 +106,7 @@ export function useGame(id: string) {
 			try {
 				const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
 				if (!res.ok || !res.headers.get("content-type")?.includes("event-stream")) {
-					const msg = (await res.json().catch(() => ({}))).error ?? `Request failed (${res.status})`;
+					const msg = (await res.json().catch(() => ({}))).error ?? t("play.err.request", { status: res.status });
 					setError(msg);
 					return;
 				}
@@ -144,7 +152,7 @@ export function useGame(id: string) {
 				await refresh();
 			}
 		},
-		[refresh],
+		[refresh, t],
 	);
 
 	const send = useCallback((text: string) => stream(`/api/campaigns/${id}/turn`, { text }, { showPlayer: text }), [id, stream]);
@@ -157,9 +165,9 @@ export function useGame(id: string) {
 			const res = await fetch(`/api/campaigns/${id}/settings`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ settings, title }) });
 			const data = await res.json();
 			if (data.state) setState(data.state);
-			else setError(data.error ?? "Failed to save settings");
+			else setError(data.error ?? t("play.err.settings"));
 		},
-		[id],
+		[id, t],
 	);
 
 	return { state, setState, log, live, busy, error, setError, rollQueue, fx, loaded, refresh, send, act, rollPending, abort, patchSettings };

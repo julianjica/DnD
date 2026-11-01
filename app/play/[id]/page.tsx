@@ -2,7 +2,7 @@
 
 import { Suspense, use, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { PlayScreen } from "@/components/play/PlayScreen";
+import { PlayLoading, PlayScreen } from "@/components/play/PlayScreen";
 
 function Inner({ id }: { id: string }) {
 	const params = useSearchParams();
@@ -17,7 +17,7 @@ function Inner({ id }: { id: string }) {
 export default function PlayPage({ params }: PageProps<"/play/[id]">) {
 	const { id } = use(params);
 	return (
-		<Suspense fallback={<div className="grid h-screen place-items-center text-dim">Loading…</div>}>
+		<Suspense fallback={<PlayLoading />}>
 			<Inner id={id} />
 		</Suspense>
 	);

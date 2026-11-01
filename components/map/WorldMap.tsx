@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { WorldLocation, WorldMap as WorldMapState } from "@/lib/game/types";
 import { paintWorldBase, paintWorldOverlay, sampleWorld } from "./art/worldPainter";
 import { mapFont } from "./mapFont";
+import { useT } from "@/components/i18n/I18nProvider";
 
 export interface WorldMapProps {
 	world: WorldMapState;
@@ -15,14 +16,13 @@ export interface WorldMapProps {
 	className?: string;
 }
 
-const KIND_LABEL: Record<string, string> = { city: "City", town: "Town", village: "Village", dungeon: "Dungeon", cave: "Cave", forest: "Forest", mountain: "Mountain", ruins: "Ruins", castle: "Castle", temple: "Temple", swamp: "Swamp", coast: "Coast", camp: "Camp", tower: "Tower", landmark: "Landmark" };
-
 /**
  * Parchment overworld map. Terrain is generated from world.seed/terrain
  * (identical to lib/maps/world.ts sampling), painted once per size, and
  * overlaid with routes, location icons and labels. Locations are real buttons.
  */
 export default function WorldMap({ world, onLocationClick, selectedLocationId, showUndiscovered, className }: WorldMapProps) {
+	const { t, te } = useT();
 	const wrapRef = useRef<HTMLDivElement>(null);
 	const baseRef = useRef<HTMLCanvasElement>(null);
 	const overRef = useRef<HTMLCanvasElement>(null);
@@ -73,8 +73,14 @@ export default function WorldMap({ world, onLocationClick, selectedLocationId, s
 		if (!c || !box || !fontReady) return;
 		c.width = Math.round(box.w * dpr);
 		c.height = Math.round(box.h * dpr);
-		paintWorldOverlay(c.getContext("2d")!, world, c.width, c.height, { fontFamily: family, showUndiscovered, hoverId: hover, selectedId: selectedLocationId });
-	}, [box, world, fontReady, family, showUndiscovered, hover, selectedLocationId, dpr]);
+		paintWorldOverlay(c.getContext("2d")!, world, c.width, c.height, {
+			fontFamily: family,
+			showUndiscovered,
+			hoverId: hover,
+			selectedId: selectedLocationId,
+			daysLabel: (n) => t(n === 1 ? "play.map.day" : "play.map.days", { n }),
+		});
+	}, [box, world, fontReady, family, showUndiscovered, hover, selectedLocationId, dpr, t]);
 
 	const current = world.locations.find((l) => l.id === world.currentLocationId);
 	const visible = world.locations.filter((l) => l.discovered || showUndiscovered);
@@ -100,7 +106,7 @@ export default function WorldMap({ world, onLocationClick, selectedLocationId, s
 						<button
 							key={l.id}
 							type="button"
-							aria-label={`${l.name} (${KIND_LABEL[l.kind] ?? l.kind})`}
+							aria-label={`${l.name} (${te("location", l.kind)})`}
 							className="absolute h-11 w-11 -translate-x-1/2 -translate-y-1/2 rounded-full outline-none focus-visible:ring-2 focus-visible:ring-amber-700"
 							style={{ left: l.x * box.w, top: l.y * box.h - 6, cursor: onLocationClick ? "pointer" : "default" }}
 							onMouseEnter={() => setHover(l.id)}
@@ -117,8 +123,8 @@ export default function WorldMap({ world, onLocationClick, selectedLocationId, s
 						>
 							<div className="text-base leading-tight">{hovered.name}</div>
 							<div className="text-xs italic opacity-80">
-								{KIND_LABEL[hovered.kind] ?? hovered.kind}
-								{hovered.id === world.currentLocationId ? " · you are here" : hovered.visited ? " · visited" : ""}
+								{te("location", hovered.kind)}
+								{hovered.id === world.currentLocationId ? ` · ${t("play.map.youAreHere")}` : hovered.visited ? ` · ${t("play.map.visited")}` : ""}
 							</div>
 							{hovered.description && <div className="mt-1 text-xs">{hovered.description}</div>}
 						</div>

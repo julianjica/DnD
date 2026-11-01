@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import type { GridMap, MapEntity } from "@/lib/game/types";
 import type { AoeTemplate } from "@/lib/maps/aoe";
 import type { Point } from "@/lib/maps/grid";
+import { useT } from "@/components/i18n/I18nProvider";
 import type { BattleRenderer, MapFxEvent, RendererCallbacks, TokenStatus } from "./battle/BattleRenderer";
 
 export type { MapFxEvent, TokenStatus };
@@ -57,6 +58,7 @@ export interface BattleMapProps {
  * double-mount safe) and every prop change is applied incrementally.
  */
 export default function BattleMap(props: BattleMapProps) {
+	const { t } = useT();
 	const hostRef = useRef<HTMLDivElement>(null);
 	const rendererRef = useRef<BattleRenderer | null>(null);
 	const cbRef = useRef<RendererCallbacks>({});
@@ -150,14 +152,14 @@ export default function BattleMap(props: BattleMapProps) {
 	return (
 		<div className={`relative h-full w-full overflow-hidden bg-[#07060a] ${props.className ?? ""}`}>
 			<div ref={hostRef} className="absolute inset-0" />
-			{!ready && !error && <div className="pointer-events-none absolute inset-0 grid place-items-center text-sm text-stone-400">Drawing map…</div>}
-			{error && <div className="absolute inset-0 grid place-items-center p-6 text-center text-sm text-red-300">Map renderer failed: {error}</div>}
+			{!ready && !error && <div className="pointer-events-none absolute inset-0 grid place-items-center text-sm text-stone-400">{t("play.map.drawing")}</div>}
+			{error && <div className="absolute inset-0 grid place-items-center p-6 text-center text-sm text-red-300">{t("play.map.failed", { err: error })}</div>}
 			{showControls && ready && (
 				<div className="absolute bottom-3 right-3 flex gap-1 rounded-lg border border-white/10 bg-black/55 p-1 text-stone-200 shadow-lg backdrop-blur">
-					<CtlButton label="Zoom in" onClick={() => rendererRef.current?.zoomBy(1.25)}>+</CtlButton>
-					<CtlButton label="Zoom out" onClick={() => rendererRef.current?.zoomBy(0.8)}>−</CtlButton>
-					<CtlButton label="Fit map" onClick={() => rendererRef.current?.fitMap()}>⤢</CtlButton>
-					<CtlButton label="Toggle grid" active={gridOn} onClick={() => setGridOn((g) => !g)}>#</CtlButton>
+					<CtlButton label={t("play.map.zoomIn")} onClick={() => rendererRef.current?.zoomBy(1.25)}>+</CtlButton>
+					<CtlButton label={t("play.map.zoomOut")} onClick={() => rendererRef.current?.zoomBy(0.8)}>−</CtlButton>
+					<CtlButton label={t("play.map.fit")} onClick={() => rendererRef.current?.fitMap()}>⤢</CtlButton>
+					<CtlButton label={t("play.map.grid")} active={gridOn} onClick={() => setGridOn((g) => !g)}>#</CtlButton>
 				</div>
 			)}
 		</div>

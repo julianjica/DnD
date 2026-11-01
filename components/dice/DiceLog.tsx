@@ -4,6 +4,7 @@ import clsx from "clsx";
 import type { RollRecord } from "@/lib/game/types";
 import { DieGlyph } from "./DieGlyph";
 import { critKind, outcomeText, rollChips, signedMod } from "./rollFormat";
+import { useT } from "@/components/i18n/I18nProvider";
 
 export interface DiceLogProps {
 	rolls: RollRecord[];
@@ -16,13 +17,15 @@ export interface DiceLogProps {
 
 /** Compact list of recent rolls with per-die breakdown. */
 export function DiceLog({ rolls, max = 8, className, onSelect }: DiceLogProps) {
+	const { t } = useT();
 	const recent = [...rolls].sort((a, b) => b.ts - a.ts).slice(0, max);
-	if (!recent.length) return <div className={clsx("px-2 py-3 text-xs italic text-stone-500", className)}>No rolls yet.</div>;
+	if (!recent.length) return <div className={clsx("px-2 py-3 text-xs italic text-stone-500", className)}>{t("play.dice.noRolls")}</div>;
 	return (
 		<ul className={clsx("flex flex-col divide-y divide-stone-700/40", className)}>
 			{recent.map((rec) => {
 				const crit = critKind(rec);
-				const outcome = outcomeText(rec);
+				const outcomeKey = outcomeText(rec);
+				const outcome = outcomeKey ? t(outcomeKey) : null;
 				const chips = rollChips(rec);
 				const Row = onSelect ? "button" : "div";
 				return (
@@ -61,8 +64,8 @@ export function DiceLog({ rolls, max = 8, className, onSelect }: DiceLogProps) {
 									{chips.length > 12 && <span>+{chips.length - 12}</span>}
 									{rec.modifier !== 0 && <span className="ml-0.5 font-serif text-xs text-stone-300">{signedMod(rec.modifier)}</span>}
 									<span className="ml-1 font-mono text-stone-500">{rec.notation}</span>
-									{rec.advantage && <span className="text-stone-500">{rec.advantage === "advantage" ? "adv" : "dis"}</span>}
-									{rec.target !== undefined && <span className="text-stone-500">vs {rec.target}</span>}
+									{rec.advantage && <span className="text-stone-500">{t(rec.advantage === "advantage" ? "play.dice.adv" : "play.dice.dis").toLowerCase()}</span>}
+									{rec.target !== undefined && <span className="text-stone-500">{t("play.dice.vs", { n: rec.target })}</span>}
 								</span>
 							</span>
 						</Row>

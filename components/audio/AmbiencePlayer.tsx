@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState, useSyncExternalStore, type ReactNode 
 import clsx from "clsx";
 import { Music, Sparkles, Volume2, VolumeX } from "lucide-react";
 import type { AmbienceTrack } from "@/lib/game/types";
+import { useT } from "@/components/i18n/I18nProvider";
 import { getAmbienceEngine, playSfx as enginePlaySfx, type AmbienceEngineState, type SfxName, type SfxOptions } from "@/lib/audio/ambience";
 
 export type { SfxName } from "@/lib/audio/ambience";
@@ -62,6 +63,7 @@ export function useThunder(cb: () => void): void {
 
 export default function AmbiencePlayer(props: AmbiencePlayerProps) {
 	const { track, className, compact } = props;
+	const { t } = useT();
 	const engineState = useAmbienceState();
 	const [localMuted, setLocalMuted] = useState(props.muted ?? false);
 	const [localMusic, setLocalMusic] = useState(props.musicVolume);
@@ -117,8 +119,8 @@ export default function AmbiencePlayer(props: AmbiencePlayerProps) {
 
 	const sliders = (
 		<div className="flex flex-col gap-1.5">
-			<Slider icon={<Music className="size-3.5" />} label="Music & ambience" value={music} onChange={changeMusic} disabled={muted} />
-			<Slider icon={<Sparkles className="size-3.5" />} label="Sound effects" value={sfx} onChange={(v) => { changeSfx(v); previewSfx(); }} disabled={muted} />
+			<Slider icon={<Music className="size-3.5" />} label={t("play.audio.music")} value={music} onChange={changeMusic} disabled={muted} />
+			<Slider icon={<Sparkles className="size-3.5" />} label={t("play.audio.sfx")} value={sfx} onChange={(v) => { changeSfx(v); previewSfx(); }} disabled={muted} />
 		</div>
 	);
 
@@ -136,9 +138,9 @@ export default function AmbiencePlayer(props: AmbiencePlayerProps) {
 					"inline-flex size-7 shrink-0 items-center justify-center rounded-md transition-colors hover:bg-amber-200/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber-300/60",
 					muted ? "text-stone-500" : "text-amber-200",
 				)}
-				aria-label={muted ? "Unmute audio" : "Mute audio"}
+				aria-label={muted ? t("play.audio.unmute") : t("play.audio.mute")}
 				aria-pressed={muted}
-				title={locked ? "Click anywhere to enable sound" : muted ? "Unmute" : "Mute"}
+				title={locked ? t("play.audio.enable") : muted ? t("play.audio.unmuteShort") : t("play.audio.muteShort")}
 			>
 				<MuteIcon className="size-4" />
 			</button>
@@ -158,9 +160,10 @@ export default function AmbiencePlayer(props: AmbiencePlayerProps) {
 }
 
 function TrackLine({ track, locked }: { track: AmbienceTrack; locked: boolean }) {
+	const { t, te } = useT();
 	return (
 		<div className="mt-1 truncate text-[10px] uppercase tracking-wider text-stone-500">
-			{locked ? "Click anywhere to enable sound" : track === "none" ? "Silence" : `Ambience · ${track}`}
+			{locked ? t("play.audio.enable") : track === "none" ? te("ambience", "none") : t("play.audio.track", { track: te("ambience", track) })}
 		</div>
 	);
 }

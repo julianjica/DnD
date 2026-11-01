@@ -13,16 +13,25 @@ import { Stage } from "./Stage";
 import { SavesDialog } from "./SavesDialog";
 import { SettingsDrawer } from "./SettingsDrawer";
 import { LevelUpDialog } from "./LevelUpDialog";
+import { useT } from "@/components/i18n/I18nProvider";
+import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
 
 const TIME_ICON = { dawn: Sunrise, day: Sun, dusk: Sunset, night: Moon };
 
-function clock(state: GameState) {
+function clockTime(state: GameState) {
 	const t = state.time;
-	return `Day ${t.day} · ${String(t.hour).padStart(2, "0")}:${String(t.minute).padStart(2, "0")}`;
+	return `${String(t.hour).padStart(2, "0")}:${String(t.minute).padStart(2, "0")}`;
+}
+
+/** Suspense fallback for the play route. */
+export function PlayLoading() {
+	const { t } = useT();
+	return <div className="grid h-screen place-items-center text-dim">{t("common.loading")}</div>;
 }
 
 export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 	const game = useGame(id);
+	const { t, te } = useT();
 	const { state } = game;
 	const [dialog, setDialog] = useState<"saves" | "settings" | "levelup" | null>(null);
 	const openedRef = useRef(false);
@@ -49,13 +58,13 @@ export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 		}
 	}, [game.fx, state?.settings.audio.enabled]);
 
-	if (!game.loaded) return <div className="grid h-screen place-items-center font-fell text-lg italic text-dim">Lighting the candles…</div>;
+	if (!game.loaded) return <div className="grid h-screen place-items-center font-fell text-lg italic text-dim">{t("play.loading")}</div>;
 	if (!state)
 		return (
 			<div className="grid h-screen place-items-center">
 				<div className="panel p-6 text-center">
-					<p className="mb-3 text-crimson-2">{game.error ?? "Campaign not found."}</p>
-					<Link href="/" className="btn">Back home</Link>
+					<p className="mb-3 text-crimson-2">{game.error ?? t("play.notFound")}</p>
+					<Link href="/" className="btn">{t("play.backHome")}</Link>
 				</div>
 			</div>
 		);
@@ -68,20 +77,21 @@ export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 		<div className="flex h-screen flex-col overflow-hidden">
 			{/* Top bar */}
 			<header className="flex h-12 shrink-0 items-center gap-3 border-b border-line bg-bg-2/80 px-3 backdrop-blur">
-				<Link href="/" className="text-faint hover:text-gold" title="Home">
+				<Link href="/" className="text-faint hover:text-gold" title={t("play.home")} aria-label={t("play.home")}>
 					<Home size={18} />
 				</Link>
 				<div className="min-w-0">
 					<h1 className="heading truncate text-sm leading-tight">{state.title}</h1>
 					<div className="truncate text-[11px] text-dim">{state.scene.title}</div>
 				</div>
-				<div className="ml-4 hidden items-center gap-1.5 text-xs text-dim md:flex">
-					<TimeIcon size={14} className="text-gold" /> {clock(state)}
+				<div className="ml-4 hidden items-center gap-1.5 text-xs text-dim md:flex" title={te("time", state.scene.timeOfDay)}>
+					<TimeIcon size={14} className="text-gold" /> {t("play.clock", { day: state.time.day, time: clockTime(state) })}
 				</div>
 				<div className="ml-auto flex items-center gap-2">
 					<span className="hidden text-[11px] text-faint lg:inline">
 						{state.settings.engine.provider} · {state.settings.engine.model} · {state.settings.engine.effort}
 					</span>
+					<LanguageSwitch />
 					<AmbiencePlayer
 						track={state.settings.audio.enabled ? state.ambience : "none"}
 						musicVolume={state.settings.audio.musicVolume}
@@ -90,10 +100,10 @@ export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 						onSfxVolumeChange={(v) => void game.patchSettings({ audio: { ...state.settings.audio, sfxVolume: v } })}
 						compact
 					/>
-					<button className="btn px-2 py-1.5" onClick={() => setDialog("saves")} title="Save / load">
+					<button className="btn px-2 py-1.5" onClick={() => setDialog("saves")} title={t("play.saveLoad")} aria-label={t("play.saveLoad")}>
 						<Save size={16} />
 					</button>
-					<button className="btn px-2 py-1.5" onClick={() => setDialog("settings")} title="Campaign settings">
+					<button className="btn px-2 py-1.5" onClick={() => setDialog("settings")} title={t("play.settings")} aria-label={t("play.settings")}>
 						<Settings2 size={16} />
 					</button>
 				</div>
@@ -102,7 +112,7 @@ export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 			{game.error && (
 				<div className="flex items-center gap-2 border-b border-crimson/40 bg-crimson/10 px-4 py-1.5 text-sm text-crimson-2">
 					<AlertTriangle size={15} /> <span className="min-w-0 flex-1 truncate">{game.error}</span>
-					<button onClick={() => game.setError(null)}><X size={14} /></button>
+					<button onClick={() => game.setError(null)} title={t("play.dismiss")} aria-label={t("play.dismiss")}><X size={14} /></button>
 				</div>
 			)}
 
@@ -115,7 +125,7 @@ export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 					<Stage state={state} busy={game.busy} fx={game.fx} act={(a) => void game.act(a)} setView={(v) => game.setState({ ...state, view: v })} />
 					{enemyTurnStalled && (
 						<button className="btn btn-gold absolute bottom-16 left-1/2 z-20 -translate-x-1/2" onClick={() => void game.send("(Continue the enemies' turns.)")}>
-							Let the enemies act
+							{t("play.letEnemiesAct")}
 						</button>
 					)}
 				</section>

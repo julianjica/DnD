@@ -12,9 +12,16 @@ import { getSpell } from "@/lib/srd";
 import type { AoeTemplate } from "@/lib/maps/aoe";
 import type { FxItem } from "./useGame";
 import type { MapFxEvent, TokenStatus } from "@/components/map/BattleMap";
+import { useT } from "@/components/i18n/I18nProvider";
+import type { MessageKey } from "@/lib/i18n";
 
-const BattleMap = dynamic(() => import("@/components/map/BattleMap"), { ssr: false, loading: () => <div className="grid h-full place-items-center text-dim">Unrolling the map…</div> });
-const WorldMap = dynamic(() => import("@/components/map/WorldMap"), { ssr: false, loading: () => <div className="grid h-full place-items-center text-dim">Unfolding the world…</div> });
+function Loading({ k }: { k: MessageKey }) {
+	const { t } = useT();
+	return <div className="grid h-full place-items-center text-dim">{t(k)}</div>;
+}
+
+const BattleMap = dynamic(() => import("@/components/map/BattleMap"), { ssr: false, loading: () => <Loading k="play.stage.loadingMap" /> });
+const WorldMap = dynamic(() => import("@/components/map/WorldMap"), { ssr: false, loading: () => <Loading k="play.stage.loadingWorld" /> });
 
 type Point = { x: number; y: number };
 type Mode = { kind: "move" } | { kind: "attack"; itemId?: string; label: string } | { kind: "cast"; spell: SpellInfo; slotLevel: number; targets: string[] };
@@ -54,10 +61,11 @@ function explorePath(map: GridMap, from: Point, to: Point): Point[] | null {
 }
 
 function Initiative({ state }: { state: GameState }) {
+	const { t, te } = useT();
 	const e = state.encounter!;
 	return (
 		<div className="flex items-center gap-1.5 overflow-x-auto px-3 py-2">
-			<span className="mr-1 shrink-0 font-display text-xs text-gold">Round {e.round}</span>
+			<span className="mr-1 shrink-0 font-display text-xs text-gold">{t("play.combat.round", { n: e.round })}</span>
 			{e.order.map((id, i) => {
 				const c = e.combatants[id];
 				if (!c) return null;
@@ -76,7 +84,7 @@ function Initiative({ state }: { state: GameState }) {
 								<div className="h-full bg-hp" style={{ width: `${pct}%` }} />
 							</div>
 						) : (
-							<div className="mt-0.5 text-[9px] uppercase tracking-wider text-faint">{pct >= 100 ? "unhurt" : pct > 50 ? "wounded" : pct > 0 ? "bloodied" : "down"}</div>
+							<div className="mt-0.5 text-[9px] uppercase tracking-wider text-faint">{te("health", pct >= 100 ? "unhurt" : pct > 50 ? "wounded" : pct > 0 ? "bloodied" : "down")}</div>
 						)}
 					</div>
 				);
@@ -96,6 +104,7 @@ function Pip({ on, label }: { on: boolean; label: string }) {
 
 function ActionBar(props: { state: GameState; pc: Combatant; mode: Mode; setMode: (m: Mode) => void; act: (a: PlayerCombatAction) => void; busy: boolean }) {
 	const { state, pc, mode, setMode, act, busy } = props;
+	const { t: tr, te } = useT();
 	const sheet = useMemo(() => {
 		try {
 			return deriveSheet(state.character);
@@ -126,35 +135,35 @@ function ActionBar(props: { state: GameState; pc: Combatant; mode: Mode; setMode
 	if (dying)
 		return (
 			<div className="flex items-center gap-3 px-3 py-2">
-				<span className="text-sm text-crimson-2">You are dying…</span>
+				<span className="text-sm text-crimson-2">{tr("play.combat.dying")}</span>
 				<button className="btn btn-gold" disabled={busy} onClick={() => act({ type: "death_save" })}>
-					<Skull size={15} /> Death saving throw
+					<Skull size={15} /> {tr("play.combat.deathSave")}
 				</button>
-				<button className="btn" disabled={busy} onClick={() => act({ type: "end_turn" })}>End turn</button>
+				<button className="btn" disabled={busy} onClick={() => act({ type: "end_turn" })}>{tr("play.combat.endTurn")}</button>
 			</div>
 		);
 
 	return (
 		<div className="flex flex-wrap items-center gap-1.5 px-3 py-2">
 			<div className="mr-2 flex flex-col gap-0.5">
-				<span className="text-[11px] text-dim"><Footprints size={11} className="inline" /> {t.movementLeft} ft</span>
+				<span className="text-[11px] text-dim"><Footprints size={11} className="inline" /> {t.movementLeft} {tr("play.unit.ft")}</span>
 				<div className="flex gap-2">
-					<Pip on={t.action} label="Action" />
-					<Pip on={t.bonusAction} label="Bonus" />
-					<Pip on={t.reaction} label="React" />
+					<Pip on={t.action} label={tr("play.combat.action")} />
+					<Pip on={t.bonusAction} label={tr("play.combat.bonus")} />
+					<Pip on={t.reaction} label={tr("play.combat.reaction")} />
 				</div>
 			</div>
-			<button className="btn" data-active={mode.kind === "move"} style={mode.kind === "move" ? { borderColor: "var(--gold)" } : undefined} onClick={() => setMode({ kind: "move" })} title="Click a highlighted square to move">
-				<Footprints size={15} /> Move
+			<button className="btn" data-active={mode.kind === "move"} style={mode.kind === "move" ? { borderColor: "var(--gold)" } : undefined} onClick={() => setMode({ kind: "move" })} title={tr("play.combat.moveTitle")}>
+				<Footprints size={15} /> {tr("play.combat.move")}
 			</button>
-			{(sheet?.attacks.length ? sheet.attacks : [{ name: "Unarmed", itemId: undefined, toHit: 0, damage: "1" }]).slice(0, 3).map((a, i) => (
+			{(sheet?.attacks.length ? sheet.attacks : [{ name: tr("play.combat.unarmed"), itemId: undefined, toHit: 0, damage: "1" }]).slice(0, 3).map((a, i) => (
 				<button
 					key={i}
 					className="btn"
 					disabled={busy || (!t.action && t.attacksLeft <= 0)}
 					style={mode.kind === "attack" && mode.itemId === a.itemId ? { borderColor: "var(--crimson-2)" } : undefined}
 					onClick={() => setMode({ kind: "attack", itemId: a.itemId, label: a.name })}
-					title={`${a.name}: ${a.toHit >= 0 ? "+" : ""}${a.toHit} to hit, ${a.damage} — then click a target`}
+					title={tr("play.combat.attackTitle", { name: a.name, hit: `${a.toHit >= 0 ? "+" : ""}${a.toHit}`, dmg: a.damage })}
 				>
 					<Swords size={15} /> {a.name}
 					{t.attacksLeft > 1 && <span className="text-xs text-gold">×{t.attacksLeft}</span>}
@@ -163,7 +172,7 @@ function ActionBar(props: { state: GameState; pc: Combatant; mode: Mode; setMode
 			{spells.length > 0 && (
 				<div className="relative">
 					<button className="btn" disabled={busy} onClick={() => setSpellMenu((v) => !v)} style={mode.kind === "cast" ? { borderColor: "var(--violet)" } : undefined}>
-						<Wand2 size={15} /> {mode.kind === "cast" ? mode.spell.name : "Cast"}
+						<Wand2 size={15} /> {mode.kind === "cast" ? mode.spell.name : tr("play.cast")}
 					</button>
 					{spellMenu && (
 						<div className="panel absolute bottom-full left-0 z-30 mb-2 max-h-72 w-72 overflow-y-auto p-1.5">
@@ -182,7 +191,9 @@ function ActionBar(props: { state: GameState; pc: Combatant; mode: Mode; setMode
 										}}
 									>
 										<span>{s.name}</span>
-										<span className="text-xs text-faint">{s.level === 0 ? "cantrip" : `L${slot > 0 ? slot : s.level}`}{bonus ? " · bonus" : ""}{s.area ? ` · ${s.area.shape}` : ""}</span>
+										<span className="text-xs text-faint">{s.level === 0 ? tr("play.combat.cantrip") : tr("play.spells.slot", { n: slot > 0 ? slot : s.level })}
+											{bonus ? ` · ${tr("play.combat.bonusShort")}` : ""}
+											{s.area ? ` · ${te("shape", s.area.shape)}` : ""}</span>
 									</button>
 								);
 							})}
@@ -191,12 +202,12 @@ function ActionBar(props: { state: GameState; pc: Combatant; mode: Mode; setMode
 				</div>
 			)}
 			<span className="mx-1 h-6 w-px bg-line" />
-			<button className="btn" disabled={busy || !t.action} onClick={() => act({ type: "dash" })} title="Dash"><Wind size={15} /></button>
-			<button className="btn" disabled={busy || !t.action} onClick={() => act({ type: "disengage" })} title="Disengage"><ShieldHalf size={15} /></button>
-			<button className="btn" disabled={busy || !t.action} onClick={() => act({ type: "dodge" })} title="Dodge"><Zap size={15} /></button>
-			<button className="btn" disabled={busy || !t.action} onClick={() => act({ type: "hide" })} title="Hide"><EyeOff size={15} /></button>
+			<button className="btn" disabled={busy || !t.action} onClick={() => act({ type: "dash" })} title={tr("play.combat.dash")}><Wind size={15} /></button>
+			<button className="btn" disabled={busy || !t.action} onClick={() => act({ type: "disengage" })} title={tr("play.combat.disengage")}><ShieldHalf size={15} /></button>
+			<button className="btn" disabled={busy || !t.action} onClick={() => act({ type: "dodge" })} title={tr("play.combat.dodge")}><Zap size={15} /></button>
+			<button className="btn" disabled={busy || !t.action} onClick={() => act({ type: "hide" })} title={tr("play.combat.hide")}><EyeOff size={15} /></button>
 			{potions.length > 0 && (
-				<button className="btn" disabled={busy || !t.bonusAction} onClick={() => act({ type: "use_item", itemId: potions[0].id })} title={`Drink ${potions[0].name}`}>
+				<button className="btn" disabled={busy || !t.bonusAction} onClick={() => act({ type: "use_item", itemId: potions[0].id })} title={tr("play.combat.drink", { name: potions[0].name })}>
 					<FlaskConical size={15} className="text-crimson-2" />
 				</button>
 			)}
@@ -206,7 +217,7 @@ function ActionBar(props: { state: GameState; pc: Combatant; mode: Mode; setMode
 				</button>
 			))}
 			<button className="btn btn-gold ml-auto" disabled={busy} onClick={() => act({ type: "end_turn" })}>
-				<Hourglass size={15} /> End turn
+				<Hourglass size={15} /> {tr("play.combat.endTurn")}
 			</button>
 		</div>
 	);
@@ -214,6 +225,7 @@ function ActionBar(props: { state: GameState; pc: Combatant; mode: Mode; setMode
 
 export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; act: (a: PlayerCombatAction) => void; setView: (v: GameState["view"]) => void }) {
 	const { state, busy, act } = props;
+	const { t, te } = useT();
 	const view = state.view;
 	const map = state.activeMapId ? state.maps[state.activeMapId] : undefined;
 	const enc = state.encounter?.status === "active" ? state.encounter : undefined;
@@ -269,10 +281,10 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 				.map((f) => ({
 					id: f.id,
 					entityId: f.entityId ?? pcEntity?.id,
-					text: f.kind === "miss" ? "miss" : `${f.kind === "heal" ? "+" : "-"}${f.amount}`,
+					text: f.kind === "miss" ? t("play.fx.miss") : `${f.kind === "heal" ? "+" : "-"}${f.amount}`,
 					kind: f.kind as MapFxEvent["kind"],
 				})),
-		[props.fx, pcEntity?.id],
+		[props.fx, pcEntity?.id, t],
 	);
 
 	const onSquareClick = (p: Point) => {
@@ -302,28 +314,28 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 		}
 	};
 
-	const tabs: { id: GameState["view"]; label: string; icon: typeof MapIcon; disabled?: boolean }[] = [
-		{ id: "scene", label: "Scene", icon: ImageIcon },
-		{ id: "map", label: "Map", icon: MapIcon, disabled: !map },
-		{ id: "world", label: "World", icon: Globe2 },
+	const tabs: { id: GameState["view"]; icon: typeof MapIcon; disabled?: boolean }[] = [
+		{ id: "scene", icon: ImageIcon },
+		{ id: "map", icon: MapIcon, disabled: !map },
+		{ id: "world", icon: Globe2 },
 	];
 
 	return (
 		<div className="relative flex h-full min-h-0 flex-col">
 			<div className="flex items-center justify-between border-b border-line px-2">
 				<div className="flex">
-					{tabs.map((t) => (
+					{tabs.map((tb) => (
 						<button
-							key={t.id}
-							disabled={t.disabled}
-							onClick={() => props.setView(t.id)}
-							className={`flex items-center gap-1.5 px-3 py-2 text-sm transition disabled:opacity-30 ${view === t.id ? "text-gold-2" : "text-faint hover:text-dim"}`}
+							key={tb.id}
+							disabled={tb.disabled}
+							onClick={() => props.setView(tb.id)}
+							className={`flex items-center gap-1.5 px-3 py-2 text-sm transition disabled:opacity-30 ${view === tb.id ? "text-gold-2" : "text-faint hover:text-dim"}`}
 						>
-							<t.icon size={15} /> {t.label}
+							<tb.icon size={15} /> {te("view", tb.id)}
 						</button>
 					))}
 				</div>
-				{enc && <span className="flex items-center gap-1.5 pr-2 font-display text-xs tracking-widest text-crimson-2"><Swords size={14} /> COMBAT{myTurn ? " · YOUR TURN" : ""}</span>}
+				{enc && <span className="flex items-center gap-1.5 pr-2 font-display text-xs uppercase tracking-widest text-crimson-2"><Swords size={14} /> {t("play.combat.banner")}{myTurn ? ` · ${t("play.combat.yourTurn")}` : ""}</span>}
 			</div>
 			{enc && <div className="border-b border-line bg-bg-2/50"><Initiative state={state} /></div>}
 
@@ -340,7 +352,7 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 						highlights={reach}
 						highlightColor={0x5b8fb9}
 						pathPreview={preview?.path}
-						pathLabel={preview ? `${preview.cost} ft` : undefined}
+						pathLabel={preview ? `${preview.cost} ${t("play.unit.ft")}` : undefined}
 						aoe={aoe}
 						focus={enc ? (enc.combatants[enc.order[enc.turnIndex]]?.entityId ?? null) : (pcEntity?.id ?? null)}
 						events={mapFx}
@@ -357,15 +369,15 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 				)}
 				{mode.kind !== "move" && enc && myTurn && (
 					<div className="panel absolute left-1/2 top-3 z-20 flex -translate-x-1/2 items-center gap-2 px-3 py-1.5 text-sm">
-						{mode.kind === "attack" ? `Choose a target for ${mode.label}` : mode.kind === "cast" ? (mode.spell.area ? `Choose where to cast ${mode.spell.name}` : `Choose a target for ${mode.spell.name}`) : ""}
-						<button className="text-faint hover:text-text" onClick={() => setMode({ kind: "move" })}><X size={14} /></button>
+						{mode.kind === "attack" ? t("play.combat.chooseTarget", { name: mode.label }) : mode.kind === "cast" ? (mode.spell.area ? t("play.combat.chooseArea", { name: mode.spell.name }) : t("play.combat.chooseTarget", { name: mode.spell.name })) : ""}
+						<button className="text-faint hover:text-text" title={t("common.cancel")} aria-label={t("common.cancel")} onClick={() => setMode({ kind: "move" })}><X size={14} /></button>
 					</div>
 				)}
 			</div>
 
 			{enc && pc && view === "map" && (
 				<div className="border-t border-line bg-bg-2/80">
-					{myTurn ? <ActionBar state={state} pc={pc} mode={mode} setMode={setMode} act={act} busy={busy} /> : <div className="px-3 py-3 text-sm text-dim font-fell italic">{busy ? "The enemies act…" : `Waiting for ${enc.combatants[enc.order[enc.turnIndex]]?.name ?? "…"}`}</div>}
+					{myTurn ? <ActionBar state={state} pc={pc} mode={mode} setMode={setMode} act={act} busy={busy} /> : <div className="px-3 py-3 text-sm text-dim font-fell italic">{busy ? t("play.combat.enemiesAct") : t("play.combat.waiting", { name: enc.combatants[enc.order[enc.turnIndex]]?.name ?? "…" })}</div>}
 				</div>
 			)}
 		</div>

@@ -4,13 +4,16 @@ import { useEffect, useState } from "react";
 import type { CampaignSettings, Effort, GameState, ModelOption } from "@/lib/game/types";
 import { Modal } from "./Modal";
 import { LANGS } from "@/lib/i18n";
+import { useT } from "@/components/i18n/I18nProvider";
 
-function Seg<T extends string>({ value, options, onChange }: { value: T; options: readonly T[]; onChange: (v: T) => void }) {
+/** Segmented choice; labels come from the "enum.<group>.<id>" dictionary. */
+function Seg<T extends string>({ group, value, options, onChange }: { group: string; value: T; options: readonly T[]; onChange: (v: T) => void }) {
+	const { te } = useT();
 	return (
 		<div className="flex flex-wrap gap-1">
 			{options.map((o) => (
-				<button key={o} type="button" className="chip capitalize" data-active={value === o} onClick={() => onChange(o)}>
-					{o.replace(/_/g, " ")}
+				<button key={o} type="button" className="chip" data-active={value === o} onClick={() => onChange(o)}>
+					{te(group, o)}
 				</button>
 			))}
 		</div>
@@ -30,6 +33,7 @@ function Field({ label, children, hint }: { label: string; children: React.React
 const EFFORTS: Effort[] = ["off", "low", "medium", "high", "xhigh", "max"];
 
 export function SettingsDrawer({ state, onClose, onSave }: { state: GameState; onClose: () => void; onSave: (s: Partial<CampaignSettings>, title?: string) => Promise<void> }) {
+	const { t } = useT();
 	const [s, setS] = useState<CampaignSettings>(structuredClone(state.settings));
 	const [title, setTitle] = useState(state.title);
 	const [models, setModels] = useState<ModelOption[]>([]);
@@ -46,12 +50,12 @@ export function SettingsDrawer({ state, onClose, onSave }: { state: GameState; o
 	const engineModels = models.filter((m) => m.provider === s.engine.provider && (s.engine.provider !== "api" || !s.engine.apiProvider || m.apiProvider === s.engine.apiProvider));
 
 	return (
-		<Modal title="Campaign Settings" onClose={onClose} side>
+		<Modal title={t("play.set.title")} onClose={onClose} side>
 			<div className="space-y-5">
-				<Field label="Title">
+				<Field label={t("play.set.campaignTitle")}>
 					<input className="input" value={title} onChange={(e) => setTitle(e.target.value)} />
 				</Field>
-				<Field label="Narration language" hint="The DM writes in this language from the next turn.">
+				<Field label={t("play.set.language")} hint={t("play.set.languageHint")}>
 					<div className="flex flex-wrap gap-1">
 						{LANGS.map((l) => (
 							<button key={l.id} type="button" className="chip" data-active={(s.language ?? "en") === l.id} onClick={() => setS((p) => ({ ...p, language: l.id }))}>
@@ -61,11 +65,11 @@ export function SettingsDrawer({ state, onClose, onSave }: { state: GameState; o
 					</div>
 				</Field>
 				<div className="divider-ornate" />
-				<h3 className="heading text-sm">Dungeon Master</h3>
-				<Field label="Engine" hint="Changing engine or model starts a fresh DM session; the state digest keeps continuity.">
-					<Seg value={s.engine.provider} options={["claude-code", "codex", "api"] as const} onChange={(provider) => set("engine", { provider, model: models.find((m) => m.provider === provider && m.available)?.id ?? s.engine.model })} />
+				<h3 className="heading text-sm">{t("play.set.dm")}</h3>
+				<Field label={t("play.set.engine")} hint={t("play.set.engineHint")}>
+					<Seg group="provider" value={s.engine.provider} options={["claude-code", "codex", "api"] as const} onChange={(provider) => set("engine", { provider, model: models.find((m) => m.provider === provider && m.available)?.id ?? s.engine.model })} />
 				</Field>
-				<Field label="Model">
+				<Field label={t("play.set.model")}>
 					<select className="input" value={`${s.engine.apiProvider ?? ""}|${s.engine.model}`} onChange={(e) => {
 						const [apiProvider, model] = e.target.value.split("|");
 						set("engine", { model, apiProvider: apiProvider || undefined });
@@ -73,56 +77,56 @@ export function SettingsDrawer({ state, onClose, onSave }: { state: GameState; o
 						{engineModels.length === 0 && <option value={`|${s.engine.model}`}>{s.engine.model}</option>}
 						{engineModels.map((m) => (
 							<option key={`${m.apiProvider}|${m.id}`} value={`${m.apiProvider ?? ""}|${m.id}`} disabled={!m.available}>
-								{m.label}{m.available ? "" : ` — ${m.reason ?? "unavailable"}`}
+								{m.label}{m.available ? "" : ` — ${m.reason ?? t("play.set.unavailable")}`}
 							</option>
 						))}
 					</select>
 				</Field>
-				<Field label="Reasoning effort">
-					<Seg value={s.engine.effort} options={EFFORTS} onChange={(effort) => set("engine", { effort })} />
+				<Field label={t("play.set.effort")}>
+					<Seg group="effort" value={s.engine.effort} options={EFFORTS} onChange={(effort) => set("engine", { effort })} />
 				</Field>
-				<Field label="Narration">
-					<Seg value={s.dm.verbosity} options={["terse", "balanced", "rich"] as const} onChange={(verbosity) => set("dm", { verbosity })} />
+				<Field label={t("play.set.narration")}>
+					<Seg group="verbosity" value={s.dm.verbosity} options={["terse", "balanced", "rich"] as const} onChange={(verbosity) => set("dm", { verbosity })} />
 				</Field>
-				<Field label="Rules">
-					<Seg value={s.dm.rulesStrictness} options={["loose", "standard", "strict"] as const} onChange={(rulesStrictness) => set("dm", { rulesStrictness })} />
+				<Field label={t("play.set.rules")}>
+					<Seg group="strictness" value={s.dm.rulesStrictness} options={["loose", "standard", "strict"] as const} onChange={(rulesStrictness) => set("dm", { rulesStrictness })} />
 				</Field>
-				<Field label="Combat frequency">
-					<Seg value={s.dm.combatFrequency} options={["low", "medium", "high"] as const} onChange={(combatFrequency) => set("dm", { combatFrequency })} />
+				<Field label={t("play.set.combatFrequency")}>
+					<Seg group="frequency" value={s.dm.combatFrequency} options={["low", "medium", "high"] as const} onChange={(combatFrequency) => set("dm", { combatFrequency })} />
 				</Field>
-				<Field label="Player rolls">
-					<Seg value={s.dm.autoRollPlayer ? "automatic" : "I roll"} options={["automatic", "I roll"] as const} onChange={(v) => set("dm", { autoRollPlayer: v === "automatic" })} />
+				<Field label={t("play.set.playerRolls")}>
+					<Seg group="autoRoll" value={s.dm.autoRollPlayer ? "auto" : "manual"} options={["auto", "manual"] as const} onChange={(v) => set("dm", { autoRollPlayer: v === "auto" })} />
 				</Field>
-				<Field label="DM persona">
-					<textarea className="input" rows={2} value={s.dm.persona ?? ""} onChange={(e) => set("dm", { persona: e.target.value })} placeholder="e.g. A wry, grizzled storyteller who loves foreshadowing" />
+				<Field label={t("play.set.persona")}>
+					<textarea className="input" rows={2} value={s.dm.persona ?? ""} onChange={(e) => set("dm", { persona: e.target.value })} placeholder={t("play.set.personaPlaceholder")} />
 				</Field>
 				<div className="divider-ornate" />
-				<h3 className="heading text-sm">Campaign</h3>
-				<Field label="Difficulty">
-					<Seg value={s.structure.difficulty} options={["story", "easy", "normal", "hard", "deadly"] as const} onChange={(difficulty) => set("structure", { difficulty })} />
+				<h3 className="heading text-sm">{t("play.set.campaign")}</h3>
+				<Field label={t("play.set.difficulty")}>
+					<Seg group="difficulty" value={s.structure.difficulty} options={["story", "easy", "normal", "hard", "deadly"] as const} onChange={(difficulty) => set("structure", { difficulty })} />
 				</Field>
-				<Field label="Format">
-					<Seg value={s.structure.format} options={["one_shot", "short_campaign", "long_campaign"] as const} onChange={(format) => set("structure", { format })} />
+				<Field label={t("play.set.format")}>
+					<Seg group="format" value={s.structure.format} options={["one_shot", "short_campaign", "long_campaign"] as const} onChange={(format) => set("structure", { format })} />
 				</Field>
-				<Field label="Leveling">
-					<Seg value={s.structure.leveling} options={["xp", "milestone"] as const} onChange={(leveling) => set("structure", { leveling })} />
+				<Field label={t("play.set.leveling")}>
+					<Seg group="leveling" value={s.structure.leveling} options={["xp", "milestone"] as const} onChange={(leveling) => set("structure", { leveling })} />
 				</Field>
-				<Field label="Tone (comma separated)">
+				<Field label={t("play.set.tone")}>
 					<input className="input" value={s.world.tone.join(", ")} onChange={(e) => set("world", { tone: e.target.value.split(",").map((x) => x.trim()).filter(Boolean) })} />
 				</Field>
-				<Field label="Lines — never include (one per line)">
+				<Field label={t("play.set.lines")}>
 					<textarea className="input" rows={2} value={s.world.lines.join("\n")} onChange={(e) => set("world", { lines: e.target.value.split("\n").map((x) => x.trim()).filter(Boolean) })} />
 				</Field>
-				<Field label="Veils — fade to black (one per line)">
+				<Field label={t("play.set.veils")}>
 					<textarea className="input" rows={2} value={s.world.veils.join("\n")} onChange={(e) => set("world", { veils: e.target.value.split("\n").map((x) => x.trim()).filter(Boolean) })} />
 				</Field>
-				<Field label="World notes">
+				<Field label={t("play.set.worldNotes")}>
 					<textarea className="input" rows={3} value={s.world.customText ?? ""} onChange={(e) => set("world", { customText: e.target.value })} />
 				</Field>
 				<div className="divider-ornate" />
-				<h3 className="heading text-sm">Audio</h3>
+				<h3 className="heading text-sm">{t("play.set.audio")}</h3>
 				<label className="flex items-center gap-2 text-sm">
-					<input type="checkbox" checked={s.audio.enabled} onChange={(e) => set("audio", { enabled: e.target.checked })} /> Music &amp; sound effects
+					<input type="checkbox" checked={s.audio.enabled} onChange={(e) => set("audio", { enabled: e.target.checked })} /> {t("play.set.audioEnabled")}
 				</label>
 				<button
 					className="btn btn-gold w-full justify-center"
@@ -134,7 +138,7 @@ export function SettingsDrawer({ state, onClose, onSave }: { state: GameState; o
 						onClose();
 					}}
 				>
-					Save changes
+					{t("play.set.saveChanges")}
 				</button>
 			</div>
 		</Modal>

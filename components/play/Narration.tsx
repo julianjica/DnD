@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Dices, Send, Square, ScrollText, Sparkles, Wrench, ChevronDown } from "lucide-react";
 import type { GameState, LogEntry, RollRecord } from "@/lib/game/types";
 import type { LiveTurn, LiveTool } from "./useGame";
+import { useT } from "@/components/i18n/I18nProvider";
 
 /** Minimal inline markdown: **bold**, *italic*, "quotes" styled. */
 function inline(text: string): ReactNode[] {
@@ -60,44 +61,23 @@ function RollChip({ roll }: { roll: RollRecord }) {
 	);
 }
 
-const TOOL_LABEL: Record<string, string> = {
-	set_scene: "Setting the scene",
-	generate_map: "Drawing the map",
-	place_entity: "Placing tokens",
-	start_combat: "Rolling initiative",
-	monster_turn: "Enemy turn",
-	auto_monster_turns: "Enemy turns",
-	lookup_srd: "Consulting the rules",
-	ability_check: "Ability check",
-	saving_throw: "Saving throw",
-	roll: "Rolling dice",
-	add_npc: "New character",
-	add_quest: "New quest",
-	update_quest: "Quest updated",
-	give_item: "Loot",
-	journal_note: "Journal",
-	suggest_actions: "Options",
-	set_ambience: "Ambience",
-	travel: "Travelling",
-	reveal_location: "New location",
-};
-
 function ToolStrip({ tools }: { tools: { name: string; summary?: string; isError?: boolean; status?: string }[] }) {
+	const { t, te } = useT();
 	const [open, setOpen] = useState(false);
 	const shown = tools.filter((t) => !["suggest_actions", "set_ambience", "journal_note", "dm_note", "get_state"].includes(t.name));
 	if (!shown.length) return null;
 	return (
 		<div className="mt-2 text-xs text-faint">
 			<button className="inline-flex items-center gap-1 hover:text-dim" onClick={() => setOpen((o) => !o)}>
-				<Wrench size={12} /> {shown.length} engine action{shown.length > 1 ? "s" : ""}
+				<Wrench size={12} /> {t(shown.length === 1 ? "play.narr.engineActions1" : "play.narr.engineActions", { n: shown.length })}
 				<ChevronDown size={12} className={open ? "rotate-180 transition" : "transition"} />
 			</button>
 			{open && (
 				<ul className="mt-1 space-y-0.5 border-l border-line pl-3">
-					{shown.map((t, i) => (
-						<li key={i} className={t.isError ? "text-crimson-2" : ""}>
-							<span className="text-dim">{TOOL_LABEL[t.name] ?? t.name}</span>
-							{t.summary ? ` — ${t.summary.split("\n")[0].slice(0, 140)}` : ""}
+					{shown.map((tool, i) => (
+						<li key={i} className={tool.isError ? "text-crimson-2" : ""}>
+							<span className="text-dim">{te("tool", tool.name)}</span>
+							{tool.summary ? ` — ${tool.summary.split("\n")[0].slice(0, 140)}` : ""}
 						</li>
 					))}
 				</ul>
@@ -124,7 +104,8 @@ function Entry({ e }: { e: LogEntry }) {
 }
 
 function LiveView({ live }: { live: LiveTurn }) {
-	const running = live.tools.filter((t: LiveTool) => t.status === "start");
+	const { t, te } = useT();
+	const running = live.tools.filter((tool: LiveTool) => tool.status === "start");
 	return (
 		<div className="space-y-3">
 			{live.player && (
@@ -140,7 +121,7 @@ function LiveView({ live }: { live: LiveTurn }) {
 					<span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold [animation-delay:-0.15s]" />
 					<span className="h-1.5 w-1.5 animate-bounce rounded-full bg-gold" />
 				</span>
-				<span className="font-fell italic">{running.length ? `${TOOL_LABEL[running[running.length - 1].name] ?? "The DM is working"}…` : live.text ? "The DM narrates…" : "The DM considers…"}</span>
+				<span className="font-fell italic">{running.length ? `${te("tool", running[running.length - 1].name)}…` : live.text ? t("play.narr.dmNarrates") : t("play.narr.dmConsiders")}</span>
 			</div>
 		</div>
 	);
@@ -156,6 +137,7 @@ export function Narration(props: {
 	onRollPending: () => void;
 }) {
 	const { state, log, live, busy } = props;
+	const { t } = useT();
 	const [text, setText] = useState("");
 	const scroller = useRef<HTMLDivElement>(null);
 	const stick = useRef(true);
@@ -187,7 +169,7 @@ export function Narration(props: {
 				{log.length === 0 && !live && (
 					<div className="flex h-full flex-col items-center justify-center gap-3 text-center text-dim">
 						<ScrollText className="text-gold" />
-						<p className="font-fell text-lg italic">Your tale has yet to be told…</p>
+						<p className="font-fell text-lg italic">{t("play.narr.empty")}</p>
 					</div>
 				)}
 				{log.map((e, i) => (
@@ -199,8 +181,8 @@ export function Narration(props: {
 			<div className="border-t border-line bg-bg-2/60 px-4 py-3">
 				{state.pendingRoll && !busy && (
 					<button className="btn btn-gold mb-3 w-full justify-center py-2.5" onClick={props.onRollPending}>
-						<Dices size={18} /> Roll: {state.pendingRoll.label}
-						{state.pendingRoll.dc ? <span className="opacity-70">(DC {state.pendingRoll.dc})</span> : null}
+						<Dices size={18} /> {t("play.narr.roll", { label: state.pendingRoll.label })}
+						{state.pendingRoll.dc ? <span className="opacity-70">{t("play.narr.dc", { n: state.pendingRoll.dc })}</span> : null}
 					</button>
 				)}
 				{!busy && state.suggestions.length > 0 && !inCombat && (
@@ -213,7 +195,7 @@ export function Narration(props: {
 					</div>
 				)}
 				{inCombat && !busy && (
-					<p className="mb-2 text-xs text-dim">In combat: use the action bar on the map. You can still speak or describe something unusual here.</p>
+					<p className="mb-2 text-xs text-dim">{t("play.narr.inCombat")}</p>
 				)}
 				<form
 					className="flex items-end gap-2"
@@ -225,7 +207,7 @@ export function Narration(props: {
 					<textarea
 						className="input min-h-[46px] resize-none font-serif text-[1.02rem]"
 						rows={text.split("\n").length > 2 ? 4 : 2}
-						placeholder={busy ? "The DM is narrating…" : "What do you do?"}
+						placeholder={busy ? t("play.narr.placeholderBusy") : t("play.narr.placeholder")}
 						value={text}
 						onChange={(e) => setText(e.target.value)}
 						onKeyDown={(e) => {
@@ -236,11 +218,11 @@ export function Narration(props: {
 						}}
 					/>
 					{busy ? (
-						<button type="button" className="btn btn-danger h-[46px]" onClick={props.onAbort} title="Stop the DM">
+						<button type="button" className="btn btn-danger h-[46px]" onClick={props.onAbort} title={t("play.narr.stop")}>
 							<Square size={16} />
 						</button>
 					) : (
-						<button type="submit" className="btn btn-gold h-[46px]" disabled={!text.trim()} title="Send (Enter)">
+						<button type="submit" className="btn btn-gold h-[46px]" disabled={!text.trim()} title={t("play.narr.send")}>
 							<Send size={16} />
 						</button>
 					)}
