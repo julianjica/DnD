@@ -1,5 +1,5 @@
 import type { EntityKind, GameState, GridMap, LocationKind, MapKind, Tile } from "../../game/types";
-import { generateMap, MAP_KINDS, placeEntity, revealAround } from "../../maps";
+import { generateMap, landNear, MAP_KINDS, placeEntity, revealAround } from "../../maps";
 import { S, newId, tool, withState, type ToolFactory } from "../context";
 
 const LOCATION_KINDS: LocationKind[] = ["town", "city", "village", "dungeon", "cave", "forest", "mountain", "ruins", "castle", "temple", "swamp", "coast", "camp", "tower", "landmark"];
@@ -222,14 +222,20 @@ export const revealLocation = tool<{ name: string; kind: LocationKind; descripti
 				spare.discovered = true;
 				loc = spare;
 			} else {
-				const ang = rng.next() * Math.PI * 2;
-				const dist = 0.08 + rng.next() * 0.1;
+				// Terrain-aware: always on land, near the anchor, suited to the kind.
+				const days = Math.max(0.25, Math.min(10, a.travelDays ?? 1));
+				const p = landNear(w, anchor ?? { x: 0.5, y: 0.5 }, rng, {
+					kind: a.kind,
+					minDist: Math.min(0.3, 0.025 + days * 0.03),
+					maxDist: Math.min(0.45, 0.06 + days * 0.05),
+					avoid: w.locations,
+				});
 				loc = {
 					id: newId("loc"),
 					name: a.name,
 					kind: a.kind,
-					x: Math.min(0.95, Math.max(0.05, (anchor?.x ?? 0.5) + Math.cos(ang) * dist)),
-					y: Math.min(0.95, Math.max(0.05, (anchor?.y ?? 0.5) + Math.sin(ang) * dist)),
+					x: p.x,
+					y: p.y,
 					discovered: true,
 					visited: false,
 					description: a.description,

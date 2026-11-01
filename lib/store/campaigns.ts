@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { PATHS } from "../config";
 import type { GameState, LogEntry } from "../game/types";
+import { repairWorld } from "../maps/world";
 
 /**
  * Campaign storage: plain files under data/campaigns/<id>/
@@ -66,7 +67,10 @@ export function campaignExists(id: string): boolean {
 }
 
 export function loadState(id: string): GameState {
-	return JSON.parse(fs.readFileSync(path.join(dirOf(id), "state.json"), "utf8")) as GameState;
+	const state = JSON.parse(fs.readFileSync(path.join(dirOf(id), "state.json"), "utf8")) as GameState;
+	// Older saves could place DM-revealed locations in the sea.
+	if (state.world && repairWorld(state.world)) saveState(state);
+	return state;
 }
 
 export function saveState(state: GameState): void {

@@ -101,7 +101,7 @@ function locationName(rng: Rng, kind: LocationKind): string {
 /** Suitability of a terrain sample for a location kind (higher is better, -Infinity = never). */
 function suitability(kind: LocationKind, s: WorldSample, sea: number): number {
 	const land = s.elevation - sea;
-	if (land < 0.012) return -Infinity;
+	if (land < LAND_MARGIN) return -Infinity;
 	const ml = mountainLine(sea) - sea;
 	switch (kind) {
 		case "coast": return land < 0.05 ? 2 - land * 10 : -2;
@@ -113,6 +113,78 @@ function suitability(kind: LocationKind, s: WorldSample, sea: number): number {
 		case "cave": case "dungeon": return land > ml * 0.45 ? 1 : 0.2;
 		default: return land < ml ? 0.5 : 0;
 	}
+}
+
+/** Minimum elevation above sea level for a location to count as on land. */
+export const LAND_MARGIN = 0.015;
+
+export function isLand(world: Pick<WorldMap, "seed" | "terrain">, x: number, y: number): boolean {
+	const T = worldTerrain(world);
+	return T.sample(x, y).elevation >= T.seaLevel + LAND_MARGIN;
+}
+
+/**
+ * Finds a land position near `anchor` (an annulus of minDist..maxDist), best
+ * suited to `kind` and not on top of `avoid`. Widens the search until it finds
+ * land; never returns a water square unless the whole world is ocean.
+ */
+export function landNear(
+	world: Pick<WorldMap, "seed" | "terrain">,
+	anchor: { x: number; y: number },
+	rng: Rng,
+	opts: { kind?: LocationKind; minDist?: number; maxDist?: number; avoid?: { x: number; y: number }[] } = {},
+): { x: number; y: number; s: number } {
+	const T = worldTerrain(world);
+	const sea = T.seaLevel;
+	const avoid = opts.avoid ?? [];
+	let minD = opts.minDist ?? 0;
+	let maxD = opts.maxDist ?? 0.12;
+	for (let ring = 0; ring < 6; ring++) {
+		let best: { x: number; y: number; s: number } | undefined;
+		for (let i = 0; i < 80; i++) {
+			const ang = rng.next() * Math.PI * 2;
+			const d = minD + rng.next() * (maxD - minD);
+			const x = round3(Math.min(0.95, Math.max(0.05, anchor.x + (Math.cos(ang) * d) / WORLD_ASPECT)));
+			const y = round3(Math.min(0.94, Math.max(0.06, anchor.y + Math.sin(ang) * d)));
+			const smp = T.sample(x, y);
+			if (smp.elevation < sea + LAND_MARGIN) continue;
+			let score = opts.kind ? suitability(opts.kind, smp, sea) : 0;
+			if (!Number.isFinite(score)) score = -5;
+			const crowd = avoid.reduce((m, p) => Math.min(m, Math.hypot((p.x - x) * WORLD_ASPECT, p.y - y)), Infinity);
+			if (crowd < 0.04) score -= (0.04 - crowd) * 60;
+			score -= Math.hypot((x - anchor.x) * WORLD_ASPECT, y - anchor.y) * 4;
+			if (!best || score > best.s) best = { x, y, s: score };
+		}
+		if (best) return best;
+		minD = 0;
+		maxD = Math.min(1.2, maxD * 2);
+	}
+	// Last resort: global scan for the highest point.
+	let top = { x: 0.5, y: 0.5, s: -Infinity };
+	for (let gy = 0.06; gy < 0.95; gy += 0.02)
+		for (let gx = 0.05; gx < 0.96; gx += 0.02) {
+			const e = T.sample(gx, gy).elevation;
+			if (e > top.s) top = { x: round3(gx), y: round3(gy), s: e };
+		}
+	return top;
+}
+
+/**
+ * Moves any location that sits in the sea onto the nearest land. Idempotent;
+ * returns true when something moved. Repairs worlds saved before placement
+ * was terrain-aware.
+ */
+export function repairWorld(world: WorldMap): boolean {
+	let moved = false;
+	const rng = new Rng((world.seed ^ hashString("repair")) >>> 0 || 1);
+	for (const l of world.locations) {
+		if (isLand(world, l.x, l.y)) continue;
+		const p = landNear(world, l, rng, { kind: l.kind, maxDist: 0.05, avoid: world.locations.filter((o) => o !== l) });
+		l.x = p.x;
+		l.y = p.y;
+		moved = true;
+	}
+	return moved;
 }
 
 const DEFAULT_KINDS: LocationKind[] = ["town", "village", "forest", "dungeon", "ruins", "cave", "castle", "mountain", "temple", "swamp", "coast", "tower"];
@@ -147,7 +219,7 @@ export function generateWorld(opts: GenerateWorldOptions): WorldMap {
 	specs.forEach((spec, i) => {
 		let best: { x: number; y: number; s: number } | undefined;
 		for (let tries = 0; tries < 220; tries++) {
-			const x = 0.08 + rng.next() * 0.84, y = 0.1 + rng.next() * 0.8;
+			const x = round3(0.08 + rng.next() * 0.84), y = round3(0.1 + rng.next() * 0.8);
 			const s = T.sample(x, y);
 			let score = suitability(spec.kind, s, seaLevel);
 			if (!Number.isFinite(score)) continue;
@@ -157,7 +229,7 @@ export function generateWorld(opts: GenerateWorldOptions): WorldMap {
 			else if (near > minD * 3) score -= (near - minD * 3) * 3; // stay clustered
 			if (!best || score > best.s) best = { x, y, s: score };
 		}
-		const p = best ?? { x: 0.5, y: 0.5, s: 0 };
+		const p = best ?? landNear({ seed, terrain }, { x: 0.5, y: 0.5 }, rng, { kind: spec.kind });
 		placed.push({
 			id: `loc-${i + 1}`,
 			name: spec.name,
