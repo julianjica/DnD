@@ -1,0 +1,189 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
+import { BookOpen, Check, ChevronLeft, ChevronRight, Globe2, Home, RotateCcw, Settings, Sparkles, UserRound, Wand2, ScrollText } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
+import { Divider } from "@/components/ui/Divider";
+import { cn } from "@/components/ui/cn";
+import { WorldStep } from "./WorldStep";
+import { StructureStep } from "./StructureStep";
+import { CharacterStep } from "./CharacterStep";
+import { DmStep } from "./DmStep";
+import { ReviewStep } from "./ReviewStep";
+import { useEngines } from "./EnginePicker";
+import type { DraftUpdater } from "./types";
+import { DEFAULT_ENGINE_KEY, DRAFT_KEY, defaultDraft, loadDraft, loadJson, removeKey, saveJson, type WizardDraft } from "./wizardState";
+import type { EngineConfig } from "@/lib/game/types";
+
+const STEPS = [
+	{ title: "World & Tone", short: "World", icon: Globe2, blurb: "Where does your story take place, and how should it feel?" },
+	{ title: "Campaign", short: "Campaign", icon: BookOpen, blurb: "Length, starting level, difficulty and an optional opening hook." },
+	{ title: "Your Character", short: "Character", icon: UserRound, blurb: "Build your hero: origins, abilities, gear and a face." },
+	{ title: "Dungeon Master", short: "DM & Engine", icon: Wand2, blurb: "Choose your storyteller's style and the AI that powers it." },
+	{ title: "Review", short: "Review", icon: ScrollText, blurb: "One last look before the adventure begins." },
+];
+
+export function SetupWizard() {
+	const [draft, setDraft] = useState<WizardDraft | null>(null);
+	const [confirmReset, setConfirmReset] = useState(false);
+	const engines = useEngines();
+
+	useEffect(() => {
+		// localStorage is only readable after hydration.
+		// eslint-disable-next-line react-hooks/set-state-in-effect
+		setDraft(loadDraft());
+	}, []);
+
+	useEffect(() => {
+		if (draft) saveJson(DRAFT_KEY, draft);
+	}, [draft]);
+
+	const update: DraftUpdater = useCallback((fn) => setDraft((d) => (d ? fn(d) : d)), []);
+	const goTo = useCallback(
+		(step: number) => {
+			update((d) => ({ ...d, step: Math.max(0, Math.min(STEPS.length - 1, step)) }));
+			window.scrollTo({ top: 0, behavior: "smooth" });
+		},
+		[update],
+	);
+
+	if (!draft) {
+		return (
+			<div className="grid min-h-[60vh] place-items-center">
+				<div className="flex flex-col items-center gap-3 text-dim">
+					<Sparkles className="size-6 animate-pulse text-gold" />
+					<span className="font-fell italic">Unrolling the map…</span>
+				</div>
+			</div>
+		);
+	}
+
+	const step = draft.step;
+	const info = STEPS[step];
+	const last = step === STEPS.length - 1;
+
+	return (
+		<div className="mx-auto flex w-full max-w-[1400px] flex-col px-6 pb-28">
+			<header className="flex items-center justify-between py-5">
+				<Link href="/" className="group flex items-center gap-2 font-display text-lg tracking-wider text-gold-2">
+					<Home className="size-4 text-gold/70 group-hover:text-gold-2" /> DungeonHarness
+				</Link>
+				<div className="flex items-center gap-2">
+					<button type="button" className="btn py-1.5 text-sm" onClick={() => setConfirmReset(true)}>
+						<RotateCcw className="size-4" /> Start over
+					</button>
+					<Link href="/settings" className="btn py-1.5 text-sm">
+						<Settings className="size-4" /> Settings
+					</Link>
+				</div>
+			</header>
+
+			<Stepper step={step} onPick={goTo} />
+
+			<div className="mt-8 mb-6 flex flex-wrap items-end justify-between gap-4">
+				<div>
+					<div className="font-fell text-sm text-gold/80 italic">
+						Step {step + 1} of {STEPS.length}
+					</div>
+					<h1 className="heading text-3xl">{info.title}</h1>
+					<p className="mt-1 font-serif text-lg text-dim">{info.blurb}</p>
+				</div>
+				{step < 3 && (
+					<button type="button" className="btn text-sm" onClick={() => goTo(STEPS.length - 1)} title="Every step has sensible defaults">
+						<Sparkles className="size-4 text-gold" /> Let the DM decide the rest
+					</button>
+				)}
+			</div>
+			<Divider className="mb-8" />
+
+			<main key={step} className="dh-step-in">
+				{step === 0 && <WorldStep draft={draft} update={update} />}
+				{step === 1 && <StructureStep draft={draft} update={update} />}
+				{step === 2 && <CharacterStep draft={draft} update={update} />}
+				{step === 3 && <DmStep draft={draft} update={update} engines={engines} />}
+				{step === 4 && <ReviewStep draft={draft} update={update} goTo={goTo} engines={engines} />}
+			</main>
+
+			<nav className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-[#120f0c]/90 backdrop-blur-md" aria-label="Wizard navigation">
+				<div className="mx-auto flex max-w-[1400px] items-center justify-between gap-3 px-6 py-3">
+					<button type="button" className="btn" onClick={() => goTo(step - 1)} disabled={step === 0}>
+						<ChevronLeft className="size-4" /> Back
+					</button>
+					<div className="hidden text-xs text-faint sm:block">Your progress is saved automatically.</div>
+					{!last ? (
+						<button type="button" className="btn btn-gold" onClick={() => goTo(step + 1)}>
+							{STEPS[step + 1].short} <ChevronRight className="size-4" />
+						</button>
+					) : (
+						<span className="text-sm text-dim">Ready when you are.</span>
+					)}
+				</div>
+			</nav>
+
+			<Modal
+				open={confirmReset}
+				onClose={() => setConfirmReset(false)}
+				title="Start over?"
+				footer={
+					<>
+						<button type="button" className="btn" onClick={() => setConfirmReset(false)}>
+							Cancel
+						</button>
+						<button
+							type="button"
+							className="btn btn-danger"
+							onClick={() => {
+								removeKey(DRAFT_KEY);
+								setDraft(defaultDraft(loadJson<EngineConfig>(DEFAULT_ENGINE_KEY) ?? undefined));
+								setConfirmReset(false);
+							}}
+						>
+							<RotateCcw className="size-4" /> Reset everything
+						</button>
+					</>
+				}
+			>
+				<p className="text-dim">This clears every choice in the wizard and returns to the defaults.</p>
+			</Modal>
+
+			<style>{`
+				.dh-step-in { animation: dh-step-in 260ms ease-out both; }
+				@keyframes dh-step-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+				@media (prefers-reduced-motion: reduce) { .dh-step-in { animation: none; } }
+			`}</style>
+		</div>
+	);
+}
+
+function Stepper({ step, onPick }: { step: number; onPick: (i: number) => void }) {
+	return (
+		<ol className="flex items-center gap-1" aria-label="Setup progress">
+			{STEPS.map((s, i) => {
+				const done = i < step;
+				const active = i === step;
+				return (
+					<li key={s.title} className="flex flex-1 items-center gap-1 last:flex-none">
+						<button
+							type="button"
+							onClick={() => onPick(i)}
+							aria-current={active ? "step" : undefined}
+							className={cn("group flex items-center gap-2.5 rounded-full py-1 pr-3 pl-1 transition-colors focus-visible:outline-2 focus-visible:outline-gold", active ? "bg-gold/10" : "hover:bg-panel-2")}
+						>
+							<span
+								className={cn(
+									"grid size-9 place-items-center rounded-full border-2 transition-colors",
+									active ? "border-gold bg-gold text-[#2a1d0b] shadow-[0_0_16px_rgb(212_166_74/0.45)]" : done ? "border-gold/70 bg-gold/15 text-gold-2" : "border-line bg-panel text-faint group-hover:border-gold/40",
+								)}
+							>
+								{done ? <Check className="size-4" /> : <s.icon className="size-4" />}
+							</span>
+							<span className={cn("hidden font-display text-sm tracking-wide md:inline", active ? "text-gold-2" : done ? "text-text" : "text-faint")}>{s.short}</span>
+						</button>
+						{i < STEPS.length - 1 && <span className={cn("mx-1 h-px flex-1", i < step ? "bg-gold/60" : "bg-line")} />}
+					</li>
+				);
+			})}
+		</ol>
+	);
+}
