@@ -11,6 +11,7 @@ import { useT } from "@/components/i18n/I18nProvider";
 import { translate, translateEnum, type Lang } from "@/lib/i18n";
 import { choiceLabel, srdName } from "./i18n";
 import { srdDictIfLoaded, translateSrd } from "@/lib/i18n/srd";
+import { localizeEngine } from "@/lib/i18n/engine";
 
 
 function clip(s: string, n = 420) {
@@ -88,7 +89,7 @@ export function ChoicePicker({ choice, value, onChange, names = {} }: ChoicePick
 	const [q, setQ] = useState("");
 	const { t, te, lang } = useT();
 	const label = choiceLabel(choice, t, names, lang);
-	const optName = (o: { index: string; name: string }) => (ABILITY_IDS.has(o.index) ? te("ability", o.index) : getSkill(o.index) ? srdName(lang, "skill", o.index, o.name) : translateSrd(lang, srdDictIfLoaded(), o.name));
+	const optName = (o: { index: string; name: string }) => (ABILITY_IDS.has(o.index) ? te("ability", o.index) : getSkill(o.index) ? srdName(lang, "skill", o.index, o.name) : localizeEngine(lang, o.name, (x) => translateSrd(lang, srdDictIfLoaded(), x)));
 	const picks = (value ?? []).filter((p) => choice.options.some((o) => o.index === p));
 	const full = picks.length >= choice.choose;
 	const isSpell = choice.options.length > 0 && !!getSpell(choice.options[0].index);

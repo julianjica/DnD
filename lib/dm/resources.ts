@@ -182,7 +182,7 @@ export function castSpell(tx: StateTxn, a: CastSpellInput): string {
 	const ch = tx.state.character;
 	const lines = [`${ch.name} casts ${spell.name}${slot ? ` (level ${slot} slot)` : ritual ? " as a ritual (no slot, +10 min)" : " (cantrip)"}. Slots now: ${slotsLeft(ch)}.`];
 	if (spell.concentration) {
-		if (ch.concentration) lines.push(`Concentration on ${ch.concentration.spell} ends.`);
+		if (ch.concentration) lines.push(`Concentration on ${getSpell(ch.concentration.spell)?.name ?? ch.concentration.spell} ends.`);
 		ch.concentration = { spell: spell.index };
 		lines.push(`Concentrating on ${spell.name}.`);
 	}

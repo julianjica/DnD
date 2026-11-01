@@ -8,6 +8,9 @@ import type { Lang } from "./index";
 
 export type SrdDict = Record<string, string>;
 let cache: SrdDict | null = null;
+
+/** Rules-engine names that aren't SRD dataset entries. */
+const EXTRA_ES: SrdDict = { "Unarmed Strike": "Ataque sin armas", "Improvised Weapon": "Arma improvisada" };
 let loading: Promise<SrdDict> | null = null;
 
 export function loadSrdDict(): Promise<SrdDict> {
@@ -25,7 +28,7 @@ export function srdDictIfLoaded(): SrdDict | null {
 export function translateSrd(lang: Lang, dict: SrdDict | null, text: string | undefined): string {
 	if (!text || lang === "en" || !dict) return text ?? "";
 	const t = text.trim();
-	const hit = dict[t];
+	const hit = dict[t] ?? EXTRA_ES[t];
 	if (hit) return hit;
 	const num = t.match(/^(.*?)(\s+\d+)$/);
 	if (num && dict[num[1]]) return dict[num[1]] + num[2];

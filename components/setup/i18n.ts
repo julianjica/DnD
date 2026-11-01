@@ -2,6 +2,7 @@ import { en } from "@/lib/i18n/en";
 import { es } from "@/lib/i18n/es";
 import type { Lang } from "@/lib/i18n";
 import { srdDictIfLoaded, translateSrd } from "@/lib/i18n/srd";
+import { localizeEngine } from "@/lib/i18n/engine";
 import type { OptionChoice } from "@/lib/srd";
 
 const DICTS: Record<Lang, Record<string, string>> = { en, es };
@@ -32,5 +33,6 @@ export function choiceLabel(ch: Pick<OptionChoice, "id" | "label">, t: Tr, names
 	if (id === "half-elf:skills") return t("choice.skillVersatility");
 	if (id.endsWith(":draconic-ancestry")) return t("choice.draconicAncestry");
 	if (id.endsWith(":tools")) return t("choice.toolProficiency");
-	return translateSrd(lang, srdDictIfLoaded(), ch.label);
+	const srd = (x: string) => translateSrd(lang, srdDictIfLoaded(), x);
+	return localizeEngine(lang, ch.label, srd);
 }
