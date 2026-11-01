@@ -110,3 +110,10 @@ test("partially matched multi-sentence text stays English", () => {
 	const mixed = "It is not your turn. Something the engine never says.";
 	assert.equal(es(mixed), mixed);
 });
+
+test("only engine sheet-use lines count as engine player lines", async () => {
+	const { isSheetUseLine } = await import("../lib/i18n/engine");
+	assert.equal(isSheetUseLine("Ida casts Cure Wounds (level 1 slot)."), true);
+	assert.equal(isSheetUseLine("Used 1 × Potion of Healing (1 left)."), true);
+	assert.equal(isSheetUseLine("Thorin casts a wary glance at the door."), false);
+});

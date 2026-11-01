@@ -545,5 +545,5 @@ export function localizeEngine(lang: Lang, text: string, srd: Srd = identity): s
  * server writes after using something from the sheet is engine text.
  */
 export function isSheetUseLine(text: string): boolean {
-	return /^Used \d+ × .+ \(\d+ left\)\.?$|^Used .+ \(kept\)\.?$|^\S.* casts .+\.$|^.+ used(?: \(\d+\))?(?:: \d+\/\d+ left \(recharges on \w+ rest\)| \(unlimited\))\.?$/.test(text);
+	return /^Used \d+ × .+ \(\d+ left\)\.?$|^Used .+ \(kept\)\.?$|^\S.* casts .+(?: \(level \d slot\)| as a ritual \(no slot, \+10 min\)| \(cantrip\))\.$|^.+ used(?: \(\d+\))?(?:: \d+\/\d+ left \(recharges on \w+ rest\)| \(unlimited\))\.?$/.test(text);
 }
