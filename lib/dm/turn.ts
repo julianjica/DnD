@@ -58,7 +58,8 @@ export async function runTurn(input: TurnInput): Promise<void> {
 		const digest = stateDigest(state, { recentLog: recent, ac: derivedAc(state.character) });
 		const notes = input.systemNotes?.length ? `\n\n# ENGINE NOTES\n${input.systemNotes.join("\n")}` : "";
 		const action = input.text ? `# PLAYER ACTION\n${input.text}` : "# OPENING\nBegin the adventure: set the opening scene (set_scene, set_ambience), introduce the hook, and end with suggest_actions.";
-		const message = `${action}${notes}\n\n# STATE DIGEST (authoritative)\n${digest}`;
+		const langNote = state.settings.language === "es" ? "\n\n(Recuerda: escribe todo lo que ve el jugador en español.)" : "";
+		const message = `${action}${notes}\n\n# STATE DIGEST (authoritative)\n${digest}${langNote}`;
 
 		const config: EngineConfig = state.settings.engine;
 		const engine = getEngine(config.provider);

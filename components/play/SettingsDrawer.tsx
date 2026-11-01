@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import type { CampaignSettings, Effort, GameState, ModelOption } from "@/lib/game/types";
 import { Modal } from "./Modal";
+import { LANGS } from "@/lib/i18n";
 
 function Seg<T extends string>({ value, options, onChange }: { value: T; options: readonly T[]; onChange: (v: T) => void }) {
 	return (
@@ -41,7 +42,7 @@ export function SettingsDrawer({ state, onClose, onSave }: { state: GameState; o
 			.catch(() => undefined);
 	}, []);
 
-	const set = <K extends keyof CampaignSettings>(k: K, v: Partial<CampaignSettings[K]>) => setS((p) => ({ ...p, [k]: { ...p[k], ...v } }));
+	const set = <K extends Exclude<keyof CampaignSettings, "language">>(k: K, v: Partial<CampaignSettings[K]>) => setS((p) => ({ ...p, [k]: { ...p[k], ...v } }));
 	const engineModels = models.filter((m) => m.provider === s.engine.provider && (s.engine.provider !== "api" || !s.engine.apiProvider || m.apiProvider === s.engine.apiProvider));
 
 	return (
@@ -49,6 +50,15 @@ export function SettingsDrawer({ state, onClose, onSave }: { state: GameState; o
 			<div className="space-y-5">
 				<Field label="Title">
 					<input className="input" value={title} onChange={(e) => setTitle(e.target.value)} />
+				</Field>
+				<Field label="Narration language" hint="The DM writes in this language from the next turn.">
+					<div className="flex flex-wrap gap-1">
+						{LANGS.map((l) => (
+							<button key={l.id} type="button" className="chip" data-active={(s.language ?? "en") === l.id} onClick={() => setS((p) => ({ ...p, language: l.id }))}>
+								{l.label}
+							</button>
+						))}
+					</div>
 				</Field>
 				<div className="divider-ornate" />
 				<h3 className="heading text-sm">Dungeon Master</h3>

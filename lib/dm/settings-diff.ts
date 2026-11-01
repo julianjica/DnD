@@ -11,5 +11,6 @@ export function describeSettingsChange(a: CampaignSettings, b: CampaignSettings)
 			if (JSON.stringify(x[k]) !== JSON.stringify(y[k])) out.push(`${sec}.${k}: ${JSON.stringify(x[k])} → ${JSON.stringify(y[k])}`);
 		}
 	}
+	if ((a.language ?? "en") !== (b.language ?? "en")) out.push(`language: ${a.language ?? "en"} → ${b.language ?? "en"} (switch the language you write in from now on)`);
 	return out.join("; ");
 }

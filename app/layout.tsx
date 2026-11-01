@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Cinzel, EB_Garamond, Inter, IM_Fell_English } from "next/font/google";
+import { cookies } from "next/headers";
+import { I18nProvider } from "@/components/i18n/I18nProvider";
+import { DEFAULT_LANG, isLang, LANG_COOKIE } from "@/lib/i18n";
 import "./globals.css";
 
 const display = Cinzel({ variable: "--font-display", subsets: ["latin"], weight: ["400", "600", "700"] });
@@ -12,10 +15,14 @@ export const metadata: Metadata = {
 	description: "An AI Dungeon Master for solo D&D 5e.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default async function RootLayout({ children }: LayoutProps<"/">) {
+	const saved = (await cookies()).get(LANG_COOKIE)?.value;
+	const lang = isLang(saved) ? saved : DEFAULT_LANG;
 	return (
-		<html lang="en" className={`${display.variable} ${serif.variable} ${sans.variable} ${fell.variable} h-full antialiased`}>
-			<body className="min-h-full flex flex-col">{children}</body>
+		<html lang={lang} className={`${display.variable} ${serif.variable} ${sans.variable} ${fell.variable} h-full antialiased`}>
+			<body className="min-h-full flex flex-col">
+				<I18nProvider initial={lang}>{children}</I18nProvider>
+			</body>
 		</html>
 	);
 }

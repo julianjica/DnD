@@ -9,7 +9,7 @@ export interface StepProps {
 }
 
 /** Patch one section of the campaign settings. */
-export function patchSettings<K extends keyof CampaignSettings>(update: DraftUpdater, key: K, patch: Partial<CampaignSettings[K]>) {
+export function patchSettings<K extends Exclude<keyof CampaignSettings, "language">>(update: DraftUpdater, key: K, patch: Partial<CampaignSettings[K]>) {
 	update((d) => ({ ...d, settings: { ...d.settings, [key]: { ...d.settings[key], ...patch } } }));
 }
 

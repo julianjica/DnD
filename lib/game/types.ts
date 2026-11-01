@@ -487,6 +487,8 @@ export interface CampaignSettings {
 	};
 	engine: EngineConfig;
 	audio: { enabled: boolean; musicVolume: number; sfxVolume: number };
+	/** Narration language (UI language is per-browser). Missing = English. */
+	language?: "en" | "es";
 }
 
 // ─── Campaign state ────────────────────────────────────────────────────────

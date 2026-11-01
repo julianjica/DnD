@@ -11,9 +11,11 @@ import { SheetPreview, usePreview } from "./SheetPreview";
 import { modelKey, type useEngines } from "./EnginePicker";
 import { randomName } from "./names";
 import type { StepProps } from "./types";
+import { useT } from "@/components/i18n/I18nProvider";
 import { buildNewGameInput, DRAFT_KEY, openChoices, optionsFor, removeKey } from "./wizardState";
 
 export function ReviewStep({ draft, update, goTo, engines }: StepProps & { goTo: (step: number) => void; engines: ReturnType<typeof useEngines> }) {
+	const { lang } = useT();
 	const router = useRouter();
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -35,8 +37,10 @@ export function ReviewStep({ draft, update, goTo, engines }: StepProps & { goTo:
 				d = { ...draft, character: { ...c, name: randomName(c.speciesId) } };
 				update(() => d);
 			}
-			const body = buildNewGameInput(d, opts);
-			if (!body) throw new Error("Roll your ability scores first (Character → Abilities).");
+			const built = buildNewGameInput(d, opts);
+			if (!built) throw new Error("Roll your ability scores first (Character → Abilities).");
+			// Narration language defaults to the UI language.
+			const body = { ...built, settings: { ...built.settings, language: d.settings.language ?? lang } };
 			const res = await fetch("/api/campaigns", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
 			const json = (await res.json().catch(() => ({}))) as { state?: GameState; error?: string };
 			if (!res.ok || !json.state) throw new Error(json.error ?? `HTTP ${res.status}`);

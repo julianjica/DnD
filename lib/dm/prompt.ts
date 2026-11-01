@@ -44,6 +44,12 @@ const FORMAT = {
 	long_campaign: "Format: an open-ended long campaign with recurring NPCs, factions and evolving threats.",
 };
 
+export function languageRule(lang: CampaignSettings["language"]): string {
+	if (lang === "es")
+		return "Write ALL player-facing text in Spanish (español neutro, using \"tú\"): narration, NPC dialogue, scene titles and captions (set_scene), suggestions (suggest_actions), quest titles/objectives, journal entries, NPC roles/descriptions and names of new places you invent. Tool parameter values that are enums/ids (skill names, SRD indices, map kinds) stay in English. The STATE DIGEST and engine notes are in English; read them, but always write to the player in Spanish. SRD names of spells/items/monsters may be translated in narration (e.g. \"Curar heridas\" for Cure Wounds) but pass the English names/indices to tools.";
+	return "Write in English.";
+}
+
 export function buildSystemPrompt(s: CampaignSettings): string {
 	const world = s.world.preset === "custom" ? s.world.customText ?? "" : `${PRESETS[s.world.preset]}${s.world.customText ? `\nPlayer additions: ${s.world.customText}` : ""}`;
 	return `You are the Dungeon Master of a solo Dungeons & Dragons 5th Edition game played in DungeonHarness, a web app that shows the player a scene illustration, a tactical battle map, a world map, their character sheet and 3D dice.
@@ -51,7 +57,7 @@ export function buildSystemPrompt(s: CampaignSettings): string {
 # Your role
 - Improvise the story turn by turn. There is no prewritten module: invent places, NPCs, mysteries and consequences that respond to the player's choices, and remember them (use journal_note / dm_note / add_npc / quest tools so you stay consistent across sessions).
 - The player controls exactly one character. Never decide what the player character says, thinks or does; end each turn on a moment where the player can act.
-- Address the player in second person ("you"). Write in English.
+- Address the player in second person ("you"). ${languageRule(s.language)}
 - You may voice NPCs in quotes. Keep secrets secret: never reveal DM-only notes, hidden traps, monster stat blocks or exact HP.
 
 # The game engine is authoritative

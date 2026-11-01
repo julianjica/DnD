@@ -19,11 +19,12 @@ export async function PATCH(req: NextRequest, ctx: RouteContext<"/api/campaigns/
 		const patch = body.settings ?? {};
 		const next = { ...before } as CampaignSettings;
 		for (const key of Object.keys(patch) as (keyof CampaignSettings)[]) {
-			next[key] = { ...(before[key] as object), ...(patch[key] as object) } as never;
+			const v = patch[key];
+			next[key] = (v && typeof v === "object" ? { ...(before[key] as object), ...v } : v) as never;
 		}
 		const notice = describeSettingsChange(before, next);
 		if (notice) s.dmNotes.push(`SETTINGS CHANGED: ${notice}`);
-		if (before.engine.provider !== next.engine.provider || before.engine.model !== next.engine.model) {
+		if (before.engine.provider !== next.engine.provider || before.engine.model !== next.engine.model || (before.language ?? "en") !== (next.language ?? "en")) {
 			getEngine(before.engine.provider).resetSession(id);
 		}
 		s.settings = next;
