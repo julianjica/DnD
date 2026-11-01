@@ -65,6 +65,8 @@ export async function runTurn(input: TurnInput): Promise<void> {
 		let narration = "";
 		const toolLog: NonNullable<LogEntry["tools"]> = [];
 		let errored: string | undefined;
+		// Text after suggest_actions is the model re-narrating; drop it.
+		let closed = false;
 		await engine.runTurn({
 			sessionKey: campaignId,
 			systemPrompt: buildSystemPrompt(state.settings),
@@ -75,6 +77,7 @@ export async function runTurn(input: TurnInput): Promise<void> {
 			onEvent(ev) {
 				switch (ev.type) {
 					case "text":
+						if (closed) break;
 						narration += ev.delta;
 						emit({ type: "text", delta: ev.delta });
 						break;
@@ -87,6 +90,7 @@ export async function runTurn(input: TurnInput): Promise<void> {
 					case "tool_end": {
 						const summary = ev.result.text.slice(0, 200);
 						toolLog.push({ name: ev.name, summary, isError: ev.result.isError });
+						if (ev.name === "suggest_actions" && !ev.result.isError) closed = true;
 						emit({ type: "tool", id: ev.id, name: ev.name, status: "end", summary, isError: ev.result.isError });
 						break;
 					}
