@@ -40,3 +40,12 @@ export function translateEnum(lang: Lang, group: string, value: string): string 
 }
 
 export type { Messages };
+
+/** Default campaign titles ("X's Tale" / "La historia de X") follow the UI language. */
+export function displayTitle(lang: Lang, title: string): string {
+	const en = title.match(/^(.+)'s Tale$/);
+	const es = title.match(/^La historia de (.+)$/);
+	const name = en?.[1] ?? es?.[1];
+	if (!name) return title;
+	return lang === "es" ? `La historia de ${name}` : `${name}'s Tale`;
+}

@@ -1,5 +1,6 @@
 "use client";
 
+import { displayTitle } from "@/lib/i18n";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Home, Save, Settings2, Sun, Moon, Sunrise, Sunset, AlertTriangle, X } from "lucide-react";
@@ -31,7 +32,7 @@ export function PlayLoading() {
 
 export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 	const game = useGame(id);
-	const { t, te } = useT();
+	const { t, te, lang } = useT();
 	const { state } = game;
 	const [dialog, setDialog] = useState<"saves" | "settings" | "levelup" | null>(null);
 	const openedRef = useRef(false);
@@ -81,7 +82,7 @@ export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 					<Home size={18} />
 				</Link>
 				<div className="min-w-0">
-					<h1 className="heading truncate text-sm leading-tight">{state.title}</h1>
+					<h1 className="heading truncate text-sm leading-tight">{displayTitle(lang, state.title)}</h1>
 					<div className="truncate text-[11px] text-dim">{state.scene.title}</div>
 				</div>
 				<div className="ml-4 hidden items-center gap-1.5 text-xs text-dim md:flex" title={te("time", state.scene.timeOfDay)}>

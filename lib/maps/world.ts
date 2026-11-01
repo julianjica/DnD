@@ -92,9 +92,24 @@ const KIND_SUFFIX: Partial<Record<LocationKind, string[]>> = {
 	landmark: ["The {n} Stones", "{n} Monolith"],
 };
 
-function locationName(rng: Rng, kind: LocationKind): string {
+const KIND_SUFFIX_ES: Partial<Record<LocationKind, string[]>> = {
+	dungeon: ["Salas de {n}", "Criptas de {n}", "Las bóvedas de {n}"],
+	cave: ["Cavernas de {n}", "Grutas de {n}"],
+	forest: ["Bosque de {n}", "Las espesuras de {n}", "Selva de {n}"],
+	mountain: ["Monte {n}", "Picos de {n}"],
+	ruins: ["Ruinas de {n}", "Antigua {n}"],
+	castle: ["Castillo de {n}", "Fortaleza de {n}"],
+	temple: ["Templo de {n}", "Abadía de {n}"],
+	swamp: ["Ciénaga de {n}", "Pantano de {n}"],
+	coast: ["Cala de {n}", "Playa de {n}"],
+	camp: ["Campamento {n}"],
+	tower: ["Torre de {n}", "La aguja de {n}"],
+	landmark: ["Las piedras de {n}", "Monolito de {n}"],
+};
+
+function locationName(rng: Rng, kind: LocationKind, lang: "en" | "es" = "en"): string {
 	const n = fantasyName(rng);
-	const forms = KIND_SUFFIX[kind];
+	const forms = (lang === "es" ? KIND_SUFFIX_ES : KIND_SUFFIX)[kind];
 	return forms ? rng.pick(forms).replace("{n}", n) : n;
 }
 
@@ -194,6 +209,8 @@ export interface GenerateWorldOptions {
 	biome: Biome;
 	name?: string;
 	locations?: { name: string; kind: LocationKind; description?: string }[];
+	/** Language for generated place names (default English). */
+	lang?: "en" | "es";
 	/** How many random locations when `locations` is omitted (default 9). */
 	count?: number;
 }
@@ -211,7 +228,7 @@ export function generateWorld(opts: GenerateWorldOptions): WorldMap {
 				const kinds: LocationKind[] = ["town"];
 				const pool = shuffled(rng, DEFAULT_KINDS.slice(1));
 				while (kinds.length < n) kinds.push(pool[(kinds.length - 1) % pool.length]);
-				return kinds.map((k) => ({ name: locationName(rng, k), kind: k, description: undefined as string | undefined }));
+				return kinds.map((k) => ({ name: locationName(rng, k, opts.lang), kind: k, description: undefined as string | undefined }));
 			})();
 
 	const placed: WorldLocation[] = [];
@@ -290,7 +307,11 @@ export function generateWorld(opts: GenerateWorldOptions): WorldMap {
 	}
 	return {
 		seed,
-		name: opts.name ?? `The ${rng.pick(["Realm", "Kingdom", "Marches", "Reaches", "Dominion", "Free Lands"])} of ${fantasyName(rng)}`,
+		name:
+			opts.name ??
+			(opts.lang === "es"
+				? `${rng.pick(["El Reino", "El Señorío", "Las Marcas", "Los Confines", "El Dominio", "Las Tierras Libres"])} de ${fantasyName(rng)}`
+				: `The ${rng.pick(["Realm", "Kingdom", "Marches", "Reaches", "Dominion", "Free Lands"])} of ${fantasyName(rng)}`),
 		terrain,
 		locations: placed,
 		routes,

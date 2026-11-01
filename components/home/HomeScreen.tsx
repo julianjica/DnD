@@ -1,5 +1,6 @@
 "use client";
 
+import { displayTitle } from "@/lib/i18n";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertTriangle, Dices, LoaderCircle, Plus, Settings, Trash2 } from "lucide-react";
@@ -22,7 +23,7 @@ const HERO_SCENES: SceneState[] = [
 const ROTATE_MS = 14000;
 
 export function HomeScreen() {
-	const { t } = useT();
+	const { t, lang } = useT();
 	const [campaigns, setCampaigns] = useState<CampaignSummary[] | null>(null);
 	const [error, setError] = useState<string | null>(null);
 	const [toDelete, setToDelete] = useState<CampaignSummary | null>(null);
@@ -160,7 +161,7 @@ export function HomeScreen() {
 				}
 			>
 				<p className="text-dim">
-					<span className="font-display text-gold-2">{toDelete?.title}</span> {t("home.delete.body", { name: toDelete?.characterName ?? "" })}
+					<span className="font-display text-gold-2">{toDelete ? displayTitle(lang, toDelete.title) : ""}</span> {t("home.delete.body", { name: toDelete?.characterName ?? "" })}
 				</p>
 			</Modal>
 

@@ -9,7 +9,7 @@ import { Portrait } from "@/components/art/Portrait";
 import { SceneArt } from "@/components/art/SceneArt";
 import { cn } from "@/components/ui/cn";
 import { useT } from "@/components/i18n/I18nProvider";
-import type { Lang } from "@/lib/i18n";
+import { displayTitle, type Lang } from "@/lib/i18n";
 
 type Detail = Pick<GameState, "scene"> & { character: Pick<GameState["character"], "portrait" | "speciesId"> };
 
@@ -75,7 +75,7 @@ export function CampaignCard({ c, now, onDelete }: { c: CampaignSummary; now: nu
 				</div>
 			</div>
 			<div className="flex min-w-0 flex-1 flex-col gap-1 p-4">
-				<h3 className="truncate font-display text-lg tracking-wide text-gold-2">{c.title}</h3>
+				<h3 className="truncate font-display text-lg tracking-wide text-gold-2">{displayTitle(lang, c.title)}</h3>
 				<div className="truncate font-serif text-[15px] text-text">
 					{c.characterName} <span className="text-dim">· {t("home.card.level", { level: c.characterLevel, classes })}</span>
 				</div>
