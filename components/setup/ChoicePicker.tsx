@@ -85,7 +85,7 @@ export interface ChoicePickerProps {
 export function ChoicePicker({ choice, value, onChange, names = {} }: ChoicePickerProps) {
 	const [q, setQ] = useState("");
 	const { t, te, lang } = useT();
-	const label = choiceLabel(choice, t, names);
+	const label = choiceLabel(choice, t, names, lang);
 	const optName = (o: { index: string; name: string }) => (ABILITY_IDS.has(o.index) ? te("ability", o.index) : getSkill(o.index) ? srdName(lang, "skill", o.index, o.name) : o.name);
 	const picks = (value ?? []).filter((p) => choice.options.some((o) => o.index === p));
 	const full = picks.length >= choice.choose;

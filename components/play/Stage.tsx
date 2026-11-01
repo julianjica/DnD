@@ -61,7 +61,7 @@ function explorePath(map: GridMap, from: Point, to: Point): Point[] | null {
 }
 
 function Initiative({ state }: { state: GameState }) {
-	const { t, te } = useT();
+	const { t, te, ts } = useT();
 	const e = state.encounter!;
 	return (
 		<div className="flex items-center gap-1.5 overflow-x-auto px-3 py-2">
@@ -76,7 +76,7 @@ function Initiative({ state }: { state: GameState }) {
 					<div key={id} className={`relative shrink-0 rounded-md border px-2 py-1 text-xs transition ${color} ${active ? "scale-105 bg-gold/15 shadow-[0_0_12px_rgba(212,166,74,0.4)]" : "bg-bg-2/80"} ${c.dead ? "opacity-40 line-through" : ""}`}>
 						<div className="flex items-center gap-1">
 							<span className="tabular-nums text-faint">{c.initiative}</span>
-							<span className={active ? "text-gold-2" : "text-text"}>{c.name}</span>
+							<span className={active ? "text-gold-2" : "text-text"}>{ts(c.name)}</span>
 							{c.dead && <Skull size={11} />}
 						</div>
 						{c.side === "party" || c.dead ? (
@@ -104,7 +104,7 @@ function Pip({ on, label }: { on: boolean; label: string }) {
 
 function ActionBar(props: { state: GameState; pc: Combatant; mode: Mode; setMode: (m: Mode) => void; act: (a: PlayerCombatAction) => void; busy: boolean }) {
 	const { state, pc, mode, setMode, act, busy } = props;
-	const { t: tr, te } = useT();
+	const { t: tr, te, ts } = useT();
 	const sheet = useMemo(() => {
 		try {
 			return deriveSheet(state.character);
@@ -163,16 +163,16 @@ function ActionBar(props: { state: GameState; pc: Combatant; mode: Mode; setMode
 					disabled={busy || (!t.action && t.attacksLeft <= 0)}
 					style={mode.kind === "attack" && mode.itemId === a.itemId ? { borderColor: "var(--crimson-2)" } : undefined}
 					onClick={() => setMode({ kind: "attack", itemId: a.itemId, label: a.name })}
-					title={tr("play.combat.attackTitle", { name: a.name, hit: `${a.toHit >= 0 ? "+" : ""}${a.toHit}`, dmg: a.damage })}
+					title={tr("play.combat.attackTitle", { name: ts(a.name), hit: `${a.toHit >= 0 ? "+" : ""}${a.toHit}`, dmg: a.damage })}
 				>
-					<Swords size={15} /> {a.name}
+					<Swords size={15} /> {ts(a.name)}
 					{t.attacksLeft > 1 && <span className="text-xs text-gold">×{t.attacksLeft}</span>}
 				</button>
 			))}
 			{spells.length > 0 && (
 				<div className="relative">
 					<button className="btn" disabled={busy} onClick={() => setSpellMenu((v) => !v)} style={mode.kind === "cast" ? { borderColor: "var(--violet)" } : undefined}>
-						<Wand2 size={15} /> {mode.kind === "cast" ? mode.spell.name : tr("play.cast")}
+						<Wand2 size={15} /> {mode.kind === "cast" ? ts(mode.spell.name) : tr("play.cast")}
 					</button>
 					{spellMenu && (
 						<div className="panel absolute bottom-full left-0 z-30 mb-2 max-h-72 w-72 overflow-y-auto p-1.5">
@@ -190,7 +190,7 @@ function ActionBar(props: { state: GameState; pc: Combatant; mode: Mode; setMode
 											setMode({ kind: "cast", spell: s, slotLevel: Math.max(0, slot), targets: [] });
 										}}
 									>
-										<span>{s.name}</span>
+										<span>{ts(s.name)}</span>
 										<span className="text-xs text-faint">{s.level === 0 ? tr("play.combat.cantrip") : tr("play.spells.slot", { n: slot > 0 ? slot : s.level })}
 											{bonus ? ` · ${tr("play.combat.bonusShort")}` : ""}
 											{s.area ? ` · ${te("shape", s.area.shape)}` : ""}</span>
@@ -207,13 +207,13 @@ function ActionBar(props: { state: GameState; pc: Combatant; mode: Mode; setMode
 			<button className="btn" disabled={busy || !t.action} onClick={() => act({ type: "dodge" })} title={tr("play.combat.dodge")}><Zap size={15} /></button>
 			<button className="btn" disabled={busy || !t.action} onClick={() => act({ type: "hide" })} title={tr("play.combat.hide")}><EyeOff size={15} /></button>
 			{potions.length > 0 && (
-				<button className="btn" disabled={busy || !t.bonusAction} onClick={() => act({ type: "use_item", itemId: potions[0].id })} title={tr("play.combat.drink", { name: potions[0].name })}>
+				<button className="btn" disabled={busy || !t.bonusAction} onClick={() => act({ type: "use_item", itemId: potions[0].id })} title={tr("play.combat.drink", { name: ts(potions[0].name) })}>
 					<FlaskConical size={15} className="text-crimson-2" />
 				</button>
 			)}
 			{features.map((f) => (
-				<button key={f.id} className="btn" disabled={busy || (f.uses ? f.uses.used >= f.uses.max : false)} onClick={() => act({ type: "use_feature", featureId: f.id })} title={f.name}>
-					<HandHelping size={15} /> {f.name}
+				<button key={f.id} className="btn" disabled={busy || (f.uses ? f.uses.used >= f.uses.max : false)} onClick={() => act({ type: "use_feature", featureId: f.id })} title={ts(f.name)}>
+					<HandHelping size={15} /> {ts(f.name)}
 				</button>
 			))}
 			<button className="btn btn-gold ml-auto" disabled={busy} onClick={() => act({ type: "end_turn" })}>
@@ -225,7 +225,7 @@ function ActionBar(props: { state: GameState; pc: Combatant; mode: Mode; setMode
 
 export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; act: (a: PlayerCombatAction) => void; setView: (v: GameState["view"]) => void }) {
 	const { state, busy, act } = props;
-	const { t, te } = useT();
+	const { t, te, ts } = useT();
 	const view = state.view;
 	const map = state.activeMapId ? state.maps[state.activeMapId] : undefined;
 	const enc = state.encounter?.status === "active" ? state.encounter : undefined;
@@ -267,6 +267,11 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 			: { shape, origin: hover, size: a.size, color: 0x8f6cc4 };
 	}, [mode, hover, pcEntity]);
 
+	// Darkvision range in squares (60 ft = 12; Superior Darkvision 120 ft = 24).
+	const darkvision = useMemo(() => {
+		const ids = state.character.features.map((f) => f.id);
+		return ids.includes("superior-darkvision") ? 24 : ids.some((id) => id === "darkvision" || id.endsWith("-darkvision")) ? 12 : 0;
+	}, [state.character.features]);
 	const status = useMemo(() => {
 		const s: Record<string, TokenStatus> = {};
 		if (!enc) return s;
@@ -354,6 +359,7 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 						pathPreview={preview?.path}
 						pathLabel={preview ? `${preview.cost} ${t("play.unit.ft")}` : undefined}
 						aoe={aoe}
+						darkvision={darkvision}
 						focus={enc ? (enc.combatants[enc.order[enc.turnIndex]]?.entityId ?? null) : (pcEntity?.id ?? null)}
 						events={mapFx}
 						onSquareClick={(p) => onSquareClick(p)}
@@ -369,7 +375,7 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 				)}
 				{mode.kind !== "move" && enc && myTurn && (
 					<div className="panel absolute left-1/2 top-3 z-20 flex -translate-x-1/2 items-center gap-2 px-3 py-1.5 text-sm">
-						{mode.kind === "attack" ? t("play.combat.chooseTarget", { name: mode.label }) : mode.kind === "cast" ? (mode.spell.area ? t("play.combat.chooseArea", { name: mode.spell.name }) : t("play.combat.chooseTarget", { name: mode.spell.name })) : ""}
+						{mode.kind === "attack" ? t("play.combat.chooseTarget", { name: ts(mode.label) }) : mode.kind === "cast" ? (mode.spell.area ? t("play.combat.chooseArea", { name: ts(mode.spell.name) }) : t("play.combat.chooseTarget", { name: ts(mode.spell.name) })) : ""}
 						<button className="text-faint hover:text-text" title={t("common.cancel")} aria-label={t("common.cancel")} onClick={() => setMode({ kind: "move" })}><X size={14} /></button>
 					</div>
 				)}
@@ -377,7 +383,7 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 
 			{enc && pc && view === "map" && (
 				<div className="border-t border-line bg-bg-2/80">
-					{myTurn ? <ActionBar state={state} pc={pc} mode={mode} setMode={setMode} act={act} busy={busy} /> : <div className="px-3 py-3 text-sm text-dim font-fell italic">{busy ? t("play.combat.enemiesAct") : t("play.combat.waiting", { name: enc.combatants[enc.order[enc.turnIndex]]?.name ?? "…" })}</div>}
+					{myTurn ? <ActionBar state={state} pc={pc} mode={mode} setMode={setMode} act={act} busy={busy} /> : <div className="px-3 py-3 text-sm text-dim font-fell italic">{busy ? t("play.combat.enemiesAct") : t("play.combat.waiting", { name: ts(enc.combatants[enc.order[enc.turnIndex]]?.name ?? "…") })}</div>}
 				</div>
 			)}
 		</div>

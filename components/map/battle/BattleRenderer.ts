@@ -400,7 +400,8 @@ export class BattleRenderer {
 		const sq = [];
 		for (let dy = 0; dy < e.size; dy++) for (let dx = 0; dx < e.size; dx++) sq.push([e.x + dx, e.y + dy]);
 		if (CREATURE.has(e.kind) || e.kind === "item" || e.kind === "trap") {
-			if (this.input?.status[e.id]?.side === "party") return true;
+			// Combatants in the active fight are always shown (the player is fighting them).
+			if (this.input?.status[e.id]) return true;
 			return sq.some(([x, y]) => this.visibleNow.has(sqKey(x, y)));
 		}
 		return sq.some(([x, y]) => map.explored[y * map.width + x] || this.visibleNow.has(sqKey(x, y)));

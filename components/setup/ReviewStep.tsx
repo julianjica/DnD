@@ -33,7 +33,7 @@ export function ReviewStep({ draft, update, goTo, engines }: StepProps & { goTo:
 	const cls = getClass(c.classId);
 	const bg = getBackground(c.backgroundId);
 	const names = { cls: cls ? srdName(lang, "class", cls.index, cls.name) : undefined, bg: bg ? srdName(lang, "background", bg.index, bg.name) : undefined };
-	const openLabels = open.map((ch) => choiceLabel(ch, t, names)).join(", ");
+	const openLabels = open.map((ch) => choiceLabel(ch, t, names, lang)).join(", ");
 
 	const begin = async () => {
 		setBusy(true);

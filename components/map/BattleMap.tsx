@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { GridMap, MapEntity } from "@/lib/game/types";
 import type { AoeTemplate } from "@/lib/maps/aoe";
 import type { Point } from "@/lib/maps/grid";
@@ -58,7 +58,7 @@ export interface BattleMapProps {
  * double-mount safe) and every prop change is applied incrementally.
  */
 export default function BattleMap(props: BattleMapProps) {
-	const { t } = useT();
+	const { t, ts, lang } = useT();
 	const hostRef = useRef<HTMLDivElement>(null);
 	const rendererRef = useRef<BattleRenderer | null>(null);
 	const cbRef = useRef<RendererCallbacks>({});
@@ -116,12 +116,17 @@ export default function BattleMap(props: BattleMapProps) {
 		};
 	}, []);
 
-	const { map, entities, status, highlights, highlightColor, pathPreview, pathLabel, aoe, selectedId, visibleSquares, darkvision, fog, showHidden } = props;
+	const { map, entities: rawEntities, status, highlights, highlightColor, pathPreview, pathLabel, aoe, selectedId, visibleSquares, darkvision, fog, showHidden } = props;
+	// Token labels in the UI language (SRD monster/object names).
+	const entities = useMemo(() => {
+		const list = rawEntities ?? map.entities;
+		return lang === "en" ? list : list.map((e) => ({ ...e, name: ts(e.name) }));
+	}, [rawEntities, map.entities, lang, ts]);
 	useEffect(() => {
 		if (!ready) return;
 		rendererRef.current?.update({
 			map,
-			entities: entities ?? map.entities,
+			entities,
 			status: status ?? {},
 			visible: visibleSquares,
 			fog: fog ?? true,

@@ -1,6 +1,7 @@
 import { en } from "@/lib/i18n/en";
 import { es } from "@/lib/i18n/es";
 import type { Lang } from "@/lib/i18n";
+import { srdDictIfLoaded, translateSrd } from "@/lib/i18n/srd";
 import type { OptionChoice } from "@/lib/srd";
 
 const DICTS: Record<Lang, Record<string, string>> = { en, es };
@@ -12,13 +13,13 @@ const DICTS: Record<Lang, Record<string, string>> = { en, es };
  */
 export function srdName(lang: Lang, group: string, id: string, fallback: string): string {
 	const k = `enum.${group}.${id}`;
-	return DICTS[lang][k] ?? DICTS.en[k] ?? fallback;
+	return DICTS[lang][k] ?? translateSrd(lang, srdDictIfLoaded(), fallback) ?? DICTS.en[k];
 }
 
 type Tr = (key: "choice.classSkills" | "choice.bgLanguages" | "choice.cantrips" | "choice.spellsKnown" | "choice.spellbook" | "choice.extraLanguage" | "choice.abilityBonus" | "choice.skillVersatility" | "choice.speciesCantrip" | "choice.toolProficiency" | "choice.draconicAncestry", vars?: Record<string, string>) => string;
 
 /** Rebuilds a creation-choice label from its id so it can be translated; unknown ids keep their SRD label. */
-export function choiceLabel(ch: Pick<OptionChoice, "id" | "label">, t: Tr, names: { cls?: string; bg?: string }): string {
+export function choiceLabel(ch: Pick<OptionChoice, "id" | "label">, t: Tr, names: { cls?: string; bg?: string }, lang: Lang = "en"): string {
 	const id = ch.id;
 	const cls = names.cls ?? "";
 	if (id === "class:skills" && cls) return t("choice.classSkills", { cls });
@@ -31,5 +32,5 @@ export function choiceLabel(ch: Pick<OptionChoice, "id" | "label">, t: Tr, names
 	if (id === "half-elf:skills") return t("choice.skillVersatility");
 	if (id.endsWith(":draconic-ancestry")) return t("choice.draconicAncestry");
 	if (id.endsWith(":tools")) return t("choice.toolProficiency");
-	return ch.label;
+	return translateSrd(lang, srdDictIfLoaded(), ch.label);
 }

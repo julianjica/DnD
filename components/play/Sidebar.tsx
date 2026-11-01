@@ -69,7 +69,7 @@ function Stat({ label, value, sub, title }: { label: string; value: string | num
 }
 
 function SheetTab({ state, onLevelUp, actions }: { state: GameState; onLevelUp: () => void; actions: SheetActions }) {
-	const { t, te } = useT();
+	const { t, te, ts } = useT();
 	const c = state.character;
 	const sheet = useMemo(() => {
 		try {
@@ -135,7 +135,7 @@ function SheetTab({ state, onLevelUp, actions }: { state: GameState; onLevelUp: 
 					<div className="space-y-1">
 						{sheet.attacks.map((a, i) => (
 							<div key={i} className="flex items-center justify-between rounded-md bg-bg-2/60 px-2 py-1 text-sm">
-								<span>{a.name}</span>
+								<span>{ts(a.name)}</span>
 								<span className="tabular-nums text-dim">{signed(a.toHit)} · {a.damage}</span>
 							</div>
 						))}
@@ -165,7 +165,7 @@ function SheetTab({ state, onLevelUp, actions }: { state: GameState; onLevelUp: 
 						{c.features.map((f) => (
 							<details key={f.id} className="rounded-md bg-bg-2/60 px-2 py-1 text-sm">
 								<summary className="flex cursor-pointer justify-between">
-									<span>{f.name}</span>
+									<span>{ts(f.name)}</span>
 									{f.uses && (
 										<span className="flex items-center gap-2">
 											<span className="text-xs text-gold">{f.uses.max - f.uses.used}/{f.uses.max}</span>
@@ -173,7 +173,7 @@ function SheetTab({ state, onLevelUp, actions }: { state: GameState; onLevelUp: 
 										</span>
 									)}
 								</summary>
-								<p className="mt-1 whitespace-pre-line text-xs text-dim">{f.description}</p>
+								<p className="mt-1 whitespace-pre-line text-xs text-dim">{ts(f.description)}</p>
 							</details>
 						))}
 					</div>
@@ -184,7 +184,7 @@ function SheetTab({ state, onLevelUp, actions }: { state: GameState; onLevelUp: 
 }
 
 function InventoryTab({ state, actions }: { state: GameState; actions: SheetActions }) {
-	const { t, te } = useT();
+	const { t, te, ts } = useT();
 	const c = state.character;
 	const cur = c.currency;
 	return (
@@ -200,7 +200,7 @@ function InventoryTab({ state, actions }: { state: GameState; actions: SheetActi
 						<summary className="flex cursor-pointer items-center justify-between gap-2">
 							<span className="truncate">
 								{i.equipped && <Shield size={12} className="mr-1 inline text-gold" />}
-								{i.name}
+								{ts(i.name)}
 								{i.quantity > 1 && <span className="text-dim"> ×{i.quantity}</span>}
 							</span>
 							<span className="flex shrink-0 items-center gap-2">
@@ -210,8 +210,8 @@ function InventoryTab({ state, actions }: { state: GameState; actions: SheetActi
 						</summary>
 						{(i.description || i.weapon?.properties.length) && (
 							<p className="mt-1 whitespace-pre-line text-xs text-dim">
-								{i.weapon?.properties.length ? `${i.weapon.properties.join(", ")}\n` : ""}
-								{i.description}
+								{i.weapon?.properties.length ? `${i.weapon.properties.map((p) => ts(p.replace(/(^|-|\s)\w/g, (m) => m.toUpperCase()))).join(", ")}\n` : ""}
+								{ts(i.description)}
 							</p>
 						)}
 					</details>
@@ -249,7 +249,7 @@ function CastButton({ state, spell, actions }: { state: GameState; spell: { inde
 }
 
 function SpellsTab({ state, actions }: { state: GameState; actions: SheetActions }) {
-	const { t } = useT();
+	const { t, ts } = useT();
 	const sc = state.character.spellcasting;
 	if (!sc) return <p className="text-sm text-dim">{t("play.spells.none")}</p>;
 	const spells = [...new Set(sc.classes.flatMap((k) => [...k.cantrips, ...k.prepared]))].map((s) => getSpell(s)).filter(Boolean);
@@ -277,17 +277,17 @@ function SpellsTab({ state, actions }: { state: GameState; actions: SheetActions
 						{list.map((s) => (
 							<details key={s!.index} className="rounded-md bg-bg-2/60 px-2 py-1 text-sm">
 								<summary className="flex cursor-pointer justify-between gap-2">
-									<span>{s!.name}</span>
+									<span>{ts(s!.name)}</span>
 									<span className="flex items-center gap-2">
 										<span className="text-xs text-faint">
-											{s!.castingTime}
+											{ts(s!.castingTime)}
 											{s!.concentration ? <span title={t("play.spells.concentration")}> · C</span> : ""}
 										</span>
 										<CastButton state={state} spell={s!} actions={actions} />
 									</span>
 								</summary>
-								<p className="mt-1 text-xs text-faint">{s!.range} · {s!.duration}</p>
-								<p className="mt-1 whitespace-pre-line text-xs text-dim">{s!.description}</p>
+								<p className="mt-1 text-xs text-faint">{ts(s!.range)} · {ts(s!.duration)}</p>
+								<p className="mt-1 whitespace-pre-line text-xs text-dim">{ts(s!.description)}{s!.higherLevel ? `\n\n${ts(s!.higherLevel)}` : ""}</p>
 							</details>
 						))}
 					</div>
