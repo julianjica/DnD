@@ -1,1 +1,416 @@
-{ "subclasses": [], "features": [] }
+{
+	"subclasses": [
+		{
+			"index": "hb-abjuration",
+			"classId": "wizard",
+			"name": "School of Abjuration",
+			"flavor": "Arcane Tradition",
+			"description": "Abjurers study the magic of refusal: the sigils that turn aside a blade, the counter-formulas that unknit a hostile spell, the circles that keep the dark outside. They are the wardens of caravans, vaults and royal bloodlines, and they tend to think of every battle as a problem of where to stand and what to deny.",
+			"features": [
+				{ "level": 2, "features": ["hb-abjuration-warders-economy", "hb-abjuration-interposing-sigil"] },
+				{ "level": 6, "features": ["hb-abjuration-unweaving-hand"] },
+				{ "level": 10, "features": ["hb-abjuration-rebuking-sigil"] },
+				{ "level": 14, "features": ["hb-abjuration-inviolate-circle"] }
+			],
+			"spells": [],
+			"specific": []
+		},
+		{
+			"index": "hb-conjuration",
+			"classId": "wizard",
+			"name": "School of Conjuration",
+			"flavor": "Arcane Tradition",
+			"description": "Conjurers treat distance as a suggestion. They fold space to step across a room, keep their belongings in pockets that open onto nowhere, and call allies out of other planes to fight at their side. Their discipline is about presence: being exactly where they need to be, with exactly what they need.",
+			"features": [
+				{ "level": 2, "features": ["hb-conjuration-summoners-economy", "hb-conjuration-folded-step", "hb-conjuration-hollow-pocket"] },
+				{ "level": 6, "features": ["hb-conjuration-swift-exchange"] },
+				{ "level": 10, "features": ["hb-conjuration-steadfast-binding"] },
+				{ "level": 14, "features": ["hb-conjuration-exalted-summons"] }
+			],
+			"spells": [],
+			"specific": []
+		},
+		{
+			"index": "hb-divination",
+			"classId": "wizard",
+			"name": "School of Divination",
+			"flavor": "Arcane Tradition",
+			"description": "Diviners read the faint currents of what is about to happen and learn to lean on them. Kings consult them, generals fear them, and thieves pay them to know which door is unguarded. In battle, a diviner is the quiet voice that warns an ally a heartbeat before the blow lands.",
+			"features": [
+				{ "level": 2, "features": ["hb-divination-seers-economy", "hb-divination-forewarning"] },
+				{ "level": 6, "features": ["hb-divination-unblinking-watch"] },
+				{ "level": 10, "features": ["hb-divination-piercing-gaze"] },
+				{ "level": 14, "features": ["hb-divination-writ-of-fate"] }
+			],
+			"spells": [],
+			"specific": []
+		},
+		{
+			"index": "hb-enchantment",
+			"classId": "wizard",
+			"name": "School of Enchantment",
+			"flavor": "Arcane Tradition",
+			"description": "Enchanters work on the mind rather than the body, nudging attention, loyalty and desire until a foe forgets why it was angry or an ally finds courage it never had. Some become diplomats and spymasters; others become the hidden hand behind a throne. All of them know that the most dangerous weapon is the one the enemy happily picks up for you.",
+			"features": [
+				{ "level": 2, "features": ["hb-enchantment-beguilers-economy", "hb-enchantment-captivating-word"] },
+				{ "level": 6, "features": ["hb-enchantment-guarded-mind"] },
+				{ "level": 10, "features": ["hb-enchantment-insistent-will"] },
+				{ "level": 14, "features": ["hb-enchantment-puppeteers-command"] }
+			],
+			"spells": [],
+			"specific": []
+		},
+		{
+			"index": "hb-illusion",
+			"classId": "wizard",
+			"name": "School of Illusion",
+			"flavor": "Arcane Tradition",
+			"description": "Illusionists deal in the gap between what is and what is believed. Their phantoms misdirect blades, hide doorways and lure enemies off cliffs, and the best of them learn to make a lie so convincing that it bites. Many are entertainers or con artists; the most accomplished are something much stranger.",
+			"features": [
+				{ "level": 2, "features": ["hb-illusion-phantasts-economy", "hb-illusion-phantom-feint"] },
+				{ "level": 6, "features": ["hb-illusion-veil-step"] },
+				{ "level": 10, "features": ["hb-illusion-self-sustaining-mirage"] },
+				{ "level": 14, "features": ["hb-illusion-shade-made-solid"] }
+			],
+			"spells": [{ "spell": "minor-illusion", "level": 2 }],
+			"specific": []
+		},
+		{
+			"index": "hb-necromancy",
+			"classId": "wizard",
+			"name": "School of Necromancy",
+			"flavor": "Arcane Tradition",
+			"description": "Necromancers study the boundary between living and dead, and the cold energy that leaks across it. Some seek to understand death in order to hold it back; others simply want to use it. Whatever their aims, they learn to draw strength from endings and to make their foes wither under a touch of the grave.",
+			"features": [
+				{ "level": 2, "features": ["hb-necromancy-gravewrights-economy", "hb-necromancy-grave-siphon"] },
+				{ "level": 6, "features": ["hb-necromancy-withering-craft"] },
+				{ "level": 10, "features": ["hb-necromancy-borrowed-breath"] },
+				{ "level": 14, "features": ["hb-necromancy-shroud-of-the-final-hour"] }
+			],
+			"spells": [{ "spell": "animate-dead", "level": 6 }],
+			"specific": []
+		},
+		{
+			"index": "hb-transmutation",
+			"classId": "wizard",
+			"name": "School of Transmutation",
+			"flavor": "Arcane Tradition",
+			"description": "Transmuters believe nothing is fixed. Flesh, stone and metal are just matter waiting for better instructions. They reshape their own bodies to suit the road ahead, sharpen the gifts they give their allies, and, at the height of their art, can unmake a foe's very substance with a touch.",
+			"features": [
+				{ "level": 2, "features": ["hb-transmutation-alchemists-economy", "hb-transmutation-mutable-form"] },
+				{ "level": 6, "features": ["hb-transmutation-shared-mutation"] },
+				{ "level": 10, "features": ["hb-transmutation-twinned-alteration"] },
+				{ "level": 14, "features": ["hb-transmutation-calcifying-touch"] }
+			],
+			"spells": [],
+			"specific": []
+		}
+	],
+	"features": [
+		{
+			"index": "hb-abjuration-warders-economy",
+			"name": "Warder's Economy",
+			"classId": "wizard",
+			"subclassId": "hb-abjuration",
+			"level": 2,
+			"description": "From 2nd level, your familiarity with protective formulas makes them quick to transcribe. Copying an abjuration spell into your spellbook costs you only half the usual gold and takes half the usual time."
+		},
+		{
+			"index": "hb-abjuration-interposing-sigil",
+			"name": "Interposing Sigil",
+			"classId": "wizard",
+			"subclassId": "hb-abjuration",
+			"level": 2,
+			"description": "Starting at 2nd level, you can flash a protective sigil into being between a creature and harm. When you or a creature you can see within 30 feet of you takes damage, you can use your reaction to reduce that damage by 1d10 + your Intelligence modifier + your wizard level (to a minimum of 0). You can use this feature a number of times equal to your proficiency bonus, and you regain all expended uses when you finish a long rest. Whenever you cast an abjuration spell of 1st level or higher, you regain one expended use (no more than once per turn).",
+			"uses": { "max": "prof", "recharge": "long" }
+		},
+		{
+			"index": "hb-abjuration-unweaving-hand",
+			"name": "Unweaving Hand",
+			"classId": "wizard",
+			"subclassId": "hb-abjuration",
+			"level": 6,
+			"description": "Beginning at 6th level, you pick apart hostile magic with practiced ease. When you cast counterspell or dispel magic, treat the spell slot you expend as one level higher for the purpose of which spells you end automatically (a 3rd-level slot automatically ends spells of 4th level or lower). In addition, when you successfully end a spell with either of these spells, you or one creature you can see within 30 feet gains temporary hit points equal to twice the level of the spell you ended."
+		},
+		{
+			"index": "hb-abjuration-rebuking-sigil",
+			"name": "Rebuking Sigil",
+			"classId": "wizard",
+			"subclassId": "hb-abjuration",
+			"level": 10,
+			"description": "From 10th level, your sigils strike back. When you use Interposing Sigil, the creature that dealt the damage, if you can see it within 60 feet of you, takes force damage equal to twice your Intelligence modifier (minimum 2). In addition, the protected creature gains resistance to the triggering damage type until the start of your next turn (this resistance does not apply to the triggering damage itself)."
+		},
+		{
+			"index": "hb-abjuration-inviolate-circle",
+			"name": "Inviolate Circle",
+			"classId": "wizard",
+			"subclassId": "hb-abjuration",
+			"level": 14,
+			"description": "At 14th level, you can draw a shimmering circle of absolute refusal around yourself. As an action, you create a 15-foot-radius sphere centered on you that moves with you and lasts for 1 minute (no concentration required). While inside it, you and creatures of your choice have advantage on saving throws against spells and have resistance to damage dealt by spells. You can use this feature once, regaining the use when you finish a long rest; you can also restore the use by expending a spell slot of 5th level or higher (no action required).",
+			"uses": { "max": 1, "recharge": "long" }
+		},
+		{
+			"index": "hb-conjuration-summoners-economy",
+			"name": "Summoner's Economy",
+			"classId": "wizard",
+			"subclassId": "hb-conjuration",
+			"level": 2,
+			"description": "From 2nd level, the spatial formulas of conjuration come naturally to you. Copying a conjuration spell into your spellbook costs you only half the usual gold and takes half the usual time."
+		},
+		{
+			"index": "hb-conjuration-folded-step",
+			"name": "Folded Step",
+			"classId": "wizard",
+			"subclassId": "hb-conjuration",
+			"level": 2,
+			"description": "Starting at 2nd level, you can pinch space shut and step through the fold. As a bonus action, you teleport up to 20 feet to an unoccupied space you can see. You can use this feature a number of times equal to your proficiency bonus, and you regain all expended uses when you finish a long rest. Whenever you cast a conjuration spell of 1st level or higher, you regain one expended use (no more than once per turn).",
+			"uses": { "max": "prof", "recharge": "long" }
+		},
+		{
+			"index": "hb-conjuration-hollow-pocket",
+			"name": "Hollow Pocket",
+			"classId": "wizard",
+			"subclassId": "hb-conjuration",
+			"level": 2,
+			"description": "Also at 2nd level, you keep a tiny extradimensional cache bound to you. It can hold up to three nonmagical objects, each weighing no more than 2 pounds and small enough to fit in one hand. Storing or retrieving an object uses your free object interaction (or an action if you have already used it). If you die, the objects appear in your space."
+		},
+		{
+			"index": "hb-conjuration-swift-exchange",
+			"name": "Swift Exchange",
+			"classId": "wizard",
+			"subclassId": "hb-conjuration",
+			"level": 6,
+			"description": "Beginning at 6th level, you can yank an ally out of harm's way. When a creature you can see within 30 feet of you is targeted by an attack, you can use your reaction and expend one use of Folded Step to swap places with that creature, provided it is willing or is a creature you summoned. You become the target of the attack instead, and you gain a +2 bonus to AC against it. You can also use this reaction to swap places between two willing creatures or summons you can see within 30 feet, one of which is the target."
+		},
+		{
+			"index": "hb-conjuration-steadfast-binding",
+			"name": "Steadfast Binding",
+			"classId": "wizard",
+			"subclassId": "hb-conjuration",
+			"level": 10,
+			"description": "From 10th level, your summoning bonds are hard to sever. You have advantage on Constitution saving throws made to maintain concentration on conjuration spells. In addition, each creature you summon or create with a conjuration spell appears with temporary hit points equal to your wizard level, and its weapon attacks count as magical for the purpose of overcoming resistance and immunity."
+		},
+		{
+			"index": "hb-conjuration-exalted-summons",
+			"name": "Exalted Summons",
+			"classId": "wizard",
+			"subclassId": "hb-conjuration",
+			"level": 14,
+			"description": "At 14th level, the beings you call arrive charged with your own power. Creatures you summon or create with a conjuration spell gain a +2 bonus to AC and saving throws, their temporary hit points from Steadfast Binding equal twice your wizard level, and once on each of their turns, one of their attacks that hits deals an extra 1d8 force damage. In addition, you can use Folded Step to teleport one of your summoned creatures instead of yourself."
+		},
+		{
+			"index": "hb-divination-seers-economy",
+			"name": "Seer's Economy",
+			"classId": "wizard",
+			"subclassId": "hb-divination",
+			"level": 2,
+			"description": "From 2nd level, divinatory formulas are second nature to you. Copying a divination spell into your spellbook costs you only half the usual gold and takes half the usual time."
+		},
+		{
+			"index": "hb-divination-forewarning",
+			"name": "Forewarning",
+			"classId": "wizard",
+			"subclassId": "hb-divination",
+			"level": 2,
+			"description": "Starting at 2nd level, you glimpse the instant before it arrives. When a creature you can see within 60 feet of you makes an attack roll, ability check, or saving throw, you can use your reaction after seeing the d20 roll but before the outcome is announced to add 1d4 + your Intelligence modifier to the roll or subtract that amount from it. You can use this feature a number of times equal to your proficiency bonus, and you regain all expended uses when you finish a long rest. Whenever you cast a divination spell of 1st level or higher, you regain one expended use.",
+			"uses": { "max": "prof", "recharge": "long" }
+		},
+		{
+			"index": "hb-divination-unblinking-watch",
+			"name": "Unblinking Watch",
+			"classId": "wizard",
+			"subclassId": "hb-divination",
+			"level": 6,
+			"description": "Beginning at 6th level, danger rarely catches you unaware. You can't be surprised while you are conscious. In addition, when initiative is rolled, you and up to two allies of your choice within 30 feet of you who can hear you each add your Intelligence modifier (minimum 1) to their initiative rolls."
+		},
+		{
+			"index": "hb-divination-piercing-gaze",
+			"name": "Piercing Gaze",
+			"classId": "wizard",
+			"subclassId": "hb-divination",
+			"level": 10,
+			"description": "At 10th level, you can open your inner eye for a short time. As a bonus action, you gain truesight out to a range of 30 feet for 1 minute: you see in normal and magical darkness, see invisible creatures and objects, automatically detect visual illusions and succeed on saving throws against them, perceive the true form of shapechangers and transformed creatures, and see into the Ethereal Plane. You can use this feature once, and you regain the use when you finish a short or long rest.",
+			"uses": { "max": 1, "recharge": "short" }
+		},
+		{
+			"index": "hb-divination-writ-of-fate",
+			"name": "Writ of Fate",
+			"classId": "wizard",
+			"subclassId": "hb-divination",
+			"level": 14,
+			"description": "At 14th level, you can declare what will be. When a creature you can see within 60 feet of you makes an attack roll, ability check, or saving throw, you can use your reaction before the die is rolled to decree success or failure. The roll automatically succeeds or fails as you decreed; an attack that succeeds this way is a normal hit, not a critical hit. A creature with legendary resistance can expend one use of it to ignore a decreed failure. You can use this feature once, and you regain the use when you finish a long rest.",
+			"uses": { "max": 1, "recharge": "long" }
+		},
+		{
+			"index": "hb-enchantment-beguilers-economy",
+			"name": "Beguiler's Economy",
+			"classId": "wizard",
+			"subclassId": "hb-enchantment",
+			"level": 2,
+			"description": "From 2nd level, you grasp the subtle cadences of mind-magic quickly. Copying an enchantment spell into your spellbook costs you only half the usual gold and takes half the usual time."
+		},
+		{
+			"index": "hb-enchantment-captivating-word",
+			"name": "Captivating Word",
+			"classId": "wizard",
+			"subclassId": "hb-enchantment",
+			"level": 2,
+			"description": "Starting at 2nd level, you can speak a word that snags a mind. As a bonus action, choose one creature you can see within 30 feet of you that can hear you. It must succeed on a Wisdom saving throw against your wizard spell save DC or, until the end of your next turn, it can't take reactions and has disadvantage on the next attack roll it makes. Creatures immune to being charmed are unaffected. You can use this feature a number of times equal to your proficiency bonus, and you regain all expended uses when you finish a long rest.",
+			"uses": { "max": "prof", "recharge": "long" }
+		},
+		{
+			"index": "hb-enchantment-guarded-mind",
+			"name": "Guarded Mind",
+			"classId": "wizard",
+			"subclassId": "hb-enchantment",
+			"level": 6,
+			"description": "Beginning at 6th level, you know every trick that can be played on a mind, including your own. You have advantage on saving throws against being charmed or frightened. In addition, when a creature stops being charmed by one of your spells, you can choose to have it make an Intelligence saving throw against your spell save DC; on a failure it doesn't realize it was charmed and recalls the time as ordinary, if hazy."
+		},
+		{
+			"index": "hb-enchantment-insistent-will",
+			"name": "Insistent Will",
+			"classId": "wizard",
+			"subclassId": "hb-enchantment",
+			"level": 10,
+			"description": "From 10th level, a mind that resists you finds the pressure doesn't let up. When a creature you can see succeeds on a saving throw against an enchantment spell of 1st level or higher that you cast, you can force it to reroll the save, and it must use the new roll. You can do this once per turn, a number of times equal to your Intelligence modifier (minimum 1), regaining all expended uses when you finish a long rest.",
+			"uses": { "max": "int", "recharge": "long" }
+		},
+		{
+			"index": "hb-enchantment-puppeteers-command",
+			"name": "Puppeteer's Command",
+			"classId": "wizard",
+			"subclassId": "hb-enchantment",
+			"level": 14,
+			"description": "At 14th level, you can turn a charmed creature into a weapon. As a bonus action, choose a creature charmed by you that you can see within 60 feet. It must make a Wisdom saving throw against your spell save DC. On a failure, it immediately uses its reaction to move up to half its speed and make one weapon attack (or cantrip) against a target you choose; this does not end the charm. On a success, it does nothing and the charm you placed on it ends. You can use this feature a number of times equal to your Intelligence modifier (minimum 1), regaining all uses on a long rest.",
+			"uses": { "max": "int", "recharge": "long" }
+		},
+		{
+			"index": "hb-illusion-phantasts-economy",
+			"name": "Phantast's Economy",
+			"classId": "wizard",
+			"subclassId": "hb-illusion",
+			"level": 2,
+			"description": "From 2nd level, illusion formulas come easily to you. Copying an illusion spell into your spellbook costs you only half the usual gold and takes half the usual time. You also always have the minor illusion cantrip prepared; it doesn't count against your cantrips known."
+		},
+		{
+			"index": "hb-illusion-phantom-feint",
+			"name": "Phantom Feint",
+			"classId": "wizard",
+			"subclassId": "hb-illusion",
+			"level": 2,
+			"description": "Starting at 2nd level, you can make a target seem to be a half-step from where it truly is. When a creature you can see within 30 feet of you makes an attack roll against you or another creature, you can use your reaction to impose disadvantage on that roll. Attackers that don't rely on sight or that have truesight are unaffected. You can use this feature a number of times equal to your proficiency bonus, and you regain all expended uses when you finish a long rest. Whenever you cast an illusion spell of 1st level or higher, you regain one expended use (no more than once per turn).",
+			"uses": { "max": "prof", "recharge": "long" }
+		},
+		{
+			"index": "hb-illusion-veil-step",
+			"name": "Veil Step",
+			"classId": "wizard",
+			"subclassId": "hb-illusion",
+			"level": 6,
+			"description": "Beginning at 6th level, you can slip out of sight the moment you are hurt. When you take damage, you can use your reaction to become invisible until the start of your next turn and immediately move up to half your speed without provoking opportunity attacks; an illusory copy of you stays behind, staggering, until that point. You can use this feature once, and you regain the use when you finish a short or long rest.",
+			"uses": { "max": 1, "recharge": "short" }
+		},
+		{
+			"index": "hb-illusion-self-sustaining-mirage",
+			"name": "Self-Sustaining Mirage",
+			"classId": "wizard",
+			"subclassId": "hb-illusion",
+			"level": 10,
+			"description": "From 10th level, your illusions can hold themselves together. When you cast an illusion spell of 1st through 5th level that requires concentration, you can choose to not concentrate on it. It then lasts for its full duration or 1 minute, whichever is shorter, and you can still control it as normal. You can have only one illusion sustained this way at a time. You can use this feature a number of times equal to your proficiency bonus, regaining all uses when you finish a long rest.",
+			"uses": { "max": "prof", "recharge": "long" }
+		},
+		{
+			"index": "hb-illusion-shade-made-solid",
+			"name": "Shade Made Solid",
+			"classId": "wizard",
+			"subclassId": "hb-illusion",
+			"level": 14,
+			"description": "At 14th level, your phantoms can wound. When you cast an illusion spell of 1st level or higher that creates an illusory creature or object, you can give that illusion teeth until the spell ends. As a bonus action on each of your turns, you can make a melee spell attack using your spell attack modifier against one creature within 5 feet of the illusion. On a hit, the target takes psychic damage equal to 2d8 + your Intelligence modifier. A creature that has seen through the illusion takes only half this damage."
+		},
+		{
+			"index": "hb-necromancy-gravewrights-economy",
+			"name": "Gravewright's Economy",
+			"classId": "wizard",
+			"subclassId": "hb-necromancy",
+			"level": 2,
+			"description": "From 2nd level, the grim notation of necromancy is familiar to you. Copying a necromancy spell into your spellbook costs you only half the usual gold and takes half the usual time."
+		},
+		{
+			"index": "hb-necromancy-grave-siphon",
+			"name": "Grave Siphon",
+			"classId": "wizard",
+			"subclassId": "hb-necromancy",
+			"level": 2,
+			"description": "Starting at 2nd level, you catch a sliver of each life as it leaves. When a hostile creature you can see within 60 feet of you drops to 0 hit points, you gain temporary hit points equal to your Intelligence modifier + half your wizard level (rounded down, minimum 1). This can't happen more than once per turn, and it doesn't work on constructs or undead."
+		},
+		{
+			"index": "hb-necromancy-withering-craft",
+			"name": "Withering Craft",
+			"classId": "wizard",
+			"subclassId": "hb-necromancy",
+			"level": 6,
+			"description": "Beginning at 6th level, your death-magic bites deep. Necrotic damage from your wizard spells ignores resistance to necrotic damage. In addition, once per turn, when you deal necrotic damage to a creature with a wizard spell, that creature can't regain hit points until the start of your next turn. You also always have animate dead prepared; it doesn't count against your prepared spells."
+		},
+		{
+			"index": "hb-necromancy-borrowed-breath",
+			"name": "Borrowed Breath",
+			"classId": "wizard",
+			"subclassId": "hb-necromancy",
+			"level": 10,
+			"description": "From 10th level, death has trouble keeping hold of you. You have resistance to necrotic damage and advantage on death saving throws. In addition, when you are reduced to 0 hit points but not killed outright, you can use your reaction to drop to 1 hit point instead; one creature of your choice within 30 feet of you then makes a Constitution saving throw against your spell save DC, taking 4d8 necrotic damage on a failure or half as much on a success. You can use this reaction once, regaining it when you finish a long rest.",
+			"uses": { "max": 1, "recharge": "long" }
+		},
+		{
+			"index": "hb-necromancy-shroud-of-the-final-hour",
+			"name": "Shroud of the Final Hour",
+			"classId": "wizard",
+			"subclassId": "hb-necromancy",
+			"level": 14,
+			"description": "At 14th level, you can wrap yourself in the chill of the grave. As a bonus action, you take on a deathly aspect for 1 minute (no concentration required). For the duration, you have resistance to bludgeoning, piercing, and slashing damage; each creature of your choice that starts its turn within 10 feet of you must make a Constitution saving throw against your spell save DC, taking 3d8 necrotic damage on a failure or half as much on a success; and Grave Siphon grants you twice the usual temporary hit points. You can use this feature once, and you regain the use when you finish a long rest.",
+			"uses": { "max": 1, "recharge": "long" }
+		},
+		{
+			"index": "hb-transmutation-alchemists-economy",
+			"name": "Alchemist's Economy",
+			"classId": "wizard",
+			"subclassId": "hb-transmutation",
+			"level": 2,
+			"description": "From 2nd level, the formulas of change are easy for you to read and record. Copying a transmutation spell into your spellbook costs you only half the usual gold and takes half the usual time."
+		},
+		{
+			"index": "hb-transmutation-mutable-form",
+			"name": "Mutable Form",
+			"classId": "wizard",
+			"subclassId": "hb-transmutation",
+			"level": 2,
+			"description": "Starting at 2nd level, you can rework your own body for the task at hand. As a bonus action, choose one of the following benefits, which lasts for 10 minutes or until you use this feature again: darkvision out to 60 feet (or +30 feet if you already have it); a climbing speed equal to your walking speed; a swimming speed equal to your walking speed and the ability to breathe water; or a 10-foot increase to your walking speed. You can use this feature a number of times equal to your proficiency bonus, and you regain all expended uses when you finish a long rest. Whenever you cast a transmutation spell of 1st level or higher, you regain one expended use.",
+			"uses": { "max": "prof", "recharge": "long" }
+		},
+		{
+			"index": "hb-transmutation-shared-mutation",
+			"name": "Shared Mutation",
+			"classId": "wizard",
+			"subclassId": "hb-transmutation",
+			"level": 6,
+			"description": "Beginning at 6th level, you can share your alterations and harden flesh against harm. When you use Mutable Form, you can target one willing creature you touch instead of yourself, and the target gains temporary hit points equal to your wizard level. Mutable Form also gains a new option: resistance to one damage type of your choice from acid, cold, fire, lightning, or thunder."
+		},
+		{
+			"index": "hb-transmutation-twinned-alteration",
+			"name": "Twinned Alteration",
+			"classId": "wizard",
+			"subclassId": "hb-transmutation",
+			"level": 10,
+			"description": "From 10th level, you can split a transformation between two subjects. When you cast a transmutation spell of 1st through 4th level that targets only one creature and doesn't have a range of self, you can target a second creature within range with the same spell, using the same spell slot. If the spell requires concentration, one concentration covers both targets. You can use this feature once, and you regain the use when you finish a short or long rest.",
+			"uses": { "max": 1, "recharge": "short" }
+		},
+		{
+			"index": "hb-transmutation-calcifying-touch",
+			"name": "Calcifying Touch",
+			"classId": "wizard",
+			"subclassId": "hb-transmutation",
+			"level": 14,
+			"description": "At 14th level, you can force a creature's substance to seize up. As an action, make a melee spell attack against a creature you can reach. On a hit, the target takes 8d10 force damage and must succeed on a Constitution saving throw against your spell save DC or be petrified until the end of its next turn. In addition, your Mutable Form can now grant two of its options at once for a single use. You can use the touch once, and you regain the use when you finish a long rest or expend a spell slot of 6th level or higher (no action required).",
+			"uses": { "max": 1, "recharge": "long" }
+		}
+	]
+}
