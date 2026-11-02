@@ -512,6 +512,8 @@ export interface CampaignSettings {
 	};
 	engine: EngineConfig;
 	audio: { enabled: boolean; musicVolume: number; sfxVolume: number };
+	/** Scene art: public-domain paintings (default) or procedural illustrations. */
+	art?: { scenes: "paintings" | "illustrated" };
 	/** Narration language (UI language is per-browser). Missing = English. */
 	language?: "en" | "es";
 }

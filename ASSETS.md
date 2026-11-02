@@ -137,3 +137,33 @@ No external image, model or font files are used. Everything is generated in code
 - `components/art/SceneArt.tsx` + `components/art/scene/*`: procedural SVG scenes (gradients, seeded noise ridges, shapes, SVG filters). Original code, no third-party art.
 - `components/art/Portrait.tsx` + `lib/art/portrait.ts`: procedural layered SVG portraits. Original code.
 - `components/dice/*`: dice meshes built from vertex tables at runtime and textured with canvas-drawn numbers (system serif font). Uses the npm packages `three` (MIT) and `cannon-es` (MIT); no bundled assets.
+
+## Scene paintings (public domain, via Wikimedia Commons)
+
+| File | Title | Artist | Year | Source |
+|---|---|---|---|---|
+| scenes/forest/forest-1.jpg | Forest Scene in the Catskills | Asher Brown Durand | 1855 | https://commons.wikimedia.org/wiki/File:Asher_Brown_Durand_-_Forest_Scene_in_the_Catskills_-_77.93_-_Detroit_Institute_of_Arts.jpg |
+| scenes/forest/forest-2.jpg | Forest Interior at Fontainebleau | Narcisse Virgilio Díaz | c. 1860s | https://commons.wikimedia.org/wiki/File:Narcisse_Virgile_Diaz_de_la_Pe%C3%B1a_-_Forest_Interior_at_Fontainebleau_,_Inside_the_Forest_from_Fontainebleau_-_A_II_804_-_Finnish_National_Gallery.jpg |
+| scenes/forest/forest-3.jpg | Mast-Tree Grove | Ivan Shishkin | 1898 | https://commons.wikimedia.org/wiki/File:Ivan_Shishkin_-_Mast-Tree_grove_-_Google_Art_Project.jpg |
+| scenes/forest/forest-4.jpg | Forest Landscape in the Moonlight | Georg Saal | 1861 | https://commons.wikimedia.org/wiki/File:Forest_Landscape_in_the_Moonlight_by_Georg_Eduard_Otto_Saal_Rijksmuseum_Amsterdam_SK-A-1827.jpg |
+| scenes/forest/forest-5.jpg | Winter | Ivan Shishkin | 1890 | https://commons.wikimedia.org/wiki/File:Ivan_Shishkin_-_Winter.JPG |
+| scenes/swamp/swamp-1.jpg | Marsh in Polesia | Ivan Shishkin | 1890 | https://commons.wikimedia.org/wiki/File:Ivan_Ivanovich_Shishkin_-_Marsh_in_Polesia,_1890.jpg |
+| scenes/swamp/swamp-2.jpg | Landscape with a Marsh and a Wooded Island | Alexei Savrasov | c. 1870 | https://commons.wikimedia.org/wiki/File:Savrasov_swamp_island.jpg |
+| scenes/swamp/swamp-3.jpg | The Great Swamp | Martin Johnson Heade | 1868 | https://commons.wikimedia.org/wiki/File:The_Great_Swamp_by_Martin_Johnson_Heade,_1868.JPG |
+| scenes/swamp/swamp-4.jpg | View, Dismal Swamp, North Carolina | Régis François Gignoux | 1850 | https://commons.wikimedia.org/wiki/File:R%C3%A9gis_Fran%C3%A7ois_Gignoux_-_View,_Dismal_Swamp,_North_Carolina.jpg |
+| scenes/swamp/swamp-5.jpg | Marsh in the Evening | Isaac Levitan | c. 1890s | https://commons.wikimedia.org/wiki/File:Levitan_marsh-evening.jpg |
+| scenes/plains/plains-1.jpg | Rye | Ivan Shishkin | 1878 | https://commons.wikimedia.org/wiki/File:Ivan_Shishkin_-_%D0%A0%D0%BE%D0%B6%D1%8C_-_Google_Art_Project.jpg |
+| scenes/plains/plains-2.jpg | Steppe. Cloudy Day | Arkhip Kuindzhi | 1890-1895 | https://commons.wikimedia.org/wiki/File:0791Ha._Kuindzhi_A._Steppe._Cloudy_Day.jpg |
+| scenes/plains/plains-3.jpg | Rainbow | Arkhip Kuindzhi | 1900-1905 | https://commons.wikimedia.org/wiki/File:0820Ha._Kuindzhi_A.I._Rainbow,_1900-1905.jpg |
+| scenes/plains/plains-4.jpg | Evening in the Steppe | Arkhip Kuindzhi | 1876-1890 | https://commons.wikimedia.org/wiki/File:0781Ha._%D0%9A%D1%83%D0%B8%D0%BD%D0%B4%D0%B6%D0%B8_%D0%90.%D0%98._%D0%92%D0%B5%D1%87%D0%B5%D1%80_%D0%B2_%D1%81%D1%82%D0%B5%D0%BF%D0%B8.jpg |
+| scenes/plains/plains-5.jpg | Night | Arkhip Kuindzhi | 1905-1908 | https://commons.wikimedia.org/wiki/File:0854Ha._Kuindzhi_A._Night.jpg |
+| scenes/road/road-1.jpg | The Avenue at Middelharnis | Meindert Hobbema | 1689 | https://commons.wikimedia.org/wiki/File:Meindert_Hobbema_001.jpg |
+| scenes/road/road-2.jpg | Vladimirka | Isaac Levitan | 1892 | https://commons.wikimedia.org/wiki/File:Vladimirka_without_frame.jpg |
+| scenes/road/road-3.jpg | Norwegian Landscape in Rain | Hans Gude | 1857 | https://commons.wikimedia.org/wiki/File:Hans_Gude_-_Norwegian_Landscape_in_Rain_-_NG.M.00276_-_National_Museum_of_Art,_Architecture_and_Design.jpg |
+| scenes/road/road-4.jpg | Light Reflections on the Snow | Gustave Den Duyts | 1889 | https://commons.wikimedia.org/wiki/File:Gustave_Den_Duyts_-_Light_Reflections_on_the_Snow.jpg |
+| scenes/road/road-5.jpg | Landscape in Winter by Moonlight | Carl Blechen | c. 1836 | https://commons.wikimedia.org/wiki/File:Carl_Blechen_-_Landschaft_im_Winter_bei_Mondschein_(1836).jpg |
+| scenes/camp/camp-1.jpg | Gypsy Encampment | Zygmunt Sidorowicz | 1876 | https://commons.wikimedia.org/wiki/File:Sidorowicz_Gypsy_encampment.jpg |
+| scenes/camp/camp-2.jpg | Gypsy Camp II | Maksymilian Gierymski | c. 1860s | https://commons.wikimedia.org/wiki/File:Maksymilian_Gierymski_-_Gypsy_Camp_II_-_MNK_II-a-1008_-_National_Museum_Krak%C3%B3w.jpg |
+| scenes/camp/camp-3.jpg | The Trappers' Camp | Albert Bierstadt | 1861 | https://commons.wikimedia.org/wiki/File:The_Trappers%27_Camp_by_Albert_Bierstadt_1861.jpeg |
+| scenes/camp/camp-4.jpg | Fisher Family at a Nighttime Campfire by a Turbulent Sea | Jacob Philipp Hackert | 1778 | https://commons.wikimedia.org/wiki/File:Jacob_Philipp_Hackert,_Fischerfamilie_am_n%C3%A4chtlichen_Lagerfeuer_mit_aufgew%C3%BChltem_Meer,_1778.jpg |
+| scenes/camp/camp-5.jpg | Njommelsaska in Lapland | Carl Svante Hallbeck | 1856 | https://commons.wikimedia.org/wiki/File:Njommelsaska_i_Lappland_by_Carl_Svantje_Hallbeck.jpg |

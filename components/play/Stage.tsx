@@ -347,7 +347,7 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 			<div className="relative min-h-0 flex-1 overflow-hidden">
 				{view === "scene" && (
 					<div className="flex h-full items-center justify-center bg-bg p-3">
-						<SceneArt scene={state.scene} npcs={state.scene.npcIds.map((id) => state.npcs[id]).filter(Boolean).map((n) => ({ id: n.id, name: n.name, portrait: n.portrait, speciesId: n.speciesId, role: n.role }))} className="max-h-full w-full rounded-lg shadow-2xl" />
+						<SceneArt style={state.settings.art?.scenes ?? "paintings"} scene={state.scene} npcs={state.scene.npcIds.map((id) => state.npcs[id]).filter(Boolean).map((n) => ({ id: n.id, name: n.name, portrait: n.portrait, speciesId: n.speciesId, role: n.role }))} className="max-h-full w-full rounded-lg shadow-2xl" />
 					</div>
 				)}
 				{view === "map" && map && (

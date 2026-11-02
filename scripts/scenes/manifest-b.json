@@ -1,0 +1,529 @@
+[
+  {
+    "file": "scenes/forest/forest-1.jpg",
+    "kind": "forest",
+    "time": [
+      "day"
+    ],
+    "weather": [
+      "clear"
+    ],
+    "mood": [
+      "calm"
+    ],
+    "interior": false,
+    "focusY": 0.6,
+    "title": "Forest Scene in the Catskills",
+    "artist": "Asher Brown Durand",
+    "year": "1855",
+    "source": "https://commons.wikimedia.org/wiki/File:Asher_Brown_Durand_-_Forest_Scene_in_the_Catskills_-_77.93_-_Detroit_Institute_of_Arts.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/forest/forest-2.jpg",
+    "kind": "forest",
+    "time": [
+      "day"
+    ],
+    "weather": [
+      "cloudy"
+    ],
+    "mood": [
+      "calm",
+      "mysterious"
+    ],
+    "interior": false,
+    "focusY": 0.55,
+    "title": "Forest Interior at Fontainebleau",
+    "artist": "Narcisse Virgilio Díaz",
+    "year": "c. 1860s",
+    "source": "https://commons.wikimedia.org/wiki/File:Narcisse_Virgile_Diaz_de_la_Pe%C3%B1a_-_Forest_Interior_at_Fontainebleau_,_Inside_the_Forest_from_Fontainebleau_-_A_II_804_-_Finnish_National_Gallery.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/forest/forest-3.jpg",
+    "kind": "forest",
+    "time": [
+      "dusk"
+    ],
+    "weather": [
+      "clear"
+    ],
+    "mood": [
+      "calm",
+      "triumphant"
+    ],
+    "interior": false,
+    "focusY": 0.55,
+    "title": "Mast-Tree Grove",
+    "artist": "Ivan Shishkin",
+    "year": "1898",
+    "source": "https://commons.wikimedia.org/wiki/File:Ivan_Shishkin_-_Mast-Tree_grove_-_Google_Art_Project.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/forest/forest-4.jpg",
+    "kind": "forest",
+    "time": [
+      "night"
+    ],
+    "weather": [
+      "clear"
+    ],
+    "mood": [
+      "mysterious",
+      "eerie"
+    ],
+    "interior": false,
+    "focusY": 0.55,
+    "title": "Forest Landscape in the Moonlight",
+    "artist": "Georg Saal",
+    "year": "1861",
+    "source": "https://commons.wikimedia.org/wiki/File:Forest_Landscape_in_the_Moonlight_by_Georg_Eduard_Otto_Saal_Rijksmuseum_Amsterdam_SK-A-1827.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/forest/forest-5.jpg",
+    "kind": "forest",
+    "time": [
+      "day"
+    ],
+    "weather": [
+      "snow"
+    ],
+    "mood": [
+      "calm",
+      "somber"
+    ],
+    "interior": false,
+    "focusY": 0.5,
+    "title": "Winter",
+    "artist": "Ivan Shishkin",
+    "year": "1890",
+    "source": "https://commons.wikimedia.org/wiki/File:Ivan_Shishkin_-_Winter.JPG",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/swamp/swamp-1.jpg",
+    "kind": "swamp",
+    "time": [
+      "day"
+    ],
+    "weather": [
+      "cloudy"
+    ],
+    "mood": [
+      "calm"
+    ],
+    "interior": false,
+    "focusY": 0.6,
+    "title": "Marsh in Polesia",
+    "artist": "Ivan Shishkin",
+    "year": "1890",
+    "source": "https://commons.wikimedia.org/wiki/File:Ivan_Ivanovich_Shishkin_-_Marsh_in_Polesia,_1890.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/swamp/swamp-2.jpg",
+    "kind": "swamp",
+    "time": [
+      "day"
+    ],
+    "weather": [
+      "cloudy",
+      "rain"
+    ],
+    "mood": [
+      "somber",
+      "tense"
+    ],
+    "interior": false,
+    "focusY": 0.55,
+    "title": "Landscape with a Marsh and a Wooded Island",
+    "artist": "Alexei Savrasov",
+    "year": "c. 1870",
+    "source": "https://commons.wikimedia.org/wiki/File:Savrasov_swamp_island.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/swamp/swamp-3.jpg",
+    "kind": "swamp",
+    "time": [
+      "dawn",
+      "day"
+    ],
+    "weather": [
+      "fog"
+    ],
+    "mood": [
+      "mysterious",
+      "eerie"
+    ],
+    "interior": false,
+    "focusY": 0.6,
+    "title": "The Great Swamp",
+    "artist": "Martin Johnson Heade",
+    "year": "1868",
+    "source": "https://commons.wikimedia.org/wiki/File:The_Great_Swamp_by_Martin_Johnson_Heade,_1868.JPG",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/swamp/swamp-4.jpg",
+    "kind": "swamp",
+    "time": [
+      "dusk"
+    ],
+    "weather": [
+      "clear"
+    ],
+    "mood": [
+      "calm",
+      "mysterious"
+    ],
+    "interior": false,
+    "focusY": 0.55,
+    "title": "View, Dismal Swamp, North Carolina",
+    "artist": "Régis François Gignoux",
+    "year": "1850",
+    "source": "https://commons.wikimedia.org/wiki/File:R%C3%A9gis_Fran%C3%A7ois_Gignoux_-_View,_Dismal_Swamp,_North_Carolina.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/swamp/swamp-5.jpg",
+    "kind": "swamp",
+    "time": [
+      "dusk"
+    ],
+    "weather": [
+      "clear"
+    ],
+    "mood": [
+      "somber",
+      "calm"
+    ],
+    "interior": false,
+    "focusY": 0.6,
+    "title": "Marsh in the Evening",
+    "artist": "Isaac Levitan",
+    "year": "c. 1890s",
+    "source": "https://commons.wikimedia.org/wiki/File:Levitan_marsh-evening.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/plains/plains-1.jpg",
+    "kind": "plains",
+    "time": [
+      "day"
+    ],
+    "weather": [
+      "clear"
+    ],
+    "mood": [
+      "calm",
+      "triumphant"
+    ],
+    "interior": false,
+    "focusY": 0.5,
+    "title": "Rye",
+    "artist": "Ivan Shishkin",
+    "year": "1878",
+    "source": "https://commons.wikimedia.org/wiki/File:Ivan_Shishkin_-_%D0%A0%D0%BE%D0%B6%D1%8C_-_Google_Art_Project.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/plains/plains-2.jpg",
+    "kind": "plains",
+    "time": [
+      "day"
+    ],
+    "weather": [
+      "cloudy"
+    ],
+    "mood": [
+      "somber",
+      "tense"
+    ],
+    "interior": false,
+    "focusY": 0.55,
+    "title": "Steppe. Cloudy Day",
+    "artist": "Arkhip Kuindzhi",
+    "year": "1890-1895",
+    "source": "https://commons.wikimedia.org/wiki/File:0791Ha._Kuindzhi_A._Steppe._Cloudy_Day.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/plains/plains-3.jpg",
+    "kind": "plains",
+    "time": [
+      "day"
+    ],
+    "weather": [
+      "storm",
+      "rain"
+    ],
+    "mood": [
+      "tense",
+      "triumphant"
+    ],
+    "interior": false,
+    "focusY": 0.5,
+    "title": "Rainbow",
+    "artist": "Arkhip Kuindzhi",
+    "year": "1900-1905",
+    "source": "https://commons.wikimedia.org/wiki/File:0820Ha._Kuindzhi_A.I._Rainbow,_1900-1905.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/plains/plains-4.jpg",
+    "kind": "plains",
+    "time": [
+      "dusk"
+    ],
+    "weather": [
+      "clear"
+    ],
+    "mood": [
+      "somber",
+      "mysterious"
+    ],
+    "interior": false,
+    "focusY": 0.5,
+    "title": "Evening in the Steppe",
+    "artist": "Arkhip Kuindzhi",
+    "year": "1876-1890",
+    "source": "https://commons.wikimedia.org/wiki/File:0781Ha._%D0%9A%D1%83%D0%B8%D0%BD%D0%B4%D0%B6%D0%B8_%D0%90.%D0%98._%D0%92%D0%B5%D1%87%D0%B5%D1%80_%D0%B2_%D1%81%D1%82%D0%B5%D0%BF%D0%B8.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/plains/plains-5.jpg",
+    "kind": "plains",
+    "time": [
+      "night"
+    ],
+    "weather": [
+      "clear"
+    ],
+    "mood": [
+      "calm",
+      "mysterious"
+    ],
+    "interior": false,
+    "focusY": 0.55,
+    "title": "Night",
+    "artist": "Arkhip Kuindzhi",
+    "year": "1905-1908",
+    "source": "https://commons.wikimedia.org/wiki/File:0854Ha._Kuindzhi_A._Night.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/road/road-1.jpg",
+    "kind": "road",
+    "time": [
+      "day"
+    ],
+    "weather": [
+      "cloudy"
+    ],
+    "mood": [
+      "calm"
+    ],
+    "interior": false,
+    "focusY": 0.6,
+    "title": "The Avenue at Middelharnis",
+    "artist": "Meindert Hobbema",
+    "year": "1689",
+    "source": "https://commons.wikimedia.org/wiki/File:Meindert_Hobbema_001.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/road/road-2.jpg",
+    "kind": "road",
+    "time": [
+      "day"
+    ],
+    "weather": [
+      "cloudy"
+    ],
+    "mood": [
+      "somber",
+      "calm"
+    ],
+    "interior": false,
+    "focusY": 0.6,
+    "title": "Vladimirka",
+    "artist": "Isaac Levitan",
+    "year": "1892",
+    "source": "https://commons.wikimedia.org/wiki/File:Vladimirka_without_frame.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/road/road-3.jpg",
+    "kind": "road",
+    "time": [
+      "day"
+    ],
+    "weather": [
+      "rain",
+      "cloudy"
+    ],
+    "mood": [
+      "calm",
+      "somber"
+    ],
+    "interior": false,
+    "focusY": 0.6,
+    "title": "Norwegian Landscape in Rain",
+    "artist": "Hans Gude",
+    "year": "1857",
+    "source": "https://commons.wikimedia.org/wiki/File:Hans_Gude_-_Norwegian_Landscape_in_Rain_-_NG.M.00276_-_National_Museum_of_Art,_Architecture_and_Design.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/road/road-4.jpg",
+    "kind": "road",
+    "time": [
+      "dusk"
+    ],
+    "weather": [
+      "snow",
+      "cloudy"
+    ],
+    "mood": [
+      "somber",
+      "calm"
+    ],
+    "interior": false,
+    "focusY": 0.6,
+    "title": "Light Reflections on the Snow",
+    "artist": "Gustave Den Duyts",
+    "year": "1889",
+    "source": "https://commons.wikimedia.org/wiki/File:Gustave_Den_Duyts_-_Light_Reflections_on_the_Snow.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/road/road-5.jpg",
+    "kind": "road",
+    "time": [
+      "night"
+    ],
+    "weather": [
+      "snow",
+      "clear"
+    ],
+    "mood": [
+      "eerie",
+      "mysterious"
+    ],
+    "interior": false,
+    "focusY": 0.6,
+    "title": "Landscape in Winter by Moonlight",
+    "artist": "Carl Blechen",
+    "year": "c. 1836",
+    "source": "https://commons.wikimedia.org/wiki/File:Carl_Blechen_-_Landschaft_im_Winter_bei_Mondschein_(1836).jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/camp/camp-1.jpg",
+    "kind": "camp",
+    "time": [
+      "day"
+    ],
+    "weather": [
+      "cloudy"
+    ],
+    "mood": [
+      "calm"
+    ],
+    "interior": false,
+    "focusY": 0.55,
+    "title": "Gypsy Encampment",
+    "artist": "Zygmunt Sidorowicz",
+    "year": "1876",
+    "source": "https://commons.wikimedia.org/wiki/File:Sidorowicz_Gypsy_encampment.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/camp/camp-2.jpg",
+    "kind": "camp",
+    "time": [
+      "dusk"
+    ],
+    "weather": [
+      "cloudy"
+    ],
+    "mood": [
+      "somber",
+      "calm"
+    ],
+    "interior": false,
+    "focusY": 0.55,
+    "title": "Gypsy Camp II",
+    "artist": "Maksymilian Gierymski",
+    "year": "c. 1860s",
+    "source": "https://commons.wikimedia.org/wiki/File:Maksymilian_Gierymski_-_Gypsy_Camp_II_-_MNK_II-a-1008_-_National_Museum_Krak%C3%B3w.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/camp/camp-3.jpg",
+    "kind": "camp",
+    "time": [
+      "night"
+    ],
+    "weather": [
+      "cloudy"
+    ],
+    "mood": [
+      "mysterious",
+      "tense"
+    ],
+    "interior": false,
+    "focusY": 0.6,
+    "title": "The Trappers' Camp",
+    "artist": "Albert Bierstadt",
+    "year": "1861",
+    "source": "https://commons.wikimedia.org/wiki/File:The_Trappers%27_Camp_by_Albert_Bierstadt_1861.jpeg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/camp/camp-4.jpg",
+    "kind": "camp",
+    "time": [
+      "night"
+    ],
+    "weather": [
+      "storm"
+    ],
+    "mood": [
+      "tense",
+      "mysterious"
+    ],
+    "interior": false,
+    "focusY": 0.6,
+    "title": "Fisher Family at a Nighttime Campfire by a Turbulent Sea",
+    "artist": "Jacob Philipp Hackert",
+    "year": "1778",
+    "source": "https://commons.wikimedia.org/wiki/File:Jacob_Philipp_Hackert,_Fischerfamilie_am_n%C3%A4chtlichen_Lagerfeuer_mit_aufgew%C3%BChltem_Meer,_1778.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/camp/camp-5.jpg",
+    "kind": "camp",
+    "time": [
+      "night"
+    ],
+    "weather": [
+      "clear"
+    ],
+    "mood": [
+      "eerie",
+      "mysterious"
+    ],
+    "interior": false,
+    "focusY": 0.45,
+    "title": "Njommelsaska in Lapland",
+    "artist": "Carl Svante Hallbeck",
+    "year": "1856",
+    "source": "https://commons.wikimedia.org/wiki/File:Njommelsaska_i_Lappland_by_Carl_Svantje_Hallbeck.jpg",
+    "license": "Public domain"
+  }
+]
