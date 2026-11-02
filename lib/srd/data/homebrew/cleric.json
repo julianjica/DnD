@@ -1,1 +1,468 @@
-{ "subclasses": [], "features": [] }
+{
+	"subclasses": [
+		{
+			"index": "hb-knowledge",
+			"classId": "cleric",
+			"name": "Knowledge Domain",
+			"flavor": "Divine Domain",
+			"description": "Gods of lore, memory and discovery hold that every secret wants to be found and every truth deserves a keeper. Their clerics are archivists, translators and investigators who treat ignorance as a wound to be dressed. In battle they read a foe like a page and point their allies to the weak lines.",
+			"features": [
+				{ "level": 1, "features": ["hb-knowledge-scholar-of-the-faith", "hb-knowledge-insightful-annotation"] },
+				{ "level": 2, "features": ["hb-knowledge-channel-divinity-revealing-word"] },
+				{ "level": 6, "features": ["hb-knowledge-lucid-mind"] },
+				{ "level": 8, "features": ["hb-knowledge-exploited-weakness"] },
+				{ "level": 17, "features": ["hb-knowledge-mind-of-the-archive"] }
+			],
+			"spells": [
+				{ "spell": "comprehend-languages", "level": 1 },
+				{ "spell": "detect-magic", "level": 1 },
+				{ "spell": "detect-thoughts", "level": 3 },
+				{ "spell": "locate-object", "level": 3 },
+				{ "spell": "clairvoyance", "level": 5 },
+				{ "spell": "tongues", "level": 5 },
+				{ "spell": "divination", "level": 7 },
+				{ "spell": "locate-creature", "level": 7 },
+				{ "spell": "legend-lore", "level": 9 },
+				{ "spell": "telepathic-bond", "level": 9 }
+			],
+			"specific": []
+		},
+		{
+			"index": "hb-light",
+			"classId": "cleric",
+			"name": "Light Domain",
+			"flavor": "Divine Domain",
+			"description": "Deities of the sun, the hearth-fire and the beacon in the storm call clerics who carry a spark of that light everywhere they go. They burn away lies and shadows alike, and their prayers land as flame and radiance. Where they walk, nothing stays hidden for long.",
+			"features": [
+				{ "level": 1, "features": ["hb-light-lantern-bearer", "hb-light-kindled-spells"] },
+				{ "level": 2, "features": ["hb-light-channel-divinity-kindle-the-dawn"] },
+				{ "level": 6, "features": ["hb-light-embers-of-grace"] },
+				{ "level": 8, "features": ["hb-light-solar-lance"] },
+				{ "level": 17, "features": ["hb-light-herald-of-noon"] }
+			],
+			"spells": [
+				{ "spell": "guiding-bolt", "level": 1 },
+				{ "spell": "faerie-fire", "level": 1 },
+				{ "spell": "continual-flame", "level": 3 },
+				{ "spell": "see-invisibility", "level": 3 },
+				{ "spell": "daylight", "level": 5 },
+				{ "spell": "fireball", "level": 5 },
+				{ "spell": "fire-shield", "level": 7 },
+				{ "spell": "wall-of-fire", "level": 7 },
+				{ "spell": "flame-strike", "level": 9 },
+				{ "spell": "dispel-evil-and-good", "level": 9 }
+			],
+			"specific": []
+		},
+		{
+			"index": "hb-nature",
+			"classId": "cleric",
+			"name": "Nature Domain",
+			"flavor": "Divine Domain",
+			"description": "Gods of the deep forest, the turning seasons and the hunt grant power to clerics who tend the wild as a temple. They speak for root and beast, and the land itself rises to shield them. Such clerics often travel with druids and rangers, though they answer to a god rather than to the circle.",
+			"features": [
+				{ "level": 1, "features": ["hb-nature-wildspeaker", "hb-nature-bark-mantle"] },
+				{ "level": 2, "features": ["hb-nature-channel-divinity-grasp-of-the-green"] },
+				{ "level": 6, "features": ["hb-nature-overgrowth"] },
+				{ "level": 8, "features": ["hb-nature-venom-of-the-wild"] },
+				{ "level": 17, "features": ["hb-nature-heart-of-the-old-forest"] }
+			],
+			"spells": [
+				{ "spell": "entangle", "level": 1 },
+				{ "spell": "goodberry", "level": 1 },
+				{ "spell": "barkskin", "level": 3 },
+				{ "spell": "locate-animals-or-plants", "level": 3 },
+				{ "spell": "plant-growth", "level": 5 },
+				{ "spell": "speak-with-plants", "level": 5 },
+				{ "spell": "conjure-woodland-beings", "level": 7 },
+				{ "spell": "freedom-of-movement", "level": 7 },
+				{ "spell": "commune-with-nature", "level": 9 },
+				{ "spell": "tree-stride", "level": 9 }
+			],
+			"specific": []
+		},
+		{
+			"index": "hb-storm",
+			"classId": "cleric",
+			"name": "Storm Domain",
+			"flavor": "Divine Domain",
+			"description": "Sky-gods, sea-gods and lords of thunder are restless patrons, and their clerics share that restlessness. They preach that the storm clears away what is stale and weak. In combat they ride the wind, hurl lightning and leave their enemies deafened and reeling.",
+			"features": [
+				{ "level": 1, "features": ["hb-storm-storm-sworn", "hb-storm-crackling-litany"] },
+				{ "level": 2, "features": ["hb-storm-channel-divinity-call-the-thunderhead"] },
+				{ "level": 6, "features": ["hb-storm-thunderguard"] },
+				{ "level": 8, "features": ["hb-storm-chain-spark"] },
+				{ "level": 17, "features": ["hb-storm-living-tempest"] }
+			],
+			"spells": [
+				{ "spell": "thunderwave", "level": 1 },
+				{ "spell": "create-or-destroy-water", "level": 1 },
+				{ "spell": "shatter", "level": 3 },
+				{ "spell": "levitate", "level": 3 },
+				{ "spell": "call-lightning", "level": 5 },
+				{ "spell": "wind-wall", "level": 5 },
+				{ "spell": "ice-storm", "level": 7 },
+				{ "spell": "conjure-minor-elementals", "level": 7 },
+				{ "spell": "conjure-elemental", "level": 9 },
+				{ "spell": "cone-of-cold", "level": 9 }
+			],
+			"specific": []
+		},
+		{
+			"index": "hb-trickery",
+			"classId": "cleric",
+			"name": "Trickery Domain",
+			"flavor": "Divine Domain",
+			"description": "Gods of thieves, jesters and clever escapes favor clerics who win by wit rather than by force. These priests bless smugglers, mock tyrants and slip out of every trap set for them. Their miracles are sleights of hand on a divine scale: a swapped place, a borrowed face, a corpse that was never really there.",
+			"features": [
+				{ "level": 1, "features": ["hb-trickery-cutpurses-grace", "hb-trickery-sly-benediction"] },
+				{ "level": 2, "features": ["hb-trickery-channel-divinity-shell-game"] },
+				{ "level": 6, "features": ["hb-trickery-slippery-soul"] },
+				{ "level": 8, "features": ["hb-trickery-treacherous-strike"] },
+				{ "level": 17, "features": ["hb-trickery-the-last-laugh"] }
+			],
+			"spells": [
+				{ "spell": "silent-image", "level": 1 },
+				{ "spell": "disguise-self", "level": 1 },
+				{ "spell": "invisibility", "level": 3 },
+				{ "spell": "misty-step", "level": 3 },
+				{ "spell": "major-image", "level": 5 },
+				{ "spell": "nondetection", "level": 5 },
+				{ "spell": "greater-invisibility", "level": 7 },
+				{ "spell": "hallucinatory-terrain", "level": 7 },
+				{ "spell": "mislead", "level": 9 },
+				{ "spell": "seeming", "level": 9 }
+			],
+			"specific": []
+		},
+		{
+			"index": "hb-war",
+			"classId": "cleric",
+			"name": "War Domain",
+			"flavor": "Divine Domain",
+			"description": "Gods of battle, conquest and the shield-line demand clerics who stand in the front rank. They are chaplains and field-commanders at once, binding wounds between charges and calling allies to strike together. Their faith is drilled, disciplined and loud.",
+			"features": [
+				{ "level": 1, "features": ["hb-war-battle-anointed", "hb-war-commanders-prayer"] },
+				{ "level": 2, "features": ["hb-war-channel-divinity-call-to-arms"] },
+				{ "level": 6, "features": ["hb-war-bulwark-of-faith"] },
+				{ "level": 8, "features": ["hb-war-crushing-verdict"] },
+				{ "level": 17, "features": ["hb-war-general-of-the-divine-host"] }
+			],
+			"spells": [
+				{ "spell": "heroism", "level": 1 },
+				{ "spell": "command", "level": 1 },
+				{ "spell": "aid", "level": 3 },
+				{ "spell": "magic-weapon", "level": 3 },
+				{ "spell": "haste", "level": 5 },
+				{ "spell": "fear", "level": 5 },
+				{ "spell": "stoneskin", "level": 7 },
+				{ "spell": "compulsion", "level": 7 },
+				{ "spell": "hold-monster", "level": 9 },
+				{ "spell": "wall-of-stone", "level": 9 }
+			],
+			"specific": []
+		}
+	],
+	"features": [
+		{
+			"index": "hb-knowledge-scholar-of-the-faith",
+			"name": "Scholar of the Faith",
+			"classId": "cleric",
+			"subclassId": "hb-knowledge",
+			"level": 1,
+			"description": "When you choose this domain at 1st level, you learn one additional language of your choice and gain proficiency in two skills chosen from Arcana, History, Investigation, Nature and Religion. You also gain proficiency with your choice of calligrapher's supplies or cartographer's tools."
+		},
+		{
+			"index": "hb-knowledge-insightful-annotation",
+			"name": "Insightful Annotation",
+			"classId": "cleric",
+			"subclassId": "hb-knowledge",
+			"level": 1,
+			"description": "Starting at 1st level, you can whisper a timely fact to a companion. When a creature you can see within 30 feet of you (including yourself) makes an ability check, you can use your reaction to add your Wisdom modifier (minimum of +1) to the roll. You decide after seeing the d20 roll but before the DM says whether the check succeeds. The creature must be able to hear you.",
+			"uses": { "max": "prof", "recharge": "long" }
+		},
+		{
+			"index": "hb-knowledge-channel-divinity-revealing-word",
+			"name": "Channel Divinity: Revealing Word",
+			"classId": "cleric",
+			"subclassId": "hb-knowledge",
+			"level": 2,
+			"description": "Starting at 2nd level, you can spend one use of your Channel Divinity to speak a creature's true nature aloud. As an action, choose one creature you can see within 60 feet of you. You learn its creature type, its damage vulnerabilities, resistances and immunities, its condition immunities, and which of its saving throws has the lowest bonus. In addition, the target has disadvantage on the first saving throw it makes against one of your cleric spells before the end of your next turn."
+		},
+		{
+			"index": "hb-knowledge-lucid-mind",
+			"name": "Lucid Mind",
+			"classId": "cleric",
+			"subclassId": "hb-knowledge",
+			"level": 6,
+			"description": "Beginning at 6th level, a lifetime of study steadies your thoughts. You have resistance to psychic damage, and you have advantage on saving throws against illusion spells and against any effect that would read your thoughts. In addition, you can cast detect thoughts without expending a spell slot. Once you cast it this way, you can't do so again until you finish a long rest.",
+			"uses": { "max": 1, "recharge": "long" }
+		},
+		{
+			"index": "hb-knowledge-exploited-weakness",
+			"name": "Exploited Weakness",
+			"classId": "cleric",
+			"subclassId": "hb-knowledge",
+			"level": 8,
+			"description": "At 8th level, you strike where your knowledge says it will hurt most. Once on each of your turns when you deal damage to a creature with a weapon attack or a cleric cantrip, you can deal an extra 1d6 psychic damage to it. If you targeted that creature with Channel Divinity: Revealing Word within the last minute, the extra damage is 2d6 instead. When you reach 14th level, the extra damage increases to 2d6 (3d6 against a creature you have revealed)."
+		},
+		{
+			"index": "hb-knowledge-mind-of-the-archive",
+			"name": "Mind of the Archive",
+			"classId": "cleric",
+			"subclassId": "hb-knowledge",
+			"level": 17,
+			"description": "At 17th level, you can understand any spoken or written language. In addition, as an action you can enter a state of perfect clarity that lasts 1 minute. For the duration you can't be surprised, you know the location of every invisible creature within 60 feet of you, and whenever you or a creature of your choice within 30 feet of you makes an Intelligence, Wisdom or Charisma saving throw, a d20 roll of 9 or lower counts as a 10. The state ends early if you are incapacitated.",
+			"uses": { "max": 1, "recharge": "long" }
+		},
+		{
+			"index": "hb-light-lantern-bearer",
+			"name": "Lantern Bearer",
+			"classId": "cleric",
+			"subclassId": "hb-light",
+			"level": 1,
+			"description": "When you choose this domain at 1st level, you learn the light cantrip if you don't already know it; it counts as a cleric cantrip for you and doesn't count against your number of cantrips known. You also gain darkvision out to 60 feet (if you already have darkvision, its range increases by 30 feet), and within 10 feet of you, magical darkness doesn't block your sight."
+		},
+		{
+			"index": "hb-light-kindled-spells",
+			"name": "Kindled Spells",
+			"classId": "cleric",
+			"subclassId": "hb-light",
+			"level": 1,
+			"description": "Also at 1st level, your fire and radiance cling to what they touch. When you cast a cleric spell of 1st level or higher that deals fire or radiant damage, choose one creature that took damage from it. Until the end of your next turn, that creature sheds dim light in a 10-foot radius, it gains no benefit from being invisible, and attack rolls against it don't have disadvantage because the attacker can't see it."
+		},
+		{
+			"index": "hb-light-channel-divinity-kindle-the-dawn",
+			"name": "Channel Divinity: Kindle the Dawn",
+			"classId": "cleric",
+			"subclassId": "hb-light",
+			"level": 2,
+			"description": "Starting at 2nd level, you can spend one use of your Channel Divinity to flare like a rising sun. As an action, you present your holy symbol and each hostile creature of your choice within 30 feet of you that can see you must make a Constitution saving throw. On a failure, a creature takes radiant damage equal to 2d6 + your cleric level and is blinded until the end of your next turn. On a success, it takes half as much damage and isn't blinded. Undead and fiends make this save with disadvantage. Afterward, you shed bright light in a 20-foot radius and dim light for another 20 feet for 10 minutes, and any magical darkness of 3rd level or lower within that bright light is suppressed while you shed it."
+		},
+		{
+			"index": "hb-light-embers-of-grace",
+			"name": "Embers of Grace",
+			"classId": "cleric",
+			"subclassId": "hb-light",
+			"level": 6,
+			"description": "Beginning at 6th level, the same light that burns your foes warms your friends. You have resistance to radiant damage. In addition, when you cast a cleric spell of 1st level or higher that deals fire or radiant damage, you can choose one creature you can see within 30 feet of you that didn't take damage from the spell. That creature gains temporary hit points equal to the spell's level + your Wisdom modifier (minimum of 1)."
+		},
+		{
+			"index": "hb-light-solar-lance",
+			"name": "Solar Lance",
+			"classId": "cleric",
+			"subclassId": "hb-light",
+			"level": 8,
+			"description": "At 8th level, sunfire follows your blows and prayers. Once on each of your turns when you hit a creature with a weapon attack or a spell attack, you can deal an extra 1d6 radiant damage to it, and it can't take the Hide action until the end of its next turn. When you reach 14th level, the extra damage increases to 2d6, and to 3d6 if the target is undead or a fiend."
+		},
+		{
+			"index": "hb-light-herald-of-noon",
+			"name": "Herald of Noon",
+			"classId": "cleric",
+			"subclassId": "hb-light",
+			"level": 17,
+			"description": "At 17th level, your fire and radiance burn at full strength. Fire and radiant damage you deal with cleric spells and cleric features ignores resistance (but not immunity). In addition, when you cast a cleric spell of 1st level or higher that deals fire or radiant damage, you can use the maximum number on each damage die instead of rolling, for every target. Once you use this maximizing option, you can't do so again until you finish a long rest.",
+			"uses": { "max": 1, "recharge": "long" }
+		},
+		{
+			"index": "hb-nature-wildspeaker",
+			"name": "Wildspeaker",
+			"classId": "cleric",
+			"subclassId": "hb-nature",
+			"level": 1,
+			"description": "When you choose this domain at 1st level, you learn the druidcraft or shillelagh cantrip (your choice); it counts as a cleric cantrip for you and doesn't count against your cantrips known. You gain proficiency in your choice of Animal Handling or Survival, and you can communicate simple ideas (such as danger, food, friend or follow) to beasts through sounds and gestures; beasts understand you but can't answer in words."
+		},
+		{
+			"index": "hb-nature-bark-mantle",
+			"name": "Bark Mantle",
+			"classId": "cleric",
+			"subclassId": "hb-nature",
+			"level": 1,
+			"description": "Also at 1st level, you can call living bark over a companion's skin. As a bonus action, touch a creature (you can target yourself). It gains temporary hit points equal to 1d8 + your cleric level, which last for 1 hour. While it has these temporary hit points, its skin looks like weathered bark.",
+			"uses": { "max": "wis", "recharge": "long" }
+		},
+		{
+			"index": "hb-nature-channel-divinity-grasp-of-the-green",
+			"name": "Channel Divinity: Grasp of the Green",
+			"classId": "cleric",
+			"subclassId": "hb-nature",
+			"level": 2,
+			"description": "Starting at 2nd level, you can spend one use of your Channel Divinity to make the ground itself seize your foes. As an action, choose a point you can see within 60 feet of you. Vines and roots erupt in a 15-foot-radius circle centered there for 1 minute (no concentration). Each hostile creature in the area when it appears must succeed on a Strength saving throw against your spell save DC or be restrained; a restrained creature can repeat the save at the end of each of its turns, ending the effect on itself on a success. For the duration, the area is difficult terrain for creatures hostile to you."
+		},
+		{
+			"index": "hb-nature-overgrowth",
+			"name": "Overgrowth",
+			"classId": "cleric",
+			"subclassId": "hb-nature",
+			"level": 6,
+			"description": "Beginning at 6th level, the plants you summon know friend from foe. You and creatures you choose ignore difficult terrain created by your cleric spells and features. In addition, as a bonus action, you can cause thorns to tighten around one creature within 60 feet of you that is restrained by one of your cleric spells or features; it takes 2d6 piercing damage. You can use this bonus action only once per turn."
+		},
+		{
+			"index": "hb-nature-venom-of-the-wild",
+			"name": "Venom of the Wild",
+			"classId": "cleric",
+			"subclassId": "hb-nature",
+			"level": 8,
+			"description": "At 8th level, your strikes carry the sting of nettle and serpent. Once on each of your turns when you hit a creature with a weapon attack or deal damage to it with a cleric cantrip, you can deal an extra 1d8 poison damage to it, and its speed is reduced by 10 feet until the start of your next turn. When you reach 14th level, the extra damage increases to 2d8."
+		},
+		{
+			"index": "hb-nature-heart-of-the-old-forest",
+			"name": "Heart of the Old Forest",
+			"classId": "cleric",
+			"subclassId": "hb-nature",
+			"level": 17,
+			"description": "At 17th level, you no longer age and can't be aged magically. As an action, you can take on the aspect of an ancient tree-spirit for 1 minute. For the duration you have resistance to bludgeoning, piercing and slashing damage; at the start of each of your turns you regain 10 hit points if you have at least 1 hit point; and you can use Channel Divinity: Grasp of the Green as a bonus action without expending a use of Channel Divinity, once during the transformation. The transformation ends early if you are incapacitated or dismiss it (no action).",
+			"uses": { "max": 1, "recharge": "long" }
+		},
+		{
+			"index": "hb-storm-storm-sworn",
+			"name": "Storm-Sworn",
+			"classId": "cleric",
+			"subclassId": "hb-storm",
+			"level": 1,
+			"description": "When you choose this domain at 1st level, you gain proficiency with martial weapons and with vehicles (water). You also have advantage on Strength and Dexterity saving throws made to avoid being knocked prone or pushed by wind, waves or thunder, and you can hold your breath for twice as long as normal."
+		},
+		{
+			"index": "hb-storm-crackling-litany",
+			"name": "Crackling Litany",
+			"classId": "cleric",
+			"subclassId": "hb-storm",
+			"level": 1,
+			"description": "Also at 1st level, your storm-spells leave their victims rattled. When you cast a cleric spell of 1st level or higher, each creature that takes lightning damage from it can't take reactions until the start of its next turn, and each creature that takes thunder damage from it is deafened until the end of your next turn. In addition, when you cast such a spell you can move up to 10 feet immediately afterward without provoking opportunity attacks."
+		},
+		{
+			"index": "hb-storm-channel-divinity-call-the-thunderhead",
+			"name": "Channel Divinity: Call the Thunderhead",
+			"classId": "cleric",
+			"subclassId": "hb-storm",
+			"level": 2,
+			"description": "Starting at 2nd level, you can spend one use of your Channel Divinity to summon a brooding storm cloud above you. As an action, you call the cloud and immediately loose a bolt at one creature you can see within 60 feet of you. On later turns, you can use a bonus action to loose another bolt. The target must make a Dexterity saving throw against your spell save DC, taking 2d8 lightning damage on a failure or half as much on a success. The cloud holds a number of bolts equal to your Wisdom modifier (minimum of 1) and vanishes when they are spent, after 1 minute, or if you are incapacitated. You can loose only one bolt per turn."
+		},
+		{
+			"index": "hb-storm-thunderguard",
+			"name": "Thunderguard",
+			"classId": "cleric",
+			"subclassId": "hb-storm",
+			"level": 6,
+			"description": "Beginning at 6th level, the storm recognizes you as kin. You have resistance to lightning and thunder damage. In addition, when a creature you can see within 30 feet of you would take lightning or thunder damage, you can use your reaction to give it resistance to that damage. Allies caught in your own storm spells can be protected this way."
+		},
+		{
+			"index": "hb-storm-chain-spark",
+			"name": "Chain Spark",
+			"classId": "cleric",
+			"subclassId": "hb-storm",
+			"level": 8,
+			"description": "At 8th level, lightning leaps from your strikes. Once on each of your turns when you hit a creature with a weapon attack or deal damage to it with a cleric cantrip, the target takes an extra 1d6 lightning damage, and you can choose a second creature within 10 feet of the target that also takes 1d6 lightning damage. When you reach 14th level, both amounts increase to 2d6."
+		},
+		{
+			"index": "hb-storm-living-tempest",
+			"name": "Living Tempest",
+			"classId": "cleric",
+			"subclassId": "hb-storm",
+			"level": 17,
+			"description": "At 17th level, as an action you can become the eye of a storm for 1 minute. For the duration you have a flying speed of 60 feet and can hover, and a howling gale fills a 20-foot radius around you. A hostile creature that enters the gale for the first time on a turn or starts its turn there must succeed on a Strength saving throw against your spell save DC or be pushed up to 15 feet away from you and knocked prone. Lightning and thunder damage you deal ignores resistance for the duration. The effect ends early if you are incapacitated.",
+			"uses": { "max": 1, "recharge": "long" }
+		},
+		{
+			"index": "hb-trickery-cutpurses-grace",
+			"name": "Cutpurse's Grace",
+			"classId": "cleric",
+			"subclassId": "hb-trickery",
+			"level": 1,
+			"description": "When you choose this domain at 1st level, you gain proficiency in the Deception and Sleight of Hand skills and with thieves' tools. You also learn the minor illusion cantrip; it counts as a cleric cantrip for you and doesn't count against your number of cantrips known."
+		},
+		{
+			"index": "hb-trickery-sly-benediction",
+			"name": "Sly Benediction",
+			"classId": "cleric",
+			"subclassId": "hb-trickery",
+			"level": 1,
+			"description": "Also at 1st level, you can bless a partner in mischief. As a bonus action, touch a creature (you can target yourself). For 10 minutes, it adds 1d4 to Dexterity (Stealth) and Charisma (Deception) checks, and it leaves no tracks or scent that can be followed by nonmagical means.",
+			"uses": { "max": "prof", "recharge": "long" }
+		},
+		{
+			"index": "hb-trickery-channel-divinity-shell-game",
+			"name": "Channel Divinity: Shell Game",
+			"classId": "cleric",
+			"subclassId": "hb-trickery",
+			"level": 2,
+			"description": "Starting at 2nd level, you can spend one use of your Channel Divinity to trade places in a blink. As a bonus action, you and one willing creature you can see within 60 feet of you teleport, swapping places. Then each hostile creature within 30 feet of either of you that saw the swap must succeed on a Wisdom saving throw against your spell save DC or have disadvantage on the next attack roll it makes before the end of its next turn, as it loses track of which of you is which."
+		},
+		{
+			"index": "hb-trickery-slippery-soul",
+			"name": "Slippery Soul",
+			"classId": "cleric",
+			"subclassId": "hb-trickery",
+			"level": 6,
+			"description": "Beginning at 6th level, you are notoriously hard to hold. You have advantage on ability checks made to escape a grapple or restraints. In addition, when you fail a saving throw against an effect that would charm, frighten, grapple, paralyze or restrain you, you can reroll the save and must use the new roll. Once you use this reroll, you can't do so again until you finish a short or long rest.",
+			"uses": { "max": 1, "recharge": "short" }
+		},
+		{
+			"index": "hb-trickery-treacherous-strike",
+			"name": "Treacherous Strike",
+			"classId": "cleric",
+			"subclassId": "hb-trickery",
+			"level": 8,
+			"description": "At 8th level, your god rewards a dirty trick. Once on each of your turns when you hit a creature with a weapon attack, you can deal an extra 1d8 psychic damage to it. If the target can't see you, or it is charmed or frightened, the extra damage is 2d8 instead. When you reach 14th level, these amounts increase to 2d8 and 3d8."
+		},
+		{
+			"index": "hb-trickery-the-last-laugh",
+			"name": "The Last Laugh",
+			"classId": "cleric",
+			"subclassId": "hb-trickery",
+			"level": 17,
+			"description": "At 17th level, magic can't read your thoughts or reveal whether you are lying unless you allow it. In addition, when you are reduced to 0 hit points but not killed outright, you can instead drop to 1 hit point, become invisible until the start of your next turn, and teleport up to 60 feet to an unoccupied space you can see. An illusory copy of your body remains where you stood, appearing dead, for 1 minute or until a creature touches it. Once you use this escape, you can't do so again until you finish a long rest.",
+			"uses": { "max": 1, "recharge": "long" }
+		},
+		{
+			"index": "hb-war-battle-anointed",
+			"name": "Battle-Anointed",
+			"classId": "cleric",
+			"subclassId": "hb-war",
+			"level": 1,
+			"description": "When you choose this domain at 1st level, you gain proficiency with martial weapons and heavy armor. You also learn to sound battle signals: allies who can hear you can understand simple tactical commands (advance, hold, fall back, focus that target) from you even across the noise of combat and without sharing a language."
+		},
+		{
+			"index": "hb-war-commanders-prayer",
+			"name": "Commander's Prayer",
+			"classId": "cleric",
+			"subclassId": "hb-war",
+			"level": 1,
+			"description": "Also at 1st level, you can steady an ally's aim with a barked prayer. When a creature other than you that you can see within 30 feet of you makes an attack roll, you can use your reaction to add 1d6 to the roll. You decide after seeing the d20 roll but before the DM says whether the attack hits. The creature must be able to hear you.",
+			"uses": { "max": "wis", "recharge": "long" }
+		},
+		{
+			"index": "hb-war-channel-divinity-call-to-arms",
+			"name": "Channel Divinity: Call to Arms",
+			"classId": "cleric",
+			"subclassId": "hb-war",
+			"level": 2,
+			"description": "Starting at 2nd level, you can spend one use of your Channel Divinity to sound a holy war-cry. As a bonus action, choose up to two creatures other than you within 30 feet of you that can hear you. Each of them can immediately use its reaction to make one weapon attack against a creature within its reach or range. At 10th level, each chosen creature can also move up to 10 feet before making the attack, and this movement doesn't provoke opportunity attacks."
+		},
+		{
+			"index": "hb-war-bulwark-of-faith",
+			"name": "Bulwark of Faith",
+			"classId": "cleric",
+			"subclassId": "hb-war",
+			"level": 6,
+			"description": "Beginning at 6th level, you guard the line beside you. When a creature within 5 feet of you is hit by an attack, you can use your reaction to reduce the damage it takes from that attack by 1d10 + your Wisdom modifier (minimum of 1). You must be wielding a shield or a melee weapon to use this reaction, and you can't use it on yourself."
+		},
+		{
+			"index": "hb-war-crushing-verdict",
+			"name": "Crushing Verdict",
+			"classId": "cleric",
+			"subclassId": "hb-war",
+			"level": 8,
+			"description": "At 8th level, your god's verdict lands with your weapon. Once on each of your turns when you hit a creature with a weapon attack, choose one: the attack deals an extra 1d8 force damage, or one ally you can see within 30 feet of you gains temporary hit points equal to 1d8 + your Wisdom modifier. When you reach 14th level, both the damage and the temporary hit point die increase to 2d8."
+		},
+		{
+			"index": "hb-war-general-of-the-divine-host",
+			"name": "General of the Divine Host",
+			"classId": "cleric",
+			"subclassId": "hb-war",
+			"level": 17,
+			"description": "At 17th level, you can't be frightened. In addition, as an action you can raise your holy symbol and rally the host for 1 minute. For the duration, you and allies within 30 feet of you add 1d4 to attack rolls and saving throws, and once on each of your turns you can use a bonus action to let one ally within 30 feet of you who can hear you use its reaction to make one weapon attack. The rally ends early if you are incapacitated.",
+			"uses": { "max": 1, "recharge": "long" }
+		}
+	]
+}

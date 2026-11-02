@@ -1,1 +1,158 @@
-{ "subclasses": [], "features": [] }
+{
+	"subclasses": [
+		{
+			"index": "hb-evergreen",
+			"classId": "paladin",
+			"name": "Oath of the Evergreen",
+			"flavor": "Sacred Oath",
+			"description": "Paladins of the Evergreen swear to shelter what grows: the forest, the field, the child, the small bright joys that make a life worth living. Their tenets are to tend before they take, to kindle hope where it gutters, and to stand against blight in every form, whether rot, undeath or cruelty. They often wear leaves, antlers or living vines worked into their armor.",
+			"features": [
+				{ "level": 3, "features": ["hb-evergreen-channel-divinity-bloom-of-renewal", "hb-evergreen-channel-divinity-blightbane"] },
+				{ "level": 7, "features": ["hb-evergreen-aura-of-sheltering-boughs"] },
+				{ "level": 15, "features": ["hb-evergreen-rooted-vigor"] },
+				{ "level": 18, "features": ["hb-evergreen-wide-canopy"] },
+				{ "level": 20, "features": ["hb-evergreen-avatar-of-the-greenwood"] }
+			],
+			"spells": [
+				{ "spell": "goodberry", "level": 3 },
+				{ "spell": "entangle", "level": 3 },
+				{ "spell": "barkskin", "level": 5 },
+				{ "spell": "lesser-restoration", "level": 5 },
+				{ "spell": "daylight", "level": 9 },
+				{ "spell": "speak-with-plants", "level": 9 },
+				{ "spell": "freedom-of-movement", "level": 13 },
+				{ "spell": "conjure-woodland-beings", "level": 13 },
+				{ "spell": "awaken", "level": 17 },
+				{ "spell": "greater-restoration", "level": 17 }
+			],
+			"specific": []
+		},
+		{
+			"index": "hb-retribution",
+			"classId": "paladin",
+			"name": "Oath of Retribution",
+			"flavor": "Sacred Oath",
+			"description": "An Oath of Retribution is sworn over the ashes of something a great evil destroyed. These paladins pursue tyrants, fiends and their servants without rest, holding that a wrong left unanswered will be repeated. Their tenets are to name the guilty, to never abandon the hunt, and to make the punishment fit the crime, though some lose themselves in the chase.",
+			"features": [
+				{ "level": 3, "features": ["hb-retribution-channel-divinity-mark-of-judgment", "hb-retribution-channel-divinity-edict-of-reckoning"] },
+				{ "level": 7, "features": ["hb-retribution-aura-of-reprisal"] },
+				{ "level": 15, "features": ["hb-retribution-judgment-unbroken"] },
+				{ "level": 18, "features": ["hb-retribution-long-arm-of-justice"] },
+				{ "level": 20, "features": ["hb-retribution-herald-of-the-last-judgment"] }
+			],
+			"spells": [
+				{ "spell": "hellish-rebuke", "level": 3 },
+				{ "spell": "command", "level": 3 },
+				{ "spell": "branding-smite", "level": 5 },
+				{ "spell": "see-invisibility", "level": 5 },
+				{ "spell": "bestow-curse", "level": 9 },
+				{ "spell": "fear", "level": 9 },
+				{ "spell": "locate-creature", "level": 13 },
+				{ "spell": "death-ward", "level": 13 },
+				{ "spell": "geas", "level": 17 },
+				{ "spell": "dispel-evil-and-good", "level": 17 }
+			],
+			"specific": []
+		}
+	],
+	"features": [
+		{
+			"index": "hb-evergreen-channel-divinity-bloom-of-renewal",
+			"name": "Channel Divinity: Bloom of Renewal",
+			"classId": "paladin",
+			"subclassId": "hb-evergreen",
+			"level": 3,
+			"description": "You can spend one use of your Channel Divinity to make blossoms burst from the ground around you. As an action, choose a number of creatures within 30 feet of you equal to your Charisma modifier (minimum of 1); you can include yourself. Each chosen creature gains temporary hit points equal to your paladin level + your Charisma modifier, and you can end either the poisoned condition or one disease on each of them."
+		},
+		{
+			"index": "hb-evergreen-channel-divinity-blightbane",
+			"name": "Channel Divinity: Blightbane",
+			"classId": "paladin",
+			"subclassId": "hb-evergreen",
+			"level": 3,
+			"description": "You can spend one use of your Channel Divinity to unleash the purifying force of spring against things that rot the world. As an action, each undead, fiend or aberration of your choice within 30 feet of you must make a Constitution saving throw against your spell save DC. On a failure, it takes radiant damage equal to 2d8 + your paladin level and its speed is halved for 1 minute; it can repeat the save at the end of each of its turns, ending the slowing on a success. On a success, it takes half the damage and isn't slowed."
+		},
+		{
+			"index": "hb-evergreen-aura-of-sheltering-boughs",
+			"name": "Aura of Sheltering Boughs",
+			"classId": "paladin",
+			"subclassId": "hb-evergreen",
+			"level": 7,
+			"description": "Starting at 7th level, you and friendly creatures within 10 feet of you have resistance to poison damage and advantage on saving throws against being poisoned. In addition, whenever a creature in the aura regains hit points from a spell or other magical effect, it regains extra hit points equal to your Charisma modifier (minimum of 1). You must be conscious to grant these benefits. At 18th level, the range of this aura increases to 30 feet."
+		},
+		{
+			"index": "hb-evergreen-rooted-vigor",
+			"name": "Rooted Vigor",
+			"classId": "paladin",
+			"subclassId": "hb-evergreen",
+			"level": 15,
+			"description": "Beginning at 15th level, you endure like an old oak. At the start of each of your turns, if you have at least 1 hit point but no more than half your hit point maximum, you regain hit points equal to 5 + your Charisma modifier. In addition, you suffer none of the drawbacks of old age, you can't be aged magically, and you need only half as much food and water as normal."
+		},
+		{
+			"index": "hb-evergreen-wide-canopy",
+			"name": "Wide Canopy",
+			"classId": "paladin",
+			"subclassId": "hb-evergreen",
+			"level": 18,
+			"description": "At 18th level, your shelter spreads like the crown of a great tree. The range of your Aura of Sheltering Boughs and your Aura of Protection increases from 10 feet to 30 feet. The aura's benefits still apply only to friendly creatures and only while you are conscious."
+		},
+		{
+			"index": "hb-evergreen-avatar-of-the-greenwood",
+			"name": "Avatar of the Greenwood",
+			"classId": "paladin",
+			"subclassId": "hb-evergreen",
+			"level": 20,
+			"description": "At 20th level, as an action you can become a living embodiment of the wild for 1 minute. Bark and leaves cover your body, granting a +2 bonus to AC. At the start of each of your turns, you and each friendly creature in your aura regain 10 hit points (a creature at 0 hit points isn't affected). Any hostile creature that starts its turn within 10 feet of you must succeed on a Strength saving throw against your spell save DC or be restrained by roots until the start of its next turn. Ground within 30 feet of you is difficult terrain for hostile creatures. The transformation ends early if you are incapacitated.",
+			"uses": { "max": 1, "recharge": "long" }
+		},
+		{
+			"index": "hb-retribution-channel-divinity-mark-of-judgment",
+			"name": "Channel Divinity: Mark of Judgment",
+			"classId": "paladin",
+			"subclassId": "hb-retribution",
+			"level": 3,
+			"description": "You can spend one use of your Channel Divinity to brand a foe as guilty. As a bonus action, choose a creature you can see within 60 feet of you. For 1 hour, or until it drops to 0 hit points, the creature is marked: it gains no benefit from being invisible against you, you know its direction and distance while it is within 1 mile of you and on the same plane, and once on each of your turns when you hit it with a weapon attack, you deal extra radiant damage equal to your Charisma modifier (minimum of 1)."
+		},
+		{
+			"index": "hb-retribution-channel-divinity-edict-of-reckoning",
+			"name": "Channel Divinity: Edict of Reckoning",
+			"classId": "paladin",
+			"subclassId": "hb-retribution",
+			"level": 3,
+			"description": "You can spend one use of your Channel Divinity to answer violence immediately. When a creature you can see within 30 feet of you deals damage to you or to a friendly creature, you can use your reaction to force it to make a Wisdom saving throw against your spell save DC. On a failure, it takes radiant damage equal to 2d8 + your paladin level and is frightened of you until the end of your next turn. On a success, it takes half as much damage and isn't frightened."
+		},
+		{
+			"index": "hb-retribution-aura-of-reprisal",
+			"name": "Aura of Reprisal",
+			"classId": "paladin",
+			"subclassId": "hb-retribution",
+			"level": 7,
+			"description": "Starting at 7th level, you project an aura of unforgiving judgment. While you are conscious, you and friendly creatures within 10 feet of you have advantage on opportunity attacks, and hostile creatures within the aura regain only half the normal number of hit points from any healing. At 18th level, the range of this aura increases to 30 feet."
+		},
+		{
+			"index": "hb-retribution-judgment-unbroken",
+			"name": "Judgment Unbroken",
+			"classId": "paladin",
+			"subclassId": "hb-retribution",
+			"level": 15,
+			"description": "Beginning at 15th level, nothing turns you from the hunt. You are immune to the frightened condition. In addition, when you use Divine Smite against a creature marked by your Channel Divinity: Mark of Judgment, the smite's damage dice are d10s instead of d8s, and the marked creature has disadvantage on saving throws against your paladin spells."
+		},
+		{
+			"index": "hb-retribution-long-arm-of-justice",
+			"name": "Long Arm of Justice",
+			"classId": "paladin",
+			"subclassId": "hb-retribution",
+			"level": 18,
+			"description": "At 18th level, your judgment reaches farther. The range of your Aura of Reprisal and your Aura of Protection increases from 10 feet to 30 feet. In addition, your Channel Divinity: Edict of Reckoning can target a creature up to 60 feet away instead of 30 feet."
+		},
+		{
+			"index": "hb-retribution-herald-of-the-last-judgment",
+			"name": "Herald of the Last Judgment",
+			"classId": "paladin",
+			"subclassId": "hb-retribution",
+			"level": 20,
+			"description": "At 20th level, as an action you can become the herald of final judgment for 1 minute. Spectral chains of light wrap your arms and your eyes blaze. For the duration, you can use a bonus action on each of your turns to apply Mark of Judgment to a creature without expending Channel Divinity (up to three creatures marked at once), your weapon attacks score a critical hit on a roll of 19 or 20 against marked creatures, and a marked creature that ends its turn within 30 feet of you takes 2d10 radiant damage. The transformation ends early if you are incapacitated.",
+			"uses": { "max": 1, "recharge": "long" }
+		}
+	]
+}
