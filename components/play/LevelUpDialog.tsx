@@ -6,6 +6,39 @@ import type { GameState } from "@/lib/game/types";
 import { Modal } from "./Modal";
 import { useT } from "@/components/i18n/I18nProvider";
 import { useEngineText } from "@/components/i18n/useEngineText";
+import { Tooltip } from "@/components/ui/Tooltip";
+import { describeOption } from "@/components/setup/ChoicePicker";
+import { getFeature, getSubclass } from "@/lib/srd";
+
+/** Hover details for a level-up option: a subclass shows its flavor and every feature by level; spells/features/skills use the wizard's descriptions. */
+function OptionTip({ index }: { index: string }) {
+	const { lang, ts, t } = useT();
+	const sub = getSubclass(index);
+	if (!sub) return <>{describeOption(index, lang) ?? null}</>;
+	return (
+		<div className="flex max-h-[45vh] flex-col gap-1.5 overflow-y-auto text-left">
+			<div className="font-display text-sm text-gold-2">
+				{ts(sub.name)} {sub.homebrew && <span className="ml-1 rounded border border-line px-1 text-[9px] tracking-wider text-faint uppercase">{t("play.lvl.homebrew")}</span>}
+			</div>
+			<p className="text-[12px] text-dim italic">{ts(sub.description)}</p>
+			{sub.features.map((g) => (
+				<div key={g.level}>
+					<div className="text-[10px] tracking-widest text-faint uppercase">{t("play.lvl.atLevel", { n: g.level })}</div>
+					{g.features.map((fi) => {
+						const f = getFeature(fi);
+						if (!f) return null;
+						const d = ts(f.description);
+						return (
+							<p key={fi} className="text-[12px] leading-snug">
+								<strong>{ts(f.name)}.</strong> {d.length > 260 ? `${d.slice(0, 260)}…` : d}
+							</p>
+						);
+					})}
+				</div>
+			))}
+		</div>
+	);
+}
 
 interface Ref { index: string; name: string }
 interface Opt { id: string; label: string; choose: number; options: Ref[] }
@@ -98,9 +131,11 @@ export function LevelUpDialog({ id, state, onClose, onDone }: { id: string; stat
 									</div>
 									<div className="flex flex-wrap gap-1.5">
 										{c.options.map((op) => (
-											<button key={op.index} className="chip" data-active={(picks[c.id] ?? []).includes(op.index)} onClick={() => toggle(c, op.index)}>
-												{le(op.name)}
-											</button>
+											<Tooltip key={op.index} content={<OptionTip index={op.index} />} widthClass="max-w-md" side="bottom">
+												<button className="chip" data-active={(picks[c.id] ?? []).includes(op.index)} onClick={() => toggle(c, op.index)}>
+													{le(op.name)}
+												</button>
+											</Tooltip>
 										))}
 									</div>
 								</div>
