@@ -17,17 +17,8 @@ export interface Appearance {
 	eyes?: "brown" | "amber" | "green" | "blue" | "grey" | "gold" | "red" | "violet" | "white";
 	headwear?: "none" | "hood" | "helmet" | "circlet" | "crown" | "headband";
 	mark?: "none" | "scar" | "eyepatch" | "warpaint" | "earrings" | "freckles";
-	clothing?: "tunic" | "armor" | "robe" | "leather" | "cloak" | "noble";
+	clothing?: "tunic" | "armor" | "robe" | "leather" | "cloak";
 	clothingColor?: "red" | "green" | "blue" | "brown" | "purple" | "grey" | "black" | "white" | "gold";
-	expression?: NonNullable<PortraitSpec["expression"]>;
-	build?: NonNullable<PortraitSpec["build"]>;
-	/** One memorable item in frame: an innkeeper's mug, a priest's holy symbol… */
-	signature?: NonNullable<PortraitSpec["signature"]>;
-}
-
-/** Default expression for an NPC's disposition (text and explicit appearance override it). */
-export function expressionForDisposition(d?: string): Appearance["expression"] {
-	return d === "hostile" ? "stern" : d === "friendly" ? "smile" : undefined;
 }
 
 const AGE: Record<NonNullable<Appearance["age"]>, number> = { child: 0, young: 0.1, adult: 0.3, "middle-aged": 0.55, old: 0.8, ancient: 1 };
@@ -68,9 +59,6 @@ export function portraitFromAppearance(rng: Rng, speciesId: string | undefined, 
 	if (a.clothing) p.clothingStyle = a.clothing;
 	if (a.clothingColor) p.clothing = CLOTH_COLOR[a.clothingColor];
 	else if (!p.clothing) p.clothing = CLOTH[Math.floor(rng.next() * CLOTH.length)];
-	if (a.expression) p.expression = a.expression;
-	if (a.build) p.build = a.build;
-	if (a.signature) p.signature = a.signature;
 	return p;
 }
 
@@ -91,9 +79,6 @@ export function applyAppearance(rng: Rng, base: PortraitSpec, speciesId: string 
 		features: a.mark === "freckles" ? fresh.features : base.features,
 		clothingStyle: a.clothing ?? base.clothingStyle,
 		clothing: a.clothingColor ? fresh.clothing : base.clothing,
-		expression: a.expression ?? base.expression,
-		build: a.build ?? base.build,
-		signature: a.signature ?? base.signature,
 	};
 }
 
@@ -182,7 +167,6 @@ export function appearanceFromText(text: string): Appearance {
 
 	if (has(t, "armor", "armour", "armored", "mail", "plate", "breastplate", "soldier", "guard", "knight", "tabard", "brigandine", "man-at-arms", "sergeant", "captain", "armadura", "cota", "coraza", "soldado", "guardia", "caballero", "sargento", "capitán", "cabo", "tabardo", "halberd", "alabarda")) a.clothing = "armor";
 	else if (has(t, "robe", "robes", "habit", "vestments", "cassock", "monk", "friar", "priest", "priestess", "wizard", "mage", "túnica", "hábito", "sotana", "vestiduras", "monje", "fraile", "sacerdote", "sacerdotisa", "mago", "maga", "hechicero", "clérigo", "monja", "abad")) a.clothing = "robe";
-	else if (has(t, "noble", "nobleman", "noblewoman", "lord", "duke", "duchess", "baron", "baroness", "countess", "courtier", "aristocrat", "doublet", "aristócrata", "duque", "duquesa", "barón", "baronesa", "conde", "condesa", "cortesano", "cortesana", "jubón")) a.clothing = "noble";
 	else if (has(t, "leather", "hunter", "ranger", "thief", "rogue", "scout", "cuero", "cazador", "cazadora", "ladrón", "ladrona", "explorador", "exploradora")) a.clothing = "leather";
 	else if (has(t, "cloak", "cloaked", "traveler", "capa", "manto", "viajero", "viajera")) a.clothing = "cloak";
 	else if (has(t, "apron", "innkeeper", "farmer", "merchant", "delantal", "posadero", "posadera", "granjero", "granjera", "mercader", "comerciante")) a.clothing = "tunic";
@@ -197,55 +181,7 @@ export function appearanceFromText(text: string): Appearance {
 		["purple", ["purple", "púrpura", "morado"]],
 	];
 	for (const [c, ws] of cc) if (has(t, ...ws)) { a.clothingColor = c; break; }
-
-	const ex: [NonNullable<Appearance["expression"]>, string[]][] = [
-		["angry", ["angry", "furious", "scowling", "scowls", "snarling", "enraged", "wrathful", "seething", "furioso", "furiosa", "enfadado", "enfadada", "enojado", "enojada", "iracundo", "iracunda", "colérico", "colérica", "rabioso", "rabiosa"]],
-		["worried", ["worried", "nervous", "anxious", "fearful", "frightened", "scared", "jittery", "haunted", "trembling", "preocupado", "preocupada", "nervioso", "nerviosa", "ansioso", "ansiosa", "asustado", "asustada", "temeroso", "temerosa", "atemorizado", "atemorizada", "tembloroso", "temblorosa"]],
-		["sad", ["sad", "grieving", "mournful", "sorrowful", "weeping", "melancholy", "despondent", "forlorn", "triste", "afligido", "afligida", "apenado", "apenada", "melancólico", "melancólica", "doliente", "lloroso", "llorosa", "abatido", "abatida", "desconsolado", "desconsolada"]],
-		["stern", ["stern", "grim", "severe", "dour", "stoic", "strict", "frowning", "hard-faced", "unsmiling", "severo", "severa", "adusto", "adusta", "ceñudo", "ceñuda", "serio", "seria", "estoico", "estoica", "sombrío", "sombría", "hosco", "hosca"]],
-		["smirk", ["smirk", "smirking", "sly", "wry", "mocking", "sardonic", "cocky", "roguish", "burlón", "burlona", "socarrón", "socarrona", "pícaro", "pícara", "sarcástico", "sarcástica", "astuto", "astuta", "zalamero", "zalamera"]],
-		["smile", ["smiling", "smiles", "smile", "cheerful", "jovial", "jolly", "merry", "laughing", "friendly", "kindly", "genial", "sonriente", "sonríe", "sonrisa", "alegre", "risueño", "risueña", "amable", "afable", "bonachón", "bonachona", "simpático", "simpática", "campechano", "campechana"]],
-	];
-	for (const [e, ws] of ex) if (has(t, ...ws)) { a.expression = e; break; }
-
-	if (has(t, "fat", "portly", "stout", "rotund", "heavyset", "heavy-set", "plump", "paunchy", "pot-bellied", "big-bellied", "corpulent", "obese", "gordo", "gorda", "rechoncho", "rechoncha", "orondo", "oronda", "barrigón", "barrigona", "obeso", "obesa", "regordete", "regordeta", "corpulento", "corpulenta")) a.build = "heavy";
-	else if (has(t, "burly", "broad-shouldered", "brawny", "muscular", "hulking", "stocky", "thickset", "beefy", "fornido", "fornida", "robusto", "robusta", "musculoso", "musculosa", "ancho de hombros", "membrudo", "membruda", "achaparrado", "achaparrada")) a.build = "broad";
-	else if (has(t, "thin", "slim", "slender", "lean", "gaunt", "wiry", "rangy", "skinny", "lanky", "willowy", "scrawny", "bony", "emaciated", "delgado", "delgada", "flaco", "flaca", "enjuto", "enjuta", "esbelto", "esbelta", "escuálido", "escuálida", "huesudo", "huesuda", "demacrado", "demacrada", "larguirucho", "larguirucha", "fibroso", "fibrosa")) a.build = "slim";
-
-	a.signature = signatureFromText(t, a);
-	if (!a.signature) delete a.signature;
 	return a;
-}
-
-/** The one item that makes this person memorable: named objects first, then what the role implies. */
-function signatureFromText(t: string, a: Appearance): Appearance["signature"] {
-	// Objects the text names outright.
-	if (has(t, "pipe", "pipa", "smoker", "fumador", "fumadora", "cachimba")) return "pipe";
-	if (has(t, "wizard hat", "pointed hat", "sombrero puntiagudo", "sombrero de mago", "sombrero picudo")) return "wizard_hat";
-	if (has(t, "feathered hat", "plumed hat", "sombrero de plumas", "sombrero emplumado", "sombrero con pluma")) return "feathered_hat";
-	if (has(t, "staff", "bastón", "báculo", "cayado")) return "staff";
-	if (has(t, "holy symbol", "símbolo sagrado", "símbolo sacro")) return "holy_symbol";
-	if (has(t, "amulet", "pendant", "talisman", "locket", "medallion", "amuleto", "colgante", "talismán", "relicario", "medallón")) return "amulet";
-	if (has(t, "lantern", "lamp", "farol", "linterna", "lámpara", "candil")) return "lantern";
-	if (has(t, "tome", "book", "grimoire", "ledger", "libro", "tomo", "grimorio", "libro de cuentas")) return "book";
-	if (has(t, "quill", "inkwell", "pluma de ave", "tintero")) return "quill";
-	if (has(t, "dagger", "knife", "daga", "puñal", "cuchillo", "estilete")) return "dagger";
-	if (has(t, "raven", "crow", "falcon", "hawk", "owl", "parrot", "cuervo", "halcón", "búho", "lechuza", "loro", "cetrero", "cetrera", "falconer")) return "bird";
-	if (has(t, "flower", "flowers", "flor", "flores")) return "flower";
-	if (has(t, "tankard", "mug", "ale", "jarra", "cerveza")) return "mug";
-	// What the role implies.
-	if (has(t, "innkeeper", "barkeep", "barkeeper", "bartender", "tavern keeper", "tavernkeeper", "brewer", "alewife", "posadero", "posadera", "tabernero", "tabernera", "cervecero", "cervecera", "cantinero", "cantinera", "mesonero", "mesonera")) return "mug";
-	if (has(t, "priest", "priestess", "cleric", "acolyte", "paladin", "nun", "abbess", "abbot", "chaplain", "templar", "sacerdote", "sacerdotisa", "clérigo", "clériga", "acólito", "acólita", "monja", "abad", "abadesa", "paladín", "capellán", "templario", "templaria")) return "holy_symbol";
-	if (has(t, "wizard", "archmage", "mage", "mago", "maga", "archimago", "archimaga")) return "wizard_hat";
-	if (has(t, "sorcerer", "sorceress", "warlock", "druid", "shaman", "hechicero", "hechicera", "brujo", "druida", "chamán", "chamana")) return "staff";
-	if (has(t, "scribe", "clerk", "notary", "chronicler", "secretary", "escriba", "escribano", "escribana", "notario", "notaria", "cronista", "secretario", "secretaria")) return "quill";
-	if (has(t, "scholar", "sage", "librarian", "archivist", "historian", "loremaster", "erudito", "erudita", "sabio", "sabia", "bibliotecario", "bibliotecaria", "archivero", "archivera", "historiador", "historiadora")) return "book";
-	if (has(t, "bard", "minstrel", "troubadour", "dandy", "bardo", "barda", "trovador", "trovadora", "juglar", "juglaresa")) return "feathered_hat";
-	if (has(t, "lamplighter", "watchman", "night watch", "farolero", "farolera", "sereno")) return "lantern";
-	if (has(t, "assassin", "cutpurse", "pickpocket", "asesino", "asesina", "carterista", "sicario", "sicaria")) return "dagger";
-	if (has(t, "gardener", "florist", "herbalist", "jardinero", "jardinera", "florista", "herbolario", "herbolaria", "herbalista")) return "flower";
-	if (a.clothing === "robe" && has(t, "monk", "friar", "monje", "fraile")) return "holy_symbol";
-	return undefined;
 }
 
 /**

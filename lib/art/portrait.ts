@@ -1,7 +1,6 @@
 import type { PortraitSpec } from "../game/types";
 import type { Rng } from "../rules/dice";
 import { ArtRng } from "./rand";
-import { hslToHex } from "./color";
 
 /**
  * Procedural portrait vocabulary. `PortraitSpec` fields are free strings; the
@@ -37,24 +36,11 @@ export const ACCESSORIES = ["none", "hood", "helmet", "circlet", "eyepatch", "sc
 
 export const FEATURES = ["pointed_ears", "long_ears", "horns", "ram_horns", "tusks", "scales", "snout", "markings", "freckles", "solid_eyes", "whiskers_none"] as const;
 
-export const EXPRESSIONS = ["neutral", "smile", "smirk", "stern", "worried", "angry", "sad"] as const;
-
-export const BUILDS = ["slim", "average", "broad", "heavy"] as const;
-
-export const SIGNATURES = ["none", "mug", "holy_symbol", "staff", "book", "pipe", "lantern", "dagger", "quill", "feathered_hat", "wizard_hat", "flower", "bird", "amulet"] as const;
-
-export const CLOTHING_STYLES = ["tunic", "armor", "robe", "leather", "cloak", "noble"] as const;
-
-export type Expression = (typeof EXPRESSIONS)[number];
-export type Build = (typeof BUILDS)[number];
-export type Signature = (typeof SIGNATURES)[number];
-export type ClothingStyle = (typeof CLOTHING_STYLES)[number];
-
 export const BACKGROUNDS = ["crimson", "forest", "azure", "parchment", "slate", "violet", "ember", "teal", "night", "gold"] as const;
 
 export const SPECIES_IDS = ["human", "elf", "dwarf", "halfling", "gnome", "orc", "half-orc", "half-elf", "tiefling", "dragonborn", "goliath"] as const;
 
-export type PortraitOptionKey = "skinTone" | "hairStyle" | "hairColor" | "eyeColor" | "facialHair" | "accessory" | "features" | "background" | "expression" | "build" | "signature" | "clothingStyle";
+export type PortraitOptionKey = "skinTone" | "hairStyle" | "hairColor" | "eyeColor" | "facialHair" | "accessory" | "features" | "background";
 
 /** Allowed values for the setup wizard. */
 export const portraitOptions: Record<PortraitOptionKey, readonly string[]> = {
@@ -66,10 +52,6 @@ export const portraitOptions: Record<PortraitOptionKey, readonly string[]> = {
 	accessory: ACCESSORIES,
 	features: FEATURES,
 	background: BACKGROUNDS,
-	expression: EXPRESSIONS,
-	build: BUILDS,
-	signature: SIGNATURES,
-	clothingStyle: CLOTHING_STYLES,
 };
 
 /** Skin tones appropriate for a species (wizard can show these first). */
@@ -207,8 +189,6 @@ export function randomPortrait(rng: Rng, speciesId?: string): PortraitSpec {
 export type HeadShape = "oval" | "square" | "long" | "round" | "heart" | "draconic";
 export type EyeShape = "almond" | "round" | "narrow" | "hooded";
 export type NoseShape = "straight" | "broad" | "hooked" | "button" | "long";
-/** Nose shapes of the painted renderer (≥ 6). */
-export type NoseForm = "straight" | "broad" | "hooked" | "button" | "long" | "snub" | "aquiline" | "flat";
 export type MouthShape = "neutral" | "smile" | "smirk" | "stern" | "full";
 
 export interface PortraitTraits {
@@ -230,30 +210,9 @@ export interface PortraitTraits {
 	browAngle: number;
 	clothing: string;
 	clothingTrim: string;
-	clothingStyle: ClothingStyle;
+	clothingStyle: "tunic" | "armor" | "robe" | "leather" | "cloak";
 	age: number; // 0 young … 1 old
 	female: boolean;
-	// ── Painted-renderer traits (drawn from a forked rng so the draws above stay stable) ──
-	expression: Expression;
-	build: Build;
-	signature: Signature;
-	/** Personal accent color (hex) for the backdrop glow and a trim. */
-	accent: string;
-	noseForm: NoseForm;
-	/** 0 … 1 */
-	cheekbones: number;
-	/** 0 … 1 heavier brow ridge. */
-	browRidge: number;
-	/** 0.7 … 1.3 */
-	lipFullness: number;
-	/** 0.9 … 1.12 */
-	eyeSize: number;
-	/** Degrees of head tilt. */
-	tilt: number;
-	/** Small integer choosing a clothing/hair variant. */
-	variant: number;
-	/** -1 … 1 hair part side. */
-	part: number;
 }
 
 /** Consume the same rng draws either way so seeded faces stay stable. */
@@ -285,7 +244,6 @@ export function portraitTraits(spec: PortraitSpec, speciesHint?: string): Portra
 	const rolledFemale = rng.next() < 0.5;
 	const female = spec.gender ? spec.gender === "female" : rolledFemale;
 	if (female && !stocky) { jaw -= 2.5; chin -= 1; }
-	let mouthFromDraws: MouthShape = "neutral";
 	return {
 		head,
 		width,
@@ -296,47 +254,15 @@ export function portraitTraits(spec: PortraitSpec, speciesHint?: string): Portra
 		eyeTilt: (sp === "elf" ? 4 : 0) + rng.range(-2, 3),
 		nose: small && sp === "gnome" ? "long" : rng.pick(["straight", "straight", "broad", "hooked", "button"] as const),
 		noseSize: rng.range(0.85, 1.2) * (sp === "gnome" ? 1.3 : 1),
-		mouth: (mouthFromDraws = rng.pick(["neutral", "neutral", "smile", "smirk", "stern", "full"] as const)),
+		mouth: rng.pick(["neutral", "neutral", "smile", "smirk", "stern", "full"] as const),
 		mouthWidth: 11 + rng.range(-1.5, 2.5),
 		browThick: (stocky ? 3.6 : 2.4) + rng.range(-0.5, 0.8) - (female ? 0.6 : 0),
 		browAngle: rng.range(-4, 6),
 		clothing: pickOr(rng, spec.clothing, CLOTH),
 		clothingTrim: rng.pick(TRIM),
-		clothingStyle: pickOr<ClothingStyle>(rng, spec.clothingStyle, ["tunic", "armor", "robe", "leather", "cloak"]),
+		clothingStyle: pickOr(rng, spec.clothingStyle, ["tunic", "armor", "robe", "leather", "cloak"] as const),
 		age: ageOr(rng, spec.age),
 		female,
-		...paintedTraits(spec, sp, mouthFromDraws, stocky, small),
-	};
-}
-
-const MOUTH_TO_EXPRESSION: Record<MouthShape, Expression> = { neutral: "neutral", full: "neutral", smile: "smile", smirk: "smirk", stern: "stern" };
-
-function paintedTraits(spec: PortraitSpec, sp: string, mouth: MouthShape, stocky: boolean, small: boolean) {
-	const r = new ArtRng((spec.seed ^ 0x2f6b9a1d) >>> 0);
-	const buildRoll = r.next();
-	const defaultBuild: Build = stocky
-		? buildRoll < 0.55 ? "broad" : buildRoll < 0.8 ? "heavy" : "average"
-		: sp === "elf"
-			? buildRoll < 0.6 ? "slim" : "average"
-			: small
-				? buildRoll < 0.5 ? "average" : buildRoll < 0.8 ? "heavy" : "slim"
-				: buildRoll < 0.2 ? "slim" : buildRoll < 0.7 ? "average" : buildRoll < 0.9 ? "broad" : "heavy";
-	const hue = r.range(0, 360);
-	const accent = hslToHex(hue, r.range(0.45, 0.7), r.range(0.45, 0.58));
-	const noses: NoseForm[] = sp === "gnome" ? ["long", "long", "button", "hooked"] : sp === "orc" || sp === "half-orc" || sp === "goliath" ? ["broad", "flat", "broad", "hooked"] : sp === "elf" ? ["straight", "straight", "aquiline", "snub"] : sp === "halfling" ? ["button", "snub", "button", "broad"] : sp === "dwarf" ? ["broad", "hooked", "long", "aquiline", "broad"] : ["straight", "broad", "hooked", "button", "long", "snub", "aquiline", "flat", "straight"];
-	return {
-		expression: (EXPRESSIONS as readonly string[]).includes(spec.expression ?? "") ? (spec.expression as Expression) : MOUTH_TO_EXPRESSION[mouth],
-		build: (BUILDS as readonly string[]).includes(spec.build ?? "") ? (spec.build as Build) : defaultBuild,
-		signature: (SIGNATURES as readonly string[]).includes(spec.signature ?? "") ? (spec.signature as Signature) : "none",
-		accent,
-		noseForm: r.pick(noses),
-		cheekbones: r.next(),
-		browRidge: Math.min(1, r.next() * 0.7 + (stocky ? 0.4 : 0)),
-		lipFullness: r.range(0.75, 1.25),
-		eyeSize: r.range(0.92, 1.1),
-		tilt: r.range(-3, 3),
-		variant: Math.floor(r.next() * 6),
-		part: r.range(-1, 1),
 	};
 }
 
