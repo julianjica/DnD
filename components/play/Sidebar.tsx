@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { Backpack, BookOpen, Feather, Scroll, Shield, Sparkles, Users, Heart, Swords, ArrowUpCircle, Coins } from "lucide-react";
 import type { Ability, GameState, InventoryItem, PlayerCombatAction } from "@/lib/game/types";
-import { deriveSheet } from "@/lib/rules/character";
+import { canLevelUp, deriveSheet, XP_THRESHOLDS } from "@/lib/rules/character";
 import { getSpell } from "@/lib/srd";
 import { signed } from "@/lib/rules/dice";
 import Portrait from "@/components/art/Portrait";
@@ -75,13 +75,14 @@ function SheetTab({ state, onLevelUp, actions }: { state: GameState; onLevelUp: 
 	const c = state.character;
 	const sheet = useMemo(() => {
 		try {
-			return deriveSheet(c);
+			const lvlNow = c.classes.reduce((n, k) => n + k.level, 0);
+			return deriveSheet(c, lvlNow < 20 ? XP_THRESHOLDS[lvlNow + 1] : undefined);
 		} catch {
 			return null;
 		}
 	}, [c]);
 	const lvl = c.classes.reduce((n, k) => n + k.level, 0);
-	const canLevel = state.settings.structure.leveling === "xp" ? (sheet?.xpToNext !== undefined ? c.xp >= sheet.xpToNext : false) : (state.levelUpsGranted ?? 0) > 0;
+	const canLevel = state.settings.structure.leveling === "xp" ? canLevelUp(c) : (state.levelUpsGranted ?? 0) > 0;
 	return (
 		<div className="space-y-4">
 			<div className="flex items-center gap-3">
