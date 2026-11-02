@@ -1,1 +1,149 @@
-{ "subclasses": [], "features": [] }
+{
+	"subclasses": [
+		{
+			"index": "hb-way-of-the-dusk",
+			"classId": "monk",
+			"name": "Way of the Dusk",
+			"flavor": "Monastic Tradition",
+			"description": "Monks of the Dusk keep their vigils in the hour when light fails. They teach that the shadow is not an absence but a place one can stand in, hide in, and strike from. Their students are watchers, guards of the threshold, and occasionally the quiet end of a tyrant.",
+			"features": [
+				{
+					"level": 3,
+					"features": [
+						"hb-way-of-the-dusk-veil-of-dusk",
+						"hb-way-of-the-dusk-twilight-sight"
+					]
+				},
+				{
+					"level": 6,
+					"features": [
+						"hb-way-of-the-dusk-umbral-stride"
+					]
+				},
+				{
+					"level": 11,
+					"features": [
+						"hb-way-of-the-dusk-gloamshroud"
+					]
+				},
+				{
+					"level": 17,
+					"features": [
+						"hb-way-of-the-dusk-midnight-mantle"
+					]
+				}
+			],
+			"spells": [],
+			"specific": []
+		},
+		{
+			"index": "hb-way-of-the-tempered-elements",
+			"classId": "monk",
+			"name": "Way of the Tempered Elements",
+			"flavor": "Monastic Tradition",
+			"description": "Practitioners of the Tempered Elements forge their ki the way a smith works metal: heated in flame, quenched in water, hammered on stone, cooled in wind. Each technique is a strict discipline that channels one element through the body, and masters weave several into a single flowing form.",
+			"features": [
+				{
+					"level": 3,
+					"features": [
+						"hb-way-of-the-tempered-elements-elemental-techniques"
+					]
+				},
+				{
+					"level": 6,
+					"features": [
+						"hb-way-of-the-tempered-elements-tempered-body"
+					]
+				},
+				{
+					"level": 11,
+					"features": [
+						"hb-way-of-the-tempered-elements-elemental-mastery"
+					]
+				},
+				{
+					"level": 17,
+					"features": [
+						"hb-way-of-the-tempered-elements-tempered-avatar"
+					]
+				}
+			],
+			"spells": [],
+			"specific": []
+		}
+	],
+	"features": [
+		{
+			"index": "hb-way-of-the-dusk-veil-of-dusk",
+			"name": "Veil of Dusk",
+			"classId": "monk",
+			"subclassId": "hb-way-of-the-dusk",
+			"level": 3,
+			"description": "As a bonus action, you can spend 1 ki point to draw the gloom around you for 1 minute. While veiled, you are lightly obscured to other creatures, you can take the Hide action even while only lightly obscured, and opportunity attacks made against you while you are in dim light or darkness have disadvantage. The veil ends early if you are in bright light at the end of your turn."
+		},
+		{
+			"index": "hb-way-of-the-dusk-twilight-sight",
+			"name": "Twilight Sight",
+			"classId": "monk",
+			"subclassId": "hb-way-of-the-dusk",
+			"level": 3,
+			"description": "You gain darkvision out to 60 feet, or increase the range of your existing darkvision by 30 feet. In addition, as an action you can spend 3 ki points to cast darkness without a spell slot, centered on a point within 60 feet; you can see normally through darkness you create this way, and while you remain inside its area it doesn't require your concentration (it ends early if you leave the area)."
+		},
+		{
+			"index": "hb-way-of-the-dusk-umbral-stride",
+			"name": "Umbral Stride",
+			"classId": "monk",
+			"subclassId": "hb-way-of-the-dusk",
+			"level": 6,
+			"description": "When you use Step of the Wind, you can spend 1 additional ki point to teleport instead of moving: you vanish and reappear in an unoccupied space you can see within 30 feet that is in dim light or darkness. Until the end of that turn, the first melee attack you make against a creature that was not within 5 feet of you before the teleport has advantage."
+		},
+		{
+			"index": "hb-way-of-the-dusk-gloamshroud",
+			"name": "Gloamshroud",
+			"classId": "monk",
+			"subclassId": "hb-way-of-the-dusk",
+			"level": 11,
+			"description": "As a bonus action, you can spend 3 ki points to become invisible for 1 minute. The invisibility works only while you are in dim light or darkness; whenever you are in bright light you are visible but the effect doesn't end. The effect ends early if you hit a creature with an attack, after the attack is resolved, or if you are incapacitated."
+		},
+		{
+			"index": "hb-way-of-the-dusk-midnight-mantle",
+			"name": "Midnight Mantle",
+			"classId": "monk",
+			"subclassId": "hb-way-of-the-dusk",
+			"level": 17,
+			"description": "As an action, you can spend 5 ki points to become the center of a 20-foot-radius sphere of magical darkness for 1 minute that moves with you; you can see through it. While it lasts, whenever a creature inside the sphere makes an attack roll against a target other than you, you can use your reaction to make one unarmed strike against that creature if it is within your reach, and that strike deals an extra 2d6 necrotic damage on a hit."
+		},
+		{
+			"index": "hb-way-of-the-tempered-elements-elemental-techniques",
+			"name": "Elemental Techniques",
+			"classId": "monk",
+			"subclassId": "hb-way-of-the-tempered-elements",
+			"level": 3,
+			"description": "You learn two elemental techniques of your choice from the list below, and one more at 6th, 11th, and 17th level. Whenever you gain a monk level, you can swap one technique you know for another. Each technique costs the listed ki points. Saving throws use your ki save DC (8 + your proficiency bonus + your Wisdom modifier). You can apply only one on-hit technique to a single strike. Techniques: • Ember Fist (1 ki, when you hit with an unarmed strike, once per turn): the strike deals an extra 1d10 fire damage, and the target sheds dim light in a 5-foot radius and can't benefit from being invisible until the start of your next turn. • Rime Grip (1 ki, when you hit with an unarmed strike, once per turn): the strike deals an extra 1d8 cold damage and the target's speed is reduced by 10 feet until the start of your next turn. • Riptide Palm (1 ki, when you hit with an unarmed strike, once per turn): the target must succeed on a Strength saving throw or be pulled up to 15 feet toward you or pushed up to 15 feet away from you (your choice); a Large or smaller creature that fails by 5 or more is also knocked prone. • Stone Root Stance (1 ki, bonus action): until the start of your next turn you gain +2 AC and can't be pushed, pulled, or knocked prone against your will. • Rising Gale (1 ki, bonus action): you gain a flying speed equal to your walking speed until the end of your turn; if you are still aloft then, you drift harmlessly to the ground. • Thunderclap Stomp (2 ki, action): you cast thunderwave without a spell slot, using your ki save DC. • Arc Step (1 ki, when you use Step of the Wind): the first creature you move within 5 feet of during that movement must succeed on a Dexterity saving throw or take 2d8 lightning damage."
+		},
+		{
+			"index": "hb-way-of-the-tempered-elements-tempered-body",
+			"name": "Tempered Body",
+			"classId": "monk",
+			"subclassId": "hb-way-of-the-tempered-elements",
+			"level": 6,
+			"description": "You learn one additional elemental technique. When you finish a long rest, choose acid, cold, fire, lightning, or thunder: you have resistance to that damage type until your next long rest. In addition, when you hit with an unarmed strike, you can have it deal cold, fire, lightning, or thunder damage instead of bludgeoning."
+		},
+		{
+			"index": "hb-way-of-the-tempered-elements-elemental-mastery",
+			"name": "Elemental Mastery",
+			"classId": "monk",
+			"subclassId": "hb-way-of-the-tempered-elements",
+			"level": 11,
+			"description": "You learn one additional technique, which can be chosen from the basic list or from the advanced techniques below (advanced techniques can be learned from now on whenever you gain a technique). Advanced techniques: • Storm Lance (4 ki, action, 11th level): a 100-foot-long, 5-foot-wide line of lightning leaps from your palm. Each creature in the line makes a Dexterity save, taking 6d8 lightning damage on a failure or half as much on a success. • Glacial Ring (4 ki, action, 11th level): each creature of your choice within 15 feet of you makes a Constitution save, taking 5d8 cold damage and having its speed reduced to 0 until the end of its next turn on a failure, or half damage and no speed loss on a success. • Mountain's Patience (3 ki, reaction, 11th level): when you or a creature within 10 feet of you is hit by an attack, reduce the damage by 2d10 + your Wisdom modifier."
+		},
+		{
+			"index": "hb-way-of-the-tempered-elements-tempered-avatar",
+			"name": "Tempered Avatar",
+			"classId": "monk",
+			"subclassId": "hb-way-of-the-tempered-elements",
+			"level": 17,
+			"description": "You learn one additional technique. As a bonus action, you can spend 5 ki points to become a living conduit for 1 minute. Choose cold, fire, lightning, or thunder: you have resistance to that type and to bludgeoning, piercing, and slashing damage from nonmagical attacks, your unarmed strikes deal an extra 1d6 damage of the chosen type, and every elemental technique costs 1 fewer ki point (minimum 1)."
+		}
+	]
+}

@@ -1,1 +1,233 @@
-{ "subclasses": [], "features": [] }
+{
+	"subclasses": [
+		{
+			"index": "hb-warlord",
+			"classId": "fighter",
+			"name": "Warlord",
+			"flavor": "Martial Archetype",
+			"description": "Warlords treat every skirmish as a puzzle of angles, timing, and nerve. They fight at the front of the line, reading the field and calling the moves that turn a brawl into a rout, and their companions learn to listen when the Warlord barks an order.",
+			"features": [
+				{
+					"level": 3,
+					"features": [
+						"hb-warlord-tactics-dice",
+						"hb-warlord-maneuvers",
+						"hb-warlord-student-of-the-field"
+					]
+				},
+				{
+					"level": 7,
+					"features": [
+						"hb-warlord-read-the-field"
+					]
+				},
+				{
+					"level": 10,
+					"features": [
+						"hb-warlord-honed-tactics"
+					]
+				},
+				{
+					"level": 15,
+					"features": [
+						"hb-warlord-unbroken-momentum"
+					]
+				},
+				{
+					"level": 18,
+					"features": [
+						"hb-warlord-grand-strategist"
+					]
+				}
+			],
+			"spells": [],
+			"specific": []
+		},
+		{
+			"index": "hb-spellblade",
+			"classId": "fighter",
+			"name": "Spellblade",
+			"flavor": "Martial Archetype",
+			"description": "Spellblades never sat through a wizard's apprenticeship; they learned a handful of potent formulae by rote and etched them into the steel they carry. Their magic is innate and narrow but always ready, woven between sword strokes rather than read from a book.",
+			"features": [
+				{
+					"level": 3,
+					"features": [
+						"hb-spellblade-innate-arcana",
+						"hb-spellblade-arcane-reservoir",
+						"hb-spellblade-bonded-blade"
+					]
+				},
+				{
+					"level": 7,
+					"features": [
+						"hb-spellblade-spellstrike",
+						"hb-spellblade-deeper-wellspring"
+					]
+				},
+				{
+					"level": 10,
+					"features": [
+						"hb-spellblade-unraveling-edge"
+					]
+				},
+				{
+					"level": 15,
+					"features": [
+						"hb-spellblade-high-arcana"
+					]
+				},
+				{
+					"level": 18,
+					"features": [
+						"hb-spellblade-blade-unending"
+					]
+				}
+			],
+			"spells": [],
+			"specific": []
+		}
+	],
+	"features": [
+		{
+			"index": "hb-warlord-tactics-dice",
+			"name": "Tactics Dice",
+			"classId": "fighter",
+			"subclassId": "hb-warlord",
+			"level": 3,
+			"description": "You carry a reserve of battlefield instinct represented by tactics dice, which are d8s. Your number of tactics dice equals 1 + your proficiency bonus (tracked on your sheet). A tactics die is expended when you use it to fuel a Warlord maneuver, and you regain all expended tactics dice when you finish a short or long rest. The die becomes a d10 at 10th level and a d12 at 18th level.",
+			"uses": {
+				"max": "1+prof",
+				"recharge": "short"
+			}
+		},
+		{
+			"index": "hb-warlord-maneuvers",
+			"name": "Warlord Maneuvers",
+			"classId": "fighter",
+			"subclassId": "hb-warlord",
+			"level": 3,
+			"description": "You learn three maneuvers of your choice from the list below; you learn one more at 7th, 10th, and 15th level. Whenever you gain a fighter level you can replace one maneuver you know with another. Using a maneuver expends one tactics die, and you can apply only one maneuver to a single attack or trigger. If a maneuver calls for a saving throw, the DC is 8 + your proficiency bonus + your Strength or Dexterity modifier (your choice). Maneuvers: • Sundering Blow (on a hit): add the tactics die to the damage roll, and the target takes a -1 penalty to AC until the start of your next turn (this penalty doesn't stack with itself). • Hamstring (on a hit): add the tactics die to the damage roll; the target's speed is reduced by 15 feet and it can't take reactions until the start of your next turn. • Overrun (on a hit with a melee attack): add the tactics die to the damage roll. A target that is no more than one size larger than you must succeed on a Strength saving throw or be pushed up to 10 feet straight away from you; you can then move up to 10 feet after it without provoking opportunity attacks. • Steady Hand (before you make an attack roll): add the tactics die to the attack roll. If the attack still misses, the die is not expended. • Shield Wall (reaction, when a creature you can see hits you or an ally within 5 feet of you): roll the tactics die and reduce the damage of that hit by the number rolled + your Constitution modifier (minimum reduction 1). • Exploit Opening (on a hit): mark the target until the start of your next turn. The next attack roll an ally makes against it during that time adds your tactics die to its damage roll and ignores half cover. • Marshal's Call (bonus action): choose one ally within 30 feet who can see or hear you. It gains temporary hit points equal to your tactics die roll + your proficiency bonus, and it can immediately use its reaction to move up to half its speed without provoking opportunity attacks. • Iron Resolve (when you fail a Strength, Dexterity, or Constitution saving throw): roll the tactics die and add it to the saving throw, possibly turning the failure into a success."
+		},
+		{
+			"index": "hb-warlord-student-of-the-field",
+			"name": "Student of the Field",
+			"classId": "fighter",
+			"subclassId": "hb-warlord",
+			"level": 3,
+			"description": "Your study of warfare pays off off the battlefield too. You gain proficiency in one of the following skills of your choice: History, Insight, Intimidation, or Persuasion. In addition, you can't be surprised while you are conscious and at least one ally you can see is not surprised, as you instinctively bark a warning to each other."
+		},
+		{
+			"index": "hb-warlord-read-the-field",
+			"name": "Read the Field",
+			"classId": "fighter",
+			"subclassId": "hb-warlord",
+			"level": 7,
+			"description": "As a bonus action, you size up one creature you can see within 60 feet. The DM tells you its Armor Class, roughly how wounded it is (unhurt, bloodied, or near death), and either its highest saving throw or one damage resistance or immunity it has (your choice). You can use this feature a number of times equal to your proficiency bonus, regaining all uses when you finish a long rest. You also learn a fourth Warlord maneuver.",
+			"uses": {
+				"max": "prof",
+				"recharge": "long"
+			}
+		},
+		{
+			"index": "hb-warlord-honed-tactics",
+			"name": "Honed Tactics",
+			"classId": "fighter",
+			"subclassId": "hb-warlord",
+			"level": 10,
+			"description": "Your tactics dice become d10s. You also learn one additional Warlord maneuver. In addition, when you roll initiative, you can choose one ally within 30 feet who can see or hear you: that ally adds your Intelligence modifier (minimum +1) to its initiative roll as you call out the opening move."
+		},
+		{
+			"index": "hb-warlord-unbroken-momentum",
+			"name": "Unbroken Momentum",
+			"classId": "fighter",
+			"subclassId": "hb-warlord",
+			"level": 15,
+			"description": "Once per turn, when you score a critical hit or reduce a hostile creature to 0 hit points with a weapon attack, you regain one expended tactics die. You also learn one additional Warlord maneuver, bringing the total you know to six (3 + one each at 7th, 10th, and 15th level)."
+		},
+		{
+			"index": "hb-warlord-grand-strategist",
+			"name": "Grand Strategist",
+			"classId": "fighter",
+			"subclassId": "hb-warlord",
+			"level": 18,
+			"description": "Your tactics dice become d12s. In addition, once on each of your turns you can apply two different maneuvers to the same attack or trigger, expending one tactics die for each. Finally, if you roll initiative and have no tactics dice remaining, you regain two of them."
+		},
+		{
+			"index": "hb-spellblade-innate-arcana",
+			"name": "Innate Arcana",
+			"classId": "fighter",
+			"subclassId": "hb-spellblade",
+			"level": 3,
+			"description": "You gain innate arcane magic. Intelligence is your spellcasting ability for every spell you cast with Spellblade features: your spell save DC is 8 + your proficiency bonus + your Intelligence modifier, and your spell attack modifier is your proficiency bonus + your Intelligence modifier. You don't use spell slots; spells cast through these features are cast at their lowest level, need no material components without a gold cost, and can't be upcast. You know two cantrips of your choice from this list and can cast them at will: chill touch, fire bolt, light, mage hand, prestidigitation, ray of frost, shocking grasp, true strike."
+		},
+		{
+			"index": "hb-spellblade-arcane-reservoir",
+			"name": "Arcane Reservoir",
+			"classId": "fighter",
+			"subclassId": "hb-spellblade",
+			"level": 3,
+			"description": "You hold a small reservoir of stored power. Choose two of the following 1st-level spells: burning hands, detect magic, expeditious retreat, false life, jump, magic missile, thunderwave. You always know shield as well. You can expend one charge to cast shield or one of your chosen spells at 1st level without a spell slot. You have a number of charges equal to your Intelligence modifier (minimum 1) and regain them all on a long rest. When you gain a fighter level you can swap one chosen spell for another on the list.",
+			"uses": {
+				"max": "int",
+				"recharge": "long"
+			}
+		},
+		{
+			"index": "hb-spellblade-bonded-blade",
+			"name": "Bonded Blade",
+			"classId": "fighter",
+			"subclassId": "hb-spellblade",
+			"level": 3,
+			"description": "During a short or long rest, you can etch your sigils into one weapon you are proficient with. Any check or effect that would make you drop it or take it from your grip automatically fails while you are conscious. You can use it as a spellcasting focus and perform somatic components while holding it. As a bonus action, you can make the weapon fly to your hand if it is within 30 feet of you and not held or carried by another creature. You can have only one bonded weapon; bonding a new one ends the old bond."
+		},
+		{
+			"index": "hb-spellblade-spellstrike",
+			"name": "Spellstrike",
+			"classId": "fighter",
+			"subclassId": "hb-spellblade",
+			"level": 7,
+			"description": "Once per turn, when you hit a creature with your bonded weapon as part of the Attack action, the strike deals extra force damage equal to your Intelligence modifier (minimum 1), and you can then cast one cantrip you know from Innate Arcana as a bonus action that turn (the cantrip must normally have a casting time of 1 action). If the cantrip requires an attack roll or saving throw, it must target the creature you hit or a creature within 10 feet of it."
+		},
+		{
+			"index": "hb-spellblade-deeper-wellspring",
+			"name": "Deeper Wellspring",
+			"classId": "fighter",
+			"subclassId": "hb-spellblade",
+			"level": 7,
+			"description": "You learn two 2nd-level spells of your choice from this list: blur, magic weapon, mirror image, misty step, see invisibility, shatter. You can cast either of them at 2nd level without a spell slot, using Intelligence as your spellcasting ability. You can do so twice in total, regaining both uses when you finish a long rest. Alternatively, you can expend two Arcane Reservoir charges to cast one of these spells.",
+			"uses": {
+				"max": 2,
+				"recharge": "long"
+			}
+		},
+		{
+			"index": "hb-spellblade-unraveling-edge",
+			"name": "Unraveling Edge",
+			"classId": "fighter",
+			"subclassId": "hb-spellblade",
+			"level": 10,
+			"description": "Your bonded weapon cuts at the threads of magic. When you hit a creature that is concentrating on a spell with your bonded weapon, it makes its concentration saving throw with disadvantage. In addition, after you hit a creature with your bonded weapon, you have advantage on saving throws against spells and magical effects that creature creates until the start of your next turn."
+		},
+		{
+			"index": "hb-spellblade-high-arcana",
+			"name": "High Arcana",
+			"classId": "fighter",
+			"subclassId": "hb-spellblade",
+			"level": 15,
+			"description": "You learn two 3rd-level spells of your choice from this list: blink, counterspell, fly, haste, lightning bolt, protection from energy. You can cast one of them at 3rd level without a spell slot, using Intelligence as your spellcasting ability; you can do so twice, regaining both uses when you finish a long rest. Each time you gain a fighter level you can swap one of these spells for another from the list.",
+			"uses": {
+				"max": 2,
+				"recharge": "long"
+			}
+		},
+		{
+			"index": "hb-spellblade-blade-unending",
+			"name": "Blade Unending",
+			"classId": "fighter",
+			"subclassId": "hb-spellblade",
+			"level": 18,
+			"description": "Magic and steel are one motion for you. When you take the Attack action, you can replace one of your attacks with a cantrip you know from Innate Arcana that has a casting time of 1 action. In addition, whenever you use Action Surge, you regain one expended Arcane Reservoir charge, and your next bonded-weapon hit that turn deals an extra 2d8 force damage."
+		}
+	]
+}

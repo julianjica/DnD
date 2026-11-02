@@ -1,1 +1,204 @@
-{ "subclasses": [], "features": [] }
+{
+	"subclasses": [
+		{
+			"index": "hb-cutthroat",
+			"classId": "rogue",
+			"name": "Cutthroat",
+			"flavor": "Roguish Archetype",
+			"description": "Cutthroats are paid to end things quickly. They plan the approach, choose the moment, and strike before the target knows a fight has begun, then vanish before anyone can answer. Poison, patience, and a steady hand are their whole philosophy.",
+			"features": [
+				{
+					"level": 3,
+					"features": [
+						"hb-cutthroat-opening-gambit",
+						"hb-cutthroat-tools-of-the-trade"
+					]
+				},
+				{
+					"level": 9,
+					"features": [
+						"hb-cutthroat-venom-craft"
+					]
+				},
+				{
+					"level": 13,
+					"features": [
+						"hb-cutthroat-killing-rhythm"
+					]
+				},
+				{
+					"level": 17,
+					"features": [
+						"hb-cutthroat-final-cut"
+					]
+				}
+			],
+			"spells": [],
+			"specific": []
+		},
+		{
+			"index": "hb-hexthief",
+			"classId": "rogue",
+			"name": "Hexthief",
+			"flavor": "Roguish Archetype",
+			"description": "Hexthieves picked up their magic the way they pick up everything else: by taking it. A few stolen glamours and whispered compulsions, learned by heart and never written down, let them fool eyes, bend minds, and walk out with the prize while everyone argues about what they saw.",
+			"features": [
+				{
+					"level": 3,
+					"features": [
+						"hb-hexthief-stolen-glamours",
+						"hb-hexthief-hex-pocket",
+						"hb-hexthief-sleight-of-spell"
+					]
+				},
+				{
+					"level": 9,
+					"features": [
+						"hb-hexthief-veiled-arcana"
+					]
+				},
+				{
+					"level": 13,
+					"features": [
+						"hb-hexthief-glamour-ambush"
+					]
+				},
+				{
+					"level": 17,
+					"features": [
+						"hb-hexthief-master-of-masks",
+						"hb-hexthief-unshakable-hex"
+					]
+				}
+			],
+			"spells": [],
+			"specific": []
+		}
+	],
+	"features": [
+		{
+			"index": "hb-cutthroat-opening-gambit",
+			"name": "Opening Gambit",
+			"classId": "rogue",
+			"subclassId": "hb-cutthroat",
+			"level": 3,
+			"description": "You are deadliest in the first moments of a fight. In the first round of combat, any creature that has not yet acted is caught flat-footed by you: your attack rolls against it are made with advantage. In addition, the first time on each of your turns during that first round that you hit a creature with Sneak Attack, add extra damage equal to your rogue level to that attack."
+		},
+		{
+			"index": "hb-cutthroat-tools-of-the-trade",
+			"name": "Tools of the Trade",
+			"classId": "rogue",
+			"subclassId": "hb-cutthroat",
+			"level": 3,
+			"description": "You gain proficiency with the poisoner's kit and with your choice of the forgery kit or the herbalism kit. In addition, you have advantage on Dexterity (Stealth) checks made to blend into a crowd, and on Charisma (Deception) checks made to talk your way past a guard or checkpoint while carrying forged papers or a plausible errand."
+		},
+		{
+			"index": "hb-cutthroat-venom-craft",
+			"name": "Venom Craft",
+			"classId": "rogue",
+			"subclassId": "hb-cutthroat",
+			"level": 9,
+			"description": "During a short or long rest, using a poisoner's kit, you can brew a dose of rogue's venom (no cost). As a bonus action you can coat one weapon or up to three pieces of ammunition; the coating lasts 1 minute or until it hits. A creature hit by a coated weapon must make a Constitution saving throw (DC 8 + your proficiency bonus + your Dexterity modifier). On a failure it takes an extra 3d6 poison damage and is poisoned until the end of its next turn; on a success it takes half the damage and isn't poisoned. You can brew a number of doses equal to your proficiency bonus, regaining uses on a long rest; unused doses spoil after 24 hours.",
+			"uses": {
+				"max": "prof",
+				"recharge": "long"
+			}
+		},
+		{
+			"index": "hb-cutthroat-killing-rhythm",
+			"name": "Killing Rhythm",
+			"classId": "rogue",
+			"subclassId": "hb-cutthroat",
+			"level": 13,
+			"description": "When you reduce a creature to 0 hit points on your turn, you can immediately move up to half your speed without provoking opportunity attacks. If you end that movement lightly obscured or behind at least half cover, you can also take the Hide action as part of the same move, without using an action or bonus action. In addition, you can't be tracked by nonmagical means unless you choose to leave a trail."
+		},
+		{
+			"index": "hb-cutthroat-final-cut",
+			"name": "Final Cut",
+			"classId": "rogue",
+			"subclassId": "hb-cutthroat",
+			"level": 17,
+			"description": "When you hit a creature with Sneak Attack and it hasn't yet taken a turn in the current combat, it must make a Constitution saving throw (DC 8 + your proficiency bonus + your Dexterity modifier). On a failure, roll your Sneak Attack dice a second time and add the result to the damage. Once per short or long rest, you can use this feature against a creature that has already acted, provided it is below half its hit point maximum when you hit it.",
+			"uses": {
+				"max": 1,
+				"recharge": "short"
+			}
+		},
+		{
+			"index": "hb-hexthief-stolen-glamours",
+			"name": "Stolen Glamours",
+			"classId": "rogue",
+			"subclassId": "hb-hexthief",
+			"level": 3,
+			"description": "You gain innate illusion and enchantment magic. Intelligence is your spellcasting ability for spells cast with Hexthief features: your spell save DC is 8 + your proficiency bonus + your Intelligence modifier and your spell attack modifier is your proficiency bonus + your Intelligence modifier. You don't use spell slots; these spells are cast at their lowest level and need no material components without a gold cost. You know minor illusion and one other cantrip of your choice from: dancing lights, mage hand, message, prestidigitation, vicious mockery. You can cast them at will."
+		},
+		{
+			"index": "hb-hexthief-hex-pocket",
+			"name": "Hex Pocket",
+			"classId": "rogue",
+			"subclassId": "hb-hexthief",
+			"level": 3,
+			"description": "Choose three of the following 1st-level spells: charm person, color spray, disguise self, hideous laughter, silent image, sleep. You can cast any of them at 1st level without a spell slot. You can do so a number of times equal to your Intelligence modifier (minimum 1), regaining all uses when you finish a long rest. Whenever you gain a rogue level, you can replace one chosen spell with another from the list.",
+			"uses": {
+				"max": "int",
+				"recharge": "long"
+			}
+		},
+		{
+			"index": "hb-hexthief-sleight-of-spell",
+			"name": "Sleight of Spell",
+			"classId": "rogue",
+			"subclassId": "hb-hexthief",
+			"level": 3,
+			"description": "You can cast your Hexthief spells without verbal or somatic components unless the spell deals damage, so long as you have a hand free or are holding a set of thieves' tools. A creature can notice the casting only with a successful Wisdom (Perception) check contested by your Dexterity (Sleight of Hand) check. In addition, once per turn when you cast a Hexthief spell, you can make a Dexterity (Sleight of Hand) check as part of the same action to plant or lift a small object on a creature within 5 feet of you, contested by its Wisdom (Perception)."
+		},
+		{
+			"index": "hb-hexthief-veiled-arcana",
+			"name": "Veiled Arcana",
+			"classId": "rogue",
+			"subclassId": "hb-hexthief",
+			"level": 9,
+			"description": "You learn two of the following 2nd-level spells: blur, hold person, invisibility, mirror image, misty step, suggestion. You can cast either of them at 2nd level without a spell slot, twice in total, regaining both uses when you finish a long rest (you can also expend two Hex Pocket uses to cast one). In addition, once per turn when you deal Sneak Attack damage to a creature, you can forgo two of your Sneak Attack dice to force it to make a Wisdom save against your spell save DC or be charmed by you until the end of its next turn.",
+			"uses": {
+				"max": 2,
+				"recharge": "long"
+			}
+		},
+		{
+			"index": "hb-hexthief-glamour-ambush",
+			"name": "Glamour Ambush",
+			"classId": "rogue",
+			"subclassId": "hb-hexthief",
+			"level": 13,
+			"description": "When a creature fails a saving throw against one of your Hexthief spells, or interacts with one of your illusions without seeing through it, you have advantage on attack rolls against that creature until the end of your next turn, and you can deal Sneak Attack to it without needing an ally nearby. You also learn one of major image or hypnotic pattern and can cast it at 3rd level without a spell slot once per long rest.",
+			"uses": {
+				"max": 1,
+				"recharge": "long"
+			}
+		},
+		{
+			"index": "hb-hexthief-master-of-masks",
+			"name": "Master of Masks",
+			"classId": "rogue",
+			"subclassId": "hb-hexthief",
+			"level": 17,
+			"description": "Once per long rest, you can cast greater invisibility on yourself without a spell slot. For this casting the spell doesn't require concentration and lasts 1 minute. While it lasts, you can still deal Sneak Attack to any creature that can't see you, even without advantage from another source or an ally nearby, and taking the Hide action costs you no action.",
+			"uses": {
+				"max": 1,
+				"recharge": "long"
+			}
+		},
+		{
+			"index": "hb-hexthief-unshakable-hex",
+			"name": "Unshakable Hex",
+			"classId": "rogue",
+			"subclassId": "hb-hexthief",
+			"level": 17,
+			"description": "When a creature you can see succeeds on a saving throw against one of your Hexthief spells, you can use your reaction to twist the magic and force it to reroll the save, using the new result. You can use this reaction a number of times equal to your Intelligence modifier (minimum 1), regaining all uses when you finish a long rest.",
+			"uses": {
+				"max": "int",
+				"recharge": "long"
+			}
+		}
+	]
+}

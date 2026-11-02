@@ -1,1 +1,82 @@
-{ "subclasses": [], "features": [] }
+{
+	"subclasses": [
+		{
+			"index": "hb-packbond-warden",
+			"classId": "ranger",
+			"name": "Packbond Warden",
+			"flavor": "Ranger Archetype",
+			"description": "A Packbond Warden never walks the wild alone. Through an old rite of shared blood and breath, the ranger bonds with a single beast that becomes partner, scout, and shield. The pair hunts as one creature with two bodies, each covering the other's blind side.",
+			"features": [
+				{
+					"level": 3,
+					"features": [
+						"hb-packbond-warden-packbond-companion",
+						"hb-packbond-warden-wild-signals"
+					]
+				},
+				{
+					"level": 7,
+					"features": [
+						"hb-packbond-warden-guarding-bond"
+					]
+				},
+				{
+					"level": 11,
+					"features": [
+						"hb-packbond-warden-pack-fury"
+					]
+				},
+				{
+					"level": 15,
+					"features": [
+						"hb-packbond-warden-soul-tether"
+					]
+				}
+			],
+			"spells": [],
+			"specific": []
+		}
+	],
+	"features": [
+		{
+			"index": "hb-packbond-warden-packbond-companion",
+			"name": "Packbond Companion",
+			"classId": "ranger",
+			"subclassId": "hb-packbond-warden",
+			"level": 3,
+			"description": "Over 1 hour of shared hunting and a blood-and-breath rite, you bond with a beast of one of these kinds: wolf, panther, mastiff, boar, giant badger, blood hawk, giant wolf spider, or giant poisonous snake (use its SRD stat block, CR 1/4 or lower). Add your proficiency bonus to its AC, attack rolls, damage rolls, and saving throws. Its hit point maximum is 4 × your ranger level or its normal maximum, whichever is higher. It shares your initiative and acts right after you. It moves on its own and, without orders, takes the Dodge action. As a bonus action, you can command it to take the Attack, Dash, Disengage, Help, or Hide action on its turn. If you are incapacitated, it acts on its own to protect you. If it dies, you can bond with a new beast by repeating the rite; or, within 1 hour of its death, you can spend 1 minute and expend a spell slot to restore it to life with 1 hit point."
+		},
+		{
+			"index": "hb-packbond-warden-wild-signals",
+			"name": "Wild Signals",
+			"classId": "ranger",
+			"subclassId": "hb-packbond-warden",
+			"level": 3,
+			"description": "You and your companion share a language of glances and whistles. While it is within 100 feet of you and can see or hear you, it understands simple commands. As an action, you can perceive through its senses until the start of your next turn (you are blinded and deafened to your own surroundings while doing so). Your companion also adds your proficiency bonus to Wisdom (Perception) and Dexterity (Stealth) checks it makes."
+		},
+		{
+			"index": "hb-packbond-warden-guarding-bond",
+			"name": "Guarding Bond",
+			"classId": "ranger",
+			"subclassId": "hb-packbond-warden",
+			"level": 7,
+			"description": "Your companion's attacks count as magical for overcoming resistance and immunity to nonmagical damage. In addition, when a creature within 5 feet of your companion makes an attack against you, your companion can use its reaction to make one melee attack against that creature, even if you didn't command it to attack this round."
+		},
+		{
+			"index": "hb-packbond-warden-pack-fury",
+			"name": "Pack Fury",
+			"classId": "ranger",
+			"subclassId": "hb-packbond-warden",
+			"level": 11,
+			"description": "When you command your companion to take the Attack action, it can make two attacks instead of one, or make one attack and then take the Dash or Disengage action as part of the same action. In addition, once per turn when both you and your companion hit the same creature during the same round, that creature takes an extra 1d8 damage of the companion's attack type."
+		},
+		{
+			"index": "hb-packbond-warden-soul-tether",
+			"name": "Soul Tether",
+			"classId": "ranger",
+			"subclassId": "hb-packbond-warden",
+			"level": 15,
+			"description": "Your bond lets you share each other's wounds. When you or your companion takes damage while the two of you are within 30 feet of each other, the other can use its reaction to take half of that damage instead (it can't be reduced further). In addition, your companion has advantage on saving throws against spells, and while it is within 30 feet of you, neither of you can be charmed or frightened by a creature the other can see."
+		}
+	]
+}

@@ -1,1 +1,82 @@
-{ "subclasses": [], "features": [] }
+{
+	"subclasses": [
+		{
+			"index": "hb-path-of-the-spirit-beast",
+			"classId": "barbarian",
+			"name": "Path of the Spirit Beast",
+			"flavor": "Primal Path",
+			"description": "Barbarians of the Spirit Beast are claimed in youth by an animal spirit that runs beside them for life. When they rage, the beast's shape flickers around them—antlers of light, a serpent's coils, a carapace of ghostly shell—and its nature becomes theirs.",
+			"features": [
+				{
+					"level": 3,
+					"features": [
+						"hb-path-of-the-spirit-beast-spirit-aspect",
+						"hb-path-of-the-spirit-beast-beast-tongue"
+					]
+				},
+				{
+					"level": 6,
+					"features": [
+						"hb-path-of-the-spirit-beast-kindred-nature"
+					]
+				},
+				{
+					"level": 10,
+					"features": [
+						"hb-path-of-the-spirit-beast-spirit-howl"
+					]
+				},
+				{
+					"level": 14,
+					"features": [
+						"hb-path-of-the-spirit-beast-avatar-of-the-beast"
+					]
+				}
+			],
+			"spells": [],
+			"specific": []
+		}
+	],
+	"features": [
+		{
+			"index": "hb-path-of-the-spirit-beast-spirit-aspect",
+			"name": "Spirit Aspect",
+			"classId": "barbarian",
+			"subclassId": "hb-path-of-the-spirit-beast",
+			"level": 3,
+			"description": "Choose a spirit beast: Stag, Raven, Tortoise, or Serpent. Your choice determines the benefit of this feature and of your later aspect features; you can change your beast when you gain a barbarian level. While raging you gain: • Stag: your speed increases by 10 feet, and if you move at least 20 feet straight toward a creature and hit it with a melee attack on the same turn, it must succeed on a Strength save (DC 8 + your proficiency bonus + your Strength modifier) or be knocked prone. • Raven: as a bonus action, you let out a harsh spirit-cry; one creature of your choice within 30 feet that can hear you must succeed on a Wisdom save (same DC as the Stag) or be frightened of you until the end of its next turn. • Tortoise: you gain +1 AC and can't be pushed, pulled, or knocked prone against your will. • Serpent: when you hit a creature with a melee attack, you can try to grapple it as a bonus action, with advantage on the check; a creature you grapple has disadvantage on attack rolls against targets other than you."
+		},
+		{
+			"index": "hb-path-of-the-spirit-beast-beast-tongue",
+			"name": "Beast Tongue",
+			"classId": "barbarian",
+			"subclassId": "hb-path-of-the-spirit-beast",
+			"level": 3,
+			"description": "The spirit beast teaches you the speech of animals. You can cast speak with animals without a spell slot, but only as a ritual (taking 10 extra minutes). In addition, you have advantage on Wisdom (Animal Handling) checks, and beasts of the same kind as your spirit beast are indifferent to you unless provoked or magically compelled."
+		},
+		{
+			"index": "hb-path-of-the-spirit-beast-kindred-nature",
+			"name": "Kindred Nature",
+			"classId": "barbarian",
+			"subclassId": "hb-path-of-the-spirit-beast",
+			"level": 6,
+			"description": "You gain a lasting benefit from your spirit beast, active whether or not you are raging: • Stag: your long and high jump distances double, and nonmagical difficult terrain costs you no extra movement. • Raven: you add your Wisdom modifier (minimum +1) to initiative rolls, allies within 10 feet of you can't be surprised while you aren't, and you can mimic any sound or voice you have heard (a Wisdom (Insight) check contested by your Charisma (Deception) reveals the trick). • Tortoise: you can hold your breath for 1 hour, and you have advantage on saving throws against being poisoned and against exhaustion. • Serpent: you gain a climbing speed equal to your walking speed and advantage on saving throws against poison."
+		},
+		{
+			"index": "hb-path-of-the-spirit-beast-spirit-howl",
+			"name": "Spirit Howl",
+			"classId": "barbarian",
+			"subclassId": "hb-path-of-the-spirit-beast",
+			"level": 10,
+			"description": "Once per rage, as a bonus action, you let your spirit beast roar through you. Each ally of your choice within 30 feet that can hear you gains temporary hit points equal to your Constitution modifier + half your barbarian level (rounded down), and has advantage on its next saving throw against being frightened or charmed before the end of its next turn."
+		},
+		{
+			"index": "hb-path-of-the-spirit-beast-avatar-of-the-beast",
+			"name": "Avatar of the Beast",
+			"classId": "barbarian",
+			"subclassId": "hb-path-of-the-spirit-beast",
+			"level": 14,
+			"description": "Your spirit beast's power peaks while you rage: • Stag: when you knock a creature prone with your Stag charge, you can make one melee weapon attack against it as part of the same action (no bonus action needed). • Raven: when an ally you can see within 30 feet is hit by an attack, you can use your reaction to vanish in a burst of spectral feathers and reappear in an unoccupied space within 5 feet of the attacker, then make one melee weapon attack against it. • Tortoise: once per rage, when you take damage, you can use your reaction to reduce it by an amount equal to your barbarian level + your Constitution modifier. • Serpent: at the start of each of your turns, one creature grappled by you takes bludgeoning damage equal to 1d8 + your Strength modifier, and creatures grappled by you are also restrained."
+		}
+	]
+}
