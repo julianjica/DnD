@@ -1,5 +1,563 @@
 [
  {
+  "file": "scenes/tavern/tavern-1.jpg",
+  "kind": "tavern",
+  "time": [
+   "day",
+   "dusk"
+  ],
+  "weather": [
+   "clear",
+   "cloudy",
+   "rain",
+   "storm",
+   "fog",
+   "snow"
+  ],
+  "mood": [
+   "festive"
+  ],
+  "interior": true,
+  "focusY": 0.6,
+  "title": "Peasants Dancing in a Tavern",
+  "artist": "Adriaen van Ostade",
+  "year": "1659",
+  "source": "https://commons.wikimedia.org/wiki/File:Adriaen_van_Ostade_-_Peasants_Dancing_in_a_Tavern_-_147-1966_-_Saint_Louis_Art_Museum.jpg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/tavern/tavern-2.jpg",
+  "kind": "tavern",
+  "time": [
+   "day",
+   "dusk"
+  ],
+  "weather": [
+   "clear",
+   "cloudy",
+   "rain",
+   "storm",
+   "fog",
+   "snow"
+  ],
+  "mood": [
+   "calm",
+   "festive"
+  ],
+  "interior": true,
+  "focusY": 0.55,
+  "title": "Tavern Scene (Card Players)",
+  "artist": "David Teniers the Younger",
+  "year": "1658",
+  "source": "https://commons.wikimedia.org/wiki/File:Tavern_Scene-1658-David_Teniers_II.jpg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/tavern/tavern-3.jpg",
+  "kind": "tavern",
+  "time": [
+   "dusk",
+   "night"
+  ],
+  "weather": [
+   "clear",
+   "cloudy",
+   "rain",
+   "storm",
+   "fog",
+   "snow"
+  ],
+  "mood": [
+   "calm",
+   "festive"
+  ],
+  "interior": true,
+  "focusY": 0.55,
+  "title": "Interior Tavern Scene with Peasants Drinking and Smoking",
+  "artist": "David Teniers the Younger",
+  "year": "17th century",
+  "source": "https://commons.wikimedia.org/wiki/File:David_Teniers_-_Interior_tavern_scene_with_peasants_drinking_and_smoking,_046l19034-b3txn.jpg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/tavern/tavern-4.jpg",
+  "kind": "tavern",
+  "time": [
+   "day"
+  ],
+  "weather": [
+   "cloudy",
+   "storm"
+  ],
+  "mood": [
+   "calm",
+   "tense"
+  ],
+  "interior": false,
+  "focusY": 0.55,
+  "title": "Travellers Halted at a Country Inn",
+  "artist": "Adriaen and Isaac van Ostade",
+  "year": "1640s",
+  "source": "https://commons.wikimedia.org/wiki/File:Travellers_Halted_at_a_Country_Inn,_by_Adriaen_Jansz._van_Ostade_Haarlem_and_Isack_van_Ostade_Haarlem.jpg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/tavern/tavern-5.jpg",
+  "kind": "tavern",
+  "time": [
+   "day",
+   "dusk"
+  ],
+  "weather": [
+   "clear",
+   "cloudy",
+   "rain",
+   "storm",
+   "fog",
+   "snow"
+  ],
+  "mood": [
+   "festive"
+  ],
+  "interior": true,
+  "focusY": 0.5,
+  "title": "Interior of an Inn with Dancing Peasants",
+  "artist": "David Teniers the Younger",
+  "year": "c. 1645",
+  "source": "https://commons.wikimedia.org/wiki/File:Interior-of-inn-with-dancing-peasants-by-david-teniers-ii.jpg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/town/town-1.jpg",
+  "kind": "town",
+  "time": [
+   "day"
+  ],
+  "weather": [
+   "clear"
+  ],
+  "mood": [
+   "calm"
+  ],
+  "interior": false,
+  "focusY": 0.55,
+  "title": "The Marketplace at Pirna",
+  "artist": "Bernardo Bellotto",
+  "year": "1764",
+  "source": "https://commons.wikimedia.org/wiki/File:Bernardo_Bellotto_-_The_Marketplace_at_Pirna_-_61.71_-_Museum_of_Fine_Arts.jpg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/town/town-2.jpg",
+  "kind": "town",
+  "time": [
+   "day"
+  ],
+  "weather": [
+   "snow",
+   "cloudy"
+  ],
+  "mood": [
+   "calm",
+   "somber"
+  ],
+  "interior": false,
+  "focusY": 0.6,
+  "title": "The Blauwpoort in Leiden in Winter",
+  "artist": "Abraham Beerstraaten",
+  "year": "c. 1635-1665",
+  "source": "https://commons.wikimedia.org/wiki/File:De_Blauwpoort_te_Leiden_in_de_winter._Rijksmuseum_SK-A-679.jpeg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/town/town-3.jpg",
+  "kind": "town",
+  "time": [
+   "night"
+  ],
+  "weather": [
+   "clear"
+  ],
+  "mood": [
+   "tense",
+   "combat"
+  ],
+  "interior": false,
+  "focusY": 0.5,
+  "title": "A Fire at Night",
+  "artist": "Egbert van der Poel",
+  "year": "by 1655",
+  "source": "https://commons.wikimedia.org/wiki/File:A_Fire_at_Night_(Egbert_van_der_Poel).jpg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/town/town-4.jpg",
+  "kind": "town",
+  "time": [
+   "day"
+  ],
+  "weather": [
+   "storm",
+   "rain",
+   "cloudy"
+  ],
+  "mood": [
+   "triumphant",
+   "mysterious"
+  ],
+  "interior": false,
+  "focusY": 0.45,
+  "title": "Medieval Town on a River",
+  "artist": "Karl Friedrich Schinkel",
+  "year": "1815",
+  "source": "https://commons.wikimedia.org/wiki/File:Schinkel_Mittelalterliche_Stadt.jpg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/town/town-5.jpg",
+  "kind": "town",
+  "time": [
+   "night"
+  ],
+  "weather": [
+   "clear",
+   "cloudy"
+  ],
+  "mood": [
+   "calm",
+   "mysterious"
+  ],
+  "interior": false,
+  "focusY": 0.55,
+  "title": "Moonlit Landscape with a Broad Canal",
+  "artist": "Aert van der Neer",
+  "year": "1660",
+  "source": "https://commons.wikimedia.org/wiki/File:Aert_van_der_Neer_-_Moonlight_Landscape_with_Broad_Canal_-_Karlsruhe.jpg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/castle/castle-1.jpg",
+  "kind": "castle",
+  "time": [
+   "day",
+   "dusk"
+  ],
+  "weather": [
+   "clear",
+   "cloudy"
+  ],
+  "mood": [
+   "triumphant",
+   "mysterious"
+  ],
+  "interior": false,
+  "focusY": 0.4,
+  "title": "Knight's Castle (Ritterburg)",
+  "artist": "Karl Friedrich Lessing",
+  "year": "1828",
+  "source": "https://commons.wikimedia.org/wiki/File:1828_Lessing_Ritterburg_anagoria.JPG",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/castle/castle-2.jpg",
+  "kind": "castle",
+  "time": [
+   "night"
+  ],
+  "weather": [
+   "clear",
+   "cloudy"
+  ],
+  "mood": [
+   "mysterious",
+   "eerie",
+   "tense"
+  ],
+  "interior": false,
+  "focusY": 0.4,
+  "title": "Scharfenberg Castle at Night",
+  "artist": "Ernst Ferdinand Oehme",
+  "year": "1827",
+  "source": "https://commons.wikimedia.org/wiki/File:Ernst_Ferdinand_Oehme_-_Burg_Scharfenberg_bei_Nacht_-_Google_Art_Project.jpg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/castle/castle-3.jpg",
+  "kind": "castle",
+  "time": [
+   "night"
+  ],
+  "weather": [
+   "fog",
+   "clear"
+  ],
+  "mood": [
+   "mysterious",
+   "calm"
+  ],
+  "interior": false,
+  "focusY": 0.4,
+  "title": "Alnwick Castle",
+  "artist": "J. M. W. Turner",
+  "year": "c. 1829",
+  "source": "https://commons.wikimedia.org/wiki/File:J.M.W._Turner_-_Alnwick_Castle_-_Google_Art_Project.jpg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/castle/castle-4.jpg",
+  "kind": "castle",
+  "time": [
+   "day"
+  ],
+  "weather": [
+   "snow",
+   "storm",
+   "cloudy"
+  ],
+  "mood": [
+   "tense",
+   "somber"
+  ],
+  "interior": false,
+  "focusY": 0.6,
+  "title": "Poelgeest Castle at Koudekerk in Winter",
+  "artist": "Anthonie Beerstraaten",
+  "year": "1640s",
+  "source": "https://commons.wikimedia.org/wiki/File:Abraham_Beerstraaten_-_Poelgeest_Castle_at_Koudekerk_-_M.Ob.440_-_National_Museum_in_Warsaw.jpg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/castle/castle-5.jpg",
+  "kind": "castle",
+  "time": [
+   "day"
+  ],
+  "weather": [
+   "cloudy",
+   "clear"
+  ],
+  "mood": [
+   "calm"
+  ],
+  "interior": false,
+  "focusY": 0.45,
+  "title": "Heidelberg Castle",
+  "artist": "Carl Philipp Fohr",
+  "year": "1815",
+  "source": "https://commons.wikimedia.org/wiki/File:Carl_Philipp_Fohr_001.jpg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/temple/temple-1.jpg",
+  "kind": "temple",
+  "time": [
+   "night"
+  ],
+  "weather": [
+   "clear",
+   "cloudy",
+   "rain",
+   "storm",
+   "fog",
+   "snow"
+  ],
+  "mood": [
+   "mysterious",
+   "calm",
+   "somber"
+  ],
+  "interior": true,
+  "focusY": 0.5,
+  "title": "Interior of a Gothic Church by Night",
+  "artist": "Pieter Neefs the Elder",
+  "year": "1636",
+  "source": "https://commons.wikimedia.org/wiki/File:Pieter_Neefs_I_-_The_Interior_of_a_Gothic_Church_by_Night.jpeg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/temple/temple-2.jpg",
+  "kind": "temple",
+  "time": [
+   "day"
+  ],
+  "weather": [
+   "clear",
+   "cloudy",
+   "rain",
+   "storm",
+   "fog",
+   "snow"
+  ],
+  "mood": [
+   "calm"
+  ],
+  "interior": true,
+  "focusY": 0.55,
+  "title": "Interior of a Gothic Church",
+  "artist": "Pieter Neefs the Younger",
+  "year": "17th century",
+  "source": "https://commons.wikimedia.org/wiki/File:Pieter_Neefs_(II)_-_The_interior_of_a_Gothic_church.jpg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/temple/temple-3.jpg",
+  "kind": "temple",
+  "time": [
+   "day"
+  ],
+  "weather": [
+   "clear",
+   "cloudy"
+  ],
+  "mood": [
+   "mysterious",
+   "calm"
+  ],
+  "interior": true,
+  "focusY": 0.5,
+  "title": "Interior of the Temple of Diana at Nimes",
+  "artist": "Hubert Robert",
+  "year": "1771",
+  "source": "https://commons.wikimedia.org/wiki/File:Hubert_Robert_-_Interior_of_the_Temple_of_Diana_at_Nimes.JPG",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/temple/temple-4.jpg",
+  "kind": "temple",
+  "time": [
+   "dusk"
+  ],
+  "weather": [
+   "clear"
+  ],
+  "mood": [
+   "calm",
+   "somber"
+  ],
+  "interior": false,
+  "focusY": 0.55,
+  "title": "Twilight over Paestum",
+  "artist": "Aurèle Robert",
+  "year": "19th century",
+  "source": "https://commons.wikimedia.org/wiki/File:Twilight_over_Paestum_by_Aurèle_Robert.jpg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/temple/temple-5.jpg",
+  "kind": "temple",
+  "time": [
+   "dusk"
+  ],
+  "weather": [
+   "snow"
+  ],
+  "mood": [
+   "eerie",
+   "somber"
+  ],
+  "interior": false,
+  "focusY": 0.5,
+  "title": "Church Ruins in Snow",
+  "artist": "Carl Hasenpflug",
+  "year": "1853",
+  "source": "https://commons.wikimedia.org/wiki/File:Carl_Hasenpflug_-_Kirchenruine_im_Schnee_-1853.jpeg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/crypt/crypt-1.jpg",
+  "kind": "crypt",
+  "time": [
+   "day",
+   "dusk"
+  ],
+  "weather": [
+   "clear",
+   "cloudy",
+   "rain",
+   "storm",
+   "fog",
+   "snow"
+  ],
+  "mood": [
+   "eerie",
+   "somber",
+   "mysterious"
+  ],
+  "interior": true,
+  "focusY": 0.55,
+  "title": "Gothic Burial Vault",
+  "artist": "Antonio de Pian",
+  "year": "1828",
+  "source": "https://commons.wikimedia.org/wiki/File:Antonio_de_Pian_-_Gotisches_Gruftgewölbe_-_3724_-_Kunsthistorisches_Museum.jpg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/crypt/crypt-3.jpg",
+  "kind": "crypt",
+  "time": [
+   "dusk"
+  ],
+  "weather": [
+   "cloudy",
+   "storm"
+  ],
+  "mood": [
+   "eerie",
+   "somber"
+  ],
+  "interior": false,
+  "focusY": 0.5,
+  "title": "Isle of the Dead (third version)",
+  "artist": "Arnold Böcklin",
+  "year": "1883",
+  "source": "https://commons.wikimedia.org/wiki/File:Arnold_Böcklin_-_Die_Toteninsel_III_(Alte_Nationalgalerie,_Berlin).jpg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/crypt/crypt-4.jpg",
+  "kind": "crypt",
+  "time": [
+   "dusk"
+  ],
+  "weather": [
+   "snow",
+   "cloudy"
+  ],
+  "mood": [
+   "somber",
+   "eerie"
+  ],
+  "interior": false,
+  "focusY": 0.55,
+  "title": "Megalith Grave near Vordingborg in Winter",
+  "artist": "Johan Christian Dahl",
+  "year": "1824-1825",
+  "source": "https://commons.wikimedia.org/wiki/File:Johan_Christian_Claussen_Dahl_-_Hünengrab_nahe_Vordingborg_im_Winter_(MbK).jpg",
+  "license": "Public domain"
+ },
+ {
+  "file": "scenes/crypt/crypt-5.jpg",
+  "kind": "crypt",
+  "time": [
+   "day"
+  ],
+  "weather": [
+   "cloudy",
+   "clear"
+  ],
+  "mood": [
+   "mysterious",
+   "calm"
+  ],
+  "interior": false,
+  "focusY": 0.55,
+  "title": "Virgil's Tomb: Sun Breaking through a Cloud",
+  "artist": "Joseph Wright of Derby",
+  "year": "1785",
+  "source": "https://commons.wikimedia.org/wiki/File:Joseph_Wright_of_Derby_(1734-1797)_-_Virgil's_Tomb,_Sun_Breaking_through_a_Cloud_-_BELUM.U2368_-_Ulster_Museum.jpg",
+  "license": "Public domain"
+ },
+ {
   "file": "scenes/forest/forest-1.jpg",
   "kind": "forest",
   "time": [

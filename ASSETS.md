@@ -142,6 +142,30 @@ No external image, model or font files are used. Everything is generated in code
 
 | File | Title | Artist | Year | Source |
 |---|---|---|---|---|
+| scenes/tavern/tavern-1.jpg | Peasants Dancing in a Tavern | Adriaen van Ostade | 1659 | https://commons.wikimedia.org/wiki/File:Adriaen_van_Ostade_-_Peasants_Dancing_in_a_Tavern_-_147-1966_-_Saint_Louis_Art_Museum.jpg |
+| scenes/tavern/tavern-2.jpg | Tavern Scene (Card Players) | David Teniers the Younger | 1658 | https://commons.wikimedia.org/wiki/File:Tavern_Scene-1658-David_Teniers_II.jpg |
+| scenes/tavern/tavern-3.jpg | Interior Tavern Scene with Peasants Drinking and Smoking | David Teniers the Younger | 17th century | https://commons.wikimedia.org/wiki/File:David_Teniers_-_Interior_tavern_scene_with_peasants_drinking_and_smoking,_046l19034-b3txn.jpg |
+| scenes/tavern/tavern-4.jpg | Travellers Halted at a Country Inn | Adriaen and Isaac van Ostade | 1640s | https://commons.wikimedia.org/wiki/File:Travellers_Halted_at_a_Country_Inn,_by_Adriaen_Jansz._van_Ostade_Haarlem_and_Isack_van_Ostade_Haarlem.jpg |
+| scenes/tavern/tavern-5.jpg | Interior of an Inn with Dancing Peasants | David Teniers the Younger | c. 1645 | https://commons.wikimedia.org/wiki/File:Interior-of-inn-with-dancing-peasants-by-david-teniers-ii.jpg |
+| scenes/town/town-1.jpg | The Marketplace at Pirna | Bernardo Bellotto | 1764 | https://commons.wikimedia.org/wiki/File:Bernardo_Bellotto_-_The_Marketplace_at_Pirna_-_61.71_-_Museum_of_Fine_Arts.jpg |
+| scenes/town/town-2.jpg | The Blauwpoort in Leiden in Winter | Abraham Beerstraaten | c. 1635-1665 | https://commons.wikimedia.org/wiki/File:De_Blauwpoort_te_Leiden_in_de_winter._Rijksmuseum_SK-A-679.jpeg |
+| scenes/town/town-3.jpg | A Fire at Night | Egbert van der Poel | by 1655 | https://commons.wikimedia.org/wiki/File:A_Fire_at_Night_(Egbert_van_der_Poel).jpg |
+| scenes/town/town-4.jpg | Medieval Town on a River | Karl Friedrich Schinkel | 1815 | https://commons.wikimedia.org/wiki/File:Schinkel_Mittelalterliche_Stadt.jpg |
+| scenes/town/town-5.jpg | Moonlit Landscape with a Broad Canal | Aert van der Neer | 1660 | https://commons.wikimedia.org/wiki/File:Aert_van_der_Neer_-_Moonlight_Landscape_with_Broad_Canal_-_Karlsruhe.jpg |
+| scenes/castle/castle-1.jpg | Knight's Castle (Ritterburg) | Karl Friedrich Lessing | 1828 | https://commons.wikimedia.org/wiki/File:1828_Lessing_Ritterburg_anagoria.JPG |
+| scenes/castle/castle-2.jpg | Scharfenberg Castle at Night | Ernst Ferdinand Oehme | 1827 | https://commons.wikimedia.org/wiki/File:Ernst_Ferdinand_Oehme_-_Burg_Scharfenberg_bei_Nacht_-_Google_Art_Project.jpg |
+| scenes/castle/castle-3.jpg | Alnwick Castle | J. M. W. Turner | c. 1829 | https://commons.wikimedia.org/wiki/File:J.M.W._Turner_-_Alnwick_Castle_-_Google_Art_Project.jpg |
+| scenes/castle/castle-4.jpg | Poelgeest Castle at Koudekerk in Winter | Anthonie Beerstraaten | 1640s | https://commons.wikimedia.org/wiki/File:Abraham_Beerstraaten_-_Poelgeest_Castle_at_Koudekerk_-_M.Ob.440_-_National_Museum_in_Warsaw.jpg |
+| scenes/castle/castle-5.jpg | Heidelberg Castle | Carl Philipp Fohr | 1815 | https://commons.wikimedia.org/wiki/File:Carl_Philipp_Fohr_001.jpg |
+| scenes/temple/temple-1.jpg | Interior of a Gothic Church by Night | Pieter Neefs the Elder | 1636 | https://commons.wikimedia.org/wiki/File:Pieter_Neefs_I_-_The_Interior_of_a_Gothic_Church_by_Night.jpeg |
+| scenes/temple/temple-2.jpg | Interior of a Gothic Church | Pieter Neefs the Younger | 17th century | https://commons.wikimedia.org/wiki/File:Pieter_Neefs_(II)_-_The_interior_of_a_Gothic_church.jpg |
+| scenes/temple/temple-3.jpg | Interior of the Temple of Diana at Nimes | Hubert Robert | 1771 | https://commons.wikimedia.org/wiki/File:Hubert_Robert_-_Interior_of_the_Temple_of_Diana_at_Nimes.JPG |
+| scenes/temple/temple-4.jpg | Twilight over Paestum | Aurèle Robert | 19th century | https://commons.wikimedia.org/wiki/File:Twilight_over_Paestum_by_Aurèle_Robert.jpg |
+| scenes/temple/temple-5.jpg | Church Ruins in Snow | Carl Hasenpflug | 1853 | https://commons.wikimedia.org/wiki/File:Carl_Hasenpflug_-_Kirchenruine_im_Schnee_-1853.jpeg |
+| scenes/crypt/crypt-1.jpg | Gothic Burial Vault | Antonio de Pian | 1828 | https://commons.wikimedia.org/wiki/File:Antonio_de_Pian_-_Gotisches_Gruftgewölbe_-_3724_-_Kunsthistorisches_Museum.jpg |
+| scenes/crypt/crypt-3.jpg | Isle of the Dead (third version) | Arnold Böcklin | 1883 | https://commons.wikimedia.org/wiki/File:Arnold_Böcklin_-_Die_Toteninsel_III_(Alte_Nationalgalerie,_Berlin).jpg |
+| scenes/crypt/crypt-4.jpg | Megalith Grave near Vordingborg in Winter | Johan Christian Dahl | 1824-1825 | https://commons.wikimedia.org/wiki/File:Johan_Christian_Claussen_Dahl_-_Hünengrab_nahe_Vordingborg_im_Winter_(MbK).jpg |
+| scenes/crypt/crypt-5.jpg | Virgil's Tomb: Sun Breaking through a Cloud | Joseph Wright of Derby | 1785 | https://commons.wikimedia.org/wiki/File:Joseph_Wright_of_Derby_(1734-1797)_-_Virgil's_Tomb,_Sun_Breaking_through_a_Cloud_-_BELUM.U2368_-_Ulster_Museum.jpg |
 | scenes/forest/forest-1.jpg | Forest Scene in the Catskills | Asher Brown Durand | 1855 | https://commons.wikimedia.org/wiki/File:Asher_Brown_Durand_-_Forest_Scene_in_the_Catskills_-_77.93_-_Detroit_Institute_of_Arts.jpg |
 | scenes/forest/forest-2.jpg | Forest Interior at Fontainebleau | Narcisse Virgilio Díaz | c. 1860s | https://commons.wikimedia.org/wiki/File:Narcisse_Virgile_Diaz_de_la_Pe%C3%B1a_-_Forest_Interior_at_Fontainebleau_,_Inside_the_Forest_from_Fontainebleau_-_A_II_804_-_Finnish_National_Gallery.jpg |
 | scenes/forest/forest-3.jpg | Mast-Tree Grove | Ivan Shishkin | 1898 | https://commons.wikimedia.org/wiki/File:Ivan_Shishkin_-_Mast-Tree_grove_-_Google_Art_Project.jpg |
