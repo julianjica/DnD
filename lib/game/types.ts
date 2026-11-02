@@ -318,11 +318,29 @@ export interface WorldLocation {
 	mapIds: string[];
 }
 
+export type TerrainKind = "marsh" | "forest" | "hills" | "mountains" | "plains" | "desert";
+export interface TerrainFeature {
+	id: string;
+	terrain: TerrainKind;
+	/** Center (normalized map coords) and radius (map-height units). */
+	x: number;
+	y: number;
+	r: number;
+	/** Optional region name drawn on the map ("The Grey Fen"). */
+	name?: string;
+}
 export interface WorldMap {
 	seed: number;
 	name: string;
 	/** Procedural terrain parameters for the overworld renderer. */
-	terrain: { seaLevel: number; biome: "temperate" | "arid" | "frozen" | "tropical" | "volcanic" | "mixed" };
+	terrain: {
+		seaLevel: number;
+		biome: "temperate" | "arid" | "frozen" | "tropical" | "volcanic" | "mixed";
+		/** Narrated terrain painted onto the procedural map (marshes, forests, hills…). */
+		features?: TerrainFeature[];
+	};
+	/** Set once older saves have had their geography reconciled with the narration. */
+	reconciled?: number;
 	locations: WorldLocation[];
 	routes: { id: string; from: string; to: string; kind: "road" | "trail" | "river" | "sea"; travelDays: number; discovered: boolean }[];
 	currentLocationId?: string;

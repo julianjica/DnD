@@ -35,7 +35,8 @@ export interface WorldTerrain {
 const cache = new Map<string, WorldTerrain>();
 
 export function worldTerrain(world: Pick<WorldMap, "seed" | "terrain">): WorldTerrain {
-	const key = `${world.seed}|${world.terrain.seaLevel}|${world.terrain.biome}`;
+	const feats = world.terrain.features ?? [];
+	const key = `${world.seed}|${world.terrain.seaLevel}|${world.terrain.biome}|${feats.map((f) => `${f.terrain}:${f.x},${f.y},${f.r}`).join(";")}`;
 	const hit = cache.get(key);
 	if (hit) return hit;
 	const nE = makeNoise2D(world.seed ^ 0xa11ce);
@@ -57,7 +58,29 @@ export function worldTerrain(world: Pick<WorldMap, "seed" | "terrain">): WorldTe
 			const fall = Math.max(0, edge - 0.55) * 1.15;
 			let e = base * 0.78 + 0.22 + (ridge - 0.5) * 0.3 * Math.max(0, base - 0.35) * 2 - fall;
 			e = Math.max(0, Math.min(1, e));
-			const moisture = Math.max(0, Math.min(1, fbm(nM, X * 0.8, Y * 0.8, 4) * 0.55 + 0.5 - (e - world.terrain.seaLevel) * 0.25));
+			let moisture = Math.max(0, Math.min(1, fbm(nM, X * 0.8, Y * 0.8, 4) * 0.55 + 0.5 - (e - world.terrain.seaLevel) * 0.25));
+			// Narrated terrain: blend each feature in with a soft, noisy edge. Never turns land into sea or sea into land.
+			if (feats.length) {
+				const sea = world.terrain.seaLevel;
+				const ml = mountainLine(sea);
+				const wasLand = e >= sea;
+				for (const f of feats) {
+					const d = Math.hypot((x - f.x) * WORLD_ASPECT, y - f.y) / (f.r * (0.85 + 0.3 * (fbm(nW, X * 2 + f.x * 9, Y * 2 + f.y * 9, 2) * 0.5 + 0.5)));
+					if (d >= 1) continue;
+					const w = 1 - d * d * (3 - 2 * d); // smoothstep falloff
+					const mix = (a: number, b: number) => a + (b - a) * w;
+					switch (f.terrain) {
+						case "marsh": e = mix(e, Math.min(e, sea + 0.03)); moisture = mix(moisture, 0.93); break;
+						case "forest": moisture = mix(moisture, 0.82); if (e > ml - 0.02) e = mix(e, ml - 0.04); break;
+						case "hills": e = mix(e, Math.max(e, ml - 0.035)); break;
+						case "mountains": e = mix(e, Math.max(e, ml + 0.1)); break;
+						case "plains": moisture = mix(moisture, 0.42); e = mix(e, Math.min(e, sea + 0.12)); break;
+						case "desert": moisture = mix(moisture, 0.08); e = mix(e, Math.min(e, ml - 0.1)); break;
+					}
+				}
+				if (wasLand) e = Math.max(e, sea + 0.016);
+				else e = Math.min(e, sea - 0.001);
+			}
 			return { elevation: e, moisture, ridge };
 		},
 	};
@@ -147,17 +170,22 @@ export function landNear(
 	world: Pick<WorldMap, "seed" | "terrain">,
 	anchor: { x: number; y: number },
 	rng: Rng,
-	opts: { kind?: LocationKind; minDist?: number; maxDist?: number; avoid?: { x: number; y: number }[] } = {},
+	opts: { kind?: LocationKind; minDist?: number; maxDist?: number; avoid?: { x: number; y: number }[]; bearing?: number } = {},
 ): { x: number; y: number; s: number } {
 	const T = worldTerrain(world);
 	const sea = T.seaLevel;
 	const avoid = opts.avoid ?? [];
 	let minD = opts.minDist ?? 0;
 	let maxD = opts.maxDist ?? 0.12;
+	// Don't let "avoid other places" push a very close place (a stone's throw) away.
+	const crowdR = Math.min(0.04, Math.max(0.006, (minD + maxD) * 0.3));
 	for (let ring = 0; ring < 6; ring++) {
 		let best: { x: number; y: number; s: number } | undefined;
+		// With a bearing, stay within a cone that widens each ring (±25°, ±40°, …).
+		// Keep the direction first (try closer), only then widen the cone.
+		const cone = opts.bearing === undefined ? Math.PI * 2 : Math.min(Math.PI * 2, 0.6 + Math.max(0, ring - 2) * 0.5);
 		for (let i = 0; i < 80; i++) {
-			const ang = rng.next() * Math.PI * 2;
+			const ang = opts.bearing === undefined ? rng.next() * Math.PI * 2 : opts.bearing + (rng.next() - 0.5) * cone;
 			const d = minD + rng.next() * (maxD - minD);
 			const x = round3(Math.min(0.95, Math.max(0.05, anchor.x + (Math.cos(ang) * d) / WORLD_ASPECT)));
 			const y = round3(Math.min(0.94, Math.max(0.06, anchor.y + Math.sin(ang) * d)));
@@ -166,13 +194,18 @@ export function landNear(
 			let score = opts.kind ? suitability(opts.kind, smp, sea) : 0;
 			if (!Number.isFinite(score)) score = -5;
 			const crowd = avoid.reduce((m, p) => Math.min(m, Math.hypot((p.x - x) * WORLD_ASPECT, p.y - y)), Infinity);
-			if (crowd < 0.04) score -= (0.04 - crowd) * 60;
+			if (crowd < crowdR) score -= (crowdR - crowd) * 60;
 			score -= Math.hypot((x - anchor.x) * WORLD_ASPECT, y - anchor.y) * 4;
 			if (!best || score > best.s) best = { x, y, s: score };
 		}
 		if (best) return best;
-		minD = 0;
-		maxD = Math.min(1.2, maxD * 2);
+		if (opts.bearing === undefined) {
+			minD = 0;
+			maxD = Math.min(1.2, maxD * 2);
+		} else if (ring < 2) {
+			minD *= 0.65;
+			maxD *= 0.8;
+		} else maxD = Math.min(1.2, maxD * 1.35);
 	}
 	// Last resort: global scan for the highest point.
 	let top = { x: 0.5, y: 0.5, s: -Infinity };

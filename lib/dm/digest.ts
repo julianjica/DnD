@@ -1,4 +1,5 @@
 import type { GameState, LogEntry } from "../game/types";
+import { compassOf, daysForDistance, mapDistance } from "../maps/geography";
 
 /**
  * A compact, authoritative summary of the game state injected into every DM
@@ -14,7 +15,15 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 	lines.push(`Day ${t.day}, ${String(t.hour).padStart(2, "0")}:${String(t.minute).padStart(2, "0")} · mode: ${s.mode} · view: ${s.view}`);
 	lines.push(`Scene: ${s.scene.title} (${s.scene.kind}, ${s.scene.timeOfDay}, ${s.scene.weather}, ${s.scene.mood})`);
 	const loc = s.world.locations.find((l) => l.id === s.world.currentLocationId);
-	if (loc) lines.push(`World location: ${loc.name} (${loc.kind})`);
+	if (loc) {
+		lines.push(`World location: ${loc.name} (${loc.kind})`);
+		// Geography as the player SEES it on the world map — narrate directions and distances consistently with this.
+		const known = s.world.locations.filter((l) => l.discovered && l.id !== loc.id);
+		if (known.length)
+			lines.push(`Map geography from ${loc.name}: ${known.map((l) => `${l.name} [${l.id}] ${compassOf(loc, l)} ~${daysForDistance(mapDistance(loc, l))}d`).join("; ")}`);
+		const regions = (s.world.terrain.features ?? []).filter((f) => f.name);
+		if (regions.length) lines.push(`Named regions: ${regions.map((f) => `${f.name} (${f.terrain}) ${compassOf(loc, f)} of here`).join("; ")}`);
+	}
 
 	lines.push(
 		`PC: ${c.name}, ${c.speciesId}${c.subspeciesId ? `/${c.subspeciesId}` : ""} ${c.classes.map((k) => `${k.classId}${k.subclassId ? `(${k.subclassId})` : ""} ${k.level}`).join("/")} (level ${lvl}), HP ${c.hp}/${c.maxHp}${c.tempHp ? ` +${c.tempHp} temp` : ""}${opts.ac !== undefined ? `, AC ${opts.ac}` : ""}, XP ${c.xp}`,

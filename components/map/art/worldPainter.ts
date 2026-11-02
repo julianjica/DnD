@@ -149,7 +149,7 @@ export function paintWorldBase(canvas: HTMLCanvasElement, world: WorldMap, grid:
 			if (r < 0.75) glyphs.push({ x: jx * sx, y: jy * sy, kind: "mount", s: (0.7 + (e - ml) * 2.4) * W / 90, k: r });
 		} else if (e > ml - 0.06) {
 			if (r < 0.35) glyphs.push({ x: jx * sx, y: jy * sy, kind: "hill", s: W / 110, k: r });
-		} else if (world.terrain.biome === "arid" && m < 0.45) {
+		} else if ((world.terrain.biome === "arid" && m < 0.45) || m < 0.14) {
 			if (r < 0.12) glyphs.push({ x: jx * sx, y: jy * sy, kind: "dune", s: W / 120, k: r });
 		} else if (m > 0.6 && e < sea + 0.05) {
 			if (r < 0.35) glyphs.push({ x: jx * sx, y: jy * sy, kind: "tuft", s: W / 160, k: r });
@@ -163,6 +163,21 @@ export function paintWorldBase(canvas: HTMLCanvasElement, world: WorldMap, grid:
 	}
 	glyphs.sort((a, b) => a.y - b.y);
 	for (const g of glyphs) drawGlyph(ctx, g.kind, g.x, g.y, g.s, g.k, world.terrain.biome);
+
+	// 4b. names of narrated regions ("The Grey Fen"), in faded italic like an old atlas
+	for (const f of world.terrain.features ?? []) {
+		if (!f.name) continue;
+		const size = Math.max(10, Math.min(22, f.r * H * 0.55));
+		ctx.font = `italic ${size}px ${fontFamily}`;
+		ctx.textAlign = "center";
+		ctx.textBaseline = "middle";
+		ctx.fillStyle = "rgba(60,40,20,0.55)";
+		ctx.strokeStyle = "rgba(245,235,210,0.5)";
+		ctx.lineWidth = 3;
+		const fx = f.x * W, fy = (f.y + f.r * 0.55) * H;
+		ctx.strokeText(f.name, fx, fy);
+		ctx.fillText(f.name, fx, fy);
+	}
 
 	// 5. paper texture, stains & vignette
 	const noise = makeNoise2D(world.seed ^ 0x5eed);
@@ -533,8 +548,12 @@ export function paintWorldOverlay(ctx: CanvasRenderingContext2D, world: WorldMap
 		ctx.restore();
 	}
 	// locations
-	const placedLabels: [number, number, number, number][] = [];
 	const locs = world.locations.filter(show).sort((a, b) => a.y - b.y);
+	// Icons are obstacles for labels too, so nearby places don't print over each other.
+	const placedLabels: [number, number, number, number][] = locs.map((l) => {
+		const s = 18 * u * (l.kind === "city" ? 1.35 : l.kind === "village" || l.kind === "camp" ? 0.85 : 1);
+		return [l.x * W - s * 0.9, l.y * H - s * 0.9, s * 1.8, s * 1.8];
+	});
 	for (const l of locs) {
 		const x = l.x * W, y = l.y * H;
 		const s = 18 * u * (l.kind === "city" ? 1.35 : l.kind === "village" || l.kind === "camp" ? 0.85 : 1);
@@ -550,20 +569,25 @@ export function paintWorldOverlay(ctx: CanvasRenderingContext2D, world: WorldMap
 		const fs = Math.round((l.kind === "city" || l.kind === "town" ? 19 : 16) * u);
 		ctx.font = `${l.visited ? "" : "italic "}${fs}px ${opt.fontFamily}`;
 		const tw = ctx.measureText(l.name).width;
-		let ly = y + s * 1.25 + fs * 0.5;
-		const box = (yy: number): [number, number, number, number] => [x - tw / 2, yy - fs / 2, tw, fs];
-		const hit = (b: [number, number, number, number]) => placedLabels.some((p) => b[0] < p[0] + p[2] && b[0] + b[2] > p[0] && b[1] < p[1] + p[3] && b[1] + b[3] > p[1]);
-		if (hit(box(ly))) ly = y - s * 1.35 - fs * 0.4;
-		placedLabels.push(box(ly));
+		const box = (cx: number, cy: number): [number, number, number, number] => [cx - tw / 2, cy - fs / 2, tw, fs];
+		const own: [number, number, number, number] = [x - s * 0.9, y - s * 0.9, s * 1.8, s * 1.8];
+		const hit = (b: [number, number, number, number]) => placedLabels.some((p) => p !== own && !(p[0] === own[0] && p[1] === own[1]) && b[0] < p[0] + p[2] && b[0] + b[2] > p[0] && b[1] < p[1] + p[3] && b[1] + b[3] > p[1]);
+		// below, above, right, left, then further below/above
+		const cands: [number, number][] = [
+			[x, y + s * 1.25 + fs * 0.5], [x, y - s * 1.35 - fs * 0.4], [x + s * 1.1 + tw / 2, y], [x - s * 1.1 - tw / 2, y],
+			[x, y + s * 1.25 + fs * 1.6], [x, y - s * 1.35 - fs * 1.5], [x + s * 1.1 + tw / 2, y + fs * 1.1], [x - s * 1.1 - tw / 2, y - fs * 1.1],
+		];
+		const [lx, ly] = cands.find(([cx, cy]) => !hit(box(cx, cy))) ?? cands[0];
+		placedLabels.push(box(lx, ly));
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
 		ctx.lineJoin = "round";
 		ctx.lineWidth = Math.max(3, 4 * u);
 		ctx.strokeStyle = "rgba(240,228,196,0.92)";
 		ctx.globalAlpha = l.discovered ? 1 : 0.5;
-		ctx.strokeText(l.name, x, ly);
+		ctx.strokeText(l.name, lx, ly);
 		ctx.fillStyle = INK;
-		ctx.fillText(l.name, x, ly);
+		ctx.fillText(l.name, lx, ly);
 		ctx.globalAlpha = 1;
 	}
 }

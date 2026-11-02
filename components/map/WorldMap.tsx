@@ -62,7 +62,8 @@ export default function WorldMap({ world: rawWorld, onLocationClick, selectedLoc
 		return { w: Math.floor(w), h: Math.floor(w / 1.5) };
 	}, [size]);
 
-	const grid = useMemo(() => sampleWorld(world, 300, 200), [world.seed, world.terrain.seaLevel, world.terrain.biome]); // eslint-disable-line react-hooks/exhaustive-deps
+	const featureKey = JSON.stringify(world.terrain.features ?? []);
+	const grid = useMemo(() => sampleWorld(world, 300, 200), [world.seed, world.terrain.seaLevel, world.terrain.biome, featureKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
 	const dpr = typeof window === "undefined" ? 1 : Math.min(2, window.devicePixelRatio || 1);
 	useEffect(() => {
@@ -72,7 +73,7 @@ export default function WorldMap({ world: rawWorld, onLocationClick, selectedLoc
 		c.height = Math.round(box.h * dpr);
 		paintWorldBase(c, world, grid, family);
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [box, grid, world.name, fontReady, family, dpr]);
+	}, [box, grid, world.name, featureKey, fontReady, family, dpr]);
 
 	useEffect(() => {
 		const c = overRef.current;

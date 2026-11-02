@@ -1,5 +1,6 @@
-import type { EntityKind, GameState, GridMap, LocationKind, MapKind, Tile } from "../../game/types";
-import { generateMap, landNear, MAP_KINDS, placeEntity, revealAround } from "../../maps";
+import type { EntityKind, GameState, GridMap, LocationKind, MapKind, TerrainKind, Tile, WorldLocation } from "../../game/types";
+import { generateMap, MAP_KINDS, placeEntity, revealAround, WORLD_ASPECT } from "../../maps";
+import { addTerrainFeature, BEARING, betweenFromText, compassOf, daysForDistance, directionFromText, distanceForDays, fits, mapDistance, placeFor, REGION_SIZE, retimeRoutes, terrainFor, type Compass, type PlaceSpec } from "../../maps/geography";
 import { S, newId, tool, withState, type ToolFactory } from "../context";
 
 const LOCATION_KINDS: LocationKind[] = ["town", "city", "village", "dungeon", "cave", "forest", "mountain", "ruins", "castle", "temple", "swamp", "coast", "camp", "tower", "landmark"];
@@ -188,67 +189,123 @@ export const nameRoomTool = tool<{ roomId: string; name: string }>(
 		}),
 );
 
-export const revealLocation = tool<{ name: string; kind: LocationKind; description?: string; nearLocationId?: string; travelDays?: number; routeKind?: "road" | "trail" | "river" | "sea" }>(
+const COMPASS = ["north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest"] as const;
+const TERRAINS = ["marsh", "forest", "hills", "mountains", "plains", "desert"] as const;
+
+type RevealArgs = {
+	name: string;
+	kind: LocationKind;
+	description?: string;
+	nearLocationId?: string;
+	travelDays?: number;
+	routeKind?: "road" | "trail" | "river" | "sea";
+	direction?: Compass;
+	betweenLocationIds?: string[];
+	terrain?: TerrainKind;
+};
+
+export const revealLocation = tool<RevealArgs>(
 	"reveal_location",
-	"Add (or reveal) a location on the world map, connected by a route to an existing location (default: the current one).",
+	"Add (or reveal) a location on the world map, connected by a route to an existing location (default: the current one). The map must match your narration: ALWAYS give `direction` (compass bearing FROM nearLocationId) and `travelDays` when you've said or implied them, `betweenLocationIds` for places 'halfway between' two others, and `terrain` if it sits in a marsh/forest/hills… (that terrain is painted on the map around it).",
 	S.obj(
 		{
 			name: S.str(),
 			kind: S.str(undefined, LOCATION_KINDS),
 			description: S.str(),
-			nearLocationId: S.str(),
-			travelDays: S.num(),
+			nearLocationId: S.str("Location it is measured from (default: current location)"),
+			travelDays: S.num("Travel time from nearLocationId (0.05 ≈ a few minutes' walk, 0.5 = half a day)"),
 			routeKind: S.str(undefined, ["road", "trail", "river", "sea"]),
+			direction: S.str("Compass direction from nearLocationId", COMPASS),
+			betweenLocationIds: S.arr(S.str(), "Two location ids it lies halfway between"),
+			terrain: S.str("Terrain it sits in (painted on the map)", TERRAINS),
 		},
 		["name", "kind"],
 	),
 	async (a, ctx) =>
 		withState(ctx, ({ state, rng }) => {
 			const w = state.world;
+			const byId = (id?: string) => (id ? w.locations.find((l) => l.id === id || l.name.toLowerCase() === id.toLowerCase()) : undefined);
+			const anchor = byId(a.nearLocationId ?? w.currentLocationId);
+			const description = a.description;
+			const direction = a.direction ?? directionFromText(description);
+			const betweenLocs = (a.betweenLocationIds ?? []).map(byId).filter(Boolean) as WorldLocation[];
+			const textBetween = betweenFromText(w, `${a.name}: ${description ?? ""}`);
+			const between = betweenLocs.length === 2 ? ([betweenLocs[0], betweenLocs[1]] as [WorldLocation, WorldLocation]) : textBetween;
+			const routeKind = a.routeKind ?? "trail";
+			const spec: PlaceSpec = between ? { between, kind: a.kind } : { anchor, days: a.travelDays, routeKind, direction, kind: a.kind };
+			const avoid = (self?: WorldLocation) => w.locations.filter((l) => l !== self);
+			const notes: string[] = [];
+
 			const existing = w.locations.find((l) => l.name.toLowerCase() === a.name.toLowerCase());
+			let loc: WorldLocation;
 			if (existing) {
+				// A known-but-unvisited generated place may still be moved to match what was just said.
+				if (!existing.discovered && !existing.visited && !fits(existing, spec)) {
+					Object.assign(existing, placeFor(w, rng, spec, avoid(existing)));
+					retimeRoutes(w, existing.id);
+				} else if (existing.discovered && !fits(existing, spec)) {
+					notes.push(`Note: ${existing.name} is already on the map ${anchor ? `${compassOf(anchor, existing)} of ${anchor.name}, ~${daysForDistance(mapDistance(anchor, existing), routeKind)} days away` : ""} — narrate consistently with that.`);
+				}
 				existing.discovered = true;
-				if (a.description) existing.description = a.description;
+				if (description) existing.description = description;
 				for (const r of w.routes) if (r.from === existing.id || r.to === existing.id) r.discovered = true;
-				return `Revealed ${existing.name} [${existing.id}].`;
-			}
-			// Prefer re-skinning an undiscovered generated location of the same kind.
-			const spare = w.locations.find((l) => !l.discovered && l.kind === a.kind);
-			const anchor = w.locations.find((l) => l.id === (a.nearLocationId ?? w.currentLocationId));
-			let loc;
-			if (spare) {
-				spare.name = a.name;
-				spare.description = a.description;
-				spare.discovered = true;
-				loc = spare;
+				loc = existing;
 			} else {
-				// Terrain-aware: always on land, near the anchor, suited to the kind.
-				const days = Math.max(0.25, Math.min(10, a.travelDays ?? 1));
-				const p = landNear(w, anchor ?? { x: 0.5, y: 0.5 }, rng, {
-					kind: a.kind,
-					minDist: Math.min(0.3, 0.025 + days * 0.03),
-					maxDist: Math.min(0.45, 0.06 + days * 0.05),
-					avoid: w.locations,
-				});
-				loc = {
-					id: newId("loc"),
-					name: a.name,
-					kind: a.kind,
-					x: p.x,
-					y: p.y,
-					discovered: true,
-					visited: false,
-					description: a.description,
-					mapIds: [],
-				};
-				w.locations.push(loc);
+				// Re-skin an undiscovered generated location only if it already sits where the story puts it.
+				const spare = w.locations.find((l) => !l.discovered && l.kind === a.kind && fits(l, { ...spec, days: spec.days ?? (between ? undefined : 2) }));
+				if (spare) {
+					Object.assign(spare, { name: a.name, description, discovered: true });
+					loc = spare;
+				} else {
+					const p = placeFor(w, rng, { ...spec, days: spec.days ?? 1 }, avoid());
+					loc = { id: newId("loc"), name: a.name, kind: a.kind, x: p.x, y: p.y, discovered: true, visited: false, description, mapIds: [] };
+					w.locations.push(loc);
+				}
 			}
-			if (anchor && anchor.id !== loc.id) {
-				const route = w.routes.find((r) => (r.from === anchor.id && r.to === loc.id) || (r.to === anchor.id && r.from === loc.id));
+			const terrain = a.terrain ?? terrainFor(a.kind, description);
+			if (terrain) addTerrainFeature(w, { terrain, x: loc.x, y: loc.y, r: terrain === "mountains" ? 0.07 : 0.05 });
+			const links = between ? between : anchor ? [anchor] : [];
+			for (const from of links) {
+				if (from.id === loc.id) continue;
+				const route = w.routes.find((r) => (r.from === from.id && r.to === loc.id) || (r.to === from.id && r.from === loc.id));
+				const days = !between && a.travelDays !== undefined ? a.travelDays : daysForDistance(mapDistance(from, loc), routeKind);
 				if (route) route.discovered = true;
-				else w.routes.push({ id: newId("rt"), from: anchor.id, to: loc.id, kind: a.routeKind ?? "trail", travelDays: a.travelDays ?? 1, discovered: true });
+				else w.routes.push({ id: newId("rt"), from: from.id, to: loc.id, kind: routeKind, travelDays: days, discovered: true });
 			}
-			return `Location ${loc.name} [${loc.id}] is on the world map.`;
+			const where = anchor && anchor.id !== loc.id ? ` — ${compassOf(anchor, loc)} of ${anchor.name}, ~${daysForDistance(mapDistance(anchor, loc), routeKind)} days by ${routeKind}` : "";
+			return [`Location ${loc.name} [${loc.id}] is on the world map${where}.`, ...notes].join(" ");
+		}),
+);
+
+export const markRegionTool = tool<{ terrain: TerrainKind; name?: string; nearLocationId?: string; direction?: Compass; travelDays?: number; size?: "small" | "medium" | "large" }>(
+	"mark_region",
+	"Paint a narrated region onto the world map (a marsh, forest, range of hills, mountains, plains, desert), optionally named (e.g. 'The Grey Fen'). Place it relative to a location with direction/travelDays (default: centered on the current location). Use it whenever you describe the land so the map shows it.",
+	S.obj(
+		{
+			terrain: S.str(undefined, TERRAINS),
+			name: S.str("Region name shown on the map"),
+			nearLocationId: S.str(),
+			direction: S.str(undefined, COMPASS),
+			travelDays: S.num(),
+			size: S.str(undefined, ["small", "medium", "large"]),
+		},
+		["terrain"],
+	),
+	async (a, ctx) =>
+		withState(ctx, ({ state }) => {
+			const w = state.world;
+			const anchor = w.locations.find((l) => l.id === (a.nearLocationId ?? w.currentLocationId) || l.name.toLowerCase() === (a.nearLocationId ?? "").toLowerCase());
+			if (!anchor) throw new Error("Unknown nearLocationId.");
+			const r = REGION_SIZE[a.size ?? "medium"];
+			let x = anchor.x, y = anchor.y;
+			if (a.direction) {
+				const d = a.travelDays !== undefined ? distanceForDays(a.travelDays) : r * 1.1;
+				const ang = BEARING[a.direction];
+				x = Math.min(0.97, Math.max(0.03, anchor.x + (Math.cos(ang) * d) / WORLD_ASPECT));
+				y = Math.min(0.97, Math.max(0.03, anchor.y + Math.sin(ang) * d));
+			}
+			const f = addTerrainFeature(w, { terrain: a.terrain, x, y, r, ...(a.name ? { name: a.name } : {}) });
+			return `Region ${f.name ?? a.terrain} painted ${a.direction ? `${a.direction} of` : "around"} ${anchor.name}.`;
 		}),
 );
 
@@ -278,4 +335,4 @@ export const travelTool = tool<{ locationId: string; days?: number; show?: boole
 		}),
 );
 
-export const MAP_TOOLS: ToolFactory[] = [generateMapTool, useMapTool, placeEntityTool, updateEntityTool, setTileTool, nameRoomTool, revealLocation, travelTool];
+export const MAP_TOOLS: ToolFactory[] = [generateMapTool, useMapTool, placeEntityTool, updateEntityTool, setTileTool, nameRoomTool, revealLocation, markRegionTool, travelTool];

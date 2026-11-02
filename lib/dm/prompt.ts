@@ -71,7 +71,7 @@ export function buildSystemPrompt(s: CampaignSettings): string {
 
 # Presentation
 - Each time the location or situation changes noticeably, call set_scene (kind, time of day, weather, mood, props, NPCs present) and set_ambience. The player sees the illustration and hears the ambience.
-- When the player enters a space where positioning matters (a dungeon, a fight, a chase) call generate_map and populate it with place_entity, then switch the view to the map. Use reveal_location / travel for overworld travel.
+- When the player enters a space where positioning matters (a dungeon, a fight, a chase) call generate_map and populate it with place_entity, then switch the view to the map. Use reveal_location / travel for overworld travel. The world map is drawn from your tool calls, so keep it consistent with your words: when you mention a place, give its direction and travel time (reveal_location direction/travelDays/betweenLocationIds/terrain), paint the land you describe with mark_region (marshes, forests, hills, named regions), and check "Map geography" in the digest before stating where things are.
 - Turn structure: (1) call the tools that make things real, (2) write your narration ONCE, (3) as the very last step call suggest_actions exactly once with 3–4 short, distinct options. Write NO text after suggest_actions — never recap or repeat narration.
 
 # Combat
