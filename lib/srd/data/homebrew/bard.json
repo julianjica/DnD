@@ -1,1 +1,81 @@
-{ "subclasses": [], "features": [] }
+{
+	"subclasses": [
+		{
+			"index": "hb-battle-hymns",
+			"classId": "bard",
+			"name": "College of Battle Hymns",
+			"flavor": "Bard College",
+			"description": "Battle-singers of this college march at the front of the line, keeping time for the shield wall with drum, horn, and voice. They learned their verses in mercenary camps and border forts, where a song that steadies a frightened spearman is worth more than any courtly ballad. To them, every fight has a rhythm, and whoever controls the rhythm controls the field.",
+			"features": [
+				{
+					"level": 3,
+					"features": [
+						"hb-battle-hymns-drillfield-training",
+						"hb-battle-hymns-hymn-of-steel"
+					]
+				},
+				{
+					"level": 6,
+					"features": [
+						"hb-battle-hymns-two-beat-strike"
+					]
+				},
+				{
+					"level": 14,
+					"features": [
+						"hb-battle-hymns-anthem-of-the-unbroken",
+						"hb-battle-hymns-crescendo"
+					]
+				}
+			],
+			"spells": [],
+			"specific": []
+		}
+	],
+	"features": [
+		{
+			"index": "hb-battle-hymns-drillfield-training",
+			"name": "Drillfield Training",
+			"classId": "bard",
+			"subclassId": "hb-battle-hymns",
+			"level": 3,
+			"description": "When you join the College of Battle Hymns at 3rd level, you gain proficiency with medium armor, shields, and martial weapons. You can also use a melee weapon you are proficient with as a spellcasting focus for your bard spells, and you can perform the somatic components of bard spells while holding a weapon or shield in one or both hands."
+		},
+		{
+			"index": "hb-battle-hymns-hymn-of-steel",
+			"name": "Hymn of Steel",
+			"classId": "bard",
+			"subclassId": "hb-battle-hymns",
+			"level": 3,
+			"description": "Also at 3rd level, you can lead a marching song in the thick of combat. As a bonus action, you expend one use of Bardic Inspiration and begin singing. The hymn lasts for 1 minute and ends early if you are incapacitated, if you fall silent (for example, inside a silence spell), or if you end it (no action required). While the hymn lasts:\n• Cadence. Once on each of your turns when you hit a creature with a weapon attack, roll your Bardic Inspiration die and deal extra thunder damage equal to the roll.\n• Shield-Verse. When you or a friendly creature within 30 feet of you that can hear you is hit by an attack, you can use your reaction to reduce the damage taken by one roll of your Bardic Inspiration die + your Charisma modifier (minimum of 1). The first Shield-Verse during a hymn is free; each later one during the same hymn expends one use of Bardic Inspiration."
+		},
+		{
+			"index": "hb-battle-hymns-two-beat-strike",
+			"name": "Two-Beat Strike",
+			"classId": "bard",
+			"subclassId": "hb-battle-hymns",
+			"level": 6,
+			"description": "Starting at 6th level, you can attack twice, instead of once, whenever you take the Attack action on your turn. In addition, while your Hymn of Steel is active, the first time on each of your turns that you hit two different creatures with weapon attacks, one friendly creature of your choice within 30 feet of you that can hear you gains temporary hit points equal to your Charisma modifier + half your bard level (rounded down). These temporary hit points last until the hymn ends."
+		},
+		{
+			"index": "hb-battle-hymns-anthem-of-the-unbroken",
+			"name": "Anthem of the Unbroken",
+			"classId": "bard",
+			"subclassId": "hb-battle-hymns",
+			"level": 14,
+			"description": "At 14th level, your war-song can turn the tide of a battle. As an action, you begin a rousing anthem that lasts for 1 minute (it ends early if you are incapacitated or silenced). When you start it, you and each friendly creature of your choice within 60 feet of you that can hear you gain temporary hit points equal to your bard level, and any of those creatures that are frightened or charmed are no longer so. For the duration, those creatures have advantage on saving throws against being frightened or charmed, and once on each of their turns when one of them hits with a weapon attack, it deals an extra 1d8 thunder damage. You also start or refresh your Hymn of Steel without expending Bardic Inspiration. Once you use this feature, you can't use it again until you finish a long rest.",
+			"uses": {
+				"max": 1,
+				"recharge": "long"
+			}
+		},
+		{
+			"index": "hb-battle-hymns-crescendo",
+			"name": "Crescendo",
+			"classId": "bard",
+			"subclassId": "hb-battle-hymns",
+			"level": 14,
+			"description": "Also at 14th level, when you hit a creature with a weapon attack, you can expend one use of Bardic Inspiration to end the strike on a deafening note. The target takes extra thunder damage equal to two rolls of your Bardic Inspiration die and must succeed on a Constitution saving throw against your spell save DC or be deafened and unable to take reactions until the start of your next turn. You can use this feature only once per turn."
+		}
+	]
+}

@@ -1,1 +1,259 @@
-{ "subclasses": [], "features": [] }
+{
+	"subclasses": [
+		{
+			"index": "hb-fey-sovereign",
+			"classId": "warlock",
+			"name": "The Fey Sovereign",
+			"flavor": "Otherworldly Patron",
+			"description": "Your patron rules a glittering court in the Feywild, a monarch whose moods change with the seasons and whose favor is as dangerous as their scorn. You may be a courtier, a jester, a hostage, or simply an amusement they have not yet tired of. Their gifts are glamour, misdirection, and the authority to command lesser beings with a word.",
+			"features": [
+				{
+					"level": 1,
+					"features": [
+						"hb-fey-sovereign-sovereigns-favor"
+					]
+				},
+				{
+					"level": 6,
+					"features": [
+						"hb-fey-sovereign-revel-step"
+					]
+				},
+				{
+					"level": 10,
+					"features": [
+						"hb-fey-sovereign-thorned-courtesy"
+					]
+				},
+				{
+					"level": 14,
+					"features": [
+						"hb-fey-sovereign-edict-of-the-sovereign"
+					]
+				}
+			],
+			"spells": [
+				{
+					"spell": "silent-image",
+					"level": 1
+				},
+				{
+					"spell": "disguise-self",
+					"level": 1
+				},
+				{
+					"spell": "blur",
+					"level": 3
+				},
+				{
+					"spell": "enhance-ability",
+					"level": 3
+				},
+				{
+					"spell": "phantom-steed",
+					"level": 5
+				},
+				{
+					"spell": "bestow-curse",
+					"level": 5
+				},
+				{
+					"spell": "compulsion",
+					"level": 7
+				},
+				{
+					"spell": "polymorph",
+					"level": 7
+				},
+				{
+					"spell": "geas",
+					"level": 9
+				},
+				{
+					"spell": "mislead",
+					"level": 9
+				}
+			],
+			"specific": []
+		},
+		{
+			"index": "hb-far-whisperer",
+			"classId": "warlock",
+			"name": "The Far Whisperer",
+			"flavor": "Otherworldly Patron",
+			"description": "Your patron dwells in the cold spaces between the stars, an intelligence so vast and strange that its attention alone bends the minds of mortals. It speaks to you in fragments: geometry that should not fit, colors without names, voices from worlds that died before yours was born. Whether it is guiding you, studying you, or merely dreaming of you is impossible to know.",
+			"features": [
+				{
+					"level": 1,
+					"features": [
+						"hb-far-whisperer-starlit-murmur",
+						"hb-far-whisperer-unknowable-glance"
+					]
+				},
+				{
+					"level": 6,
+					"features": [
+						"hb-far-whisperer-folded-distance"
+					]
+				},
+				{
+					"level": 10,
+					"features": [
+						"hb-far-whisperer-mind-like-the-void"
+					]
+				},
+				{
+					"level": 14,
+					"features": [
+						"hb-far-whisperer-gaze-of-the-far-stars"
+					]
+				}
+			],
+			"spells": [
+				{
+					"spell": "bane",
+					"level": 1
+				},
+				{
+					"spell": "color-spray",
+					"level": 1
+				},
+				{
+					"spell": "see-invisibility",
+					"level": 3
+				},
+				{
+					"spell": "levitate",
+					"level": 3
+				},
+				{
+					"spell": "nondetection",
+					"level": 5
+				},
+				{
+					"spell": "slow",
+					"level": 5
+				},
+				{
+					"spell": "confusion",
+					"level": 7
+				},
+				{
+					"spell": "arcane-eye",
+					"level": 7
+				},
+				{
+					"spell": "telepathic-bond",
+					"level": 9
+				},
+				{
+					"spell": "modify-memory",
+					"level": 9
+				}
+			],
+			"specific": []
+		}
+	],
+	"features": [
+		{
+			"index": "hb-fey-sovereign-sovereigns-favor",
+			"name": "Sovereign's Favor",
+			"classId": "warlock",
+			"subclassId": "hb-fey-sovereign",
+			"level": 1,
+			"description": "Starting at 1st level, you can bestow or withdraw your patron's regard. As a bonus action, choose one creature you can see within 60 feet of you and pick one effect:\n• Favored. Until the end of your next turn, the creature can add 1d6 to one attack roll or saving throw it makes (it chooses after rolling but before the outcome is known).\n• Disfavored. The creature must succeed on a Wisdom saving throw against your warlock spell save DC or have disadvantage on the next attack roll it makes before the end of its next turn, and the next time you hit it with an attack or damage it with a warlock spell before then, it takes extra psychic damage equal to your Charisma modifier.\nYou also learn to speak, read, and write Sylvan.",
+			"uses": {
+				"max": "cha",
+				"recharge": "long"
+			}
+		},
+		{
+			"index": "hb-fey-sovereign-revel-step",
+			"name": "Revel-Step",
+			"classId": "warlock",
+			"subclassId": "hb-fey-sovereign",
+			"level": 6,
+			"description": "Starting at 6th level, you can sidestep danger like a dancer changing partners. When you are hit by an attack, you can use your reaction to teleport, swapping places with another creature you can see within 30 feet of you. A willing creature simply trades places; an unwilling creature can make a Charisma saving throw against your warlock spell save DC, and on a success nothing happens and the reaction is still used. If the swap succeeds, the attack targets the creature now in your former space instead, using the same attack roll against its AC (the attack misses if the roll doesn't meet that AC). Once you use this feature, you can't use it again until you finish a short or long rest.",
+			"uses": {
+				"max": 1,
+				"recharge": "short"
+			}
+		},
+		{
+			"index": "hb-fey-sovereign-thorned-courtesy",
+			"name": "Thorned Courtesy",
+			"classId": "warlock",
+			"subclassId": "hb-fey-sovereign",
+			"level": 10,
+			"description": "Beginning at 10th level, you carry your patron's etiquette like a blade. You have advantage on saving throws against being charmed, and you have resistance to psychic damage. In addition, when a creature you can see within 30 feet of you hits you with an attack, you can use your reaction to demand an apology: the creature must succeed on a Wisdom saving throw against your warlock spell save DC or be charmed by you until the end of its next turn. While charmed this way, it can't attack you or target you with harmful spells, and its speed is halved.",
+			"uses": {
+				"max": "cha",
+				"recharge": "long"
+			}
+		},
+		{
+			"index": "hb-fey-sovereign-edict-of-the-sovereign",
+			"name": "Edict of the Sovereign",
+			"classId": "warlock",
+			"subclassId": "hb-fey-sovereign",
+			"level": 14,
+			"description": "At 14th level, you can speak with your patron's full authority. As an action, choose a number of creatures up to your Charisma modifier (minimum of 1) that you can see within 60 feet of you. Each must make a Wisdom saving throw against your warlock spell save DC; creatures immune to being charmed automatically succeed. On a failure, a creature is compelled to join an invisible fey revel for 1 minute: it is charmed by you, incapacitated, and has a speed of 0 as it dances, bows, and feasts on nothing. An affected creature repeats the saving throw at the end of each of its turns and whenever it takes damage, ending the effect on itself on a success. This feature doesn't require concentration. Once you use it, you can't use it again until you finish a long rest.",
+			"uses": {
+				"max": 1,
+				"recharge": "long"
+			}
+		},
+		{
+			"index": "hb-far-whisperer-starlit-murmur",
+			"name": "Starlit Murmur",
+			"classId": "warlock",
+			"subclassId": "hb-far-whisperer",
+			"level": 1,
+			"description": "Starting at 1st level, your patron's voice lingers in yours. As a bonus action, you can send a telepathic message of up to 25 words to one creature you can see within 60 feet of you. The creature understands the meaning of the message even if it shares no language with you, and it can immediately reply telepathically with up to 25 words; the link then closes. Creatures with an Intelligence of 3 or lower receive only a vague impression."
+		},
+		{
+			"index": "hb-far-whisperer-unknowable-glance",
+			"name": "Unknowable Glance",
+			"classId": "warlock",
+			"subclassId": "hb-far-whisperer",
+			"level": 1,
+			"description": "Also at 1st level, you can let a sliver of the void show in your eyes. As a bonus action, choose one creature you can see within 60 feet of you. It must make a Wisdom saving throw against your warlock spell save DC. On a failure, it takes psychic damage and has disadvantage on the next attack roll it makes before the end of its next turn. The damage is 1d6 at 1st level, 2d6 at 6th level, 3d6 at 10th level, and 4d6 at 14th level. On a success, it takes no damage and suffers no other effect.",
+			"uses": {
+				"max": "prof",
+				"recharge": "long"
+			}
+		},
+		{
+			"index": "hb-far-whisperer-folded-distance",
+			"name": "Folded Distance",
+			"classId": "warlock",
+			"subclassId": "hb-far-whisperer",
+			"level": 6,
+			"description": "Starting at 6th level, you can step through a crease in space as your patron does. As a bonus action, you teleport up to 30 feet to an unoccupied space you can see. Each creature of your choice within 5 feet of the space you left must succeed on a Constitution saving throw against your warlock spell save DC or take 2d8 psychic damage as the folded space snaps back. You can also see normally in magical darkness out to 60 feet.",
+			"uses": {
+				"max": "prof",
+				"recharge": "long"
+			}
+		},
+		{
+			"index": "hb-far-whisperer-mind-like-the-void",
+			"name": "Mind Like the Void",
+			"classId": "warlock",
+			"subclassId": "hb-far-whisperer",
+			"level": 10,
+			"description": "Beginning at 10th level, your thoughts have grown as cold and distant as your patron's. You are immune to the frightened condition and have resistance to cold damage, and you no longer need to breathe. In addition, any creature that tries to read your thoughts or communicate with you telepathically against your will must succeed on an Intelligence saving throw against your warlock spell save DC or learn nothing and take 2d10 psychic damage; on a success, it learns only your surface thoughts."
+		},
+		{
+			"index": "hb-far-whisperer-gaze-of-the-far-stars",
+			"name": "Gaze of the Far Stars",
+			"classId": "warlock",
+			"subclassId": "hb-far-whisperer",
+			"level": 14,
+			"description": "At 14th level, you can open a mortal mind to the full sight of your patron. As an action, choose one creature you can see within 60 feet of you. It must make an Intelligence saving throw against your warlock spell save DC. On a failure, it takes 8d10 psychic damage and is incapacitated until the end of your next turn as it glimpses the spaces between the stars. On a success, it takes half as much damage and isn't incapacitated. Once you use this feature, you can't use it again until you finish a long rest.",
+			"uses": {
+				"max": 1,
+				"recharge": "long"
+			}
+		}
+	]
+}

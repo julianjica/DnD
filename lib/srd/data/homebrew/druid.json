@@ -1,1 +1,90 @@
-{ "subclasses": [], "features": [] }
+{
+	"subclasses": [
+		{
+			"index": "hb-shifting-hide",
+			"classId": "druid",
+			"name": "Circle of the Shifting Hide",
+			"flavor": "Druid Circle",
+			"description": "Druids of the Shifting Hide believe the truest prayer to the wild is to run with it, tooth and claw. They spend long seasons living as wolves, bears, and stranger things, returning to their own bodies only when they must. In battle they shed one skin for the next, fighting on in a new shape long after their first form has fallen.",
+			"features": [
+				{
+					"level": 2,
+					"features": [
+						"hb-shifting-hide-hide-bound-shaping",
+						"hb-shifting-hide-mending-pelt"
+					]
+				},
+				{
+					"level": 6,
+					"features": [
+						"hb-shifting-hide-predators-edge"
+					]
+				},
+				{
+					"level": 10,
+					"features": [
+						"hb-shifting-hide-elemental-hide"
+					]
+				},
+				{
+					"level": 14,
+					"features": [
+						"hb-shifting-hide-unending-hide"
+					]
+				}
+			],
+			"spells": [],
+			"specific": []
+		}
+	],
+	"features": [
+		{
+			"index": "hb-shifting-hide-hide-bound-shaping",
+			"name": "Hide-Bound Shaping",
+			"classId": "druid",
+			"subclassId": "hb-shifting-hide",
+			"level": 2,
+			"description": "When you join this circle at 2nd level, your Wild Shape comes as easily as breathing. You can use Wild Shape as a bonus action on your turn instead of an action.\nYou can also take the shapes of mightier beasts than other druids. Use the following table in place of the Beast Shapes table's challenge rating limit (the base Wild Shape restrictions on swimming and flying speeds still apply at your druid level):\nDruid level 2nd–3rd: max CR 1/2\nDruid level 4th–5th: max CR 1\nDruid level 6th–7th: max CR 2\nDruid level 8th–11th: max CR 3\nDruid level 12th–15th: max CR 4\nDruid level 16th–19th: max CR 5\nDruid level 20th: max CR 6"
+		},
+		{
+			"index": "hb-shifting-hide-mending-pelt",
+			"name": "Mending Pelt",
+			"classId": "druid",
+			"subclassId": "hb-shifting-hide",
+			"level": 2,
+			"description": "Also at 2nd level, you can draw on your stored magic to knit your beast form back together. While transformed by Wild Shape, you can use a bonus action to expend one druid spell slot and regain hit points in your beast form equal to 1d6 per level of the expended slot + your druid level. In addition, when you assume a beast form with Wild Shape, you gain temporary hit points equal to your Wisdom modifier (minimum of 1); they vanish when you revert."
+		},
+		{
+			"index": "hb-shifting-hide-predators-edge",
+			"name": "Predator's Edge",
+			"classId": "druid",
+			"subclassId": "hb-shifting-hide",
+			"level": 6,
+			"description": "Starting at 6th level, your attacks in beast form count as magical for the purpose of overcoming resistance and immunity to nonmagical attacks and damage. In addition, your druidic instinct guides each strike: when you make an attack roll with one of a beast form's natural weapons, you can use your Wisdom modifier in place of the beast's Strength or Dexterity modifier for the attack roll (not the damage roll), and you add your own proficiency bonus if it is higher than the beast's."
+		},
+		{
+			"index": "hb-shifting-hide-elemental-hide",
+			"name": "Elemental Hide",
+			"classId": "druid",
+			"subclassId": "hb-shifting-hide",
+			"level": 10,
+			"description": "At 10th level, you can wear the shape of living elements. As an action, you can expend one use of Wild Shape together with a druid spell slot of 4th level or higher to transform into an air elemental, earth elemental, fire elemental, or water elemental (using the SRD stat blocks). This form follows the normal Wild Shape rules, except that it lasts for at most 10 minutes and you can't use Hide-Bound Shaping to enter it as a bonus action. Once per long rest you can enter an elemental form by expending only the Wild Shape use, with no spell slot.",
+			"uses": {
+				"max": 1,
+				"recharge": "long"
+			}
+		},
+		{
+			"index": "hb-shifting-hide-unending-hide",
+			"name": "Unending Hide",
+			"classId": "druid",
+			"subclassId": "hb-shifting-hide",
+			"level": 14,
+			"description": "At 14th level, there is always another skin beneath the last. When you are reduced to 0 hit points while transformed by Wild Shape, you can use your reaction to assume a new beast form you are eligible for instead of reverting to your normal form. This doesn't expend a use of Wild Shape; any excess damage is lost rather than carrying over. Once you use this reaction, you can't do so again until you finish a short or long rest. In addition, while transformed by Wild Shape you can cast druid spells that have only verbal and somatic components (no material components) of 3rd level or lower, as if you had reached the Beast Spells feature early.",
+			"uses": {
+				"max": 1,
+				"recharge": "short"
+			}
+		}
+	]
+}

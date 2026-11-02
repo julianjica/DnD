@@ -316,12 +316,15 @@ export function attacks(c: Character): SheetAttack[] {
 	return out;
 }
 
+/** Homebrew subclass features that grant Extra Attack. */
+const EXTRA_ATTACK_FEATURES = new Set(["hb-battle-hymns-two-beat-strike"]);
+
 /** Attacks per Attack action (Extra Attack). */
 export function attacksPerAction(c: Character): number {
 	let n = 1;
 	const fighter = classSpecific(c, "fighter", "extra_attacks");
 	if (typeof fighter === "number") n = Math.max(n, 1 + fighter);
-	if (c.features.some((f) => /^(barbarian|monk|paladin|ranger)-extra-attack$/.test(f.id))) n = Math.max(n, 2);
+	if (c.features.some((f) => /^(barbarian|monk|paladin|ranger)-extra-attack$/.test(f.id) || EXTRA_ATTACK_FEATURES.has(f.id))) n = Math.max(n, 2);
 	return n;
 }
 

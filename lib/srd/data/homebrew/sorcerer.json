@@ -1,1 +1,94 @@
-{ "subclasses": [], "features": [] }
+{
+	"subclasses": [
+		{
+			"index": "hb-chaos-bloodline",
+			"classId": "sorcerer",
+			"name": "Chaos Bloodline",
+			"flavor": "Sorcerous Origin",
+			"description": "Somewhere in your ancestry, a forebear drank from a fractured ley line, bargained with a storm of pure possibility, or was born during a planar collision. That raw unpredictability now runs in your veins. Your spells come out a little crooked, often in your favor and sometimes spectacularly not, and probability itself seems to lean toward you when you ask it nicely.",
+			"features": [
+				{
+					"level": 1,
+					"features": [
+						"hb-chaos-bloodline-unstable-wellspring",
+						"hb-chaos-bloodline-thread-of-fortune"
+					]
+				},
+				{
+					"level": 6,
+					"features": [
+						"hb-chaos-bloodline-bent-probability"
+					]
+				},
+				{
+					"level": 14,
+					"features": [
+						"hb-chaos-bloodline-steered-ripples"
+					]
+				},
+				{
+					"level": 18,
+					"features": [
+						"hb-chaos-bloodline-entropy-crown"
+					]
+				}
+			],
+			"spells": [],
+			"specific": []
+		}
+	],
+	"features": [
+		{
+			"index": "hb-chaos-bloodline-unstable-wellspring",
+			"name": "Unstable Wellspring",
+			"classId": "sorcerer",
+			"subclassId": "hb-chaos-bloodline",
+			"level": 1,
+			"description": "Starting when you choose this origin at 1st level, your magic tends to spill over. Immediately after you cast a sorcerer spell of 1st level or higher, roll a d20. On a 1, your magic ripples: roll a d20 again and apply the matching effect from the Ripple table below. If you applied any Metamagic option to the spell, a ripple happens on a 1 or 2 instead. Effects that call for a save use your spell save DC, and a ripple never interrupts the spell that caused it (it resolves after the spell's effects).\nRipple table (d20):\n1 — Thunderclap. A deafening crack bursts from you. You and each other creature within 10 feet of you take 2d6 thunder damage (no saving throw).\n2 — Blink Away. You teleport 30 feet to an unoccupied space in a random direction (roll a d8: 1 north, 2 northeast, 3 east, and so on clockwise). If that space is occupied or solid, you appear in the nearest unoccupied space toward it.\n3 — Glass Skin. Your skin turns faintly translucent and blue until you finish a long rest. This has no other effect.\n4 — Lantern Soul. For 1 minute, you shed bright light in a 20-foot radius and dim light for an additional 20 feet, and you can't benefit from being hidden or invisible.\n5 — Fade. You become invisible until the start of your next turn, or until you make an attack roll or cast a spell.\n6 — Glass Butterflies. A cloud of harmless crystalline butterflies fills a 20-foot-radius sphere centered on you for 1 minute. The area is lightly obscured; a strong wind disperses it.\n7 — Overflow. You regain 1d4 sorcery points (up to your maximum). If you have no Font of Magic, you instead gain 1d4 + your Charisma modifier temporary hit points.\n8 — Drain. You lose 1d4 sorcery points (minimum 0). If you have none, you instead take 1d4 force damage that can't be reduced.\n9 — Weightless. You float 10 feet into the air and hover there until the end of your next turn (you can move as if you had a 30-foot flying speed), then descend gently to the ground without taking falling damage.\n10 — Bloom of Life. You and each creature within 30 feet of you regain 1d8 hit points.\n11 — Sudden Dread. You are frightened of the creature closest to you (DM's choice among ties) until the end of your next turn.\n12 — Quickstep. Your walking speed increases by 20 feet for 1 minute.\n13 — Faltering Wards. The first creature that makes a saving throw against one of your spells before the end of your next turn does so with disadvantage. If the spell that triggered this ripple forced a save, this applies to the next spell instead.\n14 — Rhymer's Curse. For 1 minute, you can speak only in rhyming couplets. This doesn't stop you from casting spells with verbal components.\n15 — Mirror Shade. A flickering double of you appears in your space. Until the start of your next turn, attack rolls against you have disadvantage.\n16 — Crystal Roots. Crystals bind your feet to the ground. Your speed becomes 0 until the end of your next turn.\n17 — Wreath of Sparks. For 1 minute, any creature that hits you with a melee attack while within 5 feet of you takes 1d6 fire damage.\n18 — Hardened Aura. You gain 2d10 temporary hit points.\n19 — Switchback. Choose a creature you can see within 30 feet of you. You and that creature swap places by teleporting. An unwilling creature can make a Charisma saving throw against your spell save DC to resist; if it succeeds, nothing happens.\n20 — Wellspring. You regain your lowest-level expended spell slot of 5th level or lower. If you have no expended slots, you instead gain 1 sorcery point (if you have Font of Magic) or 2d10 temporary hit points."
+		},
+		{
+			"index": "hb-chaos-bloodline-thread-of-fortune",
+			"name": "Thread of Fortune",
+			"classId": "sorcerer",
+			"subclassId": "hb-chaos-bloodline",
+			"level": 1,
+			"description": "Also at 1st level, you can tug on the thread of chance. When you make an attack roll, ability check, or saving throw, you can roll a d4 after seeing the d20 result but before the DM says whether it succeeds, and either add the number to the roll or subtract it from the roll (your choice after seeing the d4). Each time you use this feature, the luck you borrowed comes due: until you finish a long rest, your Unstable Wellspring rolls ripple on one additional number (a 1–2 instead of a 1, a 1–3 instead of a 1–2, and so on, to a maximum of 1–5).",
+			"uses": {
+				"max": "prof",
+				"recharge": "long"
+			}
+		},
+		{
+			"index": "hb-chaos-bloodline-bent-probability",
+			"name": "Bent Probability",
+			"classId": "sorcerer",
+			"subclassId": "hb-chaos-bloodline",
+			"level": 6,
+			"description": "Starting at 6th level, you can unravel another creature's luck. When a creature you can see within 60 feet of you makes an attack roll, ability check, or saving throw, you can use your reaction and spend 2 sorcery points to force it to reroll the d20 before the outcome is known. The creature must use the new roll, whether it is better or worse. After you use this feature, roll a d20: on a 1, your magic ripples (roll on the Ripple table)."
+		},
+		{
+			"index": "hb-chaos-bloodline-steered-ripples",
+			"name": "Steered Ripples",
+			"classId": "sorcerer",
+			"subclassId": "hb-chaos-bloodline",
+			"level": 14,
+			"description": "At 14th level, you learn to steer the chaos instead of merely surviving it. Whenever you roll on the Ripple table, you can add or subtract up to your Charisma modifier from that roll (minimum result 1, maximum 20) before applying the effect. In addition, when you cast a sorcerer spell of 1st level or higher, you can choose to cause a ripple without rolling to see whether one occurs; you can do this a number of times equal to your proficiency bonus, regaining all uses when you finish a long rest. A ripple you cause this way can't produce the Wellspring result (treat a final result of 20 as 19).",
+			"uses": {
+				"max": "prof",
+				"recharge": "long"
+			}
+		},
+		{
+			"index": "hb-chaos-bloodline-entropy-crown",
+			"name": "Entropy Crown",
+			"classId": "sorcerer",
+			"subclassId": "hb-chaos-bloodline",
+			"level": 18,
+			"description": "At 18th level, chaos bends to your will. When you roll damage for a sorcerer spell, you can reroll any dice that show a 1, and you must use the new rolls (each die can be rerolled only once). In addition, when your magic ripples, you can choose any entry from the Ripple table instead of rolling. Once you choose an entry this way, you can't do so again until you finish a long rest.",
+			"uses": {
+				"max": 1,
+				"recharge": "long"
+			}
+		}
+	]
+}
