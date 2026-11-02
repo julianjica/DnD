@@ -1,0 +1,437 @@
+[
+  {
+    "file": "scenes/dungeon/dungeon-1.jpg",
+    "kind": "dungeon",
+    "time": [
+      "dawn",
+      "day",
+      "dusk",
+      "night"
+    ],
+    "weather": [
+      "clear",
+      "cloudy",
+      "rain",
+      "storm",
+      "fog",
+      "snow"
+    ],
+    "mood": [
+      "tense",
+      "somber",
+      "eerie"
+    ],
+    "interior": true,
+    "focusY": 0.55,
+    "monochrome": false,
+    "title": "Fantastic Prison Architecture",
+    "artist": "Josef Platzer",
+    "year": "c. 1800",
+    "source": "https://commons.wikimedia.org/wiki/File:Josef_Platzer_Phantastische_Gefängnisarchitektur.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/dungeon/dungeon-2.jpg",
+    "kind": "dungeon",
+    "time": [
+      "dawn",
+      "day",
+      "dusk",
+      "night"
+    ],
+    "weather": [
+      "clear",
+      "cloudy",
+      "rain",
+      "storm",
+      "fog",
+      "snow"
+    ],
+    "mood": [
+      "somber",
+      "tense"
+    ],
+    "interior": true,
+    "focusY": 0.5,
+    "monochrome": true,
+    "title": "Stage Design for a Prison",
+    "artist": "Giulio Quaglio III",
+    "year": "before 1801",
+    "source": "https://commons.wikimedia.org/wiki/File:Giulio_Quaglio_Bühnenbildentwurf_Gefängnis.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/dungeon/dungeon-3.jpg",
+    "kind": "dungeon",
+    "time": [
+      "dawn",
+      "day",
+      "dusk",
+      "night"
+    ],
+    "weather": [
+      "clear",
+      "cloudy",
+      "rain",
+      "storm",
+      "fog",
+      "snow"
+    ],
+    "mood": [
+      "somber",
+      "mysterious"
+    ],
+    "interior": true,
+    "focusY": 0.6,
+    "monochrome": false,
+    "title": "Stage Set Representing the Interior of a Prison",
+    "artist": "Unknown artist",
+    "year": "1750",
+    "source": "https://commons.wikimedia.org/wiki/File:Décor_représentant_l'intérieur_d'une_prison_-_dessin_-_btv1b53274772r.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/dungeon/dungeon-4.jpg",
+    "kind": "dungeon",
+    "time": [
+      "dawn",
+      "day",
+      "dusk",
+      "night"
+    ],
+    "weather": [
+      "clear",
+      "cloudy",
+      "rain",
+      "storm",
+      "fog",
+      "snow"
+    ],
+    "mood": [
+      "mysterious",
+      "eerie"
+    ],
+    "interior": true,
+    "focusY": 0.5,
+    "monochrome": true,
+    "title": "The Gothic Arch (Carceri d'Invenzione, plate XIV)",
+    "artist": "Giovanni Battista Piranesi",
+    "year": "1761",
+    "source": "https://commons.wikimedia.org/wiki/File:The_Gothic_Arch_LACMA_46.27.14.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/dungeon/dungeon-5.jpg",
+    "kind": "dungeon",
+    "time": [
+      "dawn",
+      "day",
+      "dusk",
+      "night"
+    ],
+    "weather": [
+      "clear",
+      "cloudy",
+      "rain",
+      "storm",
+      "fog",
+      "snow"
+    ],
+    "mood": [
+      "somber",
+      "eerie"
+    ],
+    "interior": true,
+    "focusY": 0.55,
+    "monochrome": true,
+    "title": "The Sawhorse (Carceri d'Invenzione, plate XII)",
+    "artist": "Giovanni Battista Piranesi",
+    "year": "1761",
+    "source": "https://commons.wikimedia.org/wiki/File:Giovanni_Battista_Piranesi_-_Le_Carceri_d'Invenzione_-_Second_Edition_-_1761_-_12_-_The_Sawhorse.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/cave/cave-1.jpg",
+    "kind": "cave",
+    "time": [
+      "dusk"
+    ],
+    "weather": [
+      "clear",
+      "cloudy",
+      "fog"
+    ],
+    "mood": [
+      "tense",
+      "mysterious"
+    ],
+    "interior": true,
+    "focusY": 0.6,
+    "monochrome": false,
+    "title": "Grotto by the Seaside in the Kingdom of Naples with Banditti, Sunset",
+    "artist": "Joseph Wright of Derby",
+    "year": "1778",
+    "source": "https://commons.wikimedia.org/wiki/File:Joseph_Wright_of_Derby_-_Grotto_by_the_Seaside_in_the_Kingdom_of_Naples_with_Banditti,_Sunset_-_Google_Art_Project.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/cave/cave-2.jpg",
+    "kind": "cave",
+    "time": [
+      "day"
+    ],
+    "weather": [
+      "clear",
+      "cloudy"
+    ],
+    "mood": [
+      "calm",
+      "mysterious"
+    ],
+    "interior": true,
+    "focusY": 0.55,
+    "monochrome": false,
+    "title": "Fingal's Cave",
+    "artist": "Vilhelm Melbye",
+    "year": "1857",
+    "source": "https://commons.wikimedia.org/wiki/File:Vilhelm_Melbye_-_Fingals_hule_-_1857.png",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/cave/cave-3.jpg",
+    "kind": "cave",
+    "time": [
+      "dawn",
+      "day",
+      "dusk"
+    ],
+    "weather": [
+      "clear",
+      "cloudy",
+      "rain",
+      "storm",
+      "fog",
+      "snow"
+    ],
+    "mood": [
+      "mysterious",
+      "calm"
+    ],
+    "interior": true,
+    "focusY": 0.55,
+    "monochrome": false,
+    "title": "Stalagmite Columns at the Southern Entrance of the Burrangalong Cavern",
+    "artist": "Conrad Martens",
+    "year": "1843",
+    "source": "https://commons.wikimedia.org/wiki/File:Conrad_Martens_-_Stalagmite_columns_at_the_southern_entrance_of_the_Burrangalong_Cavern_-_Google_Art_Project.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/cave/cave-4.jpg",
+    "kind": "cave",
+    "time": [
+      "dawn",
+      "day",
+      "dusk"
+    ],
+    "weather": [
+      "clear",
+      "cloudy",
+      "rain",
+      "fog"
+    ],
+    "mood": [
+      "mysterious",
+      "eerie"
+    ],
+    "interior": false,
+    "focusY": 0.45,
+    "monochrome": false,
+    "title": "The Beatus Cave",
+    "artist": "Caspar Wolf",
+    "year": "1776",
+    "source": "https://commons.wikimedia.org/wiki/File:Caspar_Wolf_Beatushöhle_1776_Aarau.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/cave/cave-5.jpg",
+    "kind": "cave",
+    "time": [
+      "dawn",
+      "day",
+      "dusk",
+      "night"
+    ],
+    "weather": [
+      "clear",
+      "cloudy",
+      "rain",
+      "storm",
+      "fog",
+      "snow"
+    ],
+    "mood": [
+      "mysterious",
+      "calm"
+    ],
+    "interior": true,
+    "focusY": 0.6,
+    "monochrome": false,
+    "title": "The Blue Grotto, Capri",
+    "artist": "Christian Frederik Ferdinand Thøming",
+    "year": "1833",
+    "source": "https://commons.wikimedia.org/wiki/File:Friedrich_Thøming_-_Den_blå_grotte_på_Capri_(1833).jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/underdark/underdark-1.jpg",
+    "kind": "underdark",
+    "time": [
+      "dawn",
+      "day",
+      "dusk",
+      "night"
+    ],
+    "weather": [
+      "clear",
+      "cloudy",
+      "rain",
+      "storm",
+      "fog",
+      "snow"
+    ],
+    "mood": [
+      "eerie",
+      "tense",
+      "somber"
+    ],
+    "interior": true,
+    "focusY": 0.45,
+    "monochrome": false,
+    "title": "Pandemonium",
+    "artist": "John Martin",
+    "year": "1841",
+    "source": "https://commons.wikimedia.org/wiki/File:Le_Pandemonium_-_John_Martin_-_Musée_du_Louvre_Peintures_RF_2006_21_-_sans_cadre.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/underdark/underdark-2.jpg",
+    "kind": "underdark",
+    "time": [
+      "dawn",
+      "day",
+      "dusk",
+      "night"
+    ],
+    "weather": [
+      "clear",
+      "cloudy",
+      "rain",
+      "storm",
+      "fog",
+      "snow"
+    ],
+    "mood": [
+      "eerie",
+      "mysterious"
+    ],
+    "interior": true,
+    "focusY": 0.55,
+    "monochrome": false,
+    "title": "Postojna Cave",
+    "artist": "Ivan Grohar",
+    "year": "1907",
+    "source": "https://commons.wikimedia.org/wiki/File:Ivan_Grohar_-_Postojnska_jama.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/underdark/underdark-3.jpg",
+    "kind": "underdark",
+    "time": [
+      "dawn",
+      "day",
+      "dusk",
+      "night"
+    ],
+    "weather": [
+      "clear",
+      "cloudy",
+      "rain",
+      "storm",
+      "fog",
+      "snow"
+    ],
+    "mood": [
+      "mysterious",
+      "eerie"
+    ],
+    "interior": true,
+    "focusY": 0.5,
+    "monochrome": true,
+    "title": "View of the Interior of the Grotto of Antiparos",
+    "artist": "Jean-Baptiste Hilair (for Choiseul-Gouffier, Voyage pittoresque de la Grèce)",
+    "year": "1782",
+    "source": "https://commons.wikimedia.org/wiki/File:Vue_de_l'interieur_de_la_Grotte_d'Antiparos_-_Choiseul-gouffier_Gabriel_Florent_Auguste_De_-_1782.jpg",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/underdark/underdark-4.jpg",
+    "kind": "underdark",
+    "time": [
+      "dawn",
+      "day",
+      "dusk",
+      "night"
+    ],
+    "weather": [
+      "clear",
+      "cloudy",
+      "rain",
+      "storm",
+      "fog",
+      "snow"
+    ],
+    "mood": [
+      "mysterious",
+      "eerie"
+    ],
+    "interior": true,
+    "focusY": 0.6,
+    "monochrome": false,
+    "title": "View from the Blue Grotto in Capri",
+    "artist": "Georg Emil Libert",
+    "year": "19th century",
+    "source": "https://commons.wikimedia.org/wiki/File:Georg_Emil_Libert_-_Parti_fra_den_blå_grotte_ved_Capri.png",
+    "license": "Public domain"
+  },
+  {
+    "file": "scenes/underdark/underdark-5.jpg",
+    "kind": "underdark",
+    "time": [
+      "dawn",
+      "day",
+      "dusk",
+      "night"
+    ],
+    "weather": [
+      "clear",
+      "cloudy",
+      "rain",
+      "storm",
+      "fog",
+      "snow"
+    ],
+    "mood": [
+      "mysterious",
+      "calm"
+    ],
+    "interior": true,
+    "focusY": 0.5,
+    "monochrome": true,
+    "title": "Postojna Cave, the Chapel with Bells and Organ",
+    "artist": "Franz von Kurz zum Thurn und Goldenstein",
+    "year": "1864",
+    "source": "https://commons.wikimedia.org/wiki/File:Franz_Kurz_zum_Thurn_und_Goldenstein_-_Postojnska_jama,_kapela_z_zvonovi_in_orglami.jpg",
+    "license": "Public domain"
+  }
+]
