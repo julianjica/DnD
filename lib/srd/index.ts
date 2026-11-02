@@ -24,14 +24,38 @@ import equipmentJson from "./data/equipment.json";
 import magicItemsJson from "./data/magic-items.json";
 import spellsJson from "./data/spells.json";
 import monstersJson from "./data/monsters.json";
+// Original subclasses written for DungeonHarness to fill the SRD's one-per-class gap.
+import hb_barbarian from "./data/homebrew/barbarian.json";
+import hb_bard from "./data/homebrew/bard.json";
+import hb_cleric from "./data/homebrew/cleric.json";
+import hb_druid from "./data/homebrew/druid.json";
+import hb_fighter from "./data/homebrew/fighter.json";
+import hb_monk from "./data/homebrew/monk.json";
+import hb_paladin from "./data/homebrew/paladin.json";
+import hb_ranger from "./data/homebrew/ranger.json";
+import hb_rogue from "./data/homebrew/rogue.json";
+import hb_sorcerer from "./data/homebrew/sorcerer.json";
+import hb_warlock from "./data/homebrew/warlock.json";
+import hb_wizard from "./data/homebrew/wizard.json";
 
 export * from "./types";
 
+function HOMEBREW_SUBCLASS_IDS(classId: string): string[] {
+	const raw = [hb_barbarian, hb_bard, hb_cleric, hb_druid, hb_fighter, hb_monk, hb_paladin, hb_ranger, hb_rogue, hb_sorcerer, hb_warlock, hb_wizard] as unknown as { subclasses: { index: string; classId: string }[] }[];
+	return raw.flatMap((h) => h.subclasses).filter((s) => s.classId === classId).map((s) => s.index);
+}
+
 // Casting through unknown keeps tsc from inferring huge literal types.
 export const SPECIES = speciesJson as unknown as SpeciesData[];
-export const CLASSES = classesJson as unknown as ClassData[];
-export const SUBCLASSES = subclassesJson as unknown as SubclassData[];
-export const FEATURES = featuresJson as unknown as FeatureData[];
+export const CLASSES = (classesJson as unknown as ClassData[]).map((c) => ({
+	...c,
+	// Offer the homebrew subclasses alongside the SRD one.
+	subclasses: [...c.subclasses, ...HOMEBREW_SUBCLASS_IDS(c.index)],
+}));
+type HomebrewFile = { subclasses: SubclassData[]; features: FeatureData[] };
+const HOMEBREW = [hb_barbarian, hb_bard, hb_cleric, hb_druid, hb_fighter, hb_monk, hb_paladin, hb_ranger, hb_rogue, hb_sorcerer, hb_warlock, hb_wizard] as unknown as HomebrewFile[];
+export const SUBCLASSES = [...(subclassesJson as unknown as SubclassData[]), ...HOMEBREW.flatMap((h) => h.subclasses.map((s) => ({ ...s, homebrew: true })))];
+export const FEATURES = [...(featuresJson as unknown as FeatureData[]), ...HOMEBREW.flatMap((h) => h.features)];
 export const BACKGROUNDS = backgroundsJson as unknown as BackgroundData[];
 export const FEATS = featsJson as unknown as FeatData[];
 export const SKILLS = skillsJson as unknown as SkillData[];

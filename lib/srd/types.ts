@@ -140,6 +140,8 @@ export interface SubclassData {
 	/** Always-prepared / expanded spells (domain, oath, circle, patron). */
 	spells: { spell: string; level: number; requires?: string }[];
 	specific: { level: number; values: Record<string, number> }[];
+	/** Original DungeonHarness content (not from the SRD). */
+	homebrew?: boolean;
 }
 
 export interface FeatureData {
@@ -153,6 +155,12 @@ export interface FeatureData {
 	parent?: string;
 	/** Choice offered by this feature (fighting style, expertise, favored enemy…). */
 	choice?: { choose: number; kind: "feature" | "expertise" | "string" | "invocation"; options: Ref[] };
+	/**
+	 * Limited uses (homebrew features). `max` is a number or a formula:
+	 * "prof" (proficiency bonus), "str|dex|con|int|wis|cha" (modifier, min 1),
+	 * "level" / "level/2" / "level/3" (class level, rounded down, min 1), or "N+cha" style sums.
+	 */
+	uses?: { max: number | string; recharge: "short" | "long" | "dawn" };
 }
 
 export interface BackgroundData {

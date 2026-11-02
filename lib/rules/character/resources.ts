@@ -6,6 +6,7 @@ import type { ActiveCondition, Character, ConditionId, DamageType, Feature, Roll
 import { abilityMod, roll, type Rng } from "../dice";
 import { characterDefenses, classLevelOf, classSpecific, hasFeature } from "./derived";
 import { featureGroup } from "./tables";
+import { getFeature } from "../../srd";
 
 function clone<T>(x: T): T {
 	return structuredClone(x);
@@ -72,8 +73,27 @@ export function featureUses(c: Character, featureId: string): Uses | undefined {
 		case "stroke-of-luck":
 			return { max: 1, recharge: "short" };
 		default:
-			return undefined;
+			return homebrewUses(c, featureId);
 	}
+}
+
+/** Uses declared in feature data (homebrew subclasses): number or a small formula. */
+function homebrewUses(c: Character, featureId: string): Uses | undefined {
+	const fd = getFeature(featureId);
+	if (!fd?.uses) return undefined;
+	const clsLevel = classLevelOf(c, fd.classId) || 1;
+	const prof = 2 + Math.floor((c.classes.reduce((n, k) => n + k.level, 0) - 1) / 4);
+	const term = (t: string): number => {
+		t = t.trim().toLowerCase();
+		if (/^\d+$/.test(t)) return Number(t);
+		if (t === "prof") return prof;
+		if (["str", "dex", "con", "int", "wis", "cha"].includes(t)) return Math.max(1, abilityMod(c.abilities[t as keyof typeof c.abilities]));
+		const lv = t.match(/^level(?:\/(\d+))?$/);
+		if (lv) return Math.max(1, Math.floor(clsLevel / Number(lv[1] ?? 1)));
+		return 0;
+	};
+	const max = typeof fd.uses.max === "number" ? fd.uses.max : fd.uses.max.split("+").reduce((n, t) => n + term(t), 0);
+	return { max: Math.max(1, max), recharge: fd.uses.recharge };
 }
 
 /** Recomputes `uses.max` for every feature (after level-up / ability change), keeping `used`. */
