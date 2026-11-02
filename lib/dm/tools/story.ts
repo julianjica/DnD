@@ -3,7 +3,7 @@ import { roll, signed } from "../../rules/dice";
 import { S, newId, tool, withState, type ToolFactory } from "../context";
 import { findItem } from "../resources";
 import { loadState } from "../../store/campaigns";
-import { appearanceFromText, applyAppearance, portraitFromAppearance, type Appearance } from "../../art/appearance";
+import { appearanceFromText, applyAppearance, expressionForDisposition, portraitFromAppearance, type Appearance } from "../../art/appearance";
 import { SFX_NAMES } from "../../audio/ambience";
 
 const SCENE_KINDS: SceneKind[] = ["tavern", "town", "forest", "dungeon", "cave", "mountain", "coast", "swamp", "desert", "castle", "temple", "camp", "road", "crypt", "plains", "ship", "underdark"];
@@ -170,8 +170,11 @@ const appearanceSchema = S.obj(
 		eyes: S.str(undefined, ["brown", "amber", "green", "blue", "grey", "gold", "red", "violet", "white"]),
 		headwear: S.str(undefined, ["none", "hood", "helmet", "circlet", "crown", "headband"]),
 		mark: S.str(undefined, ["none", "scar", "eyepatch", "warpaint", "earrings", "freckles"]),
-		clothing: S.str(undefined, ["tunic", "armor", "robe", "leather", "cloak"]),
+		clothing: S.str(undefined, ["tunic", "armor", "robe", "leather", "cloak", "noble"]),
 		clothingColor: S.str(undefined, ["red", "green", "blue", "brown", "purple", "grey", "black", "white", "gold"]),
+		expression: S.str("Their usual face", ["neutral", "smile", "smirk", "stern", "worried", "angry", "sad"]),
+		build: S.str(undefined, ["slim", "average", "broad", "heavy"]),
+		signature: S.str("One memorable item shown by the shoulder (innkeeper → mug, priest → holy_symbol, scribe → quill, mage → wizard_hat/staff…)", ["none", "mug", "holy_symbol", "staff", "book", "pipe", "lantern", "dagger", "quill", "feathered_hat", "wizard_hat", "flower", "bird", "amulet"]),
 	},
 	[],
 );
@@ -208,7 +211,7 @@ export const addNpc = tool<{ name: string; role: string; speciesId?: string; dis
 				alive: true,
 				locationId: state.world.currentLocationId,
 				// Explicit appearance wins; anything unstated is read from the description.
-				portrait: portraitFromAppearance(rng, a.speciesId ?? "human", { age: "adult", ...appearanceFromText(`${a.role}. ${a.description}`), ...(a.appearance ?? {}) }),
+				portrait: portraitFromAppearance(rng, a.speciesId ?? "human", { age: "adult", expression: expressionForDisposition(a.disposition), ...appearanceFromText(`${a.role}. ${a.description}`), ...(a.appearance ?? {}) }),
 				firstMetDay: state.time.day,
 			};
 			if (a.present) state.scene.npcIds = [...state.scene.npcIds, id];

@@ -60,7 +60,10 @@ export function PortraitCustomizer({ spec, speciesId, name, onChange }: { spec: 
 				</div>
 				<SelectField label={t("portrait.gender")} pretty={pretty} value={spec.gender ?? (portraitTraits(spec, speciesId).female ? "female" : "male")} values={["female", "male"]} onPick={(v) => set({ gender: v as "female" | "male", ...(v === "female" ? { facialHair: "none" } : {}) })} />
 				<SelectField label={t("portrait.age")} pretty={pretty} value={ageKey(spec.age ?? portraitTraits(spec, speciesId).age)} values={Object.keys(AGE_VALUES)} onPick={(v) => set({ age: AGE_VALUES[v] })} />
-				<SelectField label={t("portrait.outfit")} pretty={pretty} value={spec.clothingStyle ?? portraitTraits(spec, speciesId).clothingStyle} values={["tunic", "armor", "robe", "leather", "cloak"]} onPick={(v) => set({ clothingStyle: v as PortraitSpec["clothingStyle"] })} />
+				<SelectField label={t("portrait.outfit")} pretty={pretty} value={spec.clothingStyle ?? portraitTraits(spec, speciesId).clothingStyle} values={portraitOptions.clothingStyle} onPick={(v) => set({ clothingStyle: v as PortraitSpec["clothingStyle"] })} />
+				<SelectField label={t("portrait.expression")} pretty={pretty} value={spec.expression ?? portraitTraits(spec, speciesId).expression} values={portraitOptions.expression} onPick={(v) => set({ expression: v as PortraitSpec["expression"] })} />
+				<SelectField label={t("portrait.build")} pretty={pretty} value={spec.build ?? portraitTraits(spec, speciesId).build} values={portraitOptions.build} onPick={(v) => set({ build: v as PortraitSpec["build"] })} />
+				<SelectField label={t("portrait.signature")} pretty={pretty} value={spec.signature ?? "none"} values={portraitOptions.signature} onPick={(v) => set({ signature: v as PortraitSpec["signature"] })} />
 				<SelectField label={t("portrait.hairStyle")} pretty={pretty} value={spec.hairStyle} values={portraitOptions.hairStyle} onPick={(v) => set({ hairStyle: v })} />
 				<SelectField label={t("portrait.facialHair")} pretty={pretty} value={spec.facialHair ?? "none"} values={portraitOptions.facialHair} onPick={(v) => set({ facialHair: v })} />
 				<SelectField label={t("portrait.accessory")} pretty={pretty} value={spec.accessory ?? "none"} values={portraitOptions.accessory} onPick={(v) => set({ accessory: v })} />

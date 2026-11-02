@@ -193,9 +193,15 @@ export interface PortraitSpec {
 	gender?: "female" | "male";
 	/** 0 young … 1 old. */
 	age?: number;
-	clothingStyle?: "tunic" | "armor" | "robe" | "leather" | "cloak";
+	clothingStyle?: "tunic" | "armor" | "robe" | "leather" | "cloak" | "noble";
 	/** Clothing color (hex). */
 	clothing?: string;
+	/** Facial expression; when absent it is derived from the seed. */
+	expression?: "neutral" | "smile" | "smirk" | "stern" | "worried" | "angry" | "sad";
+	/** Body build shown in the neck and shoulders; derived from species + seed when absent. */
+	build?: "slim" | "average" | "broad" | "heavy";
+	/** One memorable item in frame (mug, holy symbol, staff…); "none"/absent = nothing. */
+	signature?: "none" | "mug" | "holy_symbol" | "staff" | "book" | "pipe" | "lantern" | "dagger" | "quill" | "feathered_hat" | "wizard_hat" | "flower" | "bird" | "amulet";
 }
 
 export interface Character {
