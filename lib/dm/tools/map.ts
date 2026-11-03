@@ -1,3 +1,4 @@
+import { rulesetOf } from "../../rules/ruleset";
 import type { EntityKind, GameState, GridMap, LocationKind, MapKind, TerrainKind, Tile, WorldLocation } from "../../game/types";
 import { climateForPreset, drawMap, FEATURE_SPRITES, generateMap, LEGEND_TEXT, MAP_KINDS, placeEntity, revealAround, WORLD_ASPECT, type Climate, type DrawKey } from "../../maps";
 import { addTerrainFeature, BEARING, betweenFromText, compassOf, daysForDistance, directionFromText, distanceForDays, fits, mapDistance, placeFor, REGION_SIZE, retimeRoutes, terrainFor, type Compass, type PlaceSpec } from "../../maps/geography";
@@ -33,6 +34,7 @@ function activeMap(state: GameState): GridMap {
 
 /** Makes `map` the active map of the current location, keeping only the 12 most recent maps. */
 function addMap(state: GameState, map: GridMap) {
+	if (rulesetOf(state.settings) === "zombie") map.theme = "modern";
 	state.maps[map.id] = map;
 	state.activeMapId = map.id;
 	const loc = state.world.locations.find((l) => l.id === state.world.currentLocationId);
