@@ -323,6 +323,15 @@ export const en = {
 	"play.map.region": "Region",
 	"play.map.world": "World",
 	"play.map.regionOf": "Environs of {name}",
+	"play.map.min": "{n} min",
+	"play.map.h": "{n} h",
+	"play.map.hMin": "{h} h {m} min",
+	"play.map.town.subtitle": "Town map",
+	"play.map.town.onFoot": "{t} on foot",
+	"play.map.town.dam": "Dam",
+	"play.map.town.feature.t-west-ridge": "West Ridge",
+	"play.map.town.feature.t-pine-woods": "Pine Woods",
+	"play.map.town.feature.t-riverbend": "River Bend",
 } as const satisfies Record<string, string>;
 
 export const es: { [K in keyof typeof en]: string } = {
@@ -631,4 +640,13 @@ export const es: { [K in keyof typeof en]: string } = {
 	"play.map.region": "Región",
 	"play.map.world": "Mundo",
 	"play.map.regionOf": "Alrededores de {name}",
+	"play.map.min": "{n} min",
+	"play.map.h": "{n} h",
+	"play.map.hMin": "{h} h {m} min",
+	"play.map.town.subtitle": "Plano de la ciudad",
+	"play.map.town.onFoot": "{t} a pie",
+	"play.map.town.dam": "Presa",
+	"play.map.town.feature.t-west-ridge": "Cresta Oeste",
+	"play.map.town.feature.t-pine-woods": "Pinar",
+	"play.map.town.feature.t-riverbend": "Recodo del Río",
 };

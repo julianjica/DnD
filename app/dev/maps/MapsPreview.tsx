@@ -5,6 +5,8 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { GridMap, MapEntity, MapKind, WorldMap as WorldMapState } from "@/lib/game/types";
 import { generateMap, MAP_KINDS } from "@/lib/maps/generate";
 import { generateWorld, type Biome } from "@/lib/maps/world";
+import { kesslerFalls } from "@/lib/maps/kessler";
+import { useT } from "@/components/i18n/I18nProvider";
 import { computePlayerView, findFreeSquares, isPassable, revealAround, sqKey, type Point } from "@/lib/maps/grid";
 import type { MapFxEvent, TokenStatus } from "@/components/map/BattleMap";
 
@@ -93,7 +95,8 @@ function reachable(map: GridMap, occupied: Set<string>, from: Point, steps: numb
 }
 
 export default function MapsPreview() {
-	const [view, setView] = useState<MapKind | "world">("dungeon");
+	const [view, setView] = useState<MapKind | "world" | "kessler">("dungeon");
+	const { lang } = useT();
 	const [seed, setSeed] = useState(1234);
 	const [features, setFeatures] = useState<string[]>([]);
 	const [fog, setFog] = useState(true);
@@ -112,7 +115,7 @@ export default function MapsPreview() {
 		const q = new URLSearchParams(window.location.search);
 		const k = q.get("kind");
 		/* eslint-disable react-hooks/set-state-in-effect */
-		if (k && (MAP_KINDS as string[]).concat("world").includes(k)) setView(k as MapKind | "world");
+		if (k && (MAP_KINDS as string[]).concat("world", "kessler").includes(k)) setView(k as MapKind | "world" | "kessler");
 		if (q.get("seed")) setSeed(Number(q.get("seed")) >>> 0);
 		if (q.get("fog") === "0") setFog(false);
 		if (q.get("features")) setFeatures(q.get("features")!.split(","));
@@ -123,7 +126,7 @@ export default function MapsPreview() {
 		/* eslint-enable react-hooks/set-state-in-effect */
 	}, []);
 
-	const base = useMemo(() => (view === "world" ? null : generateMap({ kind: view, seed, features })), [view, seed, features]);
+	const base = useMemo(() => (view === "world" || view === "kessler" ? null : generateMap({ kind: view, seed, features })), [view, seed, features]);
 	type DemoState = { map: GridMap; entities: MapEntity[]; status: Record<string, TokenStatus> };
 	const [state, setState] = useState<DemoState | null>(null);
 	const [stateFor, setStateFor] = useState<GridMap | null>(null);
@@ -142,11 +145,12 @@ export default function MapsPreview() {
 	}
 
 	const world: WorldMapState | null = useMemo(() => {
+		if (view === "kessler") return kesslerFalls(seed, lang);
 		if (view !== "world") return null;
 		const w = generateWorld({ seed, biome });
 		// reveal everything nearby for the preview
 		return { ...w, locations: w.locations.map((l, i) => ({ ...l, discovered: l.discovered || i < 6 })), routes: w.routes.map((r) => ({ ...r, discovered: true })) };
-	}, [view, seed, biome]);
+	}, [view, seed, biome, lang]);
 
 	const occupied = useMemo(() => {
 		const s = new Set<string>();
@@ -215,7 +219,7 @@ export default function MapsPreview() {
 				<div>
 					<div className="mb-1 text-xs uppercase tracking-wide text-stone-500">Kind</div>
 					<div className="grid grid-cols-2 gap-1">
-						{[...MAP_KINDS, "world" as const].map((k) => (
+						{[...MAP_KINDS, "world" as const, "kessler" as const].map((k) => (
 							<button key={k} onClick={() => setView(k)} className={`rounded px-2 py-1 text-left capitalize ${view === k ? "bg-amber-700/60 text-amber-50" : "bg-white/5 hover:bg-white/10"}`}>
 								{k.replace("_", " ")}
 							</button>
@@ -231,7 +235,7 @@ export default function MapsPreview() {
 						<button className="rounded bg-white/5 px-2 hover:bg-white/10" title="Random" onClick={() => setSeed(Math.floor(Math.random() * 1e6))}>⚄</button>
 					</div>
 				</div>
-				{view === "world" ? (
+				{view === "world" || view === "kessler" ? (
 					<div>
 						<div className="mb-1 text-xs uppercase tracking-wide text-stone-500">Biome</div>
 						<div className="grid grid-cols-2 gap-1">
@@ -267,7 +271,7 @@ export default function MapsPreview() {
 				)}
 			</aside>
 			<main className="relative min-w-0 flex-1">
-				{view === "world" && world ? (
+				{(view === "world" || view === "kessler") && world ? (
 					<WorldMap world={world} onLocationClick={(l) => alert(`${l.name} (${l.kind})`)} />
 				) : state ? (
 					<BattleMap
