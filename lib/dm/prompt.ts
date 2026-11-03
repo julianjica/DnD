@@ -13,6 +13,7 @@ const PRESETS: Record<CampaignSettings["world"]["preset"], string> = {
 };
 
 const VERBOSITY = {
+	minimal: "MINIMAL narration: 1–3 short sentences per turn, about 60 words at most. State only what changed and what the player now perceives or must decide; no scene-setting flourishes, no recaps, no repeating what the UI shows (rolls, HP, damage numbers). NPCs speak one essential line. In combat, one sentence per action. This overrides any other wording here that asks for description.",
 	terse: "Keep narration short: 1–2 tight paragraphs per turn.",
 	balanced: "Narration of 2–3 paragraphs per turn; vivid but brisk.",
 	rich: "Rich, immersive narration (3–5 paragraphs) with sensory detail and NPC voice.",

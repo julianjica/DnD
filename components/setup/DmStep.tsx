@@ -41,6 +41,7 @@ export function DmStep({ draft, update, engines }: StepProps & { engines: Return
 							value={dm.verbosity}
 							onChange={(verbosity) => setDm({ verbosity })}
 							options={[
+								{ value: "minimal", label: te("verbosity", "minimal") },
 								{ value: "terse", label: te("verbosity", "terse") },
 								{ value: "balanced", label: te("verbosity", "balanced") },
 								{ value: "rich", label: te("verbosity", "rich") },

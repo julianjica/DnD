@@ -514,7 +514,7 @@ export interface CampaignSettings {
 		leveling: "xp" | "milestone";
 	};
 	dm: {
-		verbosity: "terse" | "balanced" | "rich";
+		verbosity: "minimal" | "terse" | "balanced" | "rich";
 		rulesStrictness: "loose" | "standard" | "strict";
 		combatFrequency: "low" | "medium" | "high";
 		persona?: string;

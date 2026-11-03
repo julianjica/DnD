@@ -250,6 +250,7 @@ export const en = {
 	"dm.language": "Narration language",
 	"dm.languageHint": "The language the DM narrates in. Defaults to the interface language.",
 
+	"enum.verbosity.minimal": "Minimal",
 	"enum.verbosity.terse": "Terse",
 	"enum.verbosity.balanced": "Balanced",
 	"enum.verbosity.rich": "Rich & descriptive",
@@ -809,6 +810,7 @@ export const es: { [K in keyof typeof en]: string } = {
 	"dm.language": "Idioma de la narración",
 	"dm.languageHint": "El idioma en el que narra el DM. Por defecto, el de la interfaz.",
 
+	"enum.verbosity.minimal": "Mínima",
 	"enum.verbosity.terse": "Concisa",
 	"enum.verbosity.balanced": "Equilibrada",
 	"enum.verbosity.rich": "Rica y descriptiva",

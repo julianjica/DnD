@@ -86,7 +86,7 @@ export function SettingsDrawer({ state, onClose, onSave }: { state: GameState; o
 					<Seg group="effort" value={s.engine.effort} options={EFFORTS} onChange={(effort) => set("engine", { effort })} />
 				</Field>
 				<Field label={t("play.set.narration")}>
-					<Seg group="verbosity" value={s.dm.verbosity} options={["terse", "balanced", "rich"] as const} onChange={(verbosity) => set("dm", { verbosity })} />
+					<Seg group="verbosity" value={s.dm.verbosity} options={["minimal", "terse", "balanced", "rich"] as const} onChange={(verbosity) => set("dm", { verbosity })} />
 				</Field>
 				<Field label={t("play.set.rules")}>
 					<Seg group="strictness" value={s.dm.rulesStrictness} options={["loose", "standard", "strict"] as const} onChange={(rulesStrictness) => set("dm", { rulesStrictness })} />
