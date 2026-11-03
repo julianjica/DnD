@@ -65,6 +65,7 @@ test("lookup_srd only offers the campaign's own ruleset", async () => {
 	assert.doesNotMatch(zMon, /\[monster\] Zombie —/);
 	assert.match(zMon, /Not yet: .*Runner from Day 21/);
 	assert.match((await call(z, "lookup_srd", { query: "runner" })).text, /NOT YET: appears on Day 21 \(now Day 0\)/);
+	assert.match((await call(z, "lookup_srd", { query: "z-brute", long: true })).text, /Actions detail: .*Ground Pound/);
 	assert.doesNotMatch((await call(z, "lookup_srd", { query: "fireball" })).text, /Fireball —/);
 	assert.match((await call(z, "lookup_srd", { query: "molotov" })).text, /^\[technique\] Molotov/);
 	assert.doesNotMatch((await call(z, "lookup_srd", { query: "item: longsword" })).text, /Longsword \(/);
@@ -169,4 +170,6 @@ test("a gunshot in combat spends a round and lands in the noise log", async () =
 	assert.match(log, /Gunshot: loud \(noise\)/);
 	assert.equal(st.character.inventory.find((i) => i.ref === "z-ammo-9mm")!.quantity, ammo - 1);
 	assert.deepEqual(m.combat.noiseLog(st).map((n) => [n.source, n.loudness, n.day]), [["9mm Pistol", 3, 1]]);
+	m.saveState(st);
+	assert.equal(m.combat.noiseLog(m.loadState(z)).length, 1, "the noise log persists");
 });

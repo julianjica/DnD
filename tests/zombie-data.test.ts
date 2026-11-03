@@ -137,8 +137,8 @@ test("monsters: shapes, CR/XP, tokens, the evolving dead and infectious bites", 
 });
 
 test("Spanish: every new name and description is translated in z1.json and dict.json", () => {
-	const z1 = JSON.parse(fs.readFileSync("lib/srd/es/z1.json", "utf8")) as Record<string, string>;
-	const dict = JSON.parse(fs.readFileSync("lib/srd/es/dict.json", "utf8")) as Record<string, string>;
+	const z1 = JSON.parse(fs.readFileSync(`${__dirname}/../lib/srd/es/z1.json`, "utf8")) as Record<string, string>;
+	const dict = JSON.parse(fs.readFileSync(`${__dirname}/../lib/srd/es/dict.json`, "utf8")) as Record<string, string>;
 	const texts: string[] = [];
 	for (const e of eq) texts.push(e.name, e.description!);
 	for (const t of tech) texts.push(t.name, t.description, ...(t.material ? [t.material] : []), ...(t.higherLevel ? [t.higherLevel] : []));

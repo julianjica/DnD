@@ -1,7 +1,7 @@
 import type { GameState, MonsterStats } from "../game/types";
 import { outbreakDay, rulesetOf, type Ruleset } from "../rules/ruleset";
 import {
-	EQUIPMENT, MONSTERS, SPECIES, getEquipment, getMagicItem, getMonster, getSpecies, getSpell, lookup, summarizeMonster, summarizeSpell, toIndex,
+	EQUIPMENT, MONSTERS, SPECIES, getEquipment, getMagicItem, getMonster, getSpecies, getSpell, lookup, toIndex,
 	type EquipmentData, type LookupHit,
 } from "../srd";
 
@@ -91,9 +91,8 @@ export function lookupForCampaign(state: Pick<GameState, "settings" | "time">, q
 	const hits = lookup(query, { limit: 400, long: false }).filter((h) => (hitRuleset(h) ?? rs) === rs).slice(0, limit);
 	const day = outbreakDay(state);
 	const lines = hits.map((h, i) => {
-		let summary = h.summary;
-		if (i === 0 && h.category === "monster") summary = summarizeMonster(getMonster(h.index)!, true);
-		else if (i === 0 && h.category === "spell") summary = summarizeSpell(getSpell(h.index)!, true);
+		// The best hit gets the long summary (an exact index lookup scores highest).
+		let summary = i === 0 ? (lookup(h.index, { category: h.category, limit: 1, long: true })[0]?.summary ?? h.summary) : h.summary;
 		if (rs === "zombie" && h.category === "monster") {
 			const ad = getMonster(h.index)?.appearsDay;
 			if (ad !== undefined) summary += ad > day ? ` NOT YET: appears on Day ${ad} (now Day ${day}).` : ` Appears from Day ${ad}.`;
