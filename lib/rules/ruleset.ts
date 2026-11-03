@@ -23,3 +23,12 @@ export interface RulesetTagged {
 export function offeredIn<T extends RulesetTagged>(list: readonly T[], rs: Ruleset): T[] {
 	return list.filter((x) => (x.ruleset ?? "fantasy") === rs);
 }
+
+/**
+ * The Quiet: days since the outbreak. Zombie campaigns start on game day 1 at
+ * night, the outbreak night, which is Day 0; so outbreak day = time.day - 1.
+ * Used to decide which variants of the dead exist yet (MonsterStats.appearsDay).
+ */
+export function outbreakDay(state: { time: { day: number } }): number {
+	return Math.max(0, state.time.day - 1);
+}

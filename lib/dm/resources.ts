@@ -2,7 +2,9 @@ import type { Character, Feature, InventoryItem, PlayerCombatAction, SpellInfo }
 import { abilityMod, roll } from "../rules/dice";
 import { RulesError, slotsAvailable, spendSlot, useFeature as spendFeature, heal } from "../rules/character";
 import { builtinFeatureFor, builtinItem, pickByKey } from "../rules/combat";
-import { getSpell } from "../srd";
+import { getEquipment, getSpell } from "../srd";
+import { rulesetOf } from "../rules/ruleset";
+import { missingSupplies, suppliesText, spendSupplies } from "../rules/combat/supplies";
 import type { StateTxn } from "./context";
 import { isPcTurn, playerCombatAction } from "./combat";
 
@@ -167,6 +169,13 @@ export function castSpell(tx: StateTxn, a: CastSpellInput): string {
 	if (!own.includes(spell.index) && !(ritual && knownSpells(c).includes(spell.index)))
 		throw new RulesError(`${c.name} doesn't know/hasn't prepared ${spell.name}. Castable: ${own.join(", ")}.`);
 	if (a.ritual && !spell.ritual) throw new RulesError(`${spell.name} is not a ritual.`);
+	const rs = rulesetOf(tx.state.settings);
+	if ((spell.ruleset ?? "fantasy") !== rs) throw new RulesError(`${spell.name} doesn't exist in this campaign (${rs === "zombie" ? "The Quiet uses techniques, no magic" : "a fantasy campaign"}).`);
+	// Techniques with components: everything must be in the inventory (checked before any slot is spent).
+	const nameOf = (ref: string) => getEquipment(ref)?.name;
+	const needs = spell.consumes ?? [];
+	const missing = missingSupplies(c, needs, nameOf);
+	if (missing.length) throw new RulesError(`${spell.name} needs ${needs.map((n) => `${n.qty} × ${nameOf(n.ref) ?? n.ref}`).join(", ")}. Missing: ${missing.join(", ")}. Not used.`);
 	let slot = 0;
 	if (spell.level > 0 && !ritual) {
 		const want = a.slotLevel ?? lowestSlot(c, spell.level);
@@ -180,7 +189,11 @@ export function castSpell(tx: StateTxn, a: CastSpellInput): string {
 	}
 	if (slot) tx.state.character = spendSlot(tx.state.character, slot);
 	const ch = tx.state.character;
-	const lines = [`${ch.name} casts ${spell.name}${slot ? ` (level ${slot} slot)` : ritual ? " as a ritual (no slot, +10 min)" : " (cantrip)"}. Slots now: ${slotsLeft(ch)}.`];
+	const lines = [`${ch.name} ${rs === "zombie" ? "uses" : "casts"} ${spell.name}${slot ? ` (level ${slot} slot)` : ritual ? " as a ritual (no slot, +10 min)" : " (cantrip)"}. Slots now: ${slotsLeft(ch)}.`];
+	if (needs.length) {
+		spendSupplies(ch, needs, nameOf);
+		lines.push(`Used up ${suppliesText(ch, needs, nameOf)}.`);
+	}
 	if (spell.concentration) {
 		if (ch.concentration) lines.push(`Concentration on ${getSpell(ch.concentration.spell)?.name ?? ch.concentration.spell} ends.`);
 		ch.concentration = { spell: spell.index };

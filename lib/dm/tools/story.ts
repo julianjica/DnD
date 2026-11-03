@@ -2,6 +2,8 @@ import type { AmbienceTrack, GameState, InventoryItem, Mood, SceneKind, TimeOfDa
 import { roll, signed } from "../../rules/dice";
 import { S, newId, tool, withState, type ToolFactory } from "../context";
 import { findItem } from "../resources";
+import { rulesetOf, type Ruleset } from "../../rules/ruleset";
+import { assertItemRef } from "../content";
 import { loadState } from "../../store/campaigns";
 import { appearanceFromText, applyAppearance, portraitFromAppearance, type Appearance } from "../../art/appearance";
 import { SFX_NAMES } from "../../audio/ambience";
@@ -304,7 +306,7 @@ export const giveItem = tool<{ name: string; quantity?: number; ref?: string; de
 		{
 			name: S.str(),
 			quantity: S.int(undefined, 1),
-			ref: S.str("SRD equipment or magic item index, e.g. 'potion-of-healing', 'longsword'"),
+			ref: S.str("Equipment or magic item index from lookup_srd, e.g. 'potion-of-healing', 'longsword' (fantasy) or 'z-bandage', 'z-ammo-9mm' (zombie; ammo quantity = rounds)"),
 			description: S.str(),
 			category: S.str("weapon, armor, shield, gear, potion, scroll, magic, treasure, key, quest"),
 		},
@@ -312,12 +314,14 @@ export const giveItem = tool<{ name: string; quantity?: number; ref?: string; de
 	),
 	async (a, ctx) =>
 		withState(ctx, ({ state }) => {
+			const rs = rulesetOf(state.settings);
+			assertItemRef(rs, a.ref);
 			const qty = a.quantity ?? 1;
 			const existing = state.character.inventory.find((i) => i.name.toLowerCase() === a.name.toLowerCase() && !i.weapon && !i.armor);
 			if (existing) existing.quantity += qty;
 			else {
 				const item: InventoryItem = { id: newId("it"), ref: a.ref, name: a.name, quantity: qty, description: a.description, category: a.category ?? "gear" };
-				enrichItem(item);
+				enrichItem(item, rs);
 				state.character.inventory.push(item);
 			}
 			ctx.emit({ type: "fx", fx: { kind: "sfx", sound: "gem" } });
@@ -431,8 +435,8 @@ export function modText(n: number) {
 }
 
 /** Fills weapon/armor stats from the SRD when `ref` is known. Implemented in items.ts. */
-let enrichItem: (item: InventoryItem) => void = () => undefined;
-export function setItemEnricher(fn: (item: InventoryItem) => void) {
+let enrichItem: (item: InventoryItem, rs: Ruleset) => void = () => undefined;
+export function setItemEnricher(fn: (item: InventoryItem, rs: Ruleset) => void) {
 	enrichItem = fn;
 }
 

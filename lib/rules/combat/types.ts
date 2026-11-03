@@ -78,7 +78,9 @@ export type CombatEvent =
 	| { type: "added"; combatantId: string }
 	| { type: "combat_ended"; status: Encounter["status"]; xp: number }
 	/** Something the code cannot adjudicate; the DM should narrate/resolve it. */
-	| { type: "needs_dm"; text: string };
+	| { type: "needs_dm"; text: string }
+	/** A loud action (a gunshot from a "loud" weapon). Phase-2 hook for The Quiet's noise rules. */
+	| { type: "noise"; combatantId: string; source: string; loudness: number };
 
 export interface CombatResult extends CombatState {
 	ok: boolean;
@@ -142,6 +144,11 @@ export interface CombatOptions {
 	profile?: PcCombatProfile;
 	/** Resolve spell index → SpellInfo for `cast` actions. */
 	spells?: Record<string, SpellInfo> | ((index: string) => SpellInfo | undefined);
+	/**
+	 * Equipment lookup (index → data). Lets PC weapon attacks use up ammunition:
+	 * a weapon whose entry names an `ammo` item spends one per attack.
+	 */
+	equipment?: (index: string) => { name: string; ammo?: string } | undefined;
 	/** Item hook; return undefined to fall back to the built-ins (healing potions). */
 	onUseItem?: (item: InventoryItem, state: CombatState) => ItemUseOutcome | undefined;
 	/** Feature hook; return undefined to fall back to built-ins (Second Wind, Action Surge). */

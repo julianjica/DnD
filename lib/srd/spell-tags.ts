@@ -126,6 +126,25 @@ export const CURATED_SPELL_TAGS: Record<string, SpellTag[]> = {
 	"meld-into-stone": [D("youDisSome", false)],
 	// Mentions advantage only as a generic reroll option
 	wish: [],
+	// The Quiet: techniques (lib/srd/data/zombie/techniques.json)
+	"t-taunt": [D("targetNextAttackDis")],
+	"t-mark-target": [A("yourChecks")],
+	"t-second-gear": [A("targetSaves")],
+	"t-sweet-talk": [A("saveAdvIfFighting", false)],
+	"t-animal-whisperer": [A("targetSaves", false)],
+	"t-flashbang": [C("blinded")],
+	"t-flashlight-glare": [C("blinded")],
+	"t-pepper-spray": [C("blinded")],
+	"t-snare": [C("restrained")],
+	"t-cuff-them": [C("restrained")],
+	"t-tripwire": [C("prone")],
+	"t-tackle": [C("prone")],
+	"t-bowl-them-over": [C("prone")],
+	"t-sedative": [C("unconscious")],
+	"t-lull": [C("unconscious")],
+	"t-talk-down": [C("paralyzed")],
+	"t-spread-panic": [C("frightened")],
+	"t-mad-dog-stare": [C("frightened")],
 };
 
 /** Sentences of `text` that mention (dis)advantage. */

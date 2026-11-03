@@ -2,7 +2,8 @@ import type { Ability } from "../../game/types";
 import { roll, signed } from "../../rules/dice";
 import { canLevelUp, checkBreakdown, longRest, shortRest } from "../../rules/character";
 import { SKILL_ABILITY } from "../../rules/character/tables";
-import { lookupText } from "../../srd";
+import { loadState } from "../../store/campaigns";
+import { lookupForCampaign } from "../content";
 import { abilityMod } from "../../rules/dice";
 import { S, tool, withState, type ToolFactory } from "../context";
 
@@ -121,9 +122,9 @@ export const grantLevelUp = tool<{ reason: string }>(
 
 export const lookupSrd = tool<{ query: string; long?: boolean }>(
 	"lookup_srd",
-	"Search the 5e SRD (monsters, spells, items, classes, features, conditions, rules). Prefix with 'monster:', 'spell:', 'item:' to narrow. Use to find monster indices for start_combat.",
+	"Search this campaign's rules content (monsters, spells or techniques, items, classes, features, conditions, rules); only content of the campaign's ruleset is returned. Prefix with 'monster:', 'spell:', 'item:' to narrow. Use to find monster indices for start_combat.",
 	S.obj({ query: S.str(), long: S.bool("Full text of the best match") }, ["query"]),
-	async (a) => lookupText(a.query, a.long ? 1 : 5) || "No match.",
+	async (a, ctx) => lookupForCampaign(loadState(ctx.campaignId), a.query, a.long ? 1 : 5) || "No match.",
 );
 
 export const CHARACTER_TOOLS: ToolFactory[] = [abilityCheck, savingThrow, shortRestTool, longRestTool, awardXp, grantLevelUp, lookupSrd];

@@ -12,8 +12,9 @@ test("data files are present and under 6 MB total", () => {
 	const dir = join(__dirname, "..", "lib", "srd", "data");
 	const total = readdirSync(dir).reduce((n, f) => n + statSync(join(dir, f)).size, 0);
 	assert.ok(total < 6 * 1024 * 1024, `total ${total}`);
-	assert.equal(MONSTERS.length, 334);
-	assert.equal(SPELLS.length, 319);
+	// SRD content only (The Quiet's zombie-marked entries are merged into the same lists).
+	assert.equal(MONSTERS.filter((x) => !x.ruleset).length, 334);
+	assert.equal(SPELLS.filter((x) => !x.ruleset).length, 319);
 	assert.equal(CLASSES.length, 12);
 });
 

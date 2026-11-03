@@ -1,13 +1,34 @@
 import type { GameState, PlayerCombatAction } from "../game/types";
 import type { Rng } from "../rules/dice";
 import { applyPlayerAction, type CombatOptions, type CombatResult, type CombatState } from "../rules/combat";
-import { getSpell } from "../srd";
+import { getEquipment, getSpell } from "../srd";
 import { pcCombatProfile } from "./derived";
 import type { StateTxn } from "./context";
 
 /** Combat options bound to the current character and the SRD. */
 export function combatOpts(state: GameState): CombatOptions {
-	return { profile: pcCombatProfile(state.character), spells: (index: string) => getSpell(index) };
+	return { profile: pcCombatProfile(state.character), spells: (index: string) => getSpell(index), equipment: (index: string) => getEquipment(index) };
+}
+
+/**
+ * The Quiet, Phase-2 hook: loud actions (gunshots) are appended here with the
+ * game time so the noise rules (docs/zombie.md §5) can read them later. Kept
+ * off the GameState type until Phase 2 defines the noise model; capped.
+ */
+export interface NoiseEntry {
+	day: number;
+	hour: number;
+	minute: number;
+	source: string;
+	loudness: number;
+}
+export function noiseLog(state: GameState): NoiseEntry[] {
+	return (state as GameState & { noiseLog?: NoiseEntry[] }).noiseLog ?? [];
+}
+function recordNoise(state: GameState, source: string, loudness: number): void {
+	const s = state as GameState & { noiseLog?: NoiseEntry[] };
+	const { day, hour, minute } = state.time;
+	s.noiseLog = [...(s.noiseLog ?? []), { day, hour, minute, source, loudness }].slice(-50);
 }
 
 export function combatState(state: GameState): CombatState {
@@ -36,6 +57,7 @@ export function applyCombatResult(tx: StateTxn, res: CombatResult): string {
 		else if (ev.type === "attack" && ev.hit) tx.fx({ kind: "sfx", sound: "sword" });
 		else if (ev.type === "spell_cast") tx.fx({ kind: "sfx", sound: "spell" });
 		else if (ev.type === "death") tx.fx({ kind: "sfx", sound: "death" });
+		else if (ev.type === "noise") recordNoise(state, ev.source, ev.loudness);
 	}
 	if (res.encounter.status !== "active") {
 		state.mode = "explore";

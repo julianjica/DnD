@@ -23,6 +23,7 @@ import { areHostile, canSee, coverBetween, distanceFeet, entityFor, footprintOf,
 import { effectiveSpeed, moveAlong } from "./movement";
 import { characterLevel, isRangedWeapon, pcAttackProfile } from "./profile";
 import { resolveSpell } from "./spells";
+import { missingSupplies, suppliesText, spendSupplies } from "./supplies";
 import type { CombatOptions, CombatResult, CombatState, FeatureUseOutcome, ItemUseOutcome } from "./types";
 
 type Cost = "action" | "bonus" | "free" | "reaction";
@@ -213,8 +214,22 @@ function doAction(ctx: Ctx, action: PlayerCombatAction): void {
 				spend(pc, "action", "Attack");
 				pc.turn.attacksLeft = Math.max(0, profile.attacksPerAction - 1);
 			}
+			// Weapons whose equipment entry names an `ammo` item use one up per attack (a miss too).
+			const ammoRef = item?.ref ? ctx.opts.equipment?.(item.ref)?.ammo : undefined;
+			const nameOf = (ref: string) => ctx.opts.equipment?.(ref)?.name;
+			if (ammoRef) {
+				const need = [{ ref: ammoRef, qty: 1 }];
+				if (missingSupplies(ch, need, nameOf).length) fail(`Out of ${nameOf(ammoRef) ?? ammoRef}: ${item!.name} can't fire.`);
+				spendSupplies(ch, need, nameOf);
+			}
 			setFlag(pc, "__turn_attacked");
 			performAttack(ctx, pc.id, t.id, ap);
+			if (ammoRef) say(ctx, `Used ${suppliesText(ch, [{ ref: ammoRef, qty: 1 }], nameOf)}.`);
+			// The Quiet: "loud" weapons (firearms) make noise. Phase-2 hook: recorded in GameState.noiseLog by lib/dm/combat.ts.
+			if (props.includes("loud")) {
+				say(ctx, `Gunshot: loud (noise).`);
+				emit(ctx, { type: "noise", combatantId: pc.id, source: item!.name, loudness: 3 });
+			}
 			return;
 		}
 		case "cast": {
@@ -239,6 +254,14 @@ function doAction(ctx: Ctx, action: PlayerCombatAction): void {
 					sc.pact.used += 1;
 					emit(ctx, { type: "slot_used", level: slotLevel, pact: true });
 				} else fail(`No level ${slotLevel} spell slots left.`);
+			}
+			// Techniques with components use them up from the inventory.
+			if (spell.consumes?.length) {
+				const nameOf = (ref: string) => ctx.opts.equipment?.(ref)?.name;
+				const missing = missingSupplies(ch, spell.consumes, nameOf);
+				if (missing.length) fail(`${spell.name} needs ${spell.consumes.map((n) => `${n.qty} × ${nameOf(n.ref) ?? n.ref}`).join(", ")}. Missing: ${missing.join(", ")}.`);
+				spendSupplies(ch, spell.consumes, nameOf);
+				say(ctx, `${spell.name} uses up ${suppliesText(ch, spell.consumes, nameOf)}.`);
 			}
 			const ability = profile.spellcastingAbility ?? "int";
 			const mod = abilityMod(ch.abilities[ability]);

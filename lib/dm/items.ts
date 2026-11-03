@@ -1,17 +1,23 @@
 import type { InventoryItem } from "../game/types";
 import { itemFromEquipment } from "../rules/character";
-import { getEquipment, getMagicItem } from "../srd";
+import { getMagicItem } from "../srd";
+import type { Ruleset } from "../rules/ruleset";
+import { equipmentForCampaign } from "./content";
 
-/** Fills weapon/armor stats and descriptions from the SRD when `ref` (or the name) matches. */
-export function enrichItem(item: InventoryItem): void {
-	const ref = item.ref ?? item.name;
-	const eq = getEquipment(ref);
+/**
+ * Fills weapon/armor stats and descriptions from the campaign's own content
+ * when `ref` (or the name) matches: fantasy campaigns use the SRD, zombie
+ * campaigns only modern gear (no magic items).
+ */
+export function enrichItem(item: InventoryItem, rs: Ruleset = "fantasy"): void {
+	const eq = equipmentForCampaign(rs, item.ref, item.name);
 	if (eq) {
 		const base = itemFromEquipment(eq.index, item.quantity, item.id);
 		Object.assign(item, { ...base, name: item.name || base.name, quantity: item.quantity, description: item.description ?? base.description });
 		return;
 	}
-	const magic = getMagicItem(ref) as { index: string; name: string; description?: string; desc?: string; rarity?: string } | undefined;
+	if (rs === "zombie") return;
+	const magic = getMagicItem(item.ref ?? item.name) as { index: string; name: string; description?: string; desc?: string; rarity?: string } | undefined;
 	if (magic) {
 		item.ref = magic.index;
 		item.description ??= magic.description ?? magic.desc;

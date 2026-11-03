@@ -14,7 +14,7 @@ import {
 	startCombat,
 	type MonsterSpawn,
 } from "../../rules/combat";
-import { getMonster } from "../../srd";
+import { monsterForCampaign } from "../content";
 import { placeEntity, revealAround } from "../../maps";
 import { SIGHT_RADIUS } from "./map";
 import { checkBudget } from "../../rules/encounter-budget";
@@ -44,7 +44,7 @@ interface SpawnArg {
 const spawnSchema = S.arr(
 	S.obj(
 		{
-			monster: S.str("SRD monster index (lookup_srd to find), e.g. 'goblin', 'wolf', 'bandit-captain'"),
+			monster: S.str("Monster index from lookup_srd, e.g. 'goblin', 'wolf' (fantasy) or 'z-shambler', 'z-raider-thug' (zombie)"),
 			count: S.int(undefined, 1, 20),
 			name: S.str("Custom display name (e.g. an NPC's name)"),
 			x: S.int("Place near this square"),
@@ -62,8 +62,8 @@ const spawnSchema = S.arr(
 function toSpawns(state: GameState, args: SpawnArg[]): MonsterSpawn[] {
 	const out: MonsterSpawn[] = [];
 	for (const a of args) {
-		const stats = getMonster(a.monster);
-		if (!stats) throw new Error(`Unknown SRD monster '${a.monster}'. Use lookup_srd.`);
+		// Only this campaign's ruleset; in The Quiet only the variants of the dead that exist by now.
+		const stats = monsterForCampaign(state, a.monster);
 		for (let i = 0; i < (a.count ?? 1); i++) {
 			out.push({
 				stats,
