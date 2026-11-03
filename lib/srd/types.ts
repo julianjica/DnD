@@ -40,6 +40,8 @@ export interface SubspeciesData {
 
 export interface SpeciesData {
 	index: string;
+	/** Content set ("zombie" = an origin of The Quiet); absent = SRD fantasy. */
+	ruleset?: "fantasy" | "zombie";
 	name: string;
 	speed: number;
 	size: Size;
@@ -213,6 +215,10 @@ export interface SimpleEntry {
 
 export interface EquipmentData {
 	index: string;
+	/** Content set ("zombie" = modern gear of The Quiet); absent = SRD fantasy. */
+	ruleset?: "fantasy" | "zombie";
+	/** Firearms/bows: equipment index of the ammunition one attack uses up. */
+	ammo?: string;
 	name: string;
 	/** "weapon" | "armor" | "gear" | "tool" | "pack" | "ammunition" | "mount" | "vehicle" | "focus" */
 	category: string;

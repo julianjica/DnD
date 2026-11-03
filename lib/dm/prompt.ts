@@ -1,4 +1,16 @@
+import { rulesetOf } from "../rules/ruleset";
 import type { CampaignSettings } from "../game/types";
+
+/** "The Quiet": the zombie ruleset's setting canon and rules for the DM (docs/zombie.md). */
+const ZOMBIE_SETTING = `THE QUIET — a modern zombie apocalypse, survival horror. NO MAGIC exists. 5e rules underneath, reskinned:
+- Classes are pre-apocalypse PROFESSIONS (tools still take class ids): barbarian=Firefighter, bard=Radio Host, cleric=Nurse, druid=Farmer/Vet, fighter=Soldier/Veteran, monk=Martial-Arts Coach, paladin=Police Officer, ranger=Hunter, rogue=Locksmith/Petty Thief, sorcerer=Athlete, warlock=Ex-Con (owes "the Connection"), wizard=Chemistry Teacher/Engineer. Always call them by profession and call class features by their modern names from the sheet (Rage=Adrenaline, Sneak Attack=Cheap Shot, Lay on Hands=First Responder, Ki=Focus, Bardic Inspiration=Pep Talk, Channel Divinity=Triage…).
+- "Spells" are TECHNIQUES (practical skills, improvised devices, medicine). Cast them with cast_spell as usual; some use up components (bottle, gasoline, rag, medkit…) and fail without them. Never describe anything supernatural.
+- Species are ORIGINS (everyone is human). Monsters are the dead, animals and other survivors — only from the zombie bestiary (lookup_srd returns it; the dead evolve: newer variants exist only after enough days have passed).
+- Setting: Kessler Falls, a river-valley town of ~38,000 in a country never named (use plain English place names; never name the country, state or national institutions). Late October, first snow a week away. Districts: Downtown/Main St (police station, City Hall, St. Agnes church, Rosie's Diner, Hale's Pharmacy, Bijou cinema, bus depot), St. Brigid's Regional Hospital on the hill (ground zero), Hollis State College (library tower; science building with the Ventara Biologics lab wing), Old Mill District (river, dam, mills, rail yard), Riverside Mall & Route 9 interchange (big-box store, gas station, motel), Pinecrest suburbs (cul-de-sacs, school, pool), county farms (Granger farm, orchards, silo, feed store), and at the edges the armory, Kessler County Correctional, water treatment plant, radio tower on Bald Hill and the two bridges.
+- Canon (reveal slowly, never dump): Ventara ran a quiet trial of a neuro-regenerative drug, LAZARUS-7, on paid student volunteers. Day 0 (a Monday) three volunteers collapsed, "died" at St. Brigid's ER and got up; the hospital fell in one night. Day 2 the military seals the bridges and highway (Operation Tollgate) and shoots anyone approaching; Day 5 the power grid fails; Day 9 the cordon goes silent. A voice on 101.7 FM from the Bald Hill tower reads names and coordinates at 3 a.m. Some bitten turn in minutes, others in days. Is there a cure in the lab? What happened to the cordon?
+- Factions (introduce over time; the living are as dangerous as the dead): the Precinct (Sgt. Dana Ruiz's last officers in the police station; armed, paranoid), the Fold (Pastor Elias Crane's congregation at St. Agnes; the dead are judgment), the Route 9 Boys (raiders at the motel and gas station; fuel, guns, trade in people), the Library (students and faculty in the library tower; knowledge, no food, a Ventara secret), the Grangers (farm family; the only reliable food; trust no one).
+- Play starts on DAY 0, the outbreak night: the player starts ALONE, in ordinary life breaking apart. Companions and a base come later, only through the story.
+- Survival horror: dread, scarcity, hard moral choices. Guns are SCARCE and ammo scarcer (police, the armory, a few hunters' homes); firearms are LOUD and draw the dead. Bites can infect (no known cure; amputating a bitten limb within an hour stops it). Food, water, rest in a secured place, cold and darkness all matter. Let consequences land; death is possible.`;
 
 const PRESETS: Record<CampaignSettings["world"]["preset"], string> = {
 	classic_high_fantasy: "Classic high fantasy: kingdoms, ancient ruins, dragons, wizards' towers, heroic quests.",
@@ -9,6 +21,7 @@ const PRESETS: Record<CampaignSettings["world"]["preset"], string> = {
 	arctic: "Frozen north: endless winter, survival against the cold, frost giants, ancient things beneath the ice.",
 	desert_kingdoms: "Desert kingdoms: caravan cities, genies, sun-scorched tombs, sandstorms and scheming viziers.",
 	fey_wilds: "The Feywild: whimsical and dangerous, bargains with archfey, shifting forests, dream logic with teeth.",
+	zombie_outbreak: ZOMBIE_SETTING,
 	custom: "",
 };
 
@@ -56,7 +69,8 @@ export function languageRule(lang: CampaignSettings["language"]): string {
 
 export function buildSystemPrompt(s: CampaignSettings): string {
 	const world = s.world.preset === "custom" ? s.world.customText ?? "" : `${PRESETS[s.world.preset]}${s.world.customText ? `\nPlayer additions: ${s.world.customText}` : ""}`;
-	return `You are the Dungeon Master of a solo Dungeons & Dragons 5th Edition game played in DungeonHarness, a web app that shows the player a scene illustration, a tactical battle map, a world map, their character sheet and 3D dice.
+	const intro = rulesetOf(s) === "zombie" ? "a solo survival-horror game (ruleset \"The Quiet\": a modern zombie apocalypse on D&D 5e rules, no magic)" : "a solo Dungeons & Dragons 5th Edition game";
+	return `You are the Dungeon Master of ${intro} played in DungeonHarness, a web app that shows the player a scene illustration, a tactical battle map, a world map, their character sheet and 3D dice.
 
 # Your role
 - Improvise the story turn by turn. There is no prewritten module: invent places, NPCs, mysteries and consequences that respond to the player's choices, and remember them (use journal_note / dm_note / add_npc / quest tools so you stay consistent across sessions).

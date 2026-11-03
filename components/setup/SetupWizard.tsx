@@ -1,5 +1,6 @@
 "use client";
 
+import { rulesetOf } from "@/lib/rules/ruleset";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { BookOpen, Check, ChevronLeft, ChevronRight, Globe2, Home, RotateCcw, Settings, Sparkles, UserRound, Wand2, ScrollText } from "lucide-react";
@@ -33,7 +34,12 @@ export function SetupWizard() {
 	const [draft, setDraft] = useState<WizardDraft | null>(null);
 	const [confirmReset, setConfirmReset] = useState(false);
 	const engines = useEngines();
-	const { t } = useT();
+	const { t, setRuleset } = useT();
+	const rs = rulesetOf(draft?.settings);
+	useEffect(() => {
+		setRuleset(rs);
+		return () => setRuleset("fantasy");
+	}, [rs, setRuleset]);
 
 	useEffect(() => {
 		// localStorage is only readable after hydration.

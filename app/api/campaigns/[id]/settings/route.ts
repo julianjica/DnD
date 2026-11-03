@@ -1,3 +1,4 @@
+import { rulesetOf } from "@/lib/rules/ruleset";
 import type { NextRequest } from "next/server";
 import type { CampaignSettings } from "@/lib/game/types";
 import { campaignExists, mutate } from "@/lib/store/campaigns";
@@ -22,6 +23,8 @@ export async function PATCH(req: NextRequest, ctx: RouteContext<"/api/campaigns/
 			const v = patch[key];
 			next[key] = (v && typeof v === "object" ? { ...(before[key] as object), ...v } : v) as never;
 		}
+		// The ruleset (fantasy vs The Quiet) is fixed for a campaign's lifetime.
+		if (rulesetOf(before) !== rulesetOf(next)) next.world = { ...next.world, preset: before.world.preset };
 		const notice = describeSettingsChange(before, next);
 		if (notice) s.dmNotes.push(`SETTINGS CHANGED: ${notice}`);
 		if (before.engine.provider !== next.engine.provider || before.engine.model !== next.engine.model || (before.language ?? "en") !== (next.language ?? "en")) {

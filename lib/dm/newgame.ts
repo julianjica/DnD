@@ -23,6 +23,7 @@ const BIOME: Record<CampaignSettings["world"]["preset"], WorldMap["terrain"]["bi
 	arctic: "frozen",
 	desert_kingdoms: "arid",
 	fey_wilds: "temperate",
+	zombie_outbreak: "temperate",
 	custom: "mixed",
 };
 

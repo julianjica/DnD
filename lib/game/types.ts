@@ -96,6 +96,10 @@ export interface MonsterAction {
 }
 
 export interface MonsterStats extends SrdRef {
+	/** Content set ("zombie" = The Quiet); absent = SRD fantasy. */
+	ruleset?: "fantasy" | "zombie";
+	/** The Quiet: first day after the outbreak on which this variant exists. */
+	appearsDay?: number;
 	size: Size;
 	type: string; // "humanoid (goblinoid)"
 	alignment: string;
@@ -124,6 +128,10 @@ export interface MonsterStats extends SrdRef {
 }
 
 export interface SpellInfo extends SrdRef {
+	/** Content set this belongs to ("zombie" = a technique of The Quiet); absent = SRD fantasy. */
+	ruleset?: "fantasy" | "zombie";
+	/** Items used up from the caster's inventory on every use (techniques with components), by equipment index. */
+	consumes?: { ref: string; qty: number }[];
 	level: number; // 0 = cantrip
 	school: string;
 	castingTime: string; // "1 action", "1 bonus action", "1 reaction", "1 minute"
@@ -506,7 +514,7 @@ export interface EngineConfig {
 
 export interface CampaignSettings {
 	world: {
-		preset: "classic_high_fantasy" | "grimdark" | "gothic_horror" | "sword_and_sorcery" | "pirates" | "arctic" | "desert_kingdoms" | "fey_wilds" | "custom";
+		preset: "classic_high_fantasy" | "grimdark" | "gothic_horror" | "sword_and_sorcery" | "pirates" | "arctic" | "desert_kingdoms" | "fey_wilds" | "zombie_outbreak" | "custom";
 		customText?: string;
 		tone: string[]; // ["heroic", "humorous", "dark", "mysterious", "political", "whimsical"]
 		lines: string[]; // hard limits

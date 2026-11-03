@@ -31,6 +31,7 @@ export const WORLD_PRESETS: WorldPresetInfo[] = [
 	{ id: "arctic", scene: sc("mountain", "day", "snow", "somber"), tones: ["gritty", "mysterious"] },
 	{ id: "desert_kingdoms", scene: sc("desert", "dusk", "clear", "mysterious"), tones: ["political", "mysterious"] },
 	{ id: "fey_wilds", scene: sc("forest", "night", "fog", "mysterious"), tones: ["whimsical", "mysterious"] },
+	{ id: "zombie_outbreak", scene: sc("town", "night", "rain", "tense"), tones: ["dark", "gritty"] },
 	{ id: "custom", scene: sc("tavern", "night", "clear", "festive"), tones: ["heroic"] },
 ];
 
@@ -72,6 +73,7 @@ export const HOOKS: ByLang<Record<WorldPreset | "any", string[]>> = {
 		arctic: ["The thaw revealed a frozen giant with a living heartbeat.", "A longship returns with its crew alive but silent, eyes white as frost."],
 		desert_kingdoms: ["A genie's lamp is up for auction, and three factions intend to win it.", "The oasis has dried overnight and the caravan masters blame a curse."],
 		fey_wilds: ["You traded a memory to a fey merchant and now you need it back.", "A rival's wedding to a fey prince must be stopped before the moon sets."],
+		zombie_outbreak: ["Your night shift is interrupted by sirens heading for St. Brigid's, and then the screaming starts.", "Your roommate came home from the Ventara trial with a fever. Now she's standing in the dark kitchen, very still."],
 		custom: [],
 	},
 	es: {
@@ -90,6 +92,7 @@ export const HOOKS: ByLang<Record<WorldPreset | "any", string[]>> = {
 		arctic: ["El deshielo dejó al descubierto a un gigante congelado cuyo corazón aún late.", "Un barco vikingo regresa con su tripulación viva pero muda, con los ojos blancos como la escarcha."],
 		desert_kingdoms: ["La lámpara de un genio sale a subasta, y tres facciones pretenden ganarla.", "El oasis se secó de la noche a la mañana y los jefes de caravana culpan a una maldición."],
 		fey_wilds: ["Le cambiaste un recuerdo a un mercader feérico y ahora necesitas recuperarlo.", "Hay que impedir la boda de un rival con un príncipe feérico antes de que se ponga la luna."],
+		zombie_outbreak: ["Tu turno de noche se interrumpe con sirenas camino de St. Brigid's, y luego empiezan los gritos.", "Tu compañera de piso volvió del ensayo de Ventara con fiebre. Ahora está de pie en la cocina a oscuras, muy quieta."],
 		custom: [],
 	},
 };

@@ -158,6 +158,7 @@ export const en = {
 	"enum.preset.arctic": "Frozen North",
 	"enum.preset.desert_kingdoms": "Desert Kingdoms",
 	"enum.preset.fey_wilds": "The Feywild",
+	"enum.preset.zombie_outbreak": "The Quiet: zombie apocalypse",
 	"enum.preset.custom": "Your Own World",
 	"enum.presetBlurb.classic_high_fantasy": "Castles and dragons, wizard towers, ancient ruins and roads between bustling kingdoms.",
 	"enum.presetBlurb.grimdark": "A broken world of mud, plague and desperate choices. Heroes are rare and rarely rewarded.",
@@ -167,6 +168,7 @@ export const en = {
 	"enum.presetBlurb.arctic": "Endless snow, longhouses, frost giants and ancient things beneath the ice.",
 	"enum.presetBlurb.desert_kingdoms": "Caravans and sultanates, genie-haunted ruins and tombs beneath the dunes.",
 	"enum.presetBlurb.fey_wilds": "Glittering forests, capricious fey courts and bargains that always cost more than they seem.",
+	"enum.presetBlurb.zombie_outbreak": "Today, in a small river town. No magic, few guns, and the dead get up. Professions instead of classes; survive the first night alone.",
 	"enum.presetBlurb.custom": "Describe your setting in a few lines and the DM will build on it.",
 
 	"enum.tone.heroic": "Heroic",
@@ -720,6 +722,7 @@ export const es: { [K in keyof typeof en]: string } = {
 	"enum.preset.arctic": "El Norte helado",
 	"enum.preset.desert_kingdoms": "Reinos del desierto",
 	"enum.preset.fey_wilds": "Las Tierras Feéricas",
+	"enum.preset.zombie_outbreak": "El Silencio: apocalipsis zombi",
 	"enum.preset.custom": "Tu propio mundo",
 	"enum.presetBlurb.classic_high_fantasy": "Castillos y dragones, torres de magos, ruinas antiguas y caminos entre reinos bulliciosos.",
 	"enum.presetBlurb.grimdark": "Un mundo roto de barro, peste y decisiones desesperadas. Los héroes son escasos y rara vez reciben recompensa.",
@@ -729,6 +732,7 @@ export const es: { [K in keyof typeof en]: string } = {
 	"enum.presetBlurb.arctic": "Nieve sin fin, casas comunales, gigantes de escarcha y cosas antiguas bajo el hielo.",
 	"enum.presetBlurb.desert_kingdoms": "Caravanas y sultanatos, ruinas embrujadas por genios y tumbas bajo las dunas.",
 	"enum.presetBlurb.fey_wilds": "Bosques resplandecientes, cortes feéricas caprichosas y tratos que siempre cuestan más de lo que parecen.",
+	"enum.presetBlurb.zombie_outbreak": "Hoy, en un pueblo junto a un río. Sin magia, pocas armas, y los muertos se levantan. Profesiones en vez de clases; sobrevive solo la primera noche.",
 	"enum.presetBlurb.custom": "Describe tu ambientación en unas líneas y el DM construirá a partir de ella.",
 
 	"enum.tone.heroic": "Heroico",

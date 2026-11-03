@@ -37,6 +37,11 @@ import hb_rogue from "./data/homebrew/rogue.json";
 import hb_sorcerer from "./data/homebrew/sorcerer.json";
 import hb_warlock from "./data/homebrew/warlock.json";
 import hb_wizard from "./data/homebrew/wizard.json";
+// The Quiet (zombie ruleset, docs/zombie.md): original content, marked ruleset: "zombie".
+import zTechniques from "./data/zombie/techniques.json";
+import zEquipment from "./data/zombie/equipment.json";
+import zMonsters from "./data/zombie/monsters.json";
+import zOrigins from "./data/zombie/origins.json";
 
 export * from "./types";
 
@@ -46,7 +51,8 @@ function HOMEBREW_SUBCLASS_IDS(classId: string): string[] {
 }
 
 // Casting through unknown keeps tsc from inferring huge literal types.
-export const SPECIES = speciesJson as unknown as SpeciesData[];
+const zTag = <T,>(list: unknown) => (list as T[]).map((x) => ({ ...x, ruleset: "zombie" as const }));
+export const SPECIES = [...(speciesJson as unknown as SpeciesData[]), ...zTag<SpeciesData>(zOrigins)];
 export const CLASSES = (classesJson as unknown as ClassData[]).map((c) => ({
 	...c,
 	// Offer the homebrew subclasses alongside the SRD one.
@@ -64,10 +70,10 @@ export const CONDITIONS = conditionsJson as unknown as SimpleEntry[];
 export const DAMAGE_TYPES = damageTypesJson as unknown as SimpleEntry[];
 export const WEAPON_PROPERTIES = weaponPropertiesJson as unknown as SimpleEntry[];
 export const MAGIC_SCHOOLS = magicSchoolsJson as unknown as SimpleEntry[];
-export const EQUIPMENT = equipmentJson as unknown as EquipmentData[];
+export const EQUIPMENT = [...(equipmentJson as unknown as EquipmentData[]), ...zTag<EquipmentData>(zEquipment)];
 export const MAGIC_ITEMS = magicItemsJson as unknown as MagicItemData[];
-export const SPELLS = spellsJson as unknown as SpellInfo[];
-export const MONSTERS = monstersJson as unknown as MonsterStats[];
+export const SPELLS = [...(spellsJson as unknown as SpellInfo[]), ...zTag<SpellInfo>(zTechniques)];
+export const MONSTERS = [...(monstersJson as unknown as MonsterStats[]), ...zTag<MonsterStats>(zMonsters)];
 
 function indexBy<T extends { index: string }>(list: T[]): Map<string, T> {
 	return new Map(list.map((x) => [x.index, x]));

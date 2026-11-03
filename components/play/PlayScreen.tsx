@@ -1,5 +1,6 @@
 "use client";
 
+import { rulesetOf } from "@/lib/rules/ruleset";
 import { displayTitle } from "@/lib/i18n";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -34,9 +35,14 @@ export function PlayLoading() {
 
 export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 	const game = useGame(id);
-	const { t, te, lang } = useT();
+	const { t, te, lang, setRuleset } = useT();
 	const { le } = useEngineText();
 	const { state } = game;
+	const rs = rulesetOf(state?.settings);
+	useEffect(() => {
+		setRuleset(rs);
+		return () => setRuleset("fantasy");
+	}, [rs, setRuleset]);
 	const [dialog, setDialog] = useState<"saves" | "settings" | "levelup" | "portrait" | null>(null);
 	const openedRef = useRef(false);
 	const lastFx = useRef<string | null>(null);
