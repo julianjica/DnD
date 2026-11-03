@@ -148,7 +148,7 @@ export const updateEntityTool = tool<{ id: string; x?: number; y?: number; hidde
 			if (a.name) e.name = a.name;
 			if (a.disposition) e.disposition = a.disposition;
 			if (a.x !== undefined && a.y !== undefined) {
-				if (e.combatantId && state.encounter?.status === "active") throw new Error("Combatants move via monster_turn.");
+				if (e.combatantId && state.encounter?.status === "active") throw new Error(e.kind === "pc" ? "In combat the player's token moves with move_player (on their turn)." : "Combatants move via monster_turn.");
 				placeEntity(map, { ...e, x: a.x, y: a.y });
 				if (e.kind === "pc") revealAround(map, e.x, e.y, SIGHT_RADIUS);
 			}

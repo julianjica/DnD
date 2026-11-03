@@ -15,8 +15,13 @@ import {
 	type MonsterSpawn,
 } from "../../rules/combat";
 import { getMonster } from "../../srd";
+import { placeEntity, revealAround } from "../../maps";
+import { SIGHT_RADIUS } from "./map";
 import { checkBudget } from "../../rules/encounter-budget";
-import { applyCombatResult, combatOpts, combatState, isPcTurn } from "../combat";
+import { applyCombatResult, combatOpts, combatState, isPcTurn, playerCombatAction } from "../combat";
+import { describeSeparation, separation, where } from "../mapsync";
+import { findPath, hasLineOfSight, reachable } from "../../rules/combat";
+import type { Encounter, GridMap } from "../../game/types";
 import { S, newId, tool, withState, type StateTxn, type ToolFactory } from "../context";
 import { applyDamageToCharacter, healCharacter } from "../derived";
 
@@ -108,6 +113,32 @@ function budgetGate(state: GameState, spawns: MonsterSpawn[], override?: string)
 	return `${b.summary}${problems.length ? ` OVERRIDE (${override}): ${problems.join("; ")}.` : ""}`;
 }
 
+/** Enemies the player can neither reach nor see: the map disagrees with the story. */
+function cutOff(enc: Encounter, map: GridMap, pcId: string): string[] {
+	const pcEnt = map.entities.find((e) => e.id === enc.combatants[pcId]?.entityId);
+	if (!pcEnt) return [];
+	const out: string[] = [];
+	for (const c of Object.values(enc.combatants)) {
+		if (c.side !== "enemy" || c.dead) continue;
+		const ent = map.entities.find((e) => e.id === c.entityId);
+		if (!ent) continue;
+		const sep = separation(map, pcEnt, ent, !!c.stats?.speed?.fly);
+		if (sep) out.push(describeSeparation(map, pcEnt, ent, sep));
+	}
+	return out;
+}
+
+function mapSyncGate(enc: Encounter, map: GridMap, pcId: string, override?: string): string {
+	const cut = cutOff(enc, map, pcId);
+	if (!cut.length) return "";
+	if (override) return `\nNOTE (override): ${cut.join("; ")}.`;
+	throw new Error(
+		`Encounter refused, the map doesn't match the scene: ${cut.join("; ")}. The player could neither reach nor see them. ` +
+			"First make the map agree with your narration: move the player's token to where the story puts them (move_player or update_entity), and open doors they've passed through (set_tile tile='door_open'). Then start the fight. " +
+			"Only if the enemies really are sealed off (e.g. about to break the door down), pass override='<reason>'.",
+	);
+}
+
 export const startCombatTool = tool<{ monsters: SpawnArg[]; pcSurprised?: boolean; override?: string }>(
 	"start_combat",
 	"Start a combat encounter on the active map with SRD monsters. The engine enforces a solo-character XP budget for the campaign difficulty and caps allies (side='party') so the player stays the protagonist; it refuses over-budget encounters. Rolls initiative; returns the order. Switches the view to the map and the ambience to combat.",
@@ -120,7 +151,8 @@ export const startCombatTool = tool<{ monsters: SpawnArg[]; pcSurprised?: boolea
 			const map = state.activeMapId ? state.maps[state.activeMapId] : undefined;
 			if (!map) throw new Error("No active map. Call generate_map first.");
 			const res = startCombat({ encounterId: newId("enc"), map, character: state.character, monsters: toSpawns(state, a.monsters), pcSurprised: a.pcSurprised }, rng, combatOpts(state));
-			const log = applyCombatResult(tx, res);
+			const syncNote = res.ok ? mapSyncGate(res.encounter, res.map, state.character.id, a.override) : "";
+			const log = applyCombatResult(tx, res) + syncNote;
 			state.mode = "combat";
 			state.view = "map";
 			if (state.ambience !== "boss") state.ambience = "combat";
@@ -191,7 +223,9 @@ export const addMonstersTool = tool<{ monsters: SpawnArg[]; override?: string }>
 		withState(ctx, (tx) => {
 			const spawns = toSpawns(tx.state, a.monsters);
 			const note = budgetGate(tx.state, spawns, a.override);
-			return `${note}\n${applyCombatResult(tx, addMonsters(combatState(tx.state), tx.rng, spawns, combatOpts(tx.state)))}`;
+			const res = addMonsters(combatState(tx.state), tx.rng, spawns, combatOpts(tx.state));
+			const syncNote = res.ok ? mapSyncGate(res.encounter, res.map, tx.state.character.id, a.override) : "";
+			return `${note}\n${applyCombatResult(tx, res)}${syncNote}`;
 		}),
 );
 
@@ -203,15 +237,20 @@ export const removeCombatantTool = tool<{ combatantId: string; reason?: string }
 		withState(ctx, (tx) => `${applyCombatResult(tx, removeCombatant(combatState(tx.state), tx.rng, a.combatantId, a.reason ?? "fled", combatOpts(tx.state)))}${turnStatus(tx.state)}`),
 );
 
-export const endCombatTool = tool<{ status?: "victory" | "defeat" | "fled" | "ended"; awardXp?: boolean }>(
+export const endCombatTool = tool<{ status?: "victory" | "defeat" | "fled" | "ended"; awardXp?: boolean; reason?: string }>(
 	"end_combat",
-	"End the encounter (if not already ended), award the XP pool (unless milestone leveling or awardXp=false), clear the initiative tracker.",
-	S.obj({ status: S.str(undefined, ["victory", "defeat", "fled", "ended"]), awardXp: S.bool() }),
+	"End the encounter (if not already ended), award the XP pool (unless milestone leveling or awardXp=false), clear the initiative tracker. While enemies are still standing it needs a story reason (they surrendered, fled, a truce…). Never end combat to get around the map or the rules.",
+	S.obj({ status: S.str(undefined, ["victory", "defeat", "fled", "ended"]), awardXp: S.bool(), reason: S.str("Why the fight ends while enemies still stand (surrender, flight, parley)") }),
 	async (a, ctx) =>
 		withState(ctx, (tx) => {
 			const { state, rng } = tx;
 			const enc = state.encounter;
 			if (!enc) throw new Error("No encounter.");
+			const standing = Object.values(enc.combatants).filter((c) => c.side === "enemy" && !c.dead);
+			if (enc.status === "active" && standing.length && a.status !== "defeat" && a.status !== "fled" && !a.reason?.trim())
+				throw new Error(
+					`${standing.map((c) => `${c.name} [${c.id}] HP ${c.hp}/${c.maxHp}`).join(", ")} still standing. If the map or a rule is in the way, fix it instead of ending the fight: move_player moves the player's token on their turn, set_tile opens doors. If the fight truly ends (surrender, flight, parley), pass reason='…' and use remove_combatant for those who leave.`,
+				);
 			let log = "";
 			if (enc.status === "active") log = applyCombatResult(tx, endCombat(combatState(state), rng, a.status ?? "ended", combatOpts(state)));
 			const xp = state.encounter!.xpPool;
@@ -283,4 +322,53 @@ export const conditionTool = tool<{ targetId?: string; condition: ConditionId; r
 		}),
 );
 
-export const COMBAT_TOOLS: ToolFactory[] = [startCombatTool, monsterTurnTool, autoMonsterTurnsTool, addMonstersTool, removeCombatantTool, endCombatTool, damageTool, healTool, conditionTool];
+export const movePlayerTool = tool<{ x?: number; y?: number; towardId?: string; needSight?: boolean }>(
+	"move_player",
+	"Move the PLAYER's token when they say where to go in words (\"I circle the sarcophagus\", \"I run to the door\"). In combat it must be their turn: the engine walks the best path within their remaining movement (opening closed doors, provoking opportunity attacks), and with towardId + needSight it stops at the nearest square that can see that creature/entity. Outside combat it just places the token. Then resolve what they do next (cast_spell, etc.).",
+	S.obj({ x: S.int(), y: S.int(), towardId: S.str("Entity or combatant id to move toward"), needSight: S.bool("Stop at the first square with line of sight to towardId (for spells and ranged attacks)") }),
+	async (a, ctx) =>
+		withState(ctx, (tx) => {
+			const { state } = tx;
+			const map = state.activeMapId ? state.maps[state.activeMapId] : undefined;
+			if (!map) throw new Error("No active map.");
+			const pc = map.entities.find((e) => e.kind === "pc");
+			if (!pc) throw new Error("No player token on the map.");
+			const enc = state.encounter?.status === "active" ? state.encounter : undefined;
+			const goalEnt = a.towardId ? map.entities.find((e) => e.id === a.towardId || e.combatantId === a.towardId || (enc && enc.combatants[a.towardId!]?.entityId === e.id)) : undefined;
+			if (a.towardId && !goalEnt) throw new Error(`Unknown entity ${a.towardId}.`);
+			const goal = goalEnt ? { x: goalEnt.x, y: goalEnt.y } : a.x !== undefined && a.y !== undefined ? { x: a.x, y: a.y } : undefined;
+			if (!goal) throw new Error("Give x,y or towardId.");
+			const cheb = (p: { x: number; y: number }) => Math.max(Math.abs(p.x - goal.x), Math.abs(p.y - goal.y));
+			if (!enc) {
+				placeEntityNear(map, pc, goal, !!goalEnt);
+				return `Moved ${pc.name} to ${where(map, pc)}.`;
+			}
+			if (!isPcTurn(state)) throw new Error("It isn't the player's turn; they move on their own turn.");
+			const pcId = state.character.id;
+			const options = reachable(enc, map, pcId);
+			if (!options.length) throw new Error(`${pc.name} has no movement left this turn (they can Dash).`);
+			const sees = (p: { x: number; y: number }) => hasLineOfSight(map, p, goal) || hasLineOfSight(map, goal, p);
+			let pick = a.needSight && goalEnt ? options.filter((p) => sees(p)).sort((p, q) => p.cost - q.cost || cheb(p) - cheb(q))[0] : undefined;
+			if (!pick) {
+				const exact = options.find((p) => p.x === goal.x && p.y === goal.y);
+				pick = exact ?? [...options].sort((p, q) => cheb(p) - cheb(q) || p.cost - q.cost)[0];
+			}
+			if (a.needSight && goalEnt && sees(pc)) return `${pc.name} at ${where(map, pc)} already sees ${goalEnt.name}; no need to move.`;
+			const path = findPath(enc, map, pcId, pick, enc.combatants[pcId].turn.movementLeft);
+			if (!path?.path.length) throw new Error("No path.");
+			const log = playerCombatAction(tx, { type: "move", path: path.path }, tx.rng);
+			const after = state.maps[map.id].entities.find((e) => e.id === pc.id)!;
+			const note = goalEnt && a.needSight ? (sees(after) ? ` ${goalEnt.name} is now in sight.` : ` Still no line of sight to ${goalEnt.name}.`) : "";
+			return `${log}${note}`;
+		}),
+);
+
+function placeEntityNear(map: GridMap, pc: GridMap["entities"][number], goal: { x: number; y: number }, adjacent: boolean): void {
+	const target = adjacent ? { x: goal.x, y: goal.y + 1 } : goal;
+	const placed = placeEntity(map, { ...pc, x: target.x, y: target.y }, goal);
+	pc.x = placed.x;
+	pc.y = placed.y;
+	revealAround(map, pc.x, pc.y, SIGHT_RADIUS);
+}
+
+export const COMBAT_TOOLS: ToolFactory[] = [movePlayerTool, startCombatTool, monsterTurnTool, autoMonsterTurnsTool, addMonstersTool, removeCombatantTool, endCombatTool, damageTool, healTool, conditionTool];

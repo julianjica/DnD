@@ -1,3 +1,4 @@
+import { doorSummary, roomOf } from "./mapsync";
 import type { GameState, LogEntry } from "../game/types";
 import { compassOf, daysForDistance, mapDistance } from "../maps/geography";
 
@@ -60,9 +61,14 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 
 	if (s.activeMapId && s.maps[s.activeMapId]) {
 		const m = s.maps[s.activeMapId];
-		const ents = m.entities.map((e) => `${e.name}[${e.id}]@${e.x},${e.y}${e.hidden ? " hidden" : ""}`);
+		const ents = m.entities.map((e) => {
+			const room = e.kind === "pc" || e.kind === "monster" || e.kind === "npc" ? roomOf(m, e) : undefined;
+			return `${e.name}[${e.id}]@${e.x},${e.y}${room ? ` in ${room}` : ""}${e.hidden ? " hidden" : ""}`;
+		});
 		lines.push(`Active map: ${m.name} [${m.id}] ${m.kind} ${m.width}x${m.height}, ${m.lighting}. Rooms: ${m.rooms.map((r) => `${r.id}${r.tag ? `(${r.tag})` : ""}${r.name ? ` "${r.name}"` : ""}`).join(", ")}`);
 		lines.push(`Entities: ${ents.join(", ")}`);
+		const doors = doorSummary(m);
+		if (doors) lines.push(`Doors (closed ones open when walked through; locked ones need set_tile): ${doors}`);
 	}
 
 	if (s.encounter && s.encounter.status === "active") {

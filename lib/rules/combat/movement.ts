@@ -103,6 +103,11 @@ export function moveAlong(ctx: Ctx, moverId: string, rawPath: Point[]): Point[] 
 		}
 		ent.x = to.x;
 		ent.y = to.y;
+		const ti = to.y * ctx.map.width + to.x;
+		if (ctx.map.tiles[ti] === "door") {
+			ctx.map.tiles[ti] = "door_open";
+			say(ctx, `${c.name} opens the door at (${to.x},${to.y}).`);
+		}
 		c.turn.movementLeft -= costs[i];
 		spent += costs[i];
 		traversed.push({ x: to.x, y: to.y });

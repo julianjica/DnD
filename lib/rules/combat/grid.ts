@@ -41,8 +41,10 @@ export function tileAt(map: GridMap, x: number, y: number): Tile {
 	return inBounds(map, x, y) ? map.tiles[y * map.width + x] : "void";
 }
 
+// Closed (unlocked) doors don't block movement: a creature opens one as it
+// steps through (free object interaction). They still block sight until open.
 const ALWAYS_BLOCKED: ReadonlySet<Tile> = new Set<Tile>([
-	"void", "wall", "door", "door_locked", "secret_door", "tree", "building", "pillar", "rock", "bar_counter",
+	"void", "wall", "door_locked", "secret_door", "tree", "building", "pillar", "rock", "bar_counter",
 ]);
 const DIFFICULT: ReadonlySet<Tile> = new Set<Tile>(["difficult", "tall_grass", "rubble", "mud", "water", "table"]);
 const SIGHT_BLOCKERS: ReadonlySet<Tile> = new Set<Tile>([
