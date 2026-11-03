@@ -1,5 +1,6 @@
 "use client";
 
+import { rulesetOf } from "@/lib/rules/ruleset";
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import { Footprints, Map as MapIcon, Globe2, Image as ImageIcon, Swords, Wand2, Wind, ShieldHalf, HandHelping, EyeOff, FlaskConical, Zap, Hourglass, Skull, X } from "lucide-react";
@@ -402,7 +403,7 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 			<div className="relative min-h-0 flex-1 overflow-hidden">
 				{view === "scene" && (
 					<div className="flex h-full items-center justify-center bg-bg p-3">
-						<SceneArt style={artStyle === "sprites" ? "paintings" : artStyle} backdrop={spriteMap ? <SpriteScene map={spriteMap} looks={looks} dead={deadIds} time={state.scene.timeOfDay} weather={state.scene.weather} /> : undefined} scene={state.scene} npcs={state.scene.npcIds.map((id) => state.npcs[id]).filter(Boolean).map((n) => ({ id: n.id, name: n.name, portrait: n.portrait, speciesId: n.speciesId, role: n.role }))} className="max-h-full w-full rounded-lg shadow-2xl" />
+						<SceneArt style={artStyle === "sprites" ? "paintings" : artStyle} backdrop={spriteMap ? <SpriteScene map={spriteMap} looks={looks} dead={deadIds} time={state.scene.timeOfDay} weather={state.scene.weather} /> : rulesetOf(state.settings) === "zombie" ? <QuietBackdrop time={state.scene.timeOfDay} /> : undefined} scene={state.scene} npcs={state.scene.npcIds.map((id) => state.npcs[id]).filter(Boolean).map((n) => ({ id: n.id, name: n.name, portrait: n.portrait, speciesId: n.speciesId, role: n.role }))} className="max-h-full w-full rounded-lg shadow-2xl" />
 					</div>
 				)}
 				{view === "map" && map && (
@@ -447,6 +448,16 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 					{myTurn ? <ActionBar state={state} pc={pc} mode={mode} setMode={setMode} act={act} busy={busy} /> : <div className="px-3 py-3 text-sm text-dim font-fell italic">{busy ? t("play.combat.enemiesAct") : t("play.combat.waiting", { name: ts(enc.combatants[enc.order[enc.turnIndex]]?.name ?? "…") })}</div>}
 				</div>
 			)}
+		</div>
+	);
+}
+
+/** The Quiet has no paintings: until the DM draws the place, the scene is a dark, grainy sky for the time of day. */
+function QuietBackdrop({ time }: { time: GameState["scene"]["timeOfDay"] }) {
+	const sky = { dawn: ["#2b3142", "#6b5a5e"], day: ["#5b6670", "#9aa3a8"], dusk: ["#2a2230", "#7a4a3a"], night: ["#07090d", "#1b2230"] }[time];
+	return (
+		<div className="absolute inset-0" style={{ background: `linear-gradient(to bottom, ${sky[0]}, ${sky[1]})` }}>
+			<div className="absolute inset-x-0 bottom-0 h-1/3" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.85), transparent)" }} />
 		</div>
 	);
 }
