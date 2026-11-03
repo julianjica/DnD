@@ -1,1 +1,1540 @@
-[]
+[
+	{
+		"index": "z-shambler",
+		"name": "Shambler",
+		"appearsDay": 0,
+		"size": "medium",
+		"type": "undead",
+		"alignment": "unaligned",
+		"ac": 8,
+		"hp": 22,
+		"hitDice": "3d8+9",
+		"speed": {
+			"walk": 20
+		},
+		"abilities": {
+			"str": 13,
+			"dex": 6,
+			"con": 16,
+			"int": 3,
+			"wis": 6,
+			"cha": 5
+		},
+		"saves": {
+			"wis": 0
+		},
+		"skills": {},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [
+			"poison"
+		],
+		"conditionImmunities": [
+			"charmed",
+			"frightened",
+			"poisoned"
+		],
+		"senses": "passive Perception 8",
+		"languages": "—",
+		"cr": 0.25,
+		"xp": 50,
+		"traits": [
+			{
+				"name": "Hard to Put Down",
+				"description": "If damage reduces it to 0 hit points, it makes a Constitution saving throw with a DC of 5 + the damage taken, unless the damage is fire or from a critical hit (a shot to the head). On a success it drops to 1 hit point instead."
+			},
+			{
+				"name": "Drawn by Noise",
+				"description": "The dead hunt by sound. It has advantage on Wisdom (Perception) checks that rely on hearing, and it moves toward any loud noise it hears."
+			}
+		],
+		"actions": [
+			{
+				"name": "Grab",
+				"description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 4 (1d6 + 1) bludgeoning damage. The target is grappled (escape DC 11).",
+				"attack": {
+					"name": "Grab",
+					"kind": "melee",
+					"toHit": 3,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d6+1",
+							"type": "bludgeoning"
+						}
+					],
+					"description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 4 (1d6 + 1) bludgeoning damage. The target is grappled (escape DC 11)."
+				}
+			},
+			{
+				"name": "Bite",
+				"description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 4 (1d6 + 1) piercing damage. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected.",
+				"attack": {
+					"name": "Bite",
+					"kind": "melee",
+					"toHit": 3,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d6+1",
+							"type": "piercing"
+						}
+					],
+					"description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 4 (1d6 + 1) piercing damage. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "zombie"
+	},
+	{
+		"index": "z-fresh-turned",
+		"name": "Fresh Turned",
+		"appearsDay": 0,
+		"size": "medium",
+		"type": "undead",
+		"alignment": "unaligned",
+		"ac": 10,
+		"hp": 26,
+		"hitDice": "4d8+8",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 14,
+			"dex": 12,
+			"con": 14,
+			"int": 3,
+			"wis": 8,
+			"cha": 3
+		},
+		"saves": {},
+		"skills": {},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [
+			"poison"
+		],
+		"conditionImmunities": [
+			"charmed",
+			"frightened",
+			"poisoned"
+		],
+		"senses": "passive Perception 9",
+		"languages": "—",
+		"cr": 0.5,
+		"xp": 100,
+		"traits": [
+			{
+				"name": "Hard to Put Down",
+				"description": "If damage reduces it to 0 hit points, it makes a Constitution saving throw with a DC of 5 + the damage taken, unless the damage is fire or from a critical hit (a shot to the head). On a success it drops to 1 hit point instead."
+			},
+			{
+				"name": "Drawn by Noise",
+				"description": "The dead hunt by sound. It has advantage on Wisdom (Perception) checks that rely on hearing, and it moves toward any loud noise it hears."
+			},
+			{
+				"name": "Still Warm",
+				"description": "For the first day after it turns it still lurches at a jog (speed 30 ft.). After that it slows to 20 ft. like the rest."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "It makes one Grab attack and one Bite attack.",
+				"multiattack": [
+					{
+						"action": "Grab",
+						"count": 1
+					},
+					{
+						"action": "Bite",
+						"count": 1
+					}
+				]
+			},
+			{
+				"name": "Grab",
+				"description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 4 (1d4 + 2) bludgeoning damage. The target is grappled (escape DC 12).",
+				"attack": {
+					"name": "Grab",
+					"kind": "melee",
+					"toHit": 4,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d4+2",
+							"type": "bludgeoning"
+						}
+					],
+					"description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 4 (1d4 + 2) bludgeoning damage. The target is grappled (escape DC 12)."
+				}
+			},
+			{
+				"name": "Bite",
+				"description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 5 (1d6 + 2) piercing damage. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected.",
+				"attack": {
+					"name": "Bite",
+					"kind": "melee",
+					"toHit": 4,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d6+2",
+							"type": "piercing"
+						}
+					],
+					"description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 5 (1d6 + 2) piercing damage. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "zombie"
+	},
+	{
+		"index": "z-crawler",
+		"name": "Crawler",
+		"appearsDay": 1,
+		"size": "small",
+		"type": "undead",
+		"alignment": "unaligned",
+		"ac": 9,
+		"hp": 15,
+		"hitDice": "2d6+8",
+		"speed": {
+			"walk": 10
+		},
+		"abilities": {
+			"str": 12,
+			"dex": 10,
+			"con": 18,
+			"int": 3,
+			"wis": 6,
+			"cha": 3
+		},
+		"saves": {},
+		"skills": {
+			"stealth": 4
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [
+			"poison"
+		],
+		"conditionImmunities": [
+			"charmed",
+			"frightened",
+			"poisoned"
+		],
+		"senses": "passive Perception 8",
+		"languages": "—",
+		"cr": 0.25,
+		"xp": 50,
+		"traits": [
+			{
+				"name": "Hard to Put Down",
+				"description": "If damage reduces it to 0 hit points, it makes a Constitution saving throw with a DC of 5 + the damage taken, unless the damage is fire or from a critical hit (a shot to the head). On a success it drops to 1 hit point instead."
+			},
+			{
+				"name": "Low to the Ground",
+				"description": "Only a torso dragging itself along. It has advantage on Dexterity (Stealth) checks made to hide under cars, in tall grass or among bodies, and it can hide in spaces that small."
+			}
+		],
+		"actions": [
+			{
+				"name": "Ankle Bite",
+				"description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 4 (1d6 + 1) piercing damage. The target must succeed on a DC 11 Strength saving throw or be knocked prone. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected.",
+				"attack": {
+					"name": "Ankle Bite",
+					"kind": "melee",
+					"toHit": 3,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d6+1",
+							"type": "piercing"
+						}
+					],
+					"description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 4 (1d6 + 1) piercing damage. The target must succeed on a DC 11 Strength saving throw or be knocked prone. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected.",
+					"save": {
+						"ability": "str",
+						"dc": 11,
+						"onFail": "DC 11 Strength saving throw or be knocked prone.",
+						"halfOnSuccess": false
+					}
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "zombie_crawler"
+	},
+	{
+		"index": "z-horde-pack",
+		"name": "Pack of the Dead",
+		"appearsDay": 1,
+		"size": "large",
+		"type": "swarm of Medium undead",
+		"alignment": "unaligned",
+		"ac": 8,
+		"hp": 52,
+		"hitDice": "8d10+8",
+		"speed": {
+			"walk": 20
+		},
+		"abilities": {
+			"str": 16,
+			"dex": 6,
+			"con": 12,
+			"int": 3,
+			"wis": 6,
+			"cha": 3
+		},
+		"saves": {},
+		"skills": {},
+		"vulnerabilities": [],
+		"resistances": [
+			"piercing"
+		],
+		"immunities": [
+			"poison"
+		],
+		"conditionImmunities": [
+			"charmed",
+			"frightened",
+			"grappled",
+			"paralyzed",
+			"petrified",
+			"poisoned",
+			"prone",
+			"restrained",
+			"stunned"
+		],
+		"senses": "passive Perception 8",
+		"languages": "—",
+		"cr": 2,
+		"xp": 450,
+		"traits": [
+			{
+				"name": "Drawn by Noise",
+				"description": "The dead hunt by sound. It has advantage on Wisdom (Perception) checks that rely on hearing, and it moves toward any loud noise it hears."
+			},
+			{
+				"name": "Swarm",
+				"description": "The pack can occupy another creature's space and vice versa. Bullets mostly hit bodies that are already dead; the pack thins only as you cut it down. It can't regain hit points."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "The pack makes one Grasping Hands attack and one Bites attack.",
+				"multiattack": [
+					{
+						"action": "Grasping Hands",
+						"count": 1
+					},
+					{
+						"action": "Bites",
+						"count": 1
+					}
+				]
+			},
+			{
+				"name": "Grasping Hands",
+				"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 10 (2d6 + 3) bludgeoning damage. The target is grappled (escape DC 13) and dragged 5 feet into the pack.",
+				"attack": {
+					"name": "Grasping Hands",
+					"kind": "melee",
+					"toHit": 5,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "2d6+3",
+							"type": "bludgeoning"
+						}
+					],
+					"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 10 (2d6 + 3) bludgeoning damage. The target is grappled (escape DC 13) and dragged 5 feet into the pack."
+				}
+			},
+			{
+				"name": "Bites",
+				"description": "Melee Weapon Attack: +5 to hit, reach 0 ft., one creature in the pack's space. Hit: 10 (3d6) piercing damage. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected.",
+				"attack": {
+					"name": "Bites",
+					"kind": "melee",
+					"toHit": 5,
+					"reach": 0,
+					"damage": [
+						{
+							"dice": "3d6",
+							"type": "piercing"
+						}
+					],
+					"description": "Melee Weapon Attack: +5 to hit, reach 0 ft., one creature in the pack's space. Hit: 10 (3d6) piercing damage. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "zombie_horde"
+	},
+	{
+		"index": "z-horde",
+		"name": "Horde",
+		"appearsDay": 1,
+		"size": "huge",
+		"type": "swarm of Medium undead",
+		"alignment": "unaligned",
+		"ac": 8,
+		"hp": 115,
+		"hitDice": "11d12+44",
+		"speed": {
+			"walk": 20
+		},
+		"abilities": {
+			"str": 20,
+			"dex": 6,
+			"con": 18,
+			"int": 3,
+			"wis": 6,
+			"cha": 3
+		},
+		"saves": {},
+		"skills": {},
+		"vulnerabilities": [],
+		"resistances": [
+			"piercing"
+		],
+		"immunities": [
+			"poison"
+		],
+		"conditionImmunities": [
+			"charmed",
+			"frightened",
+			"grappled",
+			"paralyzed",
+			"petrified",
+			"poisoned",
+			"prone",
+			"restrained",
+			"stunned"
+		],
+		"senses": "passive Perception 8",
+		"languages": "—",
+		"cr": 5,
+		"xp": 1800,
+		"traits": [
+			{
+				"name": "Drawn by Noise",
+				"description": "The dead hunt by sound. It has advantage on Wisdom (Perception) checks that rely on hearing, and it moves toward any loud noise it hears."
+			},
+			{
+				"name": "Swarm",
+				"description": "The horde can occupy another creature's space and vice versa. Bullets mostly hit bodies that are already dead; the horde thins only as you cut it down. It can't regain hit points."
+			},
+			{
+				"name": "Unstoppable Mass",
+				"description": "The horde treats barricades, fences and doors as difficult terrain and deals double damage to objects and structures."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "The horde makes two Grasping Hands attacks and one Bites attack.",
+				"multiattack": [
+					{
+						"action": "Grasping Hands",
+						"count": 2
+					},
+					{
+						"action": "Bites",
+						"count": 1
+					}
+				]
+			},
+			{
+				"name": "Grasping Hands",
+				"description": "Melee Weapon Attack: +7 to hit, reach 10 ft., one target. Hit: 14 (2d8 + 5) bludgeoning damage. The target is grappled (escape DC 15), pulled 10 feet into the horde and knocked prone.",
+				"attack": {
+					"name": "Grasping Hands",
+					"kind": "melee",
+					"toHit": 7,
+					"reach": 10,
+					"damage": [
+						{
+							"dice": "2d8+5",
+							"type": "bludgeoning"
+						}
+					],
+					"description": "Melee Weapon Attack: +7 to hit, reach 10 ft., one target. Hit: 14 (2d8 + 5) bludgeoning damage. The target is grappled (escape DC 15), pulled 10 feet into the horde and knocked prone."
+				}
+			},
+			{
+				"name": "Bites",
+				"description": "Melee Weapon Attack: +7 to hit, reach 0 ft., one creature in the horde's space. Hit: 18 (4d8) piercing damage. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected.",
+				"attack": {
+					"name": "Bites",
+					"kind": "melee",
+					"toHit": 7,
+					"reach": 0,
+					"damage": [
+						{
+							"dice": "4d8",
+							"type": "piercing"
+						}
+					],
+					"description": "Melee Weapon Attack: +7 to hit, reach 0 ft., one creature in the horde's space. Hit: 18 (4d8) piercing damage. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "zombie_horde"
+	},
+	{
+		"index": "z-bloater",
+		"name": "Bloater",
+		"appearsDay": 7,
+		"size": "medium",
+		"type": "undead",
+		"alignment": "unaligned",
+		"ac": 7,
+		"hp": 45,
+		"hitDice": "6d8+18",
+		"speed": {
+			"walk": 20
+		},
+		"abilities": {
+			"str": 15,
+			"dex": 5,
+			"con": 16,
+			"int": 3,
+			"wis": 6,
+			"cha": 3
+		},
+		"saves": {},
+		"skills": {},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [
+			"poison"
+		],
+		"conditionImmunities": [
+			"charmed",
+			"frightened",
+			"poisoned"
+		],
+		"senses": "passive Perception 8",
+		"languages": "—",
+		"cr": 1,
+		"xp": 200,
+		"traits": [
+			{
+				"name": "Drawn by Noise",
+				"description": "The dead hunt by sound. It has advantage on Wisdom (Perception) checks that rely on hearing, and it moves toward any loud noise it hears."
+			},
+			{
+				"name": "Burst",
+				"description": "When it drops to 0 hit points it bursts. Each creature within 10 feet makes a DC 13 Constitution saving throw, taking 3d6 poison damage and being poisoned for 1 minute on a failure, or half damage and not poisoned on a success. Fighting it from range is wise."
+			}
+		],
+		"actions": [
+			{
+				"name": "Slam",
+				"description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 9 (2d6 + 2) bludgeoning damage.",
+				"attack": {
+					"name": "Slam",
+					"kind": "melee",
+					"toHit": 4,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "2d6+2",
+							"type": "bludgeoning"
+						}
+					],
+					"description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 9 (2d6 + 2) bludgeoning damage."
+				}
+			},
+			{
+				"name": "Bite",
+				"description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 6 (1d8 + 2) piercing damage. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected.",
+				"attack": {
+					"name": "Bite",
+					"kind": "melee",
+					"toHit": 4,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d8+2",
+							"type": "piercing"
+						}
+					],
+					"description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 6 (1d8 + 2) piercing damage. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "zombie_bloater"
+	},
+	{
+		"index": "z-riot-dead",
+		"name": "Riot Dead",
+		"appearsDay": 7,
+		"size": "medium",
+		"type": "undead",
+		"alignment": "unaligned",
+		"ac": 17,
+		"hp": 45,
+		"hitDice": "6d8+18",
+		"speed": {
+			"walk": 20
+		},
+		"abilities": {
+			"str": 16,
+			"dex": 8,
+			"con": 16,
+			"int": 3,
+			"wis": 6,
+			"cha": 3
+		},
+		"saves": {},
+		"skills": {},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [
+			"poison"
+		],
+		"conditionImmunities": [
+			"charmed",
+			"frightened",
+			"poisoned"
+		],
+		"senses": "passive Perception 8",
+		"languages": "—",
+		"cr": 2,
+		"xp": 450,
+		"traits": [
+			{
+				"name": "Hard to Put Down",
+				"description": "If damage reduces it to 0 hit points, it makes a Constitution saving throw with a DC of 5 + the damage taken, unless the damage is fire or from a critical hit (a shot to the head). On a success it drops to 1 hit point instead."
+			},
+			{
+				"name": "Drawn by Noise",
+				"description": "The dead hunt by sound. It has advantage on Wisdom (Perception) checks that rely on hearing, and it moves toward any loud noise it hears."
+			},
+			{
+				"name": "Armored Dead",
+				"description": "It died in riot gear or Guard body armour. Shots to the body glance off; only a critical hit (a shot through the visor) ignores its Hard to Put Down."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "It makes one Gauntlet attack and one Bite attack.",
+				"multiattack": [
+					{
+						"action": "Gauntlet",
+						"count": 1
+					},
+					{
+						"action": "Bite",
+						"count": 1
+					}
+				]
+			},
+			{
+				"name": "Gauntlet",
+				"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 7 (1d8 + 3) bludgeoning damage.",
+				"attack": {
+					"name": "Gauntlet",
+					"kind": "melee",
+					"toHit": 5,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d8+3",
+							"type": "bludgeoning"
+						}
+					],
+					"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 7 (1d8 + 3) bludgeoning damage."
+				}
+			},
+			{
+				"name": "Bite",
+				"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 6 (1d6 + 3) piercing damage. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected.",
+				"attack": {
+					"name": "Bite",
+					"kind": "melee",
+					"toHit": 5,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d6+3",
+							"type": "piercing"
+						}
+					],
+					"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 6 (1d6 + 3) piercing damage. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "zombie_riot"
+	},
+	{
+		"index": "z-screamer",
+		"name": "Screamer",
+		"appearsDay": 14,
+		"size": "medium",
+		"type": "undead",
+		"alignment": "unaligned",
+		"ac": 11,
+		"hp": 33,
+		"hitDice": "6d8+6",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 10,
+			"dex": 12,
+			"con": 12,
+			"int": 3,
+			"wis": 12,
+			"cha": 3
+		},
+		"saves": {},
+		"skills": {
+			"perception": 3
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [
+			"poison"
+		],
+		"conditionImmunities": [
+			"charmed",
+			"frightened",
+			"poisoned"
+		],
+		"senses": "passive Perception 13",
+		"languages": "—",
+		"cr": 2,
+		"xp": 450,
+		"traits": [
+			{
+				"name": "Drawn by Noise",
+				"description": "The dead hunt by sound. It has advantage on Wisdom (Perception) checks that rely on hearing, and it moves toward any loud noise it hears."
+			},
+			{
+				"name": "Kill It First",
+				"description": "Its shriek is the loudest thing in the valley: every time it uses Shriek, the area's noise level jumps to the maximum and the dead for blocks around come toward it."
+			}
+		],
+		"actions": [
+			{
+				"name": "Shriek",
+				"description": "Each creature within 30 feet that can hear it makes a DC 12 Constitution saving throw, taking 3d6 thunder damage on a failure or half as much on a success.",
+				"save": {
+					"ability": "con",
+					"dc": 12,
+					"damage": [
+						{
+							"dice": "3d6",
+							"type": "thunder"
+						}
+					],
+					"halfOnSuccess": true
+				},
+				"usage": {
+					"type": "recharge",
+					"minRoll": 5
+				}
+			},
+			{
+				"name": "Claw",
+				"description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 4 (1d6 + 1) slashing damage.",
+				"attack": {
+					"name": "Claw",
+					"kind": "melee",
+					"toHit": 3,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d6+1",
+							"type": "slashing"
+						}
+					],
+					"description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 4 (1d6 + 1) slashing damage."
+				}
+			},
+			{
+				"name": "Bite",
+				"description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 4 (1d6 + 1) piercing damage. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected.",
+				"attack": {
+					"name": "Bite",
+					"kind": "melee",
+					"toHit": 3,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d6+1",
+							"type": "piercing"
+						}
+					],
+					"description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 4 (1d6 + 1) piercing damage. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "zombie_screamer"
+	},
+	{
+		"index": "z-runner",
+		"name": "Runner",
+		"appearsDay": 21,
+		"size": "medium",
+		"type": "undead",
+		"alignment": "unaligned",
+		"ac": 13,
+		"hp": 45,
+		"hitDice": "7d8+14",
+		"speed": {
+			"walk": 40
+		},
+		"abilities": {
+			"str": 14,
+			"dex": 16,
+			"con": 14,
+			"int": 3,
+			"wis": 10,
+			"cha": 3
+		},
+		"saves": {},
+		"skills": {
+			"perception": 2,
+			"athletics": 4
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [
+			"poison"
+		],
+		"conditionImmunities": [
+			"charmed",
+			"frightened",
+			"poisoned"
+		],
+		"senses": "passive Perception 12",
+		"languages": "—",
+		"cr": 2,
+		"xp": 450,
+		"traits": [
+			{
+				"name": "Drawn by Noise",
+				"description": "The dead hunt by sound. It has advantage on Wisdom (Perception) checks that rely on hearing, and it moves toward any loud noise it hears."
+			},
+			{
+				"name": "Chase",
+				"description": "Once it has seen you it does not stop. It has advantage on Strength (Athletics) checks to climb fences and on checks to follow you."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "It makes one Claw attack and one Bite attack.",
+				"multiattack": [
+					{
+						"action": "Claw",
+						"count": 1
+					},
+					{
+						"action": "Bite",
+						"count": 1
+					}
+				]
+			},
+			{
+				"name": "Claw",
+				"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 6 (1d6 + 3) slashing damage.",
+				"attack": {
+					"name": "Claw",
+					"kind": "melee",
+					"toHit": 5,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d6+3",
+							"type": "slashing"
+						}
+					],
+					"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 6 (1d6 + 3) slashing damage."
+				}
+			},
+			{
+				"name": "Bite",
+				"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 7 (1d8 + 3) piercing damage. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected.",
+				"attack": {
+					"name": "Bite",
+					"kind": "melee",
+					"toHit": 5,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d8+3",
+							"type": "piercing"
+						}
+					],
+					"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 7 (1d8 + 3) piercing damage. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected."
+				}
+			}
+		],
+		"bonusActions": [
+			{
+				"name": "Sprint",
+				"description": "The runner takes the Dash action."
+			}
+		],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "zombie_runner"
+	},
+	{
+		"index": "z-brute",
+		"name": "Brute",
+		"appearsDay": 30,
+		"size": "large",
+		"type": "undead",
+		"alignment": "unaligned",
+		"ac": 15,
+		"hp": 126,
+		"hitDice": "11d10+66",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 22,
+			"dex": 9,
+			"con": 22,
+			"int": 3,
+			"wis": 8,
+			"cha": 3
+		},
+		"saves": {
+			"con": 9
+		},
+		"skills": {},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [
+			"poison"
+		],
+		"conditionImmunities": [
+			"charmed",
+			"frightened",
+			"poisoned"
+		],
+		"senses": "passive Perception 9",
+		"languages": "—",
+		"cr": 6,
+		"xp": 2300,
+		"traits": [
+			{
+				"name": "Hard to Put Down",
+				"description": "If damage reduces it to 0 hit points, it makes a Constitution saving throw with a DC of 5 + the damage taken, unless the damage is fire or from a critical hit (a shot to the head). On a success it drops to 1 hit point instead."
+			},
+			{
+				"name": "Drawn by Noise",
+				"description": "The dead hunt by sound. It has advantage on Wisdom (Perception) checks that rely on hearing, and it moves toward any loud noise it hears."
+			},
+			{
+				"name": "Mutated Hide",
+				"description": "Whatever LAZARUS-7 did to it, its skin has thickened into something like hide. It has resistance to bludgeoning damage from small arms and melee weapons (the DM applies this)."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "The brute makes two Slam attacks, or one Slam and one Bite.",
+				"multiattack": [
+					{
+						"action": "Slam",
+						"count": 2
+					}
+				]
+			},
+			{
+				"name": "Slam",
+				"description": "Melee Weapon Attack: +9 to hit, reach 10 ft., one target. Hit: 17 (2d10 + 6) bludgeoning damage.",
+				"attack": {
+					"name": "Slam",
+					"kind": "melee",
+					"toHit": 9,
+					"reach": 10,
+					"damage": [
+						{
+							"dice": "2d10+6",
+							"type": "bludgeoning"
+						}
+					],
+					"description": "Melee Weapon Attack: +9 to hit, reach 10 ft., one target. Hit: 17 (2d10 + 6) bludgeoning damage."
+				}
+			},
+			{
+				"name": "Bite",
+				"description": "Melee Weapon Attack: +9 to hit, reach 5 ft., one target. Hit: 15 (2d8 + 6) piercing damage. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected.",
+				"attack": {
+					"name": "Bite",
+					"kind": "melee",
+					"toHit": 9,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "2d8+6",
+							"type": "piercing"
+						}
+					],
+					"description": "Melee Weapon Attack: +9 to hit, reach 5 ft., one target. Hit: 15 (2d8 + 6) piercing damage. The bite carries the infection: a creature bitten by the dead must make a DC 12 Constitution saving throw or become infected."
+				}
+			},
+			{
+				"name": "Ground Pound",
+				"description": "It smashes both arms into the ground. Each creature within 10 feet makes a DC 16 Dexterity saving throw, taking 4d10 bludgeoning damage and falling prone on a failure, or half as much damage on a success.",
+				"save": {
+					"ability": "dex",
+					"dc": 16,
+					"damage": [
+						{
+							"dice": "4d10",
+							"type": "bludgeoning"
+						}
+					],
+					"halfOnSuccess": true
+				},
+				"usage": {
+					"type": "recharge",
+					"minRoll": 5
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "zombie_brute"
+	},
+	{
+		"index": "z-feral-dog",
+		"name": "Feral Dog",
+		"size": "medium",
+		"type": "beast",
+		"alignment": "unaligned",
+		"ac": 12,
+		"hp": 11,
+		"hitDice": "2d8+2",
+		"speed": {
+			"walk": 40
+		},
+		"abilities": {
+			"str": 13,
+			"dex": 14,
+			"con": 12,
+			"int": 3,
+			"wis": 12,
+			"cha": 6
+		},
+		"saves": {},
+		"skills": {
+			"perception": 3
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [],
+		"conditionImmunities": [],
+		"senses": "passive Perception 13",
+		"languages": "—",
+		"cr": 0.25,
+		"xp": 50,
+		"traits": [
+			{
+				"name": "Pack Tactics",
+				"description": "The dog has advantage on an attack roll against a creature if at least one of its pack is within 5 feet of the creature and isn't incapacitated."
+			},
+			{
+				"name": "Keen Hearing and Smell",
+				"description": "The dog has advantage on Wisdom (Perception) checks that rely on hearing or smell."
+			}
+		],
+		"actions": [
+			{
+				"name": "Bite",
+				"description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 5 (1d6 + 2) piercing damage. The target must succeed on a DC 11 Strength saving throw or be knocked prone.",
+				"attack": {
+					"name": "Bite",
+					"kind": "melee",
+					"toHit": 4,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d6+2",
+							"type": "piercing"
+						}
+					],
+					"description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 5 (1d6 + 2) piercing damage. The target must succeed on a DC 11 Strength saving throw or be knocked prone.",
+					"save": {
+						"ability": "str",
+						"dc": 11,
+						"onFail": "DC 11 Strength saving throw or be knocked prone.",
+						"halfOnSuccess": false
+					}
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "dog"
+	},
+	{
+		"index": "z-desperate-survivor",
+		"name": "Desperate Survivor",
+		"size": "medium",
+		"type": "humanoid (human)",
+		"alignment": "any alignment",
+		"ac": 10,
+		"hp": 9,
+		"hitDice": "2d8",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 10,
+			"dex": 10,
+			"con": 10,
+			"int": 10,
+			"wis": 10,
+			"cha": 10
+		},
+		"saves": {},
+		"skills": {},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [],
+		"conditionImmunities": [],
+		"senses": "passive Perception 10",
+		"languages": "English",
+		"cr": 0.125,
+		"xp": 25,
+		"traits": [
+			{
+				"name": "Nothing Left to Lose",
+				"description": "Hungry, scared, maybe bitten and hiding it. It might beg, trade, lie, or run; it fights only when cornered."
+			}
+		],
+		"actions": [
+			{
+				"name": "Kitchen Knife",
+				"description": "Melee Weapon Attack: +2 to hit, reach 5 ft., one target. Hit: 2 (1d4) piercing damage.",
+				"attack": {
+					"name": "Kitchen Knife",
+					"kind": "melee",
+					"toHit": 2,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d4",
+							"type": "piercing"
+						}
+					],
+					"description": "Melee Weapon Attack: +2 to hit, reach 5 ft., one target. Hit: 2 (1d4) piercing damage."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "survivor"
+	},
+	{
+		"index": "z-raider-thug",
+		"name": "Raider Thug",
+		"size": "medium",
+		"type": "humanoid (human)",
+		"alignment": "any non-good alignment",
+		"ac": 12,
+		"hp": 22,
+		"hitDice": "4d8+4",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 15,
+			"dex": 12,
+			"con": 12,
+			"int": 9,
+			"wis": 10,
+			"cha": 9
+		},
+		"saves": {},
+		"skills": {
+			"intimidation": 1
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [],
+		"conditionImmunities": [],
+		"senses": "passive Perception 10",
+		"languages": "English",
+		"cr": 0.5,
+		"xp": 100,
+		"traits": [
+			{
+				"name": "Short on Ammo",
+				"description": "It has 1d4 rounds for its pistol. When they're gone it fights with the bat."
+			}
+		],
+		"actions": [
+			{
+				"name": "Baseball Bat",
+				"description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 6 (1d8 + 2) bludgeoning damage.",
+				"attack": {
+					"name": "Baseball Bat",
+					"kind": "melee",
+					"toHit": 4,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d8+2",
+							"type": "bludgeoning"
+						}
+					],
+					"description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 6 (1d8 + 2) bludgeoning damage."
+				}
+			},
+			{
+				"name": "9mm Pistol",
+				"description": "Ranged Weapon Attack: +3 to hit, range 50/150 ft., one target. Hit: 6 (1d10 + 1) piercing damage. The shot is loud.",
+				"attack": {
+					"name": "9mm Pistol",
+					"kind": "ranged",
+					"toHit": 3,
+					"range": {
+						"normal": 50,
+						"long": 150
+					},
+					"damage": [
+						{
+							"dice": "1d10+1",
+							"type": "piercing"
+						}
+					],
+					"description": "Ranged Weapon Attack: +3 to hit, range 50/150 ft., one target. Hit: 6 (1d10 + 1) piercing damage. The shot is loud."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "raider"
+	},
+	{
+		"index": "z-raider-gunman",
+		"name": "Raider Gunman",
+		"size": "medium",
+		"type": "humanoid (human)",
+		"alignment": "any non-good alignment",
+		"ac": 13,
+		"hp": 33,
+		"hitDice": "6d8+6",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 11,
+			"dex": 16,
+			"con": 12,
+			"int": 10,
+			"wis": 12,
+			"cha": 10
+		},
+		"saves": {},
+		"skills": {
+			"perception": 3,
+			"stealth": 5
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [],
+		"conditionImmunities": [],
+		"senses": "passive Perception 13",
+		"languages": "English",
+		"cr": 1,
+		"xp": 200,
+		"traits": [
+			{
+				"name": "Behind Cover",
+				"description": "It shoots from cover whenever it can and falls back when the dead show up."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "It makes two Carbine attacks.",
+				"multiattack": [
+					{
+						"action": "Carbine",
+						"count": 2
+					}
+				]
+			},
+			{
+				"name": "Carbine",
+				"description": "Ranged Weapon Attack: +5 to hit, range 100/400 ft., one target. Hit: 10 (2d6 + 3) piercing damage. The shot is loud.",
+				"attack": {
+					"name": "Carbine",
+					"kind": "ranged",
+					"toHit": 5,
+					"range": {
+						"normal": 100,
+						"long": 400
+					},
+					"damage": [
+						{
+							"dice": "2d6+3",
+							"type": "piercing"
+						}
+					],
+					"description": "Ranged Weapon Attack: +5 to hit, range 100/400 ft., one target. Hit: 10 (2d6 + 3) piercing damage. The shot is loud."
+				}
+			},
+			{
+				"name": "Hunting Knife",
+				"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 6 (1d6 + 3) slashing damage.",
+				"attack": {
+					"name": "Hunting Knife",
+					"kind": "melee",
+					"toHit": 5,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d6+3",
+							"type": "slashing"
+						}
+					],
+					"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 6 (1d6 + 3) slashing damage."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "raider"
+	},
+	{
+		"index": "z-raider-leader",
+		"name": "Raider Leader",
+		"size": "medium",
+		"type": "humanoid (human)",
+		"alignment": "any non-good alignment",
+		"ac": 15,
+		"hp": 65,
+		"hitDice": "10d8+20",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 16,
+			"dex": 14,
+			"con": 14,
+			"int": 12,
+			"wis": 12,
+			"cha": 15
+		},
+		"saves": {
+			"str": 5,
+			"con": 4
+		},
+		"skills": {
+			"intimidation": 6,
+			"deception": 4
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [],
+		"conditionImmunities": [],
+		"senses": "passive Perception 11",
+		"languages": "English",
+		"cr": 3,
+		"xp": 700,
+		"traits": [
+			{
+				"name": "Kevlar",
+				"description": "It wears a police vest taken off a dead officer."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "It makes two Machete attacks or two Shotgun attacks.",
+				"multiattack": [
+					{
+						"action": "Machete",
+						"count": 2
+					}
+				]
+			},
+			{
+				"name": "Machete",
+				"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 7 (1d8 + 3) slashing damage.",
+				"attack": {
+					"name": "Machete",
+					"kind": "melee",
+					"toHit": 5,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d8+3",
+							"type": "slashing"
+						}
+					],
+					"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 7 (1d8 + 3) slashing damage."
+				}
+			},
+			{
+				"name": "Shotgun",
+				"description": "Ranged Weapon Attack: +4 to hit, range 30/90 ft., one target. Hit: 9 (2d6 + 2) piercing damage. The shot is very loud.",
+				"attack": {
+					"name": "Shotgun",
+					"kind": "ranged",
+					"toHit": 4,
+					"range": {
+						"normal": 30,
+						"long": 90
+					},
+					"damage": [
+						{
+							"dice": "2d6+2",
+							"type": "piercing"
+						}
+					],
+					"description": "Ranged Weapon Attack: +4 to hit, range 30/90 ft., one target. Hit: 9 (2d6 + 2) piercing damage. The shot is very loud."
+				}
+			}
+		],
+		"bonusActions": [
+			{
+				"name": "Bark Orders",
+				"description": "One ally within 30 feet that can hear the leader can use its reaction to make one weapon attack."
+			}
+		],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "raider"
+	},
+	{
+		"index": "z-cordon-soldier",
+		"name": "Cordon Soldier",
+		"size": "medium",
+		"type": "humanoid (human)",
+		"alignment": "lawful neutral",
+		"ac": 16,
+		"hp": 45,
+		"hitDice": "7d8+14",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 14,
+			"dex": 14,
+			"con": 14,
+			"int": 10,
+			"wis": 12,
+			"cha": 10
+		},
+		"saves": {
+			"con": 4
+		},
+		"skills": {
+			"perception": 3,
+			"athletics": 4
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [],
+		"conditionImmunities": [],
+		"senses": "passive Perception 13",
+		"languages": "English",
+		"cr": 2,
+		"xp": 450,
+		"traits": [
+			{
+				"name": "Orders",
+				"description": "Operation Tollgate: nobody crosses. It shouts one warning, then fires."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "It makes two Rifle attacks.",
+				"multiattack": [
+					{
+						"action": "Rifle",
+						"count": 2
+					}
+				]
+			},
+			{
+				"name": "Rifle",
+				"description": "Ranged Weapon Attack: +5 to hit, range 150/600 ft., one target. Hit: 9 (2d6 + 2) piercing damage. The shot is loud.",
+				"attack": {
+					"name": "Rifle",
+					"kind": "ranged",
+					"toHit": 5,
+					"range": {
+						"normal": 150,
+						"long": 600
+					},
+					"damage": [
+						{
+							"dice": "2d6+2",
+							"type": "piercing"
+						}
+					],
+					"description": "Ranged Weapon Attack: +5 to hit, range 150/600 ft., one target. Hit: 9 (2d6 + 2) piercing damage. The shot is loud."
+				}
+			},
+			{
+				"name": "Combat Knife",
+				"description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 5 (1d6 + 2) slashing damage.",
+				"attack": {
+					"name": "Combat Knife",
+					"kind": "melee",
+					"toHit": 4,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d6+2",
+							"type": "slashing"
+						}
+					],
+					"description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 5 (1d6 + 2) slashing damage."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "soldier"
+	}
+]

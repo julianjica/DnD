@@ -1,1 +1,490 @@
-{}
+{
+	"barbarian": [
+		{
+			"ref": "z-fire-axe",
+			"qty": 1
+		},
+		{
+			"ref": "z-turnout-gear",
+			"qty": 1
+		},
+		{
+			"ref": "z-road-flare",
+			"qty": 2
+		},
+		{
+			"ref": "z-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "z-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "z-bandage",
+			"qty": 2
+		},
+		{
+			"ref": "z-bottled-water",
+			"qty": 2
+		},
+		{
+			"ref": "z-canned-food",
+			"qty": 1
+		}
+	],
+	"bard": [
+		{
+			"ref": "z-tire-iron",
+			"qty": 1
+		},
+		{
+			"ref": "z-leather-jacket",
+			"qty": 1
+		},
+		{
+			"ref": "z-radio",
+			"qty": 1
+		},
+		{
+			"ref": "z-batteries",
+			"qty": 4
+		},
+		{
+			"ref": "z-car-keys",
+			"qty": 1
+		},
+		{
+			"ref": "z-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "z-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "z-bottled-water",
+			"qty": 1
+		},
+		{
+			"ref": "z-canned-food",
+			"qty": 1
+		}
+	],
+	"cleric": [
+		{
+			"ref": "z-kitchen-knife",
+			"qty": 1
+		},
+		{
+			"ref": "z-bandage",
+			"qty": 4
+		},
+		{
+			"ref": "z-painkillers",
+			"qty": 4
+		},
+		{
+			"ref": "z-rubbing-alcohol",
+			"qty": 1
+		},
+		{
+			"ref": "z-sedative",
+			"qty": 1
+		},
+		{
+			"ref": "z-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "z-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "z-bottled-water",
+			"qty": 1
+		},
+		{
+			"ref": "z-canned-food",
+			"qty": 1
+		}
+	],
+	"druid": [
+		{
+			"ref": "z-pitchfork",
+			"qty": 1
+		},
+		{
+			"ref": "z-hunting-knife",
+			"qty": 1
+		},
+		{
+			"ref": "z-winter-coat",
+			"qty": 1
+		},
+		{
+			"ref": "z-snare-wire",
+			"qty": 2
+		},
+		{
+			"ref": "z-rope",
+			"qty": 1
+		},
+		{
+			"ref": "z-matches",
+			"qty": 1
+		},
+		{
+			"ref": "z-sedative",
+			"qty": 1
+		},
+		{
+			"ref": "z-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "z-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "z-bottled-water",
+			"qty": 2
+		},
+		{
+			"ref": "z-canned-food",
+			"qty": 3
+		}
+	],
+	"fighter": [
+		{
+			"ref": "z-hunting-rifle",
+			"qty": 1
+		},
+		{
+			"ref": "z-ammo-308",
+			"qty": 6
+		},
+		{
+			"ref": "z-hunting-knife",
+			"qty": 1
+		},
+		{
+			"ref": "z-leather-jacket",
+			"qty": 1
+		},
+		{
+			"ref": "z-binoculars",
+			"qty": 1
+		},
+		{
+			"ref": "z-duct-tape",
+			"qty": 1
+		},
+		{
+			"ref": "z-bandage",
+			"qty": 1
+		},
+		{
+			"ref": "z-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "z-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "z-bottled-water",
+			"qty": 1
+		},
+		{
+			"ref": "z-canned-food",
+			"qty": 1
+		}
+	],
+	"monk": [
+		{
+			"ref": "z-baseball-bat",
+			"qty": 1
+		},
+		{
+			"ref": "z-bandage",
+			"qty": 1
+		},
+		{
+			"ref": "z-duct-tape",
+			"qty": 1
+		},
+		{
+			"ref": "z-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "z-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "z-bottled-water",
+			"qty": 2
+		},
+		{
+			"ref": "z-canned-food",
+			"qty": 1
+		}
+	],
+	"paladin": [
+		{
+			"ref": "z-pistol-9mm",
+			"qty": 1
+		},
+		{
+			"ref": "z-ammo-9mm",
+			"qty": 30
+		},
+		{
+			"ref": "z-police-baton",
+			"qty": 1
+		},
+		{
+			"ref": "z-kevlar-vest",
+			"qty": 1
+		},
+		{
+			"ref": "z-handcuffs",
+			"qty": 1
+		},
+		{
+			"ref": "z-pepper-spray",
+			"qty": 3
+		},
+		{
+			"ref": "z-walkie-talkie",
+			"qty": 1
+		},
+		{
+			"ref": "z-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "z-bandage",
+			"qty": 2
+		},
+		{
+			"ref": "z-car-keys",
+			"qty": 1
+		},
+		{
+			"ref": "z-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "z-bottled-water",
+			"qty": 1
+		}
+	],
+	"ranger": [
+		{
+			"ref": "z-compound-bow",
+			"qty": 1
+		},
+		{
+			"ref": "z-arrow",
+			"qty": 12
+		},
+		{
+			"ref": "z-hunting-knife",
+			"qty": 1
+		},
+		{
+			"ref": "z-winter-coat",
+			"qty": 1
+		},
+		{
+			"ref": "z-rope",
+			"qty": 1
+		},
+		{
+			"ref": "z-binoculars",
+			"qty": 1
+		},
+		{
+			"ref": "z-snare-wire",
+			"qty": 1
+		},
+		{
+			"ref": "z-matches",
+			"qty": 1
+		},
+		{
+			"ref": "z-bandage",
+			"qty": 1
+		},
+		{
+			"ref": "z-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "z-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "z-bottled-water",
+			"qty": 2
+		},
+		{
+			"ref": "z-canned-food",
+			"qty": 2
+		}
+	],
+	"rogue": [
+		{
+			"ref": "z-crowbar",
+			"qty": 1
+		},
+		{
+			"ref": "z-hunting-knife",
+			"qty": 1
+		},
+		{
+			"ref": "z-leather-jacket",
+			"qty": 1
+		},
+		{
+			"ref": "z-lockpicks",
+			"qty": 1
+		},
+		{
+			"ref": "z-duct-tape",
+			"qty": 1
+		},
+		{
+			"ref": "z-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "z-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "z-bottled-water",
+			"qty": 1
+		},
+		{
+			"ref": "z-canned-food",
+			"qty": 1
+		}
+	],
+	"sorcerer": [
+		{
+			"ref": "z-baseball-bat",
+			"qty": 1
+		},
+		{
+			"ref": "z-painkillers",
+			"qty": 1
+		},
+		{
+			"ref": "z-bandage",
+			"qty": 1
+		},
+		{
+			"ref": "z-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "z-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "z-bottled-water",
+			"qty": 3
+		},
+		{
+			"ref": "z-canned-food",
+			"qty": 1
+		}
+	],
+	"warlock": [
+		{
+			"ref": "z-shiv",
+			"qty": 1
+		},
+		{
+			"ref": "z-leather-jacket",
+			"qty": 1
+		},
+		{
+			"ref": "z-lighter",
+			"qty": 1
+		},
+		{
+			"ref": "z-lockpicks",
+			"qty": 1
+		},
+		{
+			"ref": "z-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "z-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "z-bottled-water",
+			"qty": 1
+		},
+		{
+			"ref": "z-canned-food",
+			"qty": 1
+		}
+	],
+	"wizard": [
+		{
+			"ref": "z-hammer",
+			"qty": 1
+		},
+		{
+			"ref": "z-lighter",
+			"qty": 1
+		},
+		{
+			"ref": "z-glass-bottle",
+			"qty": 2
+		},
+		{
+			"ref": "z-rag",
+			"qty": 2
+		},
+		{
+			"ref": "z-bleach",
+			"qty": 1
+		},
+		{
+			"ref": "z-ammonia",
+			"qty": 1
+		},
+		{
+			"ref": "z-duct-tape",
+			"qty": 1
+		},
+		{
+			"ref": "z-batteries",
+			"qty": 2
+		},
+		{
+			"ref": "z-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "z-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "z-bottled-water",
+			"qty": 1
+		},
+		{
+			"ref": "z-canned-food",
+			"qty": 1
+		}
+	]
+}

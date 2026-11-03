@@ -1,1 +1,1214 @@
-[]
+[
+	{
+		"index": "z-kitchen-knife",
+		"name": "Kitchen Knife",
+		"category": "weapon",
+		"subcategory": "simple-melee",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 1,
+		"description": "An eight-inch chef's knife from somebody's kitchen block. Light, quick and easy to hide; you can throw it in a pinch.",
+		"weapon": {
+			"category": "simple",
+			"ranged": false,
+			"damage": "1d4",
+			"damageType": "piercing",
+			"properties": [
+				"finesse",
+				"light",
+				"thrown"
+			],
+			"throwRange": {
+				"normal": 20,
+				"long": 60
+			}
+		}
+	},
+	{
+		"index": "z-shiv",
+		"name": "Shiv",
+		"category": "weapon",
+		"subcategory": "simple-melee",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.5,
+		"description": "A sharpened toothbrush or a strip of metal wrapped in tape. Ugly, small and always on you.",
+		"weapon": {
+			"category": "simple",
+			"ranged": false,
+			"damage": "1d4",
+			"damageType": "piercing",
+			"properties": [
+				"finesse",
+				"light"
+			]
+		}
+	},
+	{
+		"index": "z-hunting-knife",
+		"name": "Hunting Knife",
+		"category": "weapon",
+		"subcategory": "simple-melee",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 1,
+		"description": "A fixed-blade knife with a gut hook. Good for skinning, better for the soft spot under a jaw.",
+		"weapon": {
+			"category": "simple",
+			"ranged": false,
+			"damage": "1d6",
+			"damageType": "slashing",
+			"properties": [
+				"finesse",
+				"light"
+			]
+		}
+	},
+	{
+		"index": "z-baseball-bat",
+		"name": "Baseball Bat",
+		"category": "weapon",
+		"subcategory": "simple-melee",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 2,
+		"description": "Ash or aluminium, it doesn't matter. Swung with both hands it caves in a skull.",
+		"weapon": {
+			"category": "simple",
+			"ranged": false,
+			"damage": "1d6",
+			"damageType": "bludgeoning",
+			"properties": [
+				"versatile"
+			],
+			"versatile": "1d8"
+		}
+	},
+	{
+		"index": "z-crowbar",
+		"name": "Crowbar",
+		"category": "weapon",
+		"subcategory": "simple-melee",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 5,
+		"description": "A steel pry bar. Opens doors, windows and car trunks (advantage on Strength checks to force them) and doubles as a club.",
+		"weapon": {
+			"category": "simple",
+			"ranged": false,
+			"damage": "1d6",
+			"damageType": "bludgeoning",
+			"properties": []
+		}
+	},
+	{
+		"index": "z-machete",
+		"name": "Machete",
+		"category": "weapon",
+		"subcategory": "martial-melee",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 2,
+		"description": "A long brush blade from a garden shed. Heavy enough to take a head off with a clean swing.",
+		"weapon": {
+			"category": "martial",
+			"ranged": false,
+			"damage": "1d8",
+			"damageType": "slashing",
+			"properties": []
+		}
+	},
+	{
+		"index": "z-fire-axe",
+		"name": "Fire Axe",
+		"category": "weapon",
+		"subcategory": "martial-melee",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 6,
+		"description": "A red-headed axe from a glass case in the hallway. Breaks down doors and anything behind them.",
+		"weapon": {
+			"category": "martial",
+			"ranged": false,
+			"damage": "1d10",
+			"damageType": "slashing",
+			"properties": [
+				"heavy",
+				"two-handed"
+			]
+		}
+	},
+	{
+		"index": "z-hammer",
+		"name": "Claw Hammer",
+		"category": "weapon",
+		"subcategory": "simple-melee",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 1,
+		"description": "A plain claw hammer. Builds barricades, pulls nails and ends arguments.",
+		"weapon": {
+			"category": "simple",
+			"ranged": false,
+			"damage": "1d4",
+			"damageType": "bludgeoning",
+			"properties": [
+				"light",
+				"thrown"
+			],
+			"throwRange": {
+				"normal": 20,
+				"long": 60
+			}
+		}
+	},
+	{
+		"index": "z-golf-club",
+		"name": "Golf Club",
+		"category": "weapon",
+		"subcategory": "simple-melee",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 1,
+		"description": "A steel-shafted iron. Long reach for a one-handed swing, but it bends after a few good hits.",
+		"weapon": {
+			"category": "simple",
+			"ranged": false,
+			"damage": "1d6",
+			"damageType": "bludgeoning",
+			"properties": []
+		}
+	},
+	{
+		"index": "z-sledgehammer",
+		"name": "Sledgehammer",
+		"category": "weapon",
+		"subcategory": "martial-melee",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 10,
+		"description": "Ten pounds of steel on a wooden handle. Slow, exhausting and final.",
+		"weapon": {
+			"category": "martial",
+			"ranged": false,
+			"damage": "2d6",
+			"damageType": "bludgeoning",
+			"properties": [
+				"heavy",
+				"two-handed"
+			]
+		}
+	},
+	{
+		"index": "z-tire-iron",
+		"name": "Tire Iron",
+		"category": "weapon",
+		"subcategory": "simple-melee",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 2,
+		"description": "The lug wrench from a car trunk. Every car has one.",
+		"weapon": {
+			"category": "simple",
+			"ranged": false,
+			"damage": "1d6",
+			"damageType": "bludgeoning",
+			"properties": [
+				"light"
+			]
+		}
+	},
+	{
+		"index": "z-police-baton",
+		"name": "Police Baton",
+		"category": "weapon",
+		"subcategory": "simple-melee",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 1,
+		"description": "A collapsible steel baton. Built to subdue people; it works on the dead if you aim for the head.",
+		"weapon": {
+			"category": "simple",
+			"ranged": false,
+			"damage": "1d6",
+			"damageType": "bludgeoning",
+			"properties": [
+				"light"
+			]
+		}
+	},
+	{
+		"index": "z-pitchfork",
+		"name": "Pitchfork",
+		"category": "weapon",
+		"subcategory": "simple-melee",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 5,
+		"description": "A long-handled hay fork. Keeps the dead at arm's length and then some.",
+		"weapon": {
+			"category": "simple",
+			"ranged": false,
+			"damage": "1d8",
+			"damageType": "piercing",
+			"properties": [
+				"reach",
+				"two-handed"
+			]
+		}
+	},
+	{
+		"index": "z-pistol-9mm",
+		"name": "9mm Pistol",
+		"category": "weapon",
+		"subcategory": "martial-ranged",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 2,
+		"description": "A semi-automatic service pistol. Each shot uses up one 9mm round and is LOUD: everything dead within blocks hears it.",
+		"ammo": "z-ammo-9mm",
+		"weapon": {
+			"category": "martial",
+			"ranged": true,
+			"damage": "1d10",
+			"damageType": "piercing",
+			"properties": [
+				"ammunition",
+				"loud",
+				"light"
+			],
+			"range": {
+				"normal": 50,
+				"long": 150
+			}
+		}
+	},
+	{
+		"index": "z-revolver-38",
+		"name": ".38 Revolver",
+		"category": "weapon",
+		"subcategory": "martial-ranged",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 2,
+		"description": "A six-shot snub-nose revolver from a nightstand drawer. Each shot uses up one .38 round and is LOUD.",
+		"ammo": "z-ammo-38",
+		"weapon": {
+			"category": "martial",
+			"ranged": true,
+			"damage": "2d4",
+			"damageType": "piercing",
+			"properties": [
+				"ammunition",
+				"loud",
+				"light"
+			],
+			"range": {
+				"normal": 40,
+				"long": 120
+			}
+		}
+	},
+	{
+		"index": "z-shotgun",
+		"name": "Pump Shotgun",
+		"category": "weapon",
+		"subcategory": "martial-ranged",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 7,
+		"description": "A 12-gauge pump-action. Devastating up close, nearly useless far away. Each shot uses up one shell and is VERY loud.",
+		"ammo": "z-shells-12ga",
+		"weapon": {
+			"category": "martial",
+			"ranged": true,
+			"damage": "2d6",
+			"damageType": "piercing",
+			"properties": [
+				"ammunition",
+				"loud",
+				"heavy",
+				"two-handed"
+			],
+			"range": {
+				"normal": 30,
+				"long": 90
+			}
+		}
+	},
+	{
+		"index": "z-hunting-rifle",
+		"name": "Hunting Rifle",
+		"category": "weapon",
+		"subcategory": "martial-ranged",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 8,
+		"description": "A bolt-action deer rifle with a scope. One shot per action (loading), but it reaches across a parking lot. Each shot uses up one .308 round and is LOUD.",
+		"ammo": "z-ammo-308",
+		"weapon": {
+			"category": "martial",
+			"ranged": true,
+			"damage": "2d8",
+			"damageType": "piercing",
+			"properties": [
+				"ammunition",
+				"loud",
+				"heavy",
+				"two-handed",
+				"loading"
+			],
+			"range": {
+				"normal": 150,
+				"long": 600
+			}
+		}
+	},
+	{
+		"index": "z-carbine",
+		"name": "Carbine",
+		"category": "weapon",
+		"subcategory": "martial-ranged",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 7,
+		"description": "A short semi-automatic rifle, the kind police keep in the cruiser and soldiers carry. Each shot uses up one 5.56 round and is LOUD.",
+		"ammo": "z-ammo-556",
+		"weapon": {
+			"category": "martial",
+			"ranged": true,
+			"damage": "2d6",
+			"damageType": "piercing",
+			"properties": [
+				"ammunition",
+				"loud",
+				"two-handed"
+			],
+			"range": {
+				"normal": 100,
+				"long": 400
+			}
+		}
+	},
+	{
+		"index": "z-compound-bow",
+		"name": "Compound Bow",
+		"category": "weapon",
+		"subcategory": "martial-ranged",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 3,
+		"description": "A hunting bow with pulleys. QUIET: the dead don't come running. Each shot uses up one arrow (you can often recover them after a fight).",
+		"ammo": "z-arrow",
+		"weapon": {
+			"category": "martial",
+			"ranged": true,
+			"damage": "1d8",
+			"damageType": "piercing",
+			"properties": [
+				"ammunition",
+				"two-handed",
+				"quiet"
+			],
+			"range": {
+				"normal": 150,
+				"long": 600
+			}
+		}
+	},
+	{
+		"index": "z-crossbow",
+		"name": "Crossbow",
+		"category": "weapon",
+		"subcategory": "martial-ranged",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 6,
+		"description": "A hunting crossbow with a cocking stirrup. QUIET. One shot per action (loading); each uses up one bolt.",
+		"ammo": "z-bolt",
+		"weapon": {
+			"category": "martial",
+			"ranged": true,
+			"damage": "1d8",
+			"damageType": "piercing",
+			"properties": [
+				"ammunition",
+				"loading",
+				"two-handed",
+				"quiet"
+			],
+			"range": {
+				"normal": 100,
+				"long": 400
+			}
+		}
+	},
+	{
+		"index": "z-slingshot",
+		"name": "Slingshot",
+		"category": "weapon",
+		"subcategory": "simple-ranged",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.5,
+		"description": "A wrist-braced hunting slingshot. Weak but silent; good for breaking a distant window to draw the dead away. Uses up one steel ball per shot.",
+		"ammo": "z-steel-shot",
+		"weapon": {
+			"category": "simple",
+			"ranged": true,
+			"damage": "1d4",
+			"damageType": "piercing",
+			"properties": [
+				"ammunition",
+				"quiet"
+			],
+			"range": {
+				"normal": 30,
+				"long": 120
+			}
+		}
+	},
+	{
+		"index": "z-ammo-9mm",
+		"name": "9mm Rounds",
+		"category": "ammunition",
+		"subcategory": "ammunition",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.5,
+		"bundle": 15,
+		"description": "Loose 9mm pistol rounds. A full magazine is 15. Count every one."
+	},
+	{
+		"index": "z-ammo-38",
+		"name": ".38 Rounds",
+		"category": "ammunition",
+		"subcategory": "ammunition",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.3,
+		"bundle": 6,
+		"description": ".38 Special cartridges, usually found six at a time in a sock drawer."
+	},
+	{
+		"index": "z-shells-12ga",
+		"name": "12-Gauge Shells",
+		"category": "ammunition",
+		"subcategory": "ammunition",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 1,
+		"bundle": 8,
+		"description": "Buckshot shells for a shotgun."
+	},
+	{
+		"index": "z-ammo-308",
+		"name": ".308 Rounds",
+		"category": "ammunition",
+		"subcategory": "ammunition",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 1,
+		"bundle": 10,
+		"description": "Hunting rifle cartridges. The gun shop by Route 9 sold them by the box, before."
+	},
+	{
+		"index": "z-ammo-556",
+		"name": "5.56 Rounds",
+		"category": "ammunition",
+		"subcategory": "ammunition",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.5,
+		"bundle": 15,
+		"description": "Rifle rounds for a carbine. Police and Guard issue; rare."
+	},
+	{
+		"index": "z-arrow",
+		"name": "Arrows",
+		"category": "ammunition",
+		"subcategory": "ammunition",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.5,
+		"bundle": 6,
+		"description": "Carbon hunting arrows with broadheads. Often recoverable after a fight."
+	},
+	{
+		"index": "z-bolt",
+		"name": "Crossbow Bolts",
+		"category": "ammunition",
+		"subcategory": "ammunition",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.5,
+		"bundle": 6,
+		"description": "Short bolts for a hunting crossbow."
+	},
+	{
+		"index": "z-steel-shot",
+		"name": "Steel Shot",
+		"category": "ammunition",
+		"subcategory": "ammunition",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.2,
+		"bundle": 15,
+		"description": "Steel balls for a slingshot. Marbles and hex nuts work too."
+	},
+	{
+		"index": "z-leather-jacket",
+		"name": "Leather Jacket",
+		"category": "armor",
+		"subcategory": "light",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 4,
+		"description": "A heavy leather jacket. Teeth have a hard time getting through it.",
+		"armor": {
+			"type": "light",
+			"baseAc": 11,
+			"dex": true,
+			"stealthDisadvantage": false
+		}
+	},
+	{
+		"index": "z-winter-coat",
+		"name": "Padded Winter Coat",
+		"category": "armor",
+		"subcategory": "light",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 4,
+		"description": "A thick parka. Keeps out the cold and some of the bites.",
+		"armor": {
+			"type": "light",
+			"baseAc": 11,
+			"dex": true,
+			"stealthDisadvantage": false
+		}
+	},
+	{
+		"index": "z-motorcycle-gear",
+		"name": "Motorcycle Gear",
+		"category": "armor",
+		"subcategory": "light",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 8,
+		"description": "A padded riding jacket and trousers with armoured elbows and knees.",
+		"armor": {
+			"type": "light",
+			"baseAc": 12,
+			"dex": true,
+			"stealthDisadvantage": false
+		}
+	},
+	{
+		"index": "z-turnout-gear",
+		"name": "Turnout Gear",
+		"category": "armor",
+		"subcategory": "medium",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 20,
+		"description": "A firefighter's coat and trousers: heavy, fire-resistant and bite-resistant, and very noisy to move in.",
+		"armor": {
+			"type": "medium",
+			"baseAc": 13,
+			"dex": true,
+			"dexCap": 2,
+			"stealthDisadvantage": true
+		}
+	},
+	{
+		"index": "z-kevlar-vest",
+		"name": "Kevlar Vest",
+		"category": "armor",
+		"subcategory": "medium",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 8,
+		"description": "A police-issue soft body armour vest. Stops a bullet to the chest; doesn't help your arms.",
+		"armor": {
+			"type": "medium",
+			"baseAc": 14,
+			"dex": true,
+			"dexCap": 2,
+			"stealthDisadvantage": false
+		}
+	},
+	{
+		"index": "z-riot-gear",
+		"name": "Riot Gear",
+		"category": "armor",
+		"subcategory": "heavy",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 35,
+		"description": "A full riot suit: hard shell plates, helmet with visor, gauntlets. Almost nothing bites through it.",
+		"armor": {
+			"type": "heavy",
+			"baseAc": 16,
+			"dex": false,
+			"strMin": 13,
+			"stealthDisadvantage": true
+		}
+	},
+	{
+		"index": "z-riot-shield",
+		"name": "Riot Shield",
+		"category": "shield",
+		"subcategory": "shield",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 8,
+		"description": "A clear polycarbonate shield. Hold the dead off and push them back.",
+		"armor": {
+			"type": "shield",
+			"baseAc": 2,
+			"dex": false,
+			"stealthDisadvantage": false
+		}
+	},
+	{
+		"index": "z-medkit",
+		"name": "Medkit",
+		"category": "gear",
+		"subcategory": "medical",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 3,
+		"description": "A real first-aid kit: gauze, sutures, splints, saline. One medkit is enough for one serious patch-up (Field Surgery uses one up)."
+	},
+	{
+		"index": "z-bandage",
+		"name": "Bandage",
+		"category": "gear",
+		"subcategory": "medical",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.1,
+		"description": "A roll of gauze and tape. Used up by Field Dressing."
+	},
+	{
+		"index": "z-painkillers",
+		"name": "Painkillers",
+		"category": "gear",
+		"subcategory": "medical",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.1,
+		"description": "A strip of strong prescription pills. One dose per use."
+	},
+	{
+		"index": "z-antibiotics",
+		"name": "Antibiotics",
+		"category": "gear",
+		"subcategory": "medical",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.1,
+		"description": "A course of antibiotics. Treats infected wounds and fevers. It does not treat a bite from the dead."
+	},
+	{
+		"index": "z-epinephrine",
+		"name": "Epinephrine Auto-injector",
+		"category": "gear",
+		"subcategory": "medical",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.1,
+		"description": "An adrenaline pen. One use."
+	},
+	{
+		"index": "z-sedative",
+		"name": "Sedative Syringe",
+		"category": "gear",
+		"subcategory": "medical",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.1,
+		"description": "A loaded syringe of hospital or veterinary sedative. One use."
+	},
+	{
+		"index": "z-rubbing-alcohol",
+		"name": "Rubbing Alcohol",
+		"category": "gear",
+		"subcategory": "medical",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 1,
+		"description": "A bottle of isopropyl alcohol. Cleans a wound; burns well too."
+	},
+	{
+		"index": "z-canned-food",
+		"name": "Canned Food",
+		"category": "gear",
+		"subcategory": "food",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 1,
+		"description": "A can of beans, soup or peaches. One day's food."
+	},
+	{
+		"index": "z-bottled-water",
+		"name": "Bottled Water",
+		"category": "gear",
+		"subcategory": "food",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 2,
+		"description": "A large bottle of clean water. One day's water."
+	},
+	{
+		"index": "z-flashlight",
+		"name": "Flashlight",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 1,
+		"description": "A sturdy LED flashlight. Bright light in a 40-foot beam. At night it also tells everything dead where you are."
+	},
+	{
+		"index": "z-batteries",
+		"name": "Batteries",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.1,
+		"description": "AA batteries for flashlights, radios and walkie-talkies."
+	},
+	{
+		"index": "z-duct-tape",
+		"name": "Duct Tape",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 1,
+		"description": "A roll of silver tape. Fixes nearly anything for a while."
+	},
+	{
+		"index": "z-rope",
+		"name": "Rope (50 feet)",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 5,
+		"description": "Fifty feet of nylon climbing rope."
+	},
+	{
+		"index": "z-lockpicks",
+		"name": "Lockpicks",
+		"category": "tool",
+		"subcategory": "tool",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.5,
+		"description": "A set of picks and tension wrenches. Proficient users add their proficiency bonus to open locks."
+	},
+	{
+		"index": "z-walkie-talkie",
+		"name": "Walkie-talkie",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 1,
+		"description": "A two-way radio with a range of about two miles. Needs batteries."
+	},
+	{
+		"index": "z-road-flare",
+		"name": "Road Flare",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 1,
+		"description": "A red highway flare. Burns bright for 15 minutes; the dead shy from it and then follow it."
+	},
+	{
+		"index": "z-lighter",
+		"name": "Lighter",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.1,
+		"description": "A refillable lighter. Lights anything that will burn."
+	},
+	{
+		"index": "z-matches",
+		"name": "Matches",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.1,
+		"description": "A box of strike-anywhere matches."
+	},
+	{
+		"index": "z-gasoline",
+		"name": "Gasoline Can",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 8,
+		"description": "A red can holding about a gallon of gasoline. Fuel for a car or a generator, or a Molotov."
+	},
+	{
+		"index": "z-glass-bottle",
+		"name": "Glass Bottle",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 1,
+		"description": "An empty liquor or soda bottle."
+	},
+	{
+		"index": "z-rag",
+		"name": "Rag",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.1,
+		"description": "A strip of cotton cloth."
+	},
+	{
+		"index": "z-pipe",
+		"name": "Steel Pipe",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 2,
+		"description": "A short length of threaded steel pipe with end caps."
+	},
+	{
+		"index": "z-black-powder",
+		"name": "Black Powder",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 1,
+		"description": "A tin of black powder from a hunting store or a box of fireworks."
+	},
+	{
+		"index": "z-fuse",
+		"name": "Fuse",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.1,
+		"description": "A length of slow-burning fuse."
+	},
+	{
+		"index": "z-nails",
+		"name": "Box of Nails",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 2,
+		"description": "A box of framing nails, for barricades and worse."
+	},
+	{
+		"index": "z-planks",
+		"name": "Planks",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 10,
+		"description": "A few boards of lumber, enough to cover a window."
+	},
+	{
+		"index": "z-backpack",
+		"name": "Backpack",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 2,
+		"description": "A school or hiking backpack."
+	},
+	{
+		"index": "z-car-keys",
+		"name": "Car Keys",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.1,
+		"description": "Keys to a car parked somewhere in town, if it's still there."
+	},
+	{
+		"index": "z-sleeping-bag",
+		"name": "Sleeping Bag",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 4,
+		"description": "A warm sleeping bag. Late October nights are cold."
+	},
+	{
+		"index": "z-binoculars",
+		"name": "Binoculars",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 1,
+		"description": "See what's moving three streets away before it sees you."
+	},
+	{
+		"index": "z-radio",
+		"name": "Portable Radio",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 2,
+		"description": "A battery or hand-crank AM/FM radio. At 3 a.m., 101.7 FM reads names."
+	},
+	{
+		"index": "z-town-map",
+		"name": "Map of Kessler Falls",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.1,
+		"description": "A folded tourist map of the town and county roads."
+	},
+	{
+		"index": "z-handcuffs",
+		"name": "Handcuffs",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 1,
+		"description": "Steel police handcuffs with a key."
+	},
+	{
+		"index": "z-pepper-spray",
+		"name": "Pepper Spray",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.3,
+		"description": "One good burst of pepper spray (a canister holds about three). The dead don't care; the living do."
+	},
+	{
+		"index": "z-snare-wire",
+		"name": "Snare Wire",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.5,
+		"description": "A coil of thin steel wire for snares and trip lines. One coil per snare."
+	},
+	{
+		"index": "z-fertilizer",
+		"name": "Bag of Fertilizer",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 5,
+		"description": "Garden-store fertilizer. A chemist knows what else it's good for."
+	},
+	{
+		"index": "z-bleach",
+		"name": "Bleach",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 2,
+		"description": "A jug of household bleach."
+	},
+	{
+		"index": "z-ammonia",
+		"name": "Ammonia",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 2,
+		"description": "A bottle of ammonia cleaner. Never mix it with bleach, unless you mean to."
+	},
+	{
+		"index": "z-thermite",
+		"name": "Thermite Mix",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 2,
+		"description": "A jar of aluminium powder and rust, ready to be lit with a road flare."
+	}
+]
