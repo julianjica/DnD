@@ -8,6 +8,7 @@ import { useT } from "@/components/i18n/I18nProvider";
 import { useEngineText } from "@/components/i18n/useEngineText";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { describeOption } from "@/components/setup/ChoicePicker";
+import { choiceLabel } from "@/components/setup/i18n";
 import { getFeature, getSubclass } from "@/lib/srd";
 
 /** Hover details for a level-up option: a subclass shows its flavor and every feature by level; spells/features/skills use the wizard's descriptions. */
@@ -45,7 +46,7 @@ interface Opt { id: string; label: string; choose: number; options: Ref[] }
 interface Options { classId: string; newClassLevel: number; newTotalLevel: number; averageHp: number; hitDie: number; features: { index: string; name: string; description?: string }[]; choices: Opt[]; multiclass: { ok: boolean; reasons: string[] } }
 
 export function LevelUpDialog({ id, state, onClose, onDone }: { id: string; state: GameState; onClose: () => void; onDone: () => void }) {
-	const { t, te, ts } = useT();
+	const { t, te, ts, lang, ruleset } = useT();
 	const { le } = useEngineText();
 	const [classId, setClassId] = useState(state.character.classes[0].classId);
 	const [data, setData] = useState<{ options: Options; classes: Ref[] } | null>(null);
@@ -127,7 +128,7 @@ export function LevelUpDialog({ id, state, onClose, onDone }: { id: string; stat
 							{o.choices.map((c) => (
 								<div key={c.id}>
 									<div className="mb-1.5 text-sm">
-										{le(c.label)} <span className="text-faint">{t("play.lvl.choose", { n: c.choose, k: (picks[c.id] ?? []).length })}</span>
+										{choiceLabel(c, t, { cls: te("class", o.classId) }, lang, ruleset)} <span className="text-faint">{t("play.lvl.choose", { n: c.choose, k: (picks[c.id] ?? []).length })}</span>
 									</div>
 									<div className="flex flex-wrap gap-1.5">
 										{c.options.map((op) => (

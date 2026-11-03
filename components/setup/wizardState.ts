@@ -2,8 +2,8 @@ import type { Abilities, Ability, CampaignSettings, EngineConfig, PortraitSpec }
 import { ABILITIES } from "@/lib/game/types";
 import type { NewGameInput } from "@/lib/dm/newgame";
 import { assignByPriority, creationOptions, STANDARD_ARRAY, type AbilityInput, type Choices, type CreateCharacterInput, type CreationOptions } from "@/lib/rules/character";
-import { getClass } from "@/lib/srd";
-import { rulesetOf, type Ruleset } from "@/lib/rules/ruleset";
+import { SPECIES, getClass } from "@/lib/srd";
+import { offeredIn, rulesetOf, type Ruleset } from "@/lib/rules/ruleset";
 
 /** localStorage keys shared by the wizard and the settings page. */
 export const DRAFT_KEY = "dh:wizard-draft:v1";
@@ -236,7 +236,11 @@ function equipmentSelection(ec: CreationOptions["equipment"][number], e: { optio
 }
 
 export function buildNewGameInput(d: WizardDraft, opts: CreationOptions | undefined): NewGameInput | null {
-	const ci = characterInput(d.character, d.settings.structure.startingLevel, opts, "Adventurer", rulesetOf(d.settings));
+	const rs = rulesetOf(d.settings);
+	// A stale draft (or skipping the character step) could carry a species the ruleset doesn't offer.
+	const offered = offeredIn(SPECIES, rs);
+	const c = offered.some((s) => s.index === d.character.speciesId) ? d.character : { ...d.character, speciesId: offered[0]?.index ?? d.character.speciesId, subspeciesId: undefined };
+	const ci = characterInput(c, d.settings.structure.startingLevel, c === d.character ? opts : optionsFor(c, rs).opts, "Adventurer", rs);
 	if (!ci) return null;
 	const settings: CampaignSettings = {
 		...d.settings,

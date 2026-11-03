@@ -11,7 +11,10 @@ import { useT } from "@/components/i18n/I18nProvider";
 
 
 export function newPortrait(speciesId: string): PortraitSpec {
-	return randomPortrait(new Rng(newSeed()), speciesId);
+	const p = randomPortrait(new Rng(newSeed()), speciesId);
+	// The Quiet: origins are plain humans, no crowns or circlets.
+	if (!speciesId.startsWith("z-origin-")) return p;
+	return { ...p, features: p.features.filter((f) => !FANTASY_ONLY.has(f)), ...(p.accessory && FANTASY_ONLY.has(p.accessory) ? { accessory: "none" } : {}) };
 }
 
 /** Portrait options that only make sense for fantasy species; The Quiet (everyone human) hides them. */
