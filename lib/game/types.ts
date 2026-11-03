@@ -325,6 +325,8 @@ export interface GridMap {
 	climate?: "temperate" | "snow" | "desert";
 	/** Laid out by the DM with draw_map (not procedurally generated). */
 	drawn?: boolean;
+	/** Art theme: "modern" repaints the same tiles as a present-day town (asphalt, brick, linoleum). Missing = fantasy. */
+	theme?: "modern";
 }
 
 export type LocationKind = "town" | "city" | "village" | "dungeon" | "cave" | "forest" | "mountain" | "ruins" | "castle" | "temple" | "swamp" | "coast" | "camp" | "tower" | "landmark";

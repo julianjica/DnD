@@ -6,6 +6,7 @@
  */
 import type { PortraitSpec } from "@/lib/game/types";
 import { normalizeSpecies, portraitTraits } from "@/lib/art/portrait";
+import type { Ruleset } from "@/lib/rules/ruleset";
 
 export type Gear = "staff" | "sword" | "sword_shield" | "spear" | "bow" | "dagger" | "axe" | "mace" | "hammer" | "book" | "lute" | "lantern" | "cane" | "none";
 
@@ -46,7 +47,7 @@ function mix(a: string, b: string, t: number): string {
 }
 
 /** Gear suggested by class ids (PC) or by role/description words (NPC, English or Spanish). */
-export function gearFor(opts: { classes?: string[]; text?: string }): Gear {
+export function gearFor(opts: { classes?: string[]; text?: string; ruleset?: Ruleset }): Gear {
 	const cls = opts.classes ?? [];
 	const has = (k: string) => cls.includes(k);
 	if (has("wizard") || has("sorcerer") || has("warlock") || has("druid")) return "staff";
@@ -79,7 +80,7 @@ export function gearFor(opts: { classes?: string[]; text?: string }): Gear {
 	return "none";
 }
 
-export function personLook(spec: PortraitSpec, speciesId: string | undefined, gear: Gear): PersonLook {
+export function personLook(spec: PortraitSpec, speciesId: string | undefined, gear: Gear, _opts?: { ruleset?: Ruleset; classes?: string[]; text?: string }): PersonLook {
 	const tr = portraitTraits(spec, speciesId);
 	const age = spec.age ?? tr.age ?? 0.3;
 	let hair = spec.hairColor;

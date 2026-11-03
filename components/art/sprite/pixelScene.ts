@@ -5,10 +5,12 @@
  */
 import type { GridMap, MapEntity, Tile, TimeOfDay, Weather } from "@/lib/game/types";
 import { FEATURE_ALIASES, LIGHTS, SPRITES, type Sprite } from "./sprites";
-import { creatureSprite } from "./creatures";
+import { creatureSprite, hasModernCreature } from "./creatures";
 import { paintPerson, type PersonLook } from "./person";
+import { modernBridge, modernDoor, modernGround, modernObject, modernRoof, modernRubble, modernWall } from "./modern";
 
 const C = 16;
+const OUTLINE = "rgba(26,17,12,0.88)";
 
 export type Look = PersonLook;
 
@@ -68,6 +70,8 @@ class P {
 	}
 	get snow() { return this.m.climate === "snow"; }
 	get desert() { return this.m.climate === "desert"; }
+	/** Present-day town (The Quiet): the same tiles, repainted. */
+	get modern() { return this.m.theme === "modern"; }
 	px(x: number, y: number, w: number, h: number, c: string) {
 		this.ctx.fillStyle = c;
 		this.ctx.fillRect(x, y, w, h);
@@ -92,11 +96,21 @@ class P {
 	}
 	draw(s: Sprite, X: number, Y: number, extra: Record<string, string> = {}) {
 		const pal = { ...s.pal, ...extra };
+		const soft = (k: string) => !pal[k] || pal[k].startsWith("rgba");
+		if (s.outline) {
+			// dark 1-px outline around the solid pixels (the soft shadow "n" doesn't count)
+			const solid = (x: number, y: number) => x >= 0 && y >= 0 && x < 16 && y < 16 && !!pal[s.rows[y][x]] && !pal[s.rows[y][x]].startsWith("rgba");
+			for (let y = 0; y < 16; y++)
+				for (let x = 0; x < 16; x++)
+					if (!solid(x, y) && (solid(x + 1, y) || solid(x - 1, y) || solid(x, y + 1) || solid(x, y - 1))) this.px(X + x, Y + y, 1, 1, OUTLINE);
+		}
 		for (let y = 0; y < 16; y++) {
 			const row = s.rows[y];
 			for (let x = 0; x < 16; x++) {
 				const k = row[x];
 				if (k === "." || !pal[k]) continue;
+				// the outline already covers shadow pixels touching the sprite
+				if (s.outline && pal[k].startsWith("rgba") && ((x > 0 && !soft(row[x - 1])) || (x < 15 && !soft(row[x + 1])) || (y > 0 && !soft(s.rows[y - 1][x])) || (y < 15 && !soft(s.rows[y + 1][x])))) continue;
 				this.px(X + x, Y + y, 1, 1, pal[k]);
 			}
 		}
@@ -120,6 +134,7 @@ class P {
 	// ─── ground ──────────────────────────────────────────────────────────
 	ground(x: number, y: number, g: Tile) {
 		const X = x * C, Y = y * C;
+		if (this.modern && modernGround(this, x, y, g)) return;
 		switch (g) {
 			case "grass":
 			case "tall_grass":
@@ -198,6 +213,10 @@ class P {
 			this.rockMass(x, y);
 			return;
 		}
+		if (this.modern) {
+			modernWall(this, x, y);
+			return;
+		}
 		if (LOG_WALLS.has(k)) {
 			this.px(X, Y, C, C, "#4a2f18");
 			for (let r = 0; r < 4; r++) {
@@ -235,6 +254,10 @@ class P {
 
 	door(x: number, y: number, t: Tile) {
 		const X = x * C, Y = y * C;
+		if (this.modern) {
+			modernDoor(this, x, y, t, (gx, gy, g) => this.ground(gx, gy, g));
+			return;
+		}
 		const horiz = ["wall", "door", "door_locked"].includes(this.t(x - 1, y)) || ["wall"].includes(this.t(x + 1, y));
 		this.ground(x, y, this.groundOf(x, y) === "wood_floor" || LOG_WALLS.has(this.m.kind) ? "wood_floor" : "floor");
 		if (t === "door_open") {
@@ -274,6 +297,10 @@ class P {
 				return;
 			}
 			case "bridge": {
+				if (this.modern) {
+					modernBridge(this, x, y, (wx, wy, deep) => this.water(wx, wy, deep));
+					return;
+				}
 				this.water(x, y, false);
 				this.px(X, Y + 1, C, 14, "#6b4a2e");
 				for (let i = 0; i < 16; i += 3) this.px(X + i, Y + 1, 1, 14, "#4e321a");
@@ -291,6 +318,10 @@ class P {
 				return;
 			}
 			case "building": {
+				if (this.modern) {
+					modernRoof(this, x, y);
+					return;
+				}
 				// Roof seen from above.
 				this.px(X, Y, C, C, this.snow ? "#e6ecf1" : "#7a3b2a");
 				for (let r = 0; r < 4; r++) this.px(X, Y + r * 4 + 3, C, 1, this.snow ? "#bfcad4" : "#5a2a1e");
@@ -299,6 +330,10 @@ class P {
 			case "rubble":
 			case "difficult": {
 				this.ground(x, y, this.groundOf(x, y));
+				if (this.modern) {
+					modernRubble(this, x, y);
+					return;
+				}
 				for (let i = 0; i < 6; i++) {
 					const rx = Math.floor(rnd(x, y, 30 + i) * 13), ry = Math.floor(rnd(x, y, 40 + i) * 13);
 					this.px(X + rx, Y + ry, 3, 2, "#6b6e75");
@@ -314,6 +349,7 @@ class P {
 	/** Things standing on a tile: trees, boulders, furniture. Drawn after all ground. */
 	object(x: number, y: number) {
 		const t = this.t(x, y), X = x * C, Y = y * C;
+		if (this.modern && modernObject(this, x, y)) return;
 		if (t === "tree") {
 			const pine = this.snow || this.m.kind === "mountain_pass" || rnd(x, y, 50) < 0.15;
 			this.sprite(pine ? (this.snow ? "pineSnow" : "pine") : "oak", X, Y - 3);
@@ -390,6 +426,8 @@ export function frameAround(map: GridMap, minW = 18, maxW = 32, reach = 12): Fra
 const idx = (map: GridMap, x: number, y: number) => Math.max(0, Math.min(map.height - 1, y)) * map.width + Math.max(0, Math.min(map.width - 1, x));
 
 const CREATURES = new Set(["pc", "npc", "monster"]);
+/** Props lying on the floor: drawn under people standing on the same row. */
+const FLAT = new Set(["footprints", "bed", "shelf", "blood_pool", "body_bag", "hospital_bed"]);
 
 /** Paints the static picture (ground, objects, people, light) of the frame into `canvas` at 1 px per sprite pixel. */
 export function paintPixelScene(canvas: HTMLCanvasElement, input: PixelSceneInput, frame: Frame) {
@@ -418,14 +456,16 @@ export function paintPixelScene(canvas: HTMLCanvasElement, input: PixelSceneInpu
 				y: e.y + 0.5,
 				fn: () => {
 					const dead = !!e.dead || !!input.dead?.has(e.id);
-					ctx.drawImage(creatureCanvas(e, look, dead), X, Y - (dead || e.kind === "monster" ? 0 : 1), 16 * size, 16 * size);
+					ctx.drawImage(creatureCanvas(e, look, dead, map.theme === "modern"), X, Y - (dead || e.kind === "monster" ? 0 : 1), 16 * size, 16 * size);
 				},
 			});
 		} else {
 			const name = featureSprite(e);
-			const flat = name === "footprints" || name === "bed" || name === "shelf";
+			const flat = FLAT.has(name);
 			draws.push({ y: flat ? e.y : e.y + 0.3, fn: () => p.sprite(name === "campfire" && (e.sprite === "hearth" || e.name.toLowerCase().includes("hearth")) ? "flame" : name, X, Y - (name === "standing_stone" || name === "statue" ? 2 : 0)) });
 			const L = LIGHTS[name];
+			// street lamps are off in daylight
+			if (name === "street_lamp" && !e.lightRadius && input.time === "day" && map.lighting === "bright") continue;
 			if (L || e.lightRadius) lights.push({ x: e.x + 0.5, y: e.y + 0.5, r: e.lightRadius ?? L.r, color: L?.color ?? "255,190,110", a: L?.a ?? 0.35 });
 		}
 	}
@@ -533,11 +573,11 @@ function upscale(draw: (p: P) => void, map: GridMap | undefined, px: number, n =
 }
 
 /** A creature token for the battle map: the sprite standing on a coloured ring (side / disposition). */
-export function pixelToken(px: number, opts: { kind: MapEntity["kind"]; sprite: string; look?: Look; ring: string; dead?: boolean }): HTMLCanvasElement {
+export function pixelToken(px: number, opts: { kind: MapEntity["kind"]; sprite: string; look?: Look; ring: string; dead?: boolean; modern?: boolean }): HTMLCanvasElement {
 	return upscale((p) => {
 		const ctx = p.ctx;
 		if (opts.dead) {
-			ctx.drawImage(creatureCanvas({ kind: opts.kind, sprite: opts.sprite }, opts.look, true), 0, 0);
+			ctx.drawImage(creatureCanvas({ kind: opts.kind, sprite: opts.sprite }, opts.look, true, opts.modern), 0, 0);
 			return;
 		}
 		// ring at the feet
@@ -547,7 +587,7 @@ export function pixelToken(px: number, opts: { kind: MapEntity["kind"]; sprite: 
 		ctx.fillRect(3, 15, 10, 1);
 		ctx.fillStyle = "rgba(0,0,0,0.35)";
 		ctx.fillRect(4, 14, 8, 1);
-		ctx.drawImage(creatureCanvas({ kind: opts.kind, sprite: opts.sprite }, opts.look, false), 0, opts.kind === "monster" ? -1 : -2);
+		ctx.drawImage(creatureCanvas({ kind: opts.kind, sprite: opts.sprite }, opts.look, false, opts.modern), 0, opts.kind === "monster" ? -1 : -2);
 	}, undefined, px);
 }
 
@@ -557,13 +597,17 @@ export function pixelProp(px: number, e: Pick<MapEntity, "sprite" | "name" | "ki
 	return upscale((p) => p.sprite(name === "campfire" && /hearth/i.test(`${e.sprite} ${e.name}`) ? "flame" : name, 0, 0), undefined, px);
 }
 
-/** A creature's 16×16 sprite; dead ones lie on their side, drained of colour, in a pool of blood. */
-export function creatureCanvas(e: Pick<MapEntity, "kind" | "sprite">, look: Look | undefined, dead: boolean): HTMLCanvasElement {
+/**
+ * A creature's 16×16 sprite; dead ones lie on their side, drained of colour, in a pool of blood.
+ * `modern`: the map is a present-day town, so token hints resolve to The Quiet's creatures
+ * ("zombie" is a shambler in a hoodie; a lookless NPC with a known hint like "survivor" uses that sprite).
+ */
+export function creatureCanvas(e: Pick<MapEntity, "kind" | "sprite">, look: Look | undefined, dead: boolean, modern = false): HTMLCanvasElement {
 	const c = document.createElement("canvas");
 	c.width = c.height = 16;
 	const p = new P({ seed: 1 } as GridMap, c.getContext("2d")!);
-	if (e.kind === "monster") {
-		p.draw(creatureSprite(e.sprite, "monster"), 0, 0);
+	if (e.kind === "monster" || (modern && !look && e.kind === "npc" && hasModernCreature(e.sprite))) {
+		p.draw(creatureSprite(e.sprite, e.kind === "npc" ? "npc" : "monster", modern), 0, 0);
 		outline(c);
 	} else if (look) {
 		const ctx0 = p.ctx;

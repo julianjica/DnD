@@ -54,11 +54,20 @@ export interface DrawKey {
 	description?: string;
 }
 
+/** Present-day feature sprites (The Quiet: GridMap.theme "modern"). */
+export const MODERN_FEATURE_SPRITES = [
+	"car", "car_wreck", "police_car", "ambulance", "pickup_truck", "bus", "shopping_cart", "store_shelf", "fridge", "vending_machine",
+	"desk", "office_chair", "couch", "tv", "hospital_bed", "gurney", "gas_pump", "dumpster", "trash_bags", "chainlink_fence",
+	"barricade", "sandbags", "street_lamp", "traffic_cone", "road_sign", "mailbox", "fire_hydrant", "generator", "radio", "body_bag",
+	"blood_pool", "filing_cabinet", "washing_machine", "toilet", "bathtub", "phone_booth", "bench",
+] as const;
+
 /** Feature sprites the sprite renderer draws by name (anything else gets a generic marker). */
 export const FEATURE_SPRITES = [
 	"hearth", "campfire", "brazier", "torch", "lantern", "candles", "runestone", "standing_stone", "statue", "altar", "throne",
 	"barrel", "crate", "chest", "bed", "shelf", "well", "boat", "stalagmite", "bones", "footprints", "tent", "cart", "sign",
 	"coffin", "sarcophagus", "banner", "anvil", "cauldron", "log", "mushrooms", "crystals", "fountain", "grave",
+	...MODERN_FEATURE_SPRITES,
 ] as const;
 
 export interface DrawInput {

@@ -34,7 +34,7 @@ const ALIASES: [RegExp, string][] = [
 	[/crab|scorpion/, "crab"], [/rat/, "rat"], [/bat/, "bat"], [/snake|serpent|naga|viper|python/, "snake"],
 	[/horse|pony|mule|camel|mount/, "horse"], [/bird|eagle|hawk|owl|raven|crow|vulture|roc/, "bird"],
 	[/kobold/, "kobold"], [/goblin|hobgoblin|bugbear|goblinoid/, "goblin"], [/orc|half-orc|orog/, "orc"],
-	[/bandit|thug|brigand|cutthroat|thief|spy|assassin/, "bandit"], [/guard|soldier|veteran|watch|militia|gladiator/, "guard"],
+	[/bandit|thug|brigand|cutthroat|thief|spy|assassin|raider/, "bandit"], [/survivor/, "humanoid"], [/guard|soldier|veteran|watch|militia|gladiator/, "guard"],
 	[/knight|captain|noble|lord|king|queen/, "knight"], [/cult|acolyte|fanatic/, "cultist"], [/mage|wizard|sorcer|warlock|apprentice|archmage/, "mage"],
 	[/priest|cleric|druid|monk/, "priest"], [/archer|scout|ranger|hunter/, "archer"], [/pirate|sailor|buccaneer/, "pirate"],
 	[/dwarf|duergar/, "dwarf"], [/elf|drow|eladrin/, "elf"], [/commoner|villager|merchant|innkeeper|peasant|humanoid|human|npc/, "humanoid"],
