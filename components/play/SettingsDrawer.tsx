@@ -126,9 +126,9 @@ export function SettingsDrawer({ state, onClose, onSave }: { state: GameState; o
 				<div className="divider-ornate" />
 				<Field label={t("play.set.art")} hint={t("play.set.artHint")}>
 					<div className="flex flex-wrap gap-1">
-						{(["paintings", "illustrated"] as const).map((v) => (
+						{(["sprites", "paintings", "illustrated"] as const).map((v) => (
 							<button key={v} type="button" className="chip" data-active={(s.art?.scenes ?? "paintings") === v} onClick={() => setS((p) => ({ ...p, art: { scenes: v } }))}>
-								{t(v === "paintings" ? "play.set.artPaintings" : "play.set.artIllustrated")}
+								{t(v === "sprites" ? "play.set.artSprites" : v === "paintings" ? "play.set.artPaintings" : "play.set.artIllustrated")}
 							</button>
 						))}
 					</div>

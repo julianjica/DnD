@@ -35,7 +35,9 @@ export interface SceneArtProps {
 	/** Portrait size in px (default 76). */
 	portraitSize?: number;
 	/** "paintings" (public-domain painted backdrops, default) or "illustrated" (procedural SVG). */
-	style?: "paintings" | "illustrated";
+	style?: "sprites" | "paintings" | "illustrated";
+	/** Replaces the painted/illustrated picture (e.g. the pixel-sprite scene). */
+	backdrop?: ReactNode;
 	className?: string;
 	css?: CSSProperties;
 }
@@ -59,16 +61,17 @@ function layerStyle(d: number): CSSProperties {
  * Procedural, layered, deterministic scene illustration (16:9, scales to fit).
  * Same SceneState → same picture (seeded from title + kind).
  */
-export function SceneArt({ scene, npcs, parallax = true, animate = true, showCaption = true, portraitSize = 76, className, css, style = "paintings" }: SceneArtProps) {
+export function SceneArt({ scene, npcs, parallax = true, animate = true, showCaption = true, portraitSize = 76, className, css, style = "paintings", backdrop: custom }: SceneArtProps) {
 	const rid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
 	const ref = useRef<HTMLDivElement>(null);
 	const frame = useRef(0);
 
 	const sceneKey = JSON.stringify([scene.title, scene.kind, scene.timeOfDay, scene.weather, scene.mood, scene.props]);
+	const hasCustom = !!custom;
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const backdrop = useMemo(() => (style === "paintings" ? pickBackdrop(scene) : undefined), [style, sceneKey]); // eslint-disable-line react-hooks/exhaustive-deps
+	const backdrop = useMemo(() => (style === "paintings" && !hasCustom ? pickBackdrop(scene) : undefined), [style, sceneKey, hasCustom]); // eslint-disable-line react-hooks/exhaustive-deps
 	// eslint-disable-next-line react-hooks/exhaustive-deps
-	const svg = useMemo(() => (backdrop ? renderPainted(scene, backdrop, `sc${rid}`) : renderScene(scene, `sc${rid}`)), [sceneKey, rid, backdrop]);
+	const svg = useMemo(() => (hasCustom ? null : backdrop ? renderPainted(scene, backdrop, `sc${rid}`) : renderScene(scene, `sc${rid}`)), [sceneKey, rid, backdrop, hasCustom]);
 
 	const onMove = useCallback(
 		(e: React.PointerEvent<HTMLDivElement>) => {
@@ -103,7 +106,7 @@ export function SceneArt({ scene, npcs, parallax = true, animate = true, showCap
 			onPointerLeave={onLeave}
 		>
 			<style>{SCENE_CSS + PAINTED_CSS}</style>
-			{svg}
+			{custom ?? svg}
 			{backdrop && (
 				<a
 					href={backdrop.source}

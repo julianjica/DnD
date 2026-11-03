@@ -47,7 +47,7 @@ export function themeFor(kind: MapKind): Theme {
 	}
 }
 
-const GROUND = new Set<Tile>(["floor", "wood_floor", "grass", "tall_grass", "road", "sand", "mud", "difficult", "rubble"]);
+const GROUND = new Set<Tile>(["floor", "wood_floor", "grass", "tall_grass", "road", "sand", "mud", "difficult", "rubble", "ice"]);
 const BLOB_ORDER: Tile[] = ["mud", "sand", "road", "water", "deep_water", "lava", "pit"];
 
 export interface PaintChunk {
@@ -91,6 +91,8 @@ class Painter {
 	buildings: { x: number; y: number; w: number; h: number; id: number }[] = [];
 	constructor(public map: GridMap, public T: number) {
 		this.th = themeFor(map.kind);
+		if (map.climate === "snow") this.th = { ...this.th, grass: "#d9e1e8", trees: "pine" };
+		if (map.climate === "desert") this.th = { ...this.th, grass: "#c9ad7c" };
 		this.seed = map.seed | 0;
 		this.n1 = makeNoise2D(map.seed ^ 0x1234);
 		this.n2 = makeNoise2D(map.seed ^ 0x9876);
@@ -221,6 +223,19 @@ class Painter {
 				ctx.fillStyle = shade("#4d4128", tone);
 				ctx.fillRect(px, py, T, T);
 				break;
+			case "ice": {
+				ctx.fillStyle = shade("#a9cadb", tone);
+				ctx.fillRect(px, py, T, T);
+				ctx.strokeStyle = "rgba(255,255,255,0.45)";
+				ctx.lineWidth = Math.max(1, T / 32);
+				ctx.beginPath();
+				const a = this.r(x, y, 41) * T, b = this.r(x, y, 42) * T;
+				ctx.moveTo(px + a, py);
+				ctx.lineTo(px + T * 0.5, py + b);
+				ctx.lineTo(px + T, py + this.r(x, y, 43) * T);
+				ctx.stroke();
+				break;
+			}
 			case "sand":
 				ctx.fillStyle = this.map.kind === "mountain_pass" ? shade(this.th.floor, 0.06 + tone) : shade("#c2a878", tone);
 				ctx.fillRect(px, py, T, T);

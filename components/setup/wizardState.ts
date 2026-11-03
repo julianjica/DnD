@@ -51,6 +51,7 @@ export function defaultSettings(engine: EngineConfig = DEFAULT_ENGINE): Campaign
 		dm: { verbosity: "balanced", rulesStrictness: "standard", combatFrequency: "medium", autoRollPlayer: false },
 		engine,
 		audio: { enabled: true, musicVolume: 0.5, sfxVolume: 0.7 },
+		art: { scenes: "sprites" },
 	};
 }
 
@@ -122,6 +123,7 @@ export function loadDraft(): WizardDraft {
 					dm: { ...base.settings.dm, ...s.dm },
 					engine: { ...base.settings.engine, ...s.engine },
 					audio: { ...base.settings.audio, ...s.audio },
+					art: { ...base.settings.art!, ...s.art },
 					...(s.language ? { language: s.language } : {}),
 				}
 			: base.settings,

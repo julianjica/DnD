@@ -253,7 +253,7 @@ export type Tile =
 	| "void" | "floor" | "wall" | "door" | "door_open" | "door_locked" | "secret_door"
 	| "water" | "deep_water" | "difficult" | "pit" | "stairs_up" | "stairs_down"
 	| "grass" | "tall_grass" | "tree" | "rock" | "road" | "sand" | "mud" | "lava"
-	| "bridge" | "building" | "wood_floor" | "rubble" | "pillar" | "table" | "bar_counter";
+	| "bridge" | "building" | "wood_floor" | "rubble" | "pillar" | "table" | "bar_counter" | "ice";
 
 export type MapKind = "dungeon" | "cave" | "forest" | "town" | "tavern" | "road" | "camp" | "crypt" | "castle" | "swamp" | "mountain_pass" | "temple" | "ship" | "arena";
 
@@ -311,6 +311,10 @@ export interface GridMap {
 	lighting: "bright" | "dim" | "dark";
 	/** Square where the party enters. */
 	entry: { x: number; y: number };
+	/** Ground look: snow turns grass to snow, desert turns it to sand. Missing = temperate. */
+	climate?: "temperate" | "snow" | "desert";
+	/** Laid out by the DM with draw_map (not procedurally generated). */
+	drawn?: boolean;
 }
 
 export type LocationKind = "town" | "city" | "village" | "dungeon" | "cave" | "forest" | "mountain" | "ruins" | "castle" | "temple" | "swamp" | "coast" | "camp" | "tower" | "landmark";
@@ -523,8 +527,8 @@ export interface CampaignSettings {
 	};
 	engine: EngineConfig;
 	audio: { enabled: boolean; musicVolume: number; sfxVolume: number };
-	/** Scene art: public-domain paintings (default) or procedural illustrations. */
-	art?: { scenes: "paintings" | "illustrated" };
+	/** Scene art: pixel sprites of the DM-drawn place, public-domain paintings, or procedural illustrations. */
+	art?: { scenes: "sprites" | "paintings" | "illustrated" };
 	/** Narration language (UI language is per-browser). Missing = English. */
 	language?: "en" | "es";
 }

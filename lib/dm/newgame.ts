@@ -74,7 +74,8 @@ export function createGame(input: NewGameInput): GameState {
 		title: input.title?.trim() || (es ? `La historia de ${character.name}` : `${character.name}'s Tale`),
 		createdAt: now,
 		updatedAt: now,
-		settings: input.settings,
+		// New campaigns default to pixel scenes; older saves without `art` keep paintings.
+		settings: input.settings.art ? input.settings : { ...input.settings, art: { scenes: "sprites" } },
 		character,
 		mode: "explore",
 		scene: { title: sc.title, kind: sc.kind, timeOfDay: "dusk", weather: "clear", mood: "calm", npcIds: [], props: [] },

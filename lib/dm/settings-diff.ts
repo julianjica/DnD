@@ -11,6 +11,7 @@ export function describeSettingsChange(a: CampaignSettings, b: CampaignSettings)
 			if (JSON.stringify(x[k]) !== JSON.stringify(y[k])) out.push(`${sec}.${k}: ${JSON.stringify(x[k])} → ${JSON.stringify(y[k])}`);
 		}
 	}
+	if ((a.art?.scenes ?? "paintings") !== (b.art?.scenes ?? "paintings")) out.push(`art.scenes: ${a.art?.scenes ?? "paintings"} → ${b.art?.scenes ?? "paintings"}${b.art?.scenes === "sprites" ? " (the scene panel now shows the active map as pixel art: draw_map each place as you narrate it)" : ""}`);
 	if ((a.language ?? "en") !== (b.language ?? "en")) out.push(`language: ${a.language ?? "en"} → ${b.language ?? "en"} (switch the language you write in from now on)`);
 	return out.join("; ");
 }

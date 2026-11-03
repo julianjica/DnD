@@ -1,11 +1,11 @@
 import type { EntityKind, GameState, GridMap, LocationKind, MapKind, TerrainKind, Tile, WorldLocation } from "../../game/types";
-import { generateMap, MAP_KINDS, placeEntity, revealAround, WORLD_ASPECT } from "../../maps";
+import { climateForPreset, drawMap, FEATURE_SPRITES, generateMap, LEGEND_TEXT, MAP_KINDS, placeEntity, revealAround, WORLD_ASPECT, type Climate, type DrawKey } from "../../maps";
 import { addTerrainFeature, BEARING, betweenFromText, compassOf, daysForDistance, directionFromText, distanceForDays, fits, mapDistance, placeFor, REGION_SIZE, retimeRoutes, terrainFor, type Compass, type PlaceSpec } from "../../maps/geography";
 import { S, newId, tool, withState, type ToolFactory } from "../context";
 
 const LOCATION_KINDS: LocationKind[] = ["town", "city", "village", "dungeon", "cave", "forest", "mountain", "ruins", "castle", "temple", "swamp", "coast", "camp", "tower", "landmark"];
 const ENTITY_KINDS: EntityKind[] = ["monster", "npc", "item", "trap", "feature", "light"];
-const TILES: Tile[] = ["floor", "wall", "door", "door_open", "door_locked", "secret_door", "water", "deep_water", "difficult", "pit", "stairs_up", "stairs_down", "grass", "tall_grass", "tree", "rock", "road", "sand", "mud", "lava", "bridge", "wood_floor", "rubble", "pillar", "table"];
+const TILES: Tile[] = ["floor", "wall", "door", "door_open", "door_locked", "secret_door", "water", "deep_water", "difficult", "pit", "stairs_up", "stairs_down", "grass", "tall_grass", "tree", "rock", "road", "sand", "mud", "lava", "bridge", "wood_floor", "rubble", "pillar", "table", "ice"];
 
 export const SIGHT_RADIUS = 12;
 
@@ -31,6 +31,75 @@ function activeMap(state: GameState): GridMap {
 	return m;
 }
 
+/** Makes `map` the active map of the current location, keeping only the 12 most recent maps. */
+function addMap(state: GameState, map: GridMap) {
+	state.maps[map.id] = map;
+	state.activeMapId = map.id;
+	const loc = state.world.locations.find((l) => l.id === state.world.currentLocationId);
+	if (loc) loc.mapIds.push(map.id);
+	const ids = Object.keys(state.maps);
+	if (ids.length > 12) for (const old of ids.slice(0, ids.length - 12)) if (old !== map.id) delete state.maps[old];
+}
+
+type DrawKeyArg = DrawKey & { char: string };
+
+export const drawMapTool = tool<{ name: string; kind: MapKind; rows: string[]; key?: DrawKeyArg[]; climate?: Climate; lighting?: GridMap["lighting"]; show?: boolean }>(
+	"draw_map",
+	`Draw the place the player is in, square by square (5 ft each), as rows of characters. It becomes the picture in the scene panel AND the battle map, so draw what you narrate: walls, doors, furniture, terrain, who stands where. Typical size 24-40 wide x 14-22 tall; all rows the same length.
+Legend: ${LEGEND_TEXT}.
+Anything else (features, NPCs) goes in key: one character each (letters/digits not in the legend, e.g. R, 1, 2). Feature sprites: ${FEATURE_SPRITES.join(", ")}. NPCs: {char, npcId}. Light sources: add lightRadius.
+Example (a hall): rows ["########+########", "#.....=====.....#", "#.R.==hhhh==..1.#", "#....==@===.....#", "#################"] with key [{char:"R", sprite:"runestone"}, {char:"h", sprite:"hearth", lightRadius:6}, {char:"1", npcId:"npc_…"}].
+Draw each place once; return later with use_map. Monsters for a fight are added by start_combat as usual.`,
+	S.obj(
+		{
+			name: S.str("The place's name"),
+			kind: S.str("Closest map kind (sets wall style and palette)", MAP_KINDS),
+			rows: S.arr(S.str(), "One string per row, top (north) first"),
+			key: S.arr(
+				S.obj(
+					{
+						char: S.str("Single character used in rows"),
+						sprite: S.str("Feature sprite name"),
+						name: S.str(),
+						kind: S.str(undefined, ["feature", "light", "item", "npc"]),
+						npcId: S.str(),
+						lightRadius: S.int(undefined, 1, 12),
+						description: S.str(),
+					},
+					["char"],
+				),
+			),
+			climate: S.str("Default from the campaign setting", ["temperate", "snow", "desert"]),
+			lighting: S.str(undefined, ["bright", "dim", "dark"]),
+			show: S.bool("Switch to the Map tab (default false: the scene panel shows it)"),
+		},
+		["name", "kind", "rows"],
+	),
+	async (a, ctx) =>
+		withState(ctx, ({ state, rng }) => {
+			if (state.encounter?.status === "active") throw new Error("Cannot change maps during combat.");
+			if (!MAP_KINDS.includes(a.kind)) throw new Error(`Unknown kind "${a.kind}". Use one of: ${MAP_KINDS.join(", ")}.`);
+			const key: Record<string, DrawKey> = {};
+			for (const k of a.key ?? []) {
+				if (k.npcId && !state.npcs[k.npcId]) throw new Error(`Unknown npcId ${k.npcId} for key "${k.char}".`);
+				const { char, ...rest } = k;
+				key[char] = rest;
+			}
+			const res = drawMap({ rows: a.rows, key, kind: a.kind, name: a.name, climate: a.climate ?? climateForPreset(state.settings.world.preset), lighting: a.lighting, seed: rng.int(1, 2 ** 31 - 1) });
+			const map = res.map;
+			map.id = newId("map");
+			for (const e of res.entities) {
+				const npc = e.npcId ? state.npcs[e.npcId] : undefined;
+				map.entities.push({ ...e, id: newId("ent"), ...(npc ? { name: npc.name } : {}) });
+			}
+			if (res.pc) placeEntity(map, { id: `ent_${state.character.id}`, kind: "pc", name: state.character.name, sprite: "pc", disposition: "friendly", x: res.pc.x, y: res.pc.y }, res.pc);
+			ensurePc(map, state);
+			addMap(state, map);
+			state.view = a.show ? "map" : "scene";
+			return [mapSummary(map), ...res.warnings].join("\n");
+		}),
+);
+
 export const generateMapTool = tool<{ kind: MapKind; name?: string; features?: string[]; width?: number; height?: number; lighting?: GridMap["lighting"]; show?: boolean }>(
 	"generate_map",
 	"Procedurally generate a tactical grid map (5 ft squares) for the current location and make it active; the player token is placed at the entry. Then populate with place_entity / start_combat. Returns rooms with coordinates.",
@@ -52,14 +121,10 @@ export const generateMapTool = tool<{ kind: MapKind; name?: string; features?: s
 			const map = generateMap({ kind: a.kind, seed: rng.int(1, 2 ** 31 - 1), width: a.width, height: a.height, features: a.features, name: a.name });
 			map.id = newId("map");
 			if (a.lighting) map.lighting = a.lighting;
+			const climate = climateForPreset(state.settings.world.preset);
+			if (climate !== "temperate") map.climate = climate;
 			ensurePc(map, state);
-			state.maps[map.id] = map;
-			state.activeMapId = map.id;
-			const loc = state.world.locations.find((l) => l.id === state.world.currentLocationId);
-			if (loc) loc.mapIds.push(map.id);
-			// Keep only the 12 most recent maps to bound state size.
-			const ids = Object.keys(state.maps);
-			if (ids.length > 12) for (const old of ids.slice(0, ids.length - 12)) if (old !== map.id) delete state.maps[old];
+			addMap(state, map);
 			if (a.show !== false) state.view = "map";
 			return mapSummary(map);
 		}),
@@ -335,4 +400,4 @@ export const travelTool = tool<{ locationId: string; days?: number; show?: boole
 		}),
 );
 
-export const MAP_TOOLS: ToolFactory[] = [generateMapTool, useMapTool, placeEntityTool, updateEntityTool, setTileTool, nameRoomTool, revealLocation, markRegionTool, travelTool];
+export const MAP_TOOLS: ToolFactory[] = [drawMapTool, generateMapTool, useMapTool, placeEntityTool, updateEntityTool, setTileTool, nameRoomTool, revealLocation, markRegionTool, travelTool];

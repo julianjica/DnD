@@ -5,6 +5,9 @@ import { useMemo, useState } from "react";
 import { Footprints, Map as MapIcon, Globe2, Image as ImageIcon, Swords, Wand2, Wind, ShieldHalf, HandHelping, EyeOff, FlaskConical, Zap, Hourglass, Skull, X } from "lucide-react";
 import type { Combatant, GameState, GridMap, MapEntity, PlayerCombatAction, SpellInfo } from "@/lib/game/types";
 import { SceneArt } from "@/components/art/SceneArt";
+import { SpriteScene } from "@/components/art/sprite/SpriteScene";
+import type { Look } from "@/components/art/sprite/pixelScene";
+import { portraitTraits } from "@/lib/art/portrait";
 import { findPath, reachable } from "@/lib/rules/combat";
 import { isPassable } from "@/lib/maps/grid";
 import { deriveSheet } from "@/lib/rules/character";
@@ -245,6 +248,20 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 	const [hover, setHover] = useState<Point | null>(null);
 
 	const pcEntity = map?.entities.find((e) => e.kind === "pc");
+	const artStyle = state.settings.art?.scenes ?? "paintings";
+	// The sprite scene shows the active map only while the party is still at the place it belongs to.
+	const here = state.world.locations.find((l) => l.id === state.world.currentLocationId);
+	const spriteMap = artStyle === "sprites" && map && (!here || here.mapIds.includes(map.id)) ? map : undefined;
+	const looks = useMemo(() => {
+		if (!spriteMap) return {};
+		const out: Record<string, Look> = {};
+		const lookOf = (spec: GameState["character"]["portrait"], species?: string): Look => ({ hair: spec.hairColor, skin: spec.skinTone, cloth: portraitTraits(spec, species).clothing });
+		for (const e of spriteMap.entities) {
+			if (e.kind === "pc") out[e.id] = lookOf(state.character.portrait, state.character.speciesId);
+			else if (e.npcId && state.npcs[e.npcId]) out[e.id] = lookOf(state.npcs[e.npcId].portrait, state.npcs[e.npcId].speciesId);
+		}
+		return out;
+	}, [spriteMap, state.character, state.npcs]);
 
 	const reach = useMemo(() => {
 		if (!enc || !map || !myTurn || mode.kind !== "move" || busy) return undefined;
@@ -357,7 +374,7 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 			<div className="relative min-h-0 flex-1 overflow-hidden">
 				{view === "scene" && (
 					<div className="flex h-full items-center justify-center bg-bg p-3">
-						<SceneArt style={state.settings.art?.scenes ?? "paintings"} scene={state.scene} npcs={state.scene.npcIds.map((id) => state.npcs[id]).filter(Boolean).map((n) => ({ id: n.id, name: n.name, portrait: n.portrait, speciesId: n.speciesId, role: n.role }))} className="max-h-full w-full rounded-lg shadow-2xl" />
+						<SceneArt style={artStyle === "sprites" ? "paintings" : artStyle} backdrop={spriteMap ? <SpriteScene map={spriteMap} looks={looks} time={state.scene.timeOfDay} weather={state.scene.weather} /> : undefined} scene={state.scene} npcs={state.scene.npcIds.map((id) => state.npcs[id]).filter(Boolean).map((n) => ({ id: n.id, name: n.name, portrait: n.portrait, speciesId: n.speciesId, role: n.role }))} className="max-h-full w-full rounded-lg shadow-2xl" />
 					</div>
 				)}
 				{view === "map" && map && (
