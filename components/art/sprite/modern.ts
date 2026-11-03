@@ -266,7 +266,7 @@ export function modernWall(p: Painter, x: number, y: number) {
 		p.px(X, Y + 4, C, 1, shade(paint, 0.82));
 		p.px(X, Y + 14, C, 2, "#6c655a");
 		p.px(X, Y + 14, C, 1, "#8a8276");
-		if (rnd(x, y, 52) < 0.15) { p.px(X + 5, Y + 7, 6, 4, "#5a6a7a"); p.px(X + 6, Y + 8, 4, 2, "#9ab0c0"); } // a framed notice
+		if (rnd(x, y, 52) < 0.08) { p.px(X + 5, Y + 6, 6, 5, "#3e4246"); p.px(X + 6, Y + 7, 4, 3, rnd(x, y, 57) < 0.5 ? "#e8e4d8" : "#9ab0c0"); } // a notice or a framed picture
 	} else {
 		// the top of an interior wall
 		p.px(X, Y, C, C, "#4e4b46");
