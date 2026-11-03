@@ -267,18 +267,22 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 	const here = state.world.locations.find((l) => l.id === state.world.currentLocationId);
 	const spriteMap = artStyle === "sprites" && map && (!here || here.mapIds.includes(map.id)) ? map : undefined;
 	const pixelMap = artStyle === "sprites" ? map : undefined;
+	const ruleset = rulesetOf(state.settings);
 	const looks = useMemo(() => {
 		if (!pixelMap) return {};
 		const out: Record<string, Look> = {};
 		for (const e of pixelMap.entities) {
-			if (e.kind === "pc") out[e.id] = personLook(state.character.portrait, state.character.speciesId, gearFor({ classes: state.character.classes.map((c) => c.classId) }));
-			else if (e.npcId && state.npcs[e.npcId]) {
+			if (e.kind === "pc") {
+				const who = { ruleset, classes: state.character.classes.map((c) => c.classId) };
+				out[e.id] = personLook(state.character.portrait, state.character.speciesId, gearFor(who), who);
+			} else if (e.npcId && state.npcs[e.npcId]) {
 				const n = state.npcs[e.npcId];
-				out[e.id] = personLook(n.portrait, n.speciesId, gearFor({ text: `${n.role ?? ""} ${n.description ?? ""}` }));
+				const who = { ruleset, text: `${n.role ?? ""} ${n.description ?? ""}` };
+				out[e.id] = personLook(n.portrait, n.speciesId, gearFor(who), who);
 			}
 		}
 		return out;
-	}, [pixelMap, state.character, state.npcs]);
+	}, [pixelMap, state.character, state.npcs, ruleset]);
 	const pixel = useMemo(() => (pixelMap ? { looks } : undefined), [pixelMap, looks]);
 	const deadIds = useMemo(() => new Set(Object.values(state.encounter?.combatants ?? {}).filter((c) => c.dead).map((c) => c.entityId)), [state.encounter]);
 

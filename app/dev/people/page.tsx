@@ -5,6 +5,7 @@ import type { GameState, PortraitSpec } from "@/lib/game/types";
 import { Portrait } from "@/components/art/Portrait";
 import { creatureCanvas } from "@/components/art/sprite/pixelScene";
 import { gearFor, personLook, type PersonLook } from "@/components/art/sprite/person";
+import { rulesetOf } from "@/lib/rules/ruleset";
 
 function Sprite({ look, dead = false }: { look: PersonLook; dead?: boolean }) {
 	const ref = useRef<HTMLCanvasElement>(null);
@@ -29,8 +30,14 @@ export default function PeoplePreview() {
 			setRows(
 				all.map(({ state }) => {
 					const ch = state.character;
-					const pc: Row = { name: ch.name, spec: ch.portrait, species: ch.speciesId, look: personLook(ch.portrait, ch.speciesId, gearFor({ classes: ch.classes.map((c) => c.classId) })), note: ch.classes.map((c) => c.classId).join("/") };
-					const npcs = Object.values(state.npcs).map((n) => ({ name: n.name, spec: n.portrait, species: n.speciesId, look: personLook(n.portrait, n.speciesId, gearFor({ text: `${n.role ?? ""} ${n.description ?? ""}` })), note: n.role ?? "" }));
+					// zombie campaigns dress people by profession / role
+					const ruleset = rulesetOf(state.settings);
+					const pcWho = { ruleset, classes: ch.classes.map((c) => c.classId) };
+					const pc: Row = { name: ch.name, spec: ch.portrait, species: ch.speciesId, look: personLook(ch.portrait, ch.speciesId, gearFor(pcWho), pcWho), note: ch.classes.map((c) => c.classId).join("/") };
+					const npcs = Object.values(state.npcs).map((n) => {
+						const who = { ruleset, text: `${n.role ?? ""} ${n.description ?? ""}` };
+						return { name: n.name, spec: n.portrait, species: n.speciesId, look: personLook(n.portrait, n.speciesId, gearFor(who), who), note: n.role ?? "" };
+					});
 					return { title: state.title, people: [pc, ...npcs] };
 				}),
 			),
@@ -49,7 +56,7 @@ export default function PeoplePreview() {
 								<div className="min-w-0 text-xs">
 									<div className="font-semibold">{p.name}</div>
 									<div className="text-stone-400">{p.note}</div>
-									<div className="text-stone-500">{p.look.hairStyle} · {p.look.facialHair} · {p.look.clothingStyle} · {p.look.gear}</div>
+									<div className="text-stone-500">{p.look.hairStyle} · {p.look.facialHair} · {p.look.outfit ?? p.look.clothingStyle} · {p.look.hat ? `${p.look.hat} · ` : ""}{p.look.gear}</div>
 								</div>
 							</div>
 						))}
