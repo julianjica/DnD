@@ -610,7 +610,7 @@ export class BattleRenderer {
 			const look = pixel?.looks[e.id];
 			const isDead = !!e.dead || !!st?.dead || (st?.hp !== undefined && st.hp <= 0 && e.kind !== "pc");
 			const texKey = pixel
-				? creature ? `px|tok|${e.sprite}|${e.kind}|${isDead ? "dead" : ring}|${look ? `${look.hair}${look.cloth}${look.skin}` : ""}` : `px|prop|${e.sprite}|${e.name}`
+				? creature ? `px|tok|${e.sprite}|${e.kind}|${isDead ? "dead" : ring}|${look ? JSON.stringify(look) : ""}` : `px|prop|${e.sprite}|${e.name}`
 				: creature ? `tok|${e.sprite}|${e.kind}|${ring}|${e.size > 1 ? 2 : 1}` : `prop|${e.sprite}|${e.kind}`;
 			let v = this.tokens.get(e.id);
 			if (v && (v.key !== texKey || !!v.light !== (e.lightRadius ?? 0) > 0)) {

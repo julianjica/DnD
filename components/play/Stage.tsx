@@ -7,7 +7,7 @@ import type { Combatant, GameState, GridMap, MapEntity, PlayerCombatAction, Spel
 import { SceneArt } from "@/components/art/SceneArt";
 import { SpriteScene } from "@/components/art/sprite/SpriteScene";
 import type { Look } from "@/components/art/sprite/pixelScene";
-import { portraitTraits } from "@/lib/art/portrait";
+import { gearFor, personLook } from "@/components/art/sprite/person";
 import { findPath, previewSpell, reachable, type SpellPreview } from "@/lib/rules/combat";
 import { isPassable } from "@/lib/maps/grid";
 import { deriveSheet } from "@/lib/rules/character";
@@ -269,10 +269,12 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 	const looks = useMemo(() => {
 		if (!pixelMap) return {};
 		const out: Record<string, Look> = {};
-		const lookOf = (spec: GameState["character"]["portrait"], species?: string): Look => ({ hair: spec.hairColor, skin: spec.skinTone, cloth: portraitTraits(spec, species).clothing });
 		for (const e of pixelMap.entities) {
-			if (e.kind === "pc") out[e.id] = lookOf(state.character.portrait, state.character.speciesId);
-			else if (e.npcId && state.npcs[e.npcId]) out[e.id] = lookOf(state.npcs[e.npcId].portrait, state.npcs[e.npcId].speciesId);
+			if (e.kind === "pc") out[e.id] = personLook(state.character.portrait, state.character.speciesId, gearFor({ classes: state.character.classes.map((c) => c.classId) }));
+			else if (e.npcId && state.npcs[e.npcId]) {
+				const n = state.npcs[e.npcId];
+				out[e.id] = personLook(n.portrait, n.speciesId, gearFor({ text: `${n.role ?? ""} ${n.description ?? ""}` }));
+			}
 		}
 		return out;
 	}, [pixelMap, state.character, state.npcs]);

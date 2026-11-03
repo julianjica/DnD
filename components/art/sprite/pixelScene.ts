@@ -6,14 +6,11 @@
 import type { GridMap, MapEntity, Tile, TimeOfDay, Weather } from "@/lib/game/types";
 import { FEATURE_ALIASES, LIGHTS, SPRITES, type Sprite } from "./sprites";
 import { creatureSprite } from "./creatures";
+import { paintPerson, type PersonLook } from "./person";
 
 const C = 16;
 
-export interface Look {
-	hair: string;
-	cloth: string;
-	skin: string;
-}
+export type Look = PersonLook;
 
 export interface PixelSceneInput {
 	map: GridMap;
@@ -566,9 +563,16 @@ export function creatureCanvas(e: Pick<MapEntity, "kind" | "sprite">, look: Look
 	c.width = c.height = 16;
 	const p = new P({ seed: 1 } as GridMap, c.getContext("2d")!);
 	if (e.kind === "monster") p.draw(creatureSprite(e.sprite, "monster"), 0, 0);
-	else {
-		const l = look ?? { hair: "#5a3a1e", cloth: e.kind === "pc" ? "#3f4f86" : "#6b5a3a", skin: "#e4b48c" };
-		p.sprite("person", 0, 0, { H: l.hair, C: l.cloth, c: darken(l.cloth, 0.7), S: l.skin });
+	else if (look) {
+		const ctx0 = p.ctx;
+		paintPerson((x, y, col) => {
+			if (x < 0 || y < 0 || x > 15 || y > 15) return;
+			if (col === "clear") ctx0.clearRect(x, y, 1, 1);
+			else { ctx0.fillStyle = col; ctx0.fillRect(x, y, 1, 1); }
+		}, look);
+	} else {
+		const cloth = e.kind === "pc" ? "#3f4f86" : "#6b5a3a";
+		p.sprite("person", 0, 0, { H: "#5a3a1e", C: cloth, c: darken(cloth, 0.7), S: "#e4b48c" });
 	}
 	if (!dead) return c;
 	const ctx = c.getContext("2d")!;
