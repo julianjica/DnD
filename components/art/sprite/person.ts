@@ -103,311 +103,337 @@ export function personLook(spec: PortraitSpec, speciesId: string | undefined, ge
 	};
 }
 
+
+/**
+ * Body layout in a 16×16 tile. The head is 6 wide × 5 tall with rounded top
+ * corners and a narrower jaw; hair sits on row hy-1 and above.
+ */
 interface Build {
-	/** head top row, height, left column, width */
-	hy: number; hh: number; hx: number; hw: number;
-	/** torso top row, height, left column, width */
-	ty: number; th: number; tx: number; tw: number;
-	/** legs top row, height; boots row */
-	ly: number; lh: number; by: number;
+	hx: number; hy: number; // head box (6×5)
+	ty: number; th: number; tx: number; tw: number; // torso
+	ly: number; lh: number; by: number; // legs, boots row
 }
 
 function buildFor(l: PersonLook): Build {
-	const small = l.species === "halfling" || l.species === "gnome" || l.age <= 0.12;
-	if (small) return { hy: 4, hh: 5, hx: 5, hw: 6, ty: 9, th: 3, tx: 5, tw: 6, ly: 12, lh: 2, by: 14 };
-	if (l.species === "dwarf") return { hy: 3, hh: 5, hx: 5, hw: 6, ty: 8, th: 4, tx: 4, tw: 8, ly: 12, lh: 2, by: 14 };
-	if (l.species === "goliath" || l.species === "orc" || l.species === "half-orc") return { hy: 0, hh: 5, hx: 5, hw: 6, ty: 5, th: 6, tx: 3, tw: 10, ly: 11, lh: 3, by: 14 };
-	const narrow = l.female ? 1 : 0;
-	return { hy: 1, hh: 5, hx: 5, hw: 6, ty: 6, th: 5, tx: 4 + narrow, tw: 8 - narrow * 2, ly: 11, lh: 3, by: 14 };
+	if (l.species === "halfling" || l.species === "gnome" || l.age <= 0.12) return { hx: 5, hy: 4, ty: 9, th: 3, tx: 5, tw: 6, ly: 12, lh: 2, by: 14 };
+	if (l.species === "dwarf") return { hx: 5, hy: 3, ty: 8, th: 4, tx: 4, tw: 8, ly: 12, lh: 2, by: 14 };
+	if (l.species === "goliath" || l.species === "orc" || l.species === "half-orc") return { hx: 5, hy: 1, ty: 6, th: 5, tx: 3, tw: 10, ly: 11, lh: 3, by: 14 };
+	if (l.female) return { hx: 5, hy: 2, ty: 7, th: 4, tx: 5, tw: 6, ly: 11, lh: 3, by: 14 };
+	return { hx: 5, hy: 2, ty: 7, th: 4, tx: 4, tw: 8, ly: 11, lh: 3, by: 14 };
 }
 
 const STEEL = "#9aa0a8", STEEL_D = "#5d636b", STEEL_L = "#c9ced4";
 const WOOD = "#7a5230", WOOD_D = "#4e321a";
 const GOLD = "#d8b23a";
-const EYE_DARK = "#1a1410";
+const EYE_DARK = "#1f1612";
+const OUTLINE = "rgba(26,17,12,0.88)";
 
 /** Paints the person into a 16×16 area at (0,0). */
 export function paintPerson(px: Px, l: PersonLook) {
-	const b = buildFor(l);
-	const skinD = shade(l.skin, 0.8);
-	const hairD = shade(l.hair, 0.72);
-	const cloth = l.cloth, clothD = shade(cloth, 0.68), clothL = shade(cloth, 1.18);
-	const feats = new Set(l.features);
-	const hx1 = b.hx + b.hw - 1; // right column of head
-	const tx1 = b.tx + b.tw - 1;
-	const draconic = feats.has("snout") || (feats.has("scales") && l.species === "dragonborn");
-	const hooded = l.accessory === "hood";
-	const rect = (x: number, y: number, w: number, h: number, c: string) => {
-		for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) px(x + i, y + j, c);
+	const g: (string | null)[] = new Array(256).fill(null);
+	const set = (x: number, y: number, c: string | null) => {
+		if (x >= 0 && y >= 0 && x < 16 && y < 16) g[y * 16 + x] = c;
 	};
+	const get = (x: number, y: number) => (x >= 0 && y >= 0 && x < 16 && y < 16 ? g[y * 16 + x] : null);
+	const rect = (x: number, y: number, w: number, h: number, c: string | null) => {
+		for (let j = 0; j < h; j++) for (let i = 0; i < w; i++) set(x + i, y + j, c);
+	};
+	const b = buildFor(l);
+	const { hx, hy } = b;
+	const hx1 = hx + 5, tx1 = b.tx + b.tw - 1;
+	const feats = new Set(l.features);
+	const skin = l.skin, skinD = shade(skin, 0.84), skinL = shade(skin, 1.08);
+	const H = l.hair, HD = shade(H, 0.72), HL = shade(H, 1.15);
+	const cloth = l.cloth, clothD = shade(cloth, 0.7), clothL = shade(cloth, 1.2);
+	const style = l.clothingStyle;
+	const draconic = feats.has("snout") || l.species === "dragonborn";
+	const eyeRow = hy + 2, jaw = hy + 4;
 
-	// shadow
-	rect(b.tx, 15, b.tw, 1, "rgba(0,0,0,0.25)");
-
-	// cloak behind everything
-	if (l.clothingStyle === "cloak") {
-		rect(b.tx - 1, b.ty, 1, b.by - b.ty, clothD);
-		rect(tx1 + 1, b.ty, 1, b.by - b.ty, clothD);
+	// ── body ────────────────────────────────────────────────────────────
+	if (style === "cloak") {
+		// cape hanging behind, visible past the shoulders and between the legs
+		rect(b.tx - 1, b.ty, b.tw + 2, b.by - b.ty, clothD);
 	}
-
-	// legs / robe skirt
-	const pants = l.clothingStyle === "armor" ? STEEL_D : l.clothingStyle === "leather" ? "#4a3624" : shade(cloth, 0.5);
-	if (l.clothingStyle === "robe") {
+	const pants = style === "armor" ? STEEL_D : style === "leather" ? "#4a3624" : shade(cloth, 0.5);
+	const lw = Math.max(2, Math.floor(b.tw / 2) - 1);
+	if (style === "robe") {
 		rect(b.tx, b.ly, b.tw, b.by - b.ly, cloth);
+		rect(tx1, b.ly, 1, b.by - b.ly, clothD);
 		rect(b.tx, b.by - 1, b.tw, 1, clothD);
-		rect(b.tx + Math.floor(b.tw / 2) - 1, b.ly, 1, b.by - b.ly, clothD);
 	} else {
-		const lw = Math.max(1, Math.floor((b.tw - 2) / 2));
 		rect(b.tx + 1, b.ly, lw, b.lh, pants);
-		rect(tx1 - lw, b.ly, lw, b.lh, pants);
+		rect(tx1 - lw, b.ly, lw, b.lh, shade(pants, 0.85));
 	}
-	// boots
-	const boot = l.clothingStyle === "armor" ? STEEL_D : "#2b1d14";
-	const bw = Math.max(2, Math.floor((b.tw - 2) / 2));
-	rect(b.tx + (l.clothingStyle === "robe" ? 1 : 0), b.by, bw, 1, boot);
-	rect(tx1 - bw + 1 - (l.clothingStyle === "robe" ? 1 : 0), b.by, bw, 1, boot);
+	const boot = style === "armor" ? STEEL_D : "#2b1d14";
+	rect(b.tx + (style === "robe" ? 1 : 0), b.by, lw + 1, 1, boot);
+	rect(tx1 - lw - (style === "robe" ? 1 : 0), b.by, lw + 1, 1, boot);
+	if (style !== "robe") set(b.tx + lw, b.by, null);
 
 	// torso
-	if (l.clothingStyle === "armor") {
+	if (style === "armor") {
 		rect(b.tx, b.ty, b.tw, b.th, STEEL);
 		rect(b.tx, b.ty, b.tw, 1, STEEL_L);
-		rect(b.tx + 2, b.ty + 1, b.tw - 4, b.th - 1, cloth); // tabard
-		rect(b.tx + 2, b.ty + b.th - 1, b.tw - 4, 1, clothD);
-	} else if (l.clothingStyle === "leather") {
-		rect(b.tx, b.ty, b.tw, b.th, cloth);
-		rect(b.tx + 1, b.ty, b.tw - 2, b.th, "#6b4a2e");
-		rect(b.tx + Math.floor(b.tw / 2), b.ty + 1, 1, b.th - 2, "#4a3220");
-		rect(b.tx + 1, b.ty, b.tw - 2, 1, "#8a6440"); // fur/collar
+		rect(b.tx + 2, b.ty + 1, b.tw - 4, b.th - 1, cloth);
+		set(b.tx + Math.floor(b.tw / 2), b.ty + 2, clothL);
+	} else if (style === "leather") {
+		rect(b.tx, b.ty, b.tw, b.th, "#6b4a2e");
+		rect(b.tx + Math.floor(b.tw / 2) - 1, b.ty, 2, b.th, cloth); // shirt showing at the opening
+		rect(b.tx, b.ty, b.tw, 1, "#a07a52"); // fur collar
 	} else {
 		rect(b.tx, b.ty, b.tw, b.th, cloth);
-		rect(b.tx, b.ty, b.tw, 1, clothL);
-		if (l.clothingStyle === "robe") rect(b.tx + Math.floor(b.tw / 2) - 1, b.ty, 1, b.th, clothD);
+		rect(b.tx + 1, b.ty, b.tw - 2, 1, clothL);
+		if (style === "robe") rect(b.tx + Math.floor(b.tw / 2), b.ty + 1, 1, b.th - 1, l.trim);
 	}
-	// belt / sash
-	if (l.clothingStyle !== "armor") {
-		const beltY = b.ty + b.th - 1;
-		rect(b.tx, beltY, b.tw, 1, l.clothingStyle === "robe" ? l.trim : "#3a2414");
-		px(b.tx + Math.floor(b.tw / 2), beltY, l.clothingStyle === "robe" ? shade(l.trim, 0.7) : GOLD);
+	// shading: light from the upper left
+	for (let y = b.ty; y < b.ty + b.th; y++) {
+		const r = get(tx1, y);
+		if (r) set(tx1, y, shade(r.startsWith("#") ? r : cloth, 0.8));
 	}
-	if (l.clothingStyle === "cloak") {
-		px(b.tx, b.ty, clothD);
-		px(tx1, b.ty, clothD);
-		px(b.tx + 1, b.ty, GOLD);
+	if (style !== "armor" && style !== "robe") {
+		rect(b.tx, b.ty + b.th - 1, b.tw, 1, "#3a2414");
+		set(b.tx + Math.floor(b.tw / 2), b.ty + b.th - 1, GOLD);
 	}
+	if (style === "cloak") set(b.tx + 1, b.ty, GOLD);
 
-	// arms (sleeves + hands)
-	const sleeve = l.clothingStyle === "armor" ? STEEL : l.clothingStyle === "cloak" ? clothD : cloth;
-	const armH = Math.max(2, b.th - 1);
-	rect(b.tx - 1, b.ty + 1, 1, armH, sleeve);
-	rect(tx1 + 1, b.ty + 1, 1, armH, sleeve);
-	if (l.clothingStyle === "armor") {
-		rect(b.tx - 1, b.ty, 2, 1, STEEL_L);
-		rect(tx1, b.ty, 2, 1, STEEL_L);
-	}
-	const handY = b.ty + 1 + armH;
-	px(b.tx - 1, handY, l.skin);
-	px(tx1 + 1, handY, l.skin);
+	// arms and hands
+	const sleeve = style === "armor" ? STEEL_D : style === "leather" ? "#5a3e26" : style === "cloak" ? clothD : shade(cloth, 0.85);
+	const armLen = Math.max(2, b.th - 1);
+	rect(b.tx - 1, b.ty + 1, 1, armLen, sleeve);
+	rect(tx1 + 1, b.ty + 1, 1, armLen, shade(sleeve, 0.85));
+	if (style === "armor") { set(b.tx - 1, b.ty, STEEL_L); set(tx1 + 1, b.ty, STEEL); }
+	const handY = b.ty + 1 + armLen;
+	set(b.tx - 1, handY, skin);
+	set(tx1 + 1, handY, skinD);
 
-	// beard falling onto the chest (drawn before the head so the chin overlaps cleanly)
-	const fh = l.facialHair;
-	const cx = b.hx + Math.floor(b.hw / 2) - 1;
-	if (fh === "full_beard") rect(cx - 1, b.ty, 4, 2, l.hair);
-	if (fh === "braided_beard") { rect(cx, b.ty, 2, 3, l.hair); px(cx, b.ty + 1, hairD); }
-	if (fh === "goatee") rect(cx, b.ty, 2, 1, l.hair);
-
-	// head
-	rect(b.hx, b.hy, b.hw, b.hh, l.skin);
-	px(b.hx, b.hy, "clear");
-	px(hx1, b.hy, "clear");
-	rect(b.hx, b.hy + b.hh - 1, 1, 1, skinD);
-	rect(hx1, b.hy + b.hh - 1, 1, 1, skinD);
+	// ── head ────────────────────────────────────────────────────────────
+	set(hx + 2, hy + 5, skinD); // neck
+	set(hx + 3, hy + 5, skinD);
+	rect(hx + 1, hy, 4, 1, skin); // rounded crown
+	rect(hx, hy + 1, 6, 3, skin);
+	rect(hx + 1, jaw, 4, 1, skin); // narrower jaw
+	set(hx1, hy + 1, skinD);
+	set(hx1, hy + 2, skinD);
+	set(hx1, hy + 3, skinD);
+	set(hx + 4, jaw, skinD);
+	set(hx + 1, hy + 1, skinL);
 	if (draconic) {
-		// muzzle and brow ridge
-		rect(b.hx + 1, b.hy + 3, b.hw - 2, 2, shade(l.skin, 0.88));
-		px(b.hx + 2, b.hy + 3, shade(l.skin, 0.6));
-		px(hx1 - 2, b.hy + 3, shade(l.skin, 0.6));
-		rect(b.hx, b.hy, b.hw, 1, shade(l.skin, 0.75));
+		rect(hx, jaw, 6, 1, shade(skin, 0.9));
+		set(hx + 2, hy + 3, shade(skin, 0.6));
+		set(hx + 3, hy + 3, shade(skin, 0.6));
 	}
-	if (feats.has("scales")) for (let j = 0; j < b.hh; j++) for (let i = (j % 2); i < b.hw; i += 2) if ((i + j) % 3 === 0) px(b.hx + i, b.hy + j, shade(l.skin, 0.85));
-	// eyes
-	const ey = b.hy + 2;
+	if (feats.has("scales")) for (const [x, y] of [[1, 1], [4, 1], [0, 3], [5, 3], [2, 4]]) set(hx + x, hy + y, shade(skin, 0.82));
+	// eyes and brow
 	const eyeC = feats.has("solid_eyes") ? l.eye : EYE_DARK;
-	px(b.hx + 1, ey, eyeC);
-	px(hx1 - 1, ey, eyeC);
-	if (l.accessory === "eyepatch") { px(b.hx + 1, ey, "#111"); rect(b.hx, ey - 1, b.hw, 1, "#222"); }
-	if (feats.has("freckles")) { px(b.hx + 1, ey + 1, skinD); px(hx1 - 1, ey + 1, skinD); }
-	if (feats.has("markings") || l.accessory === "warpaint") { px(b.hx + 1, ey + 1, "#a8322a"); px(hx1 - 1, ey + 1, "#a8322a"); px(b.hx + 1, ey - 1, "#a8322a"); }
-	if (l.accessory === "scar") { px(hx1 - 1, ey - 1, "#b85a5a"); px(hx1 - 2, ey + 1, "#b85a5a"); }
-	// mouth area
-	const my = b.hy + b.hh - 1;
-	if (feats.has("tusks")) { px(b.hx + 1, my, "#f2ead6"); px(hx1 - 1, my, "#f2ead6"); }
-
-	// facial hair on the face
-	if (fh === "stubble") for (let i = 1; i < b.hw - 1; i++) if (i % 2) px(b.hx + i, my, skinD);
-	if (fh === "mustache") rect(cx, my - 1, 2, 1, l.hair);
-	if (fh === "goatee") rect(cx, my, 2, 1, l.hair);
-	if (fh === "sideburns") { rect(b.hx, b.hy + 1, 1, 3, l.hair); rect(hx1, b.hy + 1, 1, 3, l.hair); }
-	if (fh === "short_beard" || fh === "full_beard" || fh === "braided_beard") {
-		rect(b.hx, b.hy + 2, 1, b.hh - 2, l.hair);
-		rect(hx1, b.hy + 2, 1, b.hh - 2, l.hair);
-		rect(b.hx + 1, my, b.hw - 2, 1, l.hair);
-		rect(cx, my - 1, 2, 1, hairD);
-	}
+	set(hx + 1, eyeRow, eyeC);
+	set(hx + 4, eyeRow, eyeC);
+	if (l.age >= 0.6) { set(hx + 1, eyeRow - 1, shade(skin, 0.9)); set(hx + 4, eyeRow - 1, shade(skin, 0.9)); }
+	// mouth hint
+	if (!draconic) set(hx + 2, jaw, shade(skin, 0.86));
+	if (feats.has("freckles")) { set(hx, eyeRow + 1, shade(skin, 0.88)); set(hx1, eyeRow + 1, shade(skin, 0.78)); }
+	if (feats.has("markings") || l.accessory === "warpaint") { set(hx, eyeRow + 1, "#9a2e26"); set(hx + 1, eyeRow + 1, "#b83a30"); set(hx + 4, eyeRow + 1, "#b83a30"); set(hx1, eyeRow + 1, "#9a2e26"); }
+	if (l.accessory === "scar") { set(hx + 4, eyeRow - 1, shade(skin, 0.68)); set(hx + 5, eyeRow + 1, shade(skin, 0.68)); }
+	if (feats.has("tusks")) { set(hx + 1, jaw, "#f2ead6"); set(hx + 4, jaw, "#f2ead6"); }
 
 	// ears
-	if (feats.has("pointed_ears") || feats.has("long_ears") || l.species === "elf" || l.species === "half-elf") {
-		px(b.hx - 1, ey, l.skin);
-		px(hx1 + 1, ey, l.skin);
-		if (feats.has("long_ears") || l.species === "elf") { px(b.hx - 1, ey - 1, l.skin); px(hx1 + 1, ey - 1, l.skin); px(b.hx - 2, ey - 2, l.skin); px(hx1 + 2, ey - 2, l.skin); }
+	const elfish = feats.has("pointed_ears") || feats.has("long_ears") || l.species === "elf" || l.species === "half-elf";
+	if (elfish) {
+		set(hx - 1, eyeRow, skin);
+		set(hx1 + 1, eyeRow, skinD);
+		if (feats.has("long_ears") || l.species === "elf") { set(hx - 2, eyeRow - 1, skin); set(hx1 + 2, eyeRow - 1, skinD); }
 	}
 
-	// hair (or hood / helmet)
+	// facial hair
+	const fh = l.facialHair;
+	const stubble = mix(skin, H, 0.35);
+	if (fh === "stubble") { rect(hx + 1, jaw, 4, 1, stubble); set(hx, hy + 3, stubble); set(hx1, hy + 3, stubble); }
+	if (fh === "sideburns") { rect(hx, hy + 1, 1, 3, H); rect(hx1, hy + 1, 1, 3, HD); }
+	if (fh === "mustache") { set(hx + 2, hy + 3, H); set(hx + 3, hy + 3, HD); }
+	if (fh === "goatee") { set(hx + 2, jaw, H); set(hx + 3, jaw, HD); set(hx + 2, jaw + 1, HD); }
+	if (fh === "short_beard" || fh === "full_beard" || fh === "braided_beard") {
+		set(hx, hy + 3, H);
+		set(hx1, hy + 3, HD);
+		rect(hx + 1, jaw, 4, 1, H);
+		set(hx + 4, jaw, HD);
+		set(hx + 2, hy + 3, HD); // moustache
+		set(hx + 3, hy + 3, HD);
+		if (fh === "full_beard") { rect(hx + 1, jaw + 1, 4, 1, H); rect(hx + 2, jaw + 2, 2, 1, HD); }
+		if (fh === "braided_beard") { set(hx + 2, jaw + 1, H); set(hx + 3, jaw + 1, HD); set(hx + 2, jaw + 2, HD); set(hx + 3, jaw + 3, l.trim); }
+	}
+
+	// ── hair / headwear ─────────────────────────────────────────────────
 	const hs = l.hairStyle;
-	const top = b.hy;
-	if (hooded) {
-		rect(b.hx - 1, top - 1, b.hw + 2, 2, clothD);
-		rect(b.hx - 1, top + 1, 1, b.hh, clothD);
-		rect(hx1 + 1, top + 1, 1, b.hh, clothD);
-		rect(b.hx, top + 1, b.hw, 1, shade(l.skin, 0.55));
+	if (l.accessory === "hood") {
+		rect(hx, hy - 1, 6, 1, clothD);
+		rect(hx - 1, hy, 8, 1, clothD);
+		rect(hx - 1, hy + 1, 1, 5, clothD);
+		rect(hx1 + 1, hy + 1, 1, 5, shade(clothD, 0.85));
+		rect(hx, hy + 1, 6, 1, shade(skin, 0.6)); // shadow under the hood
+		set(hx, hy + 2, shade(skin, 0.75));
+		set(hx1, hy + 2, shade(skin, 0.7));
 	} else if (l.accessory === "helmet") {
-		rect(b.hx - 1, top - 1, b.hw + 2, 2, STEEL);
-		rect(b.hx - 1, top - 1, b.hw + 2, 1, STEEL_L);
-		px(b.hx + Math.floor(b.hw / 2), top + 1, STEEL_D);
-		if (l.species === "dwarf") { px(b.hx - 2, top - 2, "#efe6cf"); px(hx1 + 2, top - 2, "#efe6cf"); }
+		rect(hx + 1, hy - 1, 4, 1, STEEL_L);
+		rect(hx, hy, 6, 2, STEEL);
+		set(hx1, hy, STEEL_D);
+		set(hx1, hy + 1, STEEL_D);
+		set(hx + 2, hy + 2, STEEL_D); // nose guard
+		if (l.species === "dwarf") { set(hx - 1, hy - 1, "#efe6cf"); set(hx1 + 1, hy - 1, "#efe6cf"); }
 	} else if (hs !== "bald") {
-		const H = l.hair;
+		const crown = () => { rect(hx + 1, hy - 1, 4, 1, H); rect(hx, hy, 6, 1, H); set(hx1, hy, HD); set(hx + 4, hy - 1, HD); };
 		switch (hs) {
 			case "cropped":
-				rect(b.hx, top, b.hw, 1, hairD);
+				rect(hx + 1, hy, 4, 1, mix(H, skin, 0.35));
 				break;
 			case "shaved_sides":
-				rect(b.hx + 2, top - 1, b.hw - 4, 2, H);
+				rect(hx + 2, hy - 1, 2, 2, H);
+				set(hx + 3, hy - 1, HD);
 				break;
 			case "mohawk":
-				rect(b.hx + 2, top - 2, 2, 3, H);
+				rect(hx + 2, hy - 2, 2, 3, H);
+				set(hx + 3, hy - 2, HD);
 				break;
 			case "topknot":
-				rect(b.hx, top, b.hw, 1, H);
-				rect(b.hx + 2, top - 2, 2, 2, H);
+				crown();
+				rect(hx + 2, hy - 2, 2, 1, HD);
 				break;
 			case "bun":
-				rect(b.hx, top - 1, b.hw, 2, H);
-				rect(b.hx + 2, top - 3, 2, 2, hairD);
+				crown();
+				rect(hx + 2, hy - 2, 2, 1, HD);
+				set(hx + 1, hy - 2, null);
 				break;
 			case "wild":
-				rect(b.hx - 1, top - 1, b.hw + 2, 2, H);
-				for (let i = -1; i <= b.hw; i += 2) px(b.hx + i, top - 2, H);
-				rect(b.hx - 1, top + 1, 1, 3, H);
-				rect(hx1 + 1, top + 1, 1, 3, H);
+				crown();
+				for (const x of [0, 2, 4, 5]) set(hx + x, hy - 2 + (x % 2), H);
+				set(hx - 1, hy, H);
+				set(hx - 1, hy + 1, H);
+				set(hx1 + 1, hy, HD);
+				set(hx1 + 1, hy + 1, HD);
+				set(hx, hy + 1, H);
 				break;
 			case "curly":
-				rect(b.hx - 1, top - 1, b.hw + 2, 2, H);
-				for (let i = 0; i < b.hw + 2; i += 2) px(b.hx - 1 + i, top - 1, hairD);
-				rect(b.hx - 1, top + 1, 1, 2, H);
-				rect(hx1 + 1, top + 1, 1, 2, H);
+				crown();
+				set(hx - 1, hy, H);
+				set(hx1 + 1, hy, HD);
+				set(hx, hy + 1, H);
+				set(hx1, hy + 1, HD);
+				set(hx + 1, hy - 1, HL);
+				set(hx + 3, hy - 1, HL);
 				break;
 			case "long":
-				rect(b.hx - 1, top - 1, b.hw + 2, 2, H);
-				rect(b.hx - 1, top + 1, 1, b.hh + 3, H);
-				rect(hx1 + 1, top + 1, 1, b.hh + 3, H);
-				rect(b.hx - 1, top + b.hh + 1, 1, 2, hairD);
-				rect(hx1 + 1, top + b.hh + 1, 1, 2, hairD);
+				crown();
+				rect(hx, hy + 1, 1, 4, H);
+				rect(hx1, hy + 1, 1, 4, HD);
+				set(hx - 1, hy + 2, H);
+				set(hx1 + 1, hy + 2, HD);
+				rect(hx - 1, hy + 3, 1, 3, H); // falls over the shoulders
+				rect(hx1 + 1, hy + 3, 1, 3, HD);
 				break;
 			case "braids":
-				rect(b.hx - 1, top - 1, b.hw + 2, 2, H);
-				for (let j = 1; j <= b.hh + 3; j++) {
-					px(b.hx - 1, top + j, j % 2 ? H : hairD);
-					px(hx1 + 1, top + j, j % 2 ? H : hairD);
-				}
+				crown();
+				set(hx, hy + 1, H);
+				set(hx1, hy + 1, HD);
+				for (let j = 2; j <= 6; j++) { set(hx - 1, hy + j, j % 2 ? HD : H); set(hx1 + 1, hy + j, j % 2 ? H : HD); }
 				break;
 			case "ponytail":
-				rect(b.hx, top - 1, b.hw, 2, H);
-				rect(hx1 + 1, top, 1, 4, H);
-				px(hx1 + 2, top + 3, hairD);
+				crown();
+				set(hx1, hy + 1, HD);
+				rect(hx1 + 1, hy, 1, 3, H);
+				set(hx1 + 1, hy + 3, HD);
 				break;
 			case "sidepart":
-				rect(b.hx, top - 1, b.hw, 2, H);
-				rect(b.hx, top + 1, 2, 1, H);
-				px(b.hx + 2, top - 1, hairD);
-				rect(hx1, top + 1, 1, 1, H);
+				crown();
+				rect(hx, hy + 1, 2, 1, H);
+				set(hx1, hy + 1, HD);
+				set(hx + 2, hy - 1, HL);
 				break;
 			default: // short
-				rect(b.hx, top - 1, b.hw, 2, H);
-				px(b.hx, top + 1, H);
-				px(hx1, top + 1, H);
+				crown();
+				set(hx, hy + 1, H);
+				set(hx1, hy + 1, HD);
 		}
+	} else {
+		set(hx + 1, hy, skinL); // shine on a bald head
 	}
-	// horns over the hair
-	if (feats.has("horns")) { px(b.hx, top - 1, "#3a2a2a"); px(b.hx, top - 2, "#5a4444"); px(hx1, top - 1, "#3a2a2a"); px(hx1, top - 2, "#5a4444"); }
-	if (feats.has("ram_horns")) {
-		for (const [dx, dy] of [[-1, 0], [-2, 1], [-2, 2], [-1, 3]]) { px(b.hx + dx, top + dy, "#6b5a48"); px(hx1 - dx, top + dy, "#6b5a48"); }
-	}
+	if (feats.has("horns")) { set(hx, hy - 1, "#4a3434"); set(hx - 1, hy - 2, "#6a5050"); set(hx1, hy - 1, "#3a2828"); set(hx1 + 1, hy - 2, "#5a4242"); }
+	if (feats.has("ram_horns")) for (const [dx, dy] of [[-1, 0], [-1, 1], [0, 2]]) { set(hx + dx, hy + dy, "#7a6a58"); set(hx1 - dx, hy + dy, "#5e5040"); }
 	if (l.accessory === "circlet" || l.accessory === "crown") {
-		rect(b.hx, top, b.hw, 1, GOLD);
-		if (l.accessory === "crown") for (let i = 0; i < b.hw; i += 2) px(b.hx + i, top - 1, GOLD);
-		else px(b.hx + Math.floor(b.hw / 2), top, "#7fd3ff");
+		rect(hx, hy, 6, 1, GOLD);
+		if (l.accessory === "crown") { set(hx, hy - 1, GOLD); set(hx + 2, hy - 1, GOLD); set(hx + 3, hy - 1, GOLD); set(hx1, hy - 1, GOLD); }
+		else set(hx + 2, hy, "#7fd3ff");
 	}
-	if (l.accessory === "headband") rect(b.hx, top + 1, b.hw, 1, l.trim);
-	if (l.accessory === "earrings") { px(b.hx - 1, ey + 1, GOLD); px(hx1 + 1, ey + 1, GOLD); }
+	if (l.accessory === "headband") rect(hx, hy + 1, 6, 1, l.trim);
+	if (l.accessory === "earrings") { set(hx - 1, eyeRow + 1, GOLD); set(hx1 + 1, eyeRow + 1, GOLD); }
+	if (l.accessory === "eyepatch") { set(hx + 4, eyeRow, "#111111"); rect(hx, eyeRow - 1, 6, 1, "#2a2a2a"); set(hx + 1, eyeRow - 1, skin); }
 
-	// gear in the right hand (viewer's left) and shield on the other arm
+	// ── gear ────────────────────────────────────────────────────────────
 	const gx = b.tx - 2, gy = handY;
 	switch (l.gear) {
 		case "staff":
-			rect(gx, b.hy - 1, 1, 15 - b.hy, WOOD);
-			px(gx, b.hy - 2, "#7fd3ff");
-			px(gx, b.hy - 1, "#b8ecff");
+			rect(gx, hy - 1, 1, 15 - hy + 1, WOOD);
+			set(gx, hy - 2, "#9fe6ff");
 			break;
 		case "cane":
-			rect(gx, gy - 2, 1, 15 - gy + 2, WOOD_D);
-			px(gx + 1, gy - 2, WOOD_D);
+			rect(gx, gy - 1, 1, 15 - gy + 1, WOOD_D);
+			set(gx + 1, gy - 1, WOOD_D);
 			break;
 		case "spear":
-			rect(gx, Math.max(0, b.hy - 1), 1, 15 - Math.max(0, b.hy - 1), WOOD);
-			px(gx, Math.max(0, b.hy - 2), STEEL_L);
-			px(gx, Math.max(0, b.hy - 3), STEEL);
+			rect(gx, Math.max(1, hy - 1), 1, 15 - Math.max(1, hy - 1), WOOD);
+			set(gx, Math.max(0, hy - 2), STEEL_L);
 			break;
 		case "sword":
 		case "sword_shield":
-			rect(gx, gy - 5, 1, 5, STEEL_L);
-			px(gx - 1, gy, GOLD);
-			px(gx + 1, gy, GOLD);
-			px(gx, gy + 1, WOOD_D);
-			if (l.gear === "sword_shield") { rect(tx1 + 1, b.ty + 1, 2, 4, shade(cloth, 1.1)); px(tx1 + 2, b.ty + 2, GOLD); rect(tx1 + 1, b.ty + 1, 2, 1, STEEL_L); }
+			rect(gx, gy - 4, 1, 4, STEEL_L);
+			set(gx, gy, GOLD);
+			if (l.gear === "sword_shield") { rect(tx1 + 1, b.ty + 1, 2, 3, shade(cloth, 1.15)); set(tx1 + 2, b.ty + 2, GOLD); set(tx1 + 2, b.ty + 4, shade(cloth, 0.9)); }
 			break;
 		case "axe":
-			rect(gx, gy - 4, 1, 6, WOOD);
-			rect(gx - 1, gy - 4, 1, 3, STEEL);
-			px(gx - 2, gy - 3, STEEL_L);
+			rect(gx, gy - 3, 1, 5, WOOD);
+			rect(gx - 1, gy - 3, 1, 2, STEEL);
 			break;
 		case "mace":
-			rect(gx, gy - 3, 1, 4, WOOD_D);
-			rect(gx - 1, gy - 4, 3, 2, STEEL);
+			rect(gx, gy - 2, 1, 3, WOOD_D);
+			rect(gx - 1, gy - 3, 3, 1, STEEL);
+			set(gx, gy - 4, STEEL_L);
 			break;
 		case "hammer":
-			rect(gx, gy - 3, 1, 4, WOOD);
-			rect(gx - 1, gy - 4, 3, 2, STEEL_D);
+			rect(gx, gy - 2, 1, 3, WOOD);
+			rect(gx - 1, gy - 3, 3, 1, STEEL_D);
 			break;
 		case "dagger":
-			rect(gx + 1, gy - 2, 1, 2, STEEL_L);
+			rect(gx + 1, gy + 1, 1, 1, STEEL_L);
 			break;
 		case "bow":
-			for (const [dx, dy] of [[0, -4], [-1, -3], [-1, -2], [-1, -1], [-1, 0], [-1, 1], [-1, 2], [0, 3]]) px(gx + 1 + dx, gy + dy - 1, WOOD);
-			rect(gx + 1, gy - 5, 1, 9, "rgba(230,230,220,0.7)");
+			for (const [dx, dy] of [[0, -5], [-1, -4], [-1, -3], [-1, -2], [-1, -1], [-1, 0], [0, 1]]) set(gx + 1 + dx, gy + dy, WOOD);
+			rect(gx + 1, gy - 4, 1, 4, "#d8d2c0");
 			break;
 		case "book":
-			rect(tx1, handY - 2, 2, 2, "#7a2f2f");
-			px(tx1 + 1, handY - 2, "#efe6cf");
+			rect(tx1, handY - 1, 2, 2, "#7a2f2f");
+			set(tx1 + 1, handY - 1, "#efe6cf");
 			break;
 		case "lute":
-			rect(b.tx + 1, b.ty + 2, 3, 3, "#a8743e");
-			px(b.tx + 2, b.ty + 3, WOOD_D);
-			rect(b.tx + 4, b.ty + 1, 3, 1, WOOD_D);
+			rect(b.tx + 1, b.ty + 1, 2, 2, "#b07a42");
+			set(b.tx + 3, b.ty, WOOD_D);
+			set(b.tx + 4, b.ty - 1, WOOD_D);
 			break;
 		case "lantern":
-			px(gx, gy, "#2e2e32");
-			px(gx, gy + 1, "#ffe9a0");
-			px(gx, gy + 2, "#2e2e32");
+			set(gx + 1, gy + 1, "#2e2e32");
+			set(gx + 1, gy + 2, "#ffe9a0");
 			break;
+	}
+
+	// ── outline and shadow ──────────────────────────────────────────────
+	const solid = g.map((c) => c !== null);
+	for (let y = 0; y < 16; y++)
+		for (let x = 0; x < 16; x++) {
+			if (solid[y * 16 + x]) continue;
+			const n = (dx: number, dy: number) => {
+				const X = x + dx, Y = y + dy;
+				return X >= 0 && Y >= 0 && X < 16 && Y < 16 && solid[Y * 16 + X];
+			};
+			if (n(1, 0) || n(-1, 0) || n(0, 1) || n(0, -1)) g[y * 16 + x] = OUTLINE;
+		}
+	for (let x = b.tx; x <= tx1; x++) if (!solid[15 * 16 + x]) g[15 * 16 + x] = "rgba(0,0,0,0.28)";
+	for (let i = 0; i < 256; i++) {
+		const c = g[i];
+		if (c) px(i % 16, Math.floor(i / 16), c);
 	}
 }

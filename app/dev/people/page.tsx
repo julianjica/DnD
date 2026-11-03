@@ -16,7 +16,7 @@ function Sprite({ look, dead = false }: { look: PersonLook; dead?: boolean }) {
 		ctx.clearRect(0, 0, c.width, c.height);
 		ctx.drawImage(creatureCanvas({ kind: "npc", sprite: "npc" }, look, dead), 0, 0, c.width, c.height);
 	}, [look, dead]);
-	return <canvas ref={ref} width={96} height={96} style={{ imageRendering: "pixelated" }} className="rounded bg-[#dde5ec]" />;
+	return <canvas ref={ref} width={192} height={192} style={{ imageRendering: "pixelated" }} className="rounded bg-[#6b4a2e]" />;
 }
 
 interface Row { name: string; spec: PortraitSpec; species?: string; look: PersonLook; note: string }
