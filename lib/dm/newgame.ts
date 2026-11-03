@@ -1,3 +1,5 @@
+import { rulesetOf } from "../rules/ruleset";
+import { kesslerFalls } from "../maps/kessler";
 import type { CampaignSettings, GameState, LocationKind, SceneKind, WorldMap } from "../game/types";
 import { createCharacterDetailed, type CreateCharacterInput } from "../rules/character";
 import { Rng, newSeed } from "../rules/dice";
@@ -31,6 +33,7 @@ const START_SCENE: Record<string, { kind: SceneKind; title: string }> = {
 	pirates: { kind: "coast", title: "A Harbor at Dawn" },
 	arctic: { kind: "camp", title: "Camp in the Snow" },
 	desert_kingdoms: { kind: "desert", title: "The Caravan Road" },
+	zombie_outbreak: { kind: "town", title: "Kessler Falls, Monday Night" },
 	gothic_horror: { kind: "road", title: "A Mist-Shrouded Road" },
 	fey_wilds: { kind: "forest", title: "The Shimmering Wood" },
 	default: { kind: "tavern", title: "A Roadside Inn" },
@@ -40,6 +43,7 @@ const START_SCENE_ES: Record<string, string> = {
 	pirates: "Un puerto al amanecer",
 	arctic: "Campamento en la nieve",
 	desert_kingdoms: "La ruta de las caravanas",
+	zombie_outbreak: "Kessler Falls, lunes por la noche",
 	gothic_horror: "Un camino envuelto en niebla",
 	fey_wilds: "El bosque resplandeciente",
 	default: "Una posada junto al camino",
@@ -54,10 +58,13 @@ export function createGame(input: NewGameInput): GameState {
 		rng,
 		portrait: input.character.portrait ?? randomPortrait(rng, input.character.speciesId),
 	});
-	const world = generateWorld({ seed: rng.int(1, 2 ** 31 - 1), biome: BIOME[input.settings.world.preset], lang: input.settings.language });
+	const zombie = rulesetOf(input.settings) === "zombie";
+	const world = zombie
+		? kesslerFalls(rng.int(1, 2 ** 31 - 1), input.settings.language === "es" ? "es" : "en")
+		: generateWorld({ seed: rng.int(1, 2 ** 31 - 1), biome: BIOME[input.settings.world.preset], lang: input.settings.language });
 	// Start at a discovered settlement.
 	const startKinds: LocationKind[] = input.settings.world.preset === "pirates" ? ["coast", "town", "village"] : ["village", "town", "city"];
-	const start = world.locations.find((l) => startKinds.includes(l.kind)) ?? world.locations[0];
+	const start = zombie ? world.locations.find((l) => l.id === world.currentLocationId) : (world.locations.find((l) => startKinds.includes(l.kind)) ?? world.locations[0]);
 	if (start) {
 		start.discovered = true;
 		start.visited = true;
@@ -79,7 +86,9 @@ export function createGame(input: NewGameInput): GameState {
 		settings: input.settings.art ? input.settings : { ...input.settings, art: { scenes: "sprites" } },
 		character,
 		mode: "explore",
-		scene: { title: sc.title, kind: sc.kind, timeOfDay: "dusk", weather: "clear", mood: "calm", npcIds: [], props: [] },
+		scene: zombie
+			? { title: sc.title, kind: sc.kind, timeOfDay: "night", weather: "rain", mood: "tense", npcIds: [], props: [] }
+			: { title: sc.title, kind: sc.kind, timeOfDay: "dusk", weather: "clear", mood: "calm", npcIds: [], props: [] },
 		ambience: "none",
 		world,
 		maps: {},
@@ -87,7 +96,8 @@ export function createGame(input: NewGameInput): GameState {
 		npcs: {},
 		quests: [],
 		journal: [],
-		time: { day: 1, hour: 18, minute: 0 },
+		// The Quiet starts on the outbreak night (Day 0 of the outbreak = game day 1).
+		time: zombie ? { day: 1, hour: 21, minute: 0 } : { day: 1, hour: 18, minute: 0 },
 		suggestions: [],
 		rng: rng.state,
 		dmNotes: [],
