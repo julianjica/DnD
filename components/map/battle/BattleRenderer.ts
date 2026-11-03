@@ -611,7 +611,7 @@ export class BattleRenderer {
 			const modern = inp.map.theme === "modern";
 			const isDead = !!e.dead || !!st?.dead || (st?.hp !== undefined && st.hp <= 0 && e.kind !== "pc");
 			const texKey = pixel
-				? creature ? `px|tok|${e.sprite}|${e.kind}|${isDead ? "dead" : ring}|${modern ? "m" : ""}|${look ? JSON.stringify(look) : ""}` : `px|prop|${e.sprite}|${e.name}`
+				? creature ? `px|tok|${e.sprite}|${e.kind}|${isDead ? "dead" : ring}|${modern ? "m" : ""}|${look ? JSON.stringify(look) : ""}` : `px|prop|${e.sprite}|${e.name}|${modern ? "m" : ""}`
 				: creature ? `tok|${e.sprite}|${e.kind}|${ring}|${e.size > 1 ? 2 : 1}` : `prop|${e.sprite}|${e.kind}`;
 			let v = this.tokens.get(e.id);
 			if (v && (v.key !== texKey || !!v.light !== (e.lightRadius ?? 0) > 0)) {
@@ -626,7 +626,7 @@ export class BattleRenderer {
 				const px = creature ? (e.size > 1 ? 256 : 160) : 128;
 				const tex = this.textureFor(texKey, () =>
 					pixel
-						? creature ? pixelToken(128, { kind: e.kind, sprite: e.sprite, look, ring, dead: isDead, modern }) : pixelProp(128, e)
+						? creature ? pixelToken(128, { kind: e.kind, sprite: e.sprite, look, ring, dead: isDead, modern }) : pixelProp(128, e, modern)
 						: creature ? paintToken(px, e.sprite, e.kind, ring) : paintProp(px, hasProp(e.sprite) ? e.sprite : e.sprite || "crate", e.kind),
 				);
 				const sprite = new P.Sprite(tex);

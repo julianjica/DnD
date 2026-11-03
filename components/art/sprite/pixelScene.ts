@@ -4,7 +4,7 @@
  * 16×16 sprites in ./sprites. The result is a close-up framed on the party.
  */
 import type { GridMap, MapEntity, Tile, TimeOfDay, Weather } from "@/lib/game/types";
-import { FEATURE_ALIASES, LIGHTS, SPRITES, type Sprite } from "./sprites";
+import { FEATURE_ALIASES, LIGHTS, MODERN_FEATURE_ALIASES, MODERN_SPRITES, SPRITES, type Sprite } from "./sprites";
 import { creatureSprite, hasModernCreature } from "./creatures";
 import { paintPerson, type PersonLook } from "./person";
 import { modernBridge, modernDoor, modernGround, modernObject, modernRoof, modernRubble, modernWall } from "./modern";
@@ -379,12 +379,17 @@ class P {
 	}
 }
 
-function featureSprite(e: MapEntity): string {
+function featureSprite(e: MapEntity, modern = false): string {
 	const raw = (e.sprite || e.name || "").toLowerCase().trim().replace(/[\s-]+/g, "_");
-	if (SPRITES[raw]) return raw;
+	if (SPRITES[raw] && !(modern && MODERN_FEATURE_ALIASES[raw])) return raw;
+	if (modern) {
+		if (MODERN_FEATURE_ALIASES[raw]) return MODERN_FEATURE_ALIASES[raw];
+		for (const [k, v] of Object.entries(MODERN_FEATURE_ALIASES)) if (raw.includes(k)) return v;
+	}
 	if (FEATURE_ALIASES[raw]) return FEATURE_ALIASES[raw];
 	for (const [k, v] of Object.entries(FEATURE_ALIASES)) if (raw.includes(k)) return v;
-	for (const k of Object.keys(SPRITES)) if (raw.includes(k)) return k;
+	// partial names only match modern props on modern maps ("bush" isn't a bus)
+	for (const k of Object.keys(SPRITES)) if (raw.includes(k) && (modern || !MODERN_SPRITES[k])) return k;
 	return "marker";
 }
 
@@ -460,7 +465,7 @@ export function paintPixelScene(canvas: HTMLCanvasElement, input: PixelSceneInpu
 				},
 			});
 		} else {
-			const name = featureSprite(e);
+			const name = featureSprite(e, map.theme === "modern");
 			const flat = FLAT.has(name);
 			draws.push({ y: flat ? e.y : e.y + 0.3, fn: () => p.sprite(name === "campfire" && (e.sprite === "hearth" || e.name.toLowerCase().includes("hearth")) ? "flame" : name, X, Y - (name === "standing_stone" || name === "statue" ? 2 : 0)) });
 			const L = LIGHTS[name];
@@ -592,8 +597,8 @@ export function pixelToken(px: number, opts: { kind: MapEntity["kind"]; sprite: 
 }
 
 /** A feature/item/light for the battle map. */
-export function pixelProp(px: number, e: Pick<MapEntity, "sprite" | "name" | "kind">): HTMLCanvasElement {
-	const name = featureSprite(e as MapEntity);
+export function pixelProp(px: number, e: Pick<MapEntity, "sprite" | "name" | "kind">, modern = false): HTMLCanvasElement {
+	const name = featureSprite(e as MapEntity, modern);
 	return upscale((p) => p.sprite(name === "campfire" && /hearth/i.test(`${e.sprite} ${e.name}`) ? "flame" : name, 0, 0), undefined, px);
 }
 

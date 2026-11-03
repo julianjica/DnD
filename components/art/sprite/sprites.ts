@@ -1368,15 +1368,22 @@ export const FEATURE_ALIASES: Record<string, string> = {
 	lamp: "lantern", bollard: "standing_stone", stall: "crate", wheel: "cart", signpost: "sign",
 	tombstone: "grave", gravestone: "grave", skull: "bones", skeleton: "bones", table: "crate", menhir: "standing_stone",
 	idol: "statue", shrine: "altar", candle: "candles", box: "crate", tree: "pine", rock: "boulder", stone: "boulder",
-	// The Quiet (modern props). Exact names first, so "lamp post" isn't caught by "lamp" → lantern.
+};
+
+/**
+ * Extra names on modern maps (The Quiet). Checked before FEATURE_ALIASES there, and
+ * never on fantasy maps, so "shelves" or "chair" keep their old look in fantasy.
+ */
+export const MODERN_FEATURE_ALIASES: Record<string, string> = {
 	lamppost: "street_lamp", lamp_post: "street_lamp", streetlight: "street_lamp", street_light: "street_lamp", streetlamp: "street_lamp",
 	wreck: "car_wreck", burnt_car: "car_wreck", burned_car: "car_wreck", wrecked_car: "car_wreck", sedan: "car", cruiser: "police_car", patrol_car: "police_car",
 	squad_car: "police_car", pickup: "pickup_truck", truck: "pickup_truck", school_bus: "bus", cart_shopping: "shopping_cart", trolley: "shopping_cart",
 	shelves: "store_shelf", shelving: "store_shelf", aisle: "store_shelf", refrigerator: "fridge", freezer: "fridge", vending: "vending_machine",
-	office_desk: "desk", chair: "office_chair", sofa: "couch", television: "tv", stretcher: "gurney", gas_pump: "gas_pump", fuel_pump: "gas_pump", pump: "gas_pump",
+	office_desk: "desk", chair: "office_chair", sofa: "couch", television: "tv", stretcher: "gurney", gas_pump: "gas_pump", fuel_pump: "gas_pump",
 	trash: "trash_bags", garbage: "trash_bags", fence: "chainlink_fence", barrier: "barricade", sandbag: "sandbags", cone: "traffic_cone",
 	stop_sign: "road_sign", street_sign: "road_sign", road_sign: "road_sign", mail: "mailbox", hydrant: "fire_hydrant", corpse: "body_bag",
 	blood: "blood_pool", washer: "washing_machine", bathtub: "bathtub", tub: "bathtub", phone: "phone_booth", park_bench: "bench", pillar_concrete: "column",
+	table: "desk", tree: "fall_tree", lamp: "street_lamp",
 };
 
 export const LIGHTS: Record<string, { r: number; color: string; a: number }> = {
