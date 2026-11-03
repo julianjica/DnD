@@ -68,4 +68,18 @@ export const restoreResourceTool = tool<{ feature?: string; slotLevel?: number; 
 		}),
 );
 
-export const RESOURCE_TOOLS: ToolFactory[] = [castSpellTool, useItemTool, useFeatureTool, restoreResourceTool];
+export const endConcentrationTool = tool<{ reason: string }>(
+	"end_concentration",
+	"End the player's concentration outside combat (they drop the spell, or the story says it ended). It also ends by itself when the spell's duration passes on the game clock, on a long rest, and through damage/conditions in combat.",
+	S.obj({ reason: S.str() }, ["reason"]),
+	async (a, ctx) =>
+		withState(ctx, ({ state }) => {
+			const c = state.character.concentration;
+			if (!c) return "Not concentrating on anything.";
+			if (state.encounter?.status === "active") throw new Error("In combat, concentration ends through the engine (damage, conditions, casting another concentration spell).");
+			delete state.character.concentration;
+			return `Concentration on ${c.spell} ended (${a.reason}).`;
+		}),
+);
+
+export const RESOURCE_TOOLS: ToolFactory[] = [castSpellTool, useItemTool, useFeatureTool, restoreResourceTool, endConcentrationTool];

@@ -1,3 +1,4 @@
+import { syncSpellTokens } from "./spellTokens";
 import type { DmTool, GameState, JsonSchema, RollRecord, ToolResult } from "../game/types";
 import { mutate } from "../store/campaigns";
 import { Rng } from "../rules/dice";
@@ -48,7 +49,9 @@ export async function withState<T>(ctx: ToolContext, fn: (tx: StateTxn) => T | P
 	let snapshot: GameState | undefined;
 	const result = await mutate(ctx.campaignId, async (state) => {
 		const rng = new Rng(state.rng);
-		const out = await fn({ state, rng, roll: (r) => rolls.push(r), fx: (f) => fxs.push(f) });
+		let out = await fn({ state, rng, roll: (r) => rolls.push(r), fx: (f) => fxs.push(f) });
+		const note = syncSpellTokens(state);
+		if (note && typeof out === "string") out = `${out}\n${note}` as typeof out;
 		state.rng = rng.state;
 		snapshot = state;
 		return out;

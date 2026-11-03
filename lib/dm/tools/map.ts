@@ -195,10 +195,10 @@ export const placeEntityTool = tool<{ kind: EntityKind; name: string; sprite?: s
 		}),
 );
 
-export const updateEntityTool = tool<{ id: string; x?: number; y?: number; hidden?: boolean; remove?: boolean; name?: string; disposition?: "friendly" | "neutral" | "hostile" }>(
+export const updateEntityTool = tool<{ id: string; x?: number; y?: number; hidden?: boolean; remove?: boolean; name?: string; disposition?: "friendly" | "neutral" | "hostile"; dead?: boolean }>(
 	"update_entity",
-	"Move (outside combat), reveal/hide, rename or remove a map entity.",
-	S.obj({ id: S.str(), x: S.int(), y: S.int(), hidden: S.bool(), remove: S.bool(), name: S.str(), disposition: S.str(undefined, ["friendly", "neutral", "hostile"]) }, ["id"]),
+	"Move (outside combat), reveal/hide, rename, mark dead (a corpse lying on the map) or remove a map entity.",
+	S.obj({ id: S.str(), x: S.int(), y: S.int(), hidden: S.bool(), remove: S.bool(), name: S.str(), disposition: S.str(undefined, ["friendly", "neutral", "hostile"]), dead: S.bool("Creature is dead (shown as a corpse)") }, ["id"]),
 	async (a, ctx) =>
 		withState(ctx, ({ state }) => {
 			const map = activeMap(state);
@@ -212,6 +212,11 @@ export const updateEntityTool = tool<{ id: string; x?: number; y?: number; hidde
 			if (a.hidden !== undefined) e.hidden = a.hidden;
 			if (a.name) e.name = a.name;
 			if (a.disposition) e.disposition = a.disposition;
+			if (a.dead !== undefined) {
+				if (a.dead && e.combatantId && state.encounter?.status === "active") throw new Error("In combat, creatures die through damage (apply_damage / the engine).");
+				if (a.dead) e.dead = true;
+				else delete e.dead;
+			}
 			if (a.x !== undefined && a.y !== undefined) {
 				if (e.combatantId && state.encounter?.status === "active") throw new Error(e.kind === "pc" ? "In combat the player's token moves with move_player (on their turn)." : "Combatants move via monster_turn.");
 				placeEntity(map, { ...e, x: a.x, y: a.y });

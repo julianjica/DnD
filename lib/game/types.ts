@@ -240,7 +240,7 @@ export interface Character {
 	conditions: ActiveCondition[];
 	exhaustion: number;
 	deathSaves: { successes: number; failures: number };
-	concentration?: { spell: string; startedRound?: number };
+	concentration?: { spell: string; startedRound?: number; /** Game minute it started (day*1440 + hour*60 + minute), for expiry outside combat. */ since?: number };
 	inspiration: boolean;
 	portrait: PortraitSpec;
 	personality?: { traits?: string; ideals?: string; bonds?: string; flaws?: string; backstory?: string; appearance?: string };
@@ -280,6 +280,8 @@ export interface MapEntity {
 	/** Light radius in squares for lights/torches. */
 	lightRadius?: number;
 	description?: string;
+	/** A corpse: drawn lying down, never blocks movement. */
+	dead?: boolean;
 }
 
 export interface MapRoom {

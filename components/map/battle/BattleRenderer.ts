@@ -5,7 +5,6 @@ import { computeFov, computePlayerView, parseKey, sqKey, type Point } from "@/li
 import { rand2 } from "@/lib/maps/noise";
 import { paintMap, tileSizeFor } from "../art/tilePainter";
 import { paintPixelMap, pixelProp, pixelToken, type Look } from "@/components/art/sprite/pixelScene";
-import { creatureSprite } from "@/components/art/sprite/creatures";
 import { hasProp, lightStyle, paintProp, paintToken, ringFor } from "../art/tokens";
 
 type Pixi = typeof PIXI;
@@ -609,8 +608,9 @@ export class BattleRenderer {
 			const ring = ringFor(e, st?.side);
 			const pixel = inp.pixel;
 			const look = pixel?.looks[e.id];
+			const isDead = !!e.dead || !!st?.dead || (st?.hp !== undefined && st.hp <= 0 && e.kind !== "pc");
 			const texKey = pixel
-				? creature ? `px|tok|${e.sprite}|${e.kind}|${ring}|${look ? `${look.hair}${look.cloth}${look.skin}` : ""}` : `px|prop|${e.sprite}|${e.name}`
+				? creature ? `px|tok|${e.sprite}|${e.kind}|${isDead ? "dead" : ring}|${look ? `${look.hair}${look.cloth}${look.skin}` : ""}` : `px|prop|${e.sprite}|${e.name}`
 				: creature ? `tok|${e.sprite}|${e.kind}|${ring}|${e.size > 1 ? 2 : 1}` : `prop|${e.sprite}|${e.kind}`;
 			let v = this.tokens.get(e.id);
 			if (v && (v.key !== texKey || !!v.light !== (e.lightRadius ?? 0) > 0)) {
@@ -625,7 +625,7 @@ export class BattleRenderer {
 				const px = creature ? (e.size > 1 ? 256 : 160) : 128;
 				const tex = this.textureFor(texKey, () =>
 					pixel
-						? creature ? pixelToken(128, { kind: e.kind, sprite: e.sprite, look, ring, creature: e.kind === "monster" ? creatureSprite(e.sprite, "monster") : undefined }) : pixelProp(128, e)
+						? creature ? pixelToken(128, { kind: e.kind, sprite: e.sprite, look, ring, dead: isDead }) : pixelProp(128, e)
 						: creature ? paintToken(px, e.sprite, e.kind, ring) : paintProp(px, hasProp(e.sprite) ? e.sprite : e.sprite || "crate", e.kind),
 				);
 				const sprite = new P.Sprite(tex);
@@ -659,10 +659,12 @@ export class BattleRenderer {
 			const scale = (e.size * T * (creature && !inp.pixel ? 0.94 : 1)) / v.sprite.texture.width;
 			v.sprite.scale.set(scale);
 			v.root.zIndex = creature ? 10 + (e.kind === "pc" ? 2 : 0) : e.kind === "light" ? 2 : 1;
-			const dead = st?.dead || (st?.hp !== undefined && st.hp <= 0 && e.kind !== "pc");
-			v.sprite.tint = dead ? 0x6a6a6a : 0xffffff;
-			v.body.rotation = dead ? Math.PI / 2 : 0;
-			v.root.alpha = e.hidden ? 0.5 : dead ? 0.7 : 1;
+			const dead = isDead && creature;
+			// Pixel corpses are drawn lying down already; the painted style greys and tips the token over.
+			v.sprite.tint = dead && !pixel ? 0x6a6a6a : 0xffffff;
+			v.body.rotation = dead && !pixel ? Math.PI / 2 : 0;
+			v.root.alpha = e.hidden ? 0.5 : dead && !pixel ? 0.7 : 1;
+			v.root.zIndex = dead ? 5 : v.root.zIndex;
 			if (v.light) v.light.radius = e.lightRadius ?? v.light.radius;
 			this.drawHp(v, st);
 		}

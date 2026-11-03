@@ -9,6 +9,8 @@ export interface SpriteSceneProps {
 	looks: Record<string, Look>;
 	time: TimeOfDay;
 	weather: Weather;
+	/** Entity ids of creatures killed in the current fight. */
+	dead?: Set<string>;
 	/** Narrowest close-up, in squares (zooms out to fit what is nearby). */
 	viewW?: number;
 	animate?: boolean;
@@ -18,14 +20,14 @@ export interface SpriteSceneProps {
  * Pixel-sprite close-up of the active map, framed on the player, with falling
  * snow or rain. Fills its parent (which sets the 16:9 box).
  */
-export function SpriteScene({ map, looks, time, weather, viewW = 18, animate = true }: SpriteSceneProps) {
+export function SpriteScene({ map, looks, time, weather, dead, viewW = 18, animate = true }: SpriteSceneProps) {
 	const base = useRef<HTMLCanvasElement>(null);
 	const fx = useRef<HTMLCanvasElement>(null);
 	const frame = useMemo(() => frameAround(map, viewW), [map, viewW]);
 
 	useEffect(() => {
-		if (base.current) paintPixelScene(base.current, { map, looks, time, weather }, frame);
-	}, [map, looks, time, weather, frame]);
+		if (base.current) paintPixelScene(base.current, { map, looks, time, weather, dead }, frame);
+	}, [map, looks, time, weather, dead, frame]);
 
 	const mask = useMemo(() => skyMask(map, frame), [map, frame]);
 	const falling = hasSky(map) && (weather === "snow" || weather === "rain" || weather === "storm") ? (weather === "snow" ? "snow" : "rain") : null;

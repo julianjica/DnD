@@ -23,6 +23,8 @@ export interface PixelSceneInput {
 	weather: Weather;
 	/** Close-up width in squares (16:9). */
 	viewW?: number;
+	/** Entity ids of creatures that are dead (from the encounter). */
+	dead?: Set<string>;
 	/** Entity to centre on (default the PC). */
 	focusId?: string;
 }
@@ -418,20 +420,8 @@ export function paintPixelScene(canvas: HTMLCanvasElement, input: PixelSceneInpu
 			draws.push({
 				y: e.y + 0.5,
 				fn: () => {
-					if (e.kind === "monster") {
-						const spr = creatureSprite(e.sprite, "monster");
-						if (size === 1) p.draw(spr, X, Y);
-						else {
-							// Scale the sprite up for large creatures.
-							const off = document.createElement("canvas");
-							off.width = off.height = 16;
-							new P(map, off.getContext("2d")!).draw(spr, 0, 0);
-							ctx.drawImage(off, X, Y, 16 * size, 16 * size);
-						}
-					} else {
-						const l = look ?? { hair: "#5a3a1e", cloth: e.kind === "pc" ? "#3f4f86" : "#6b5a3a", skin: "#e4b48c" };
-						p.sprite("person", X, Y - 1, { H: l.hair, C: l.cloth, c: darken(l.cloth, 0.7), S: l.skin });
-					}
+					const dead = !!e.dead || !!input.dead?.has(e.id);
+					ctx.drawImage(creatureCanvas(e, look, dead), X, Y - (dead || e.kind === "monster" ? 0 : 1), 16 * size, 16 * size);
 				},
 			});
 		} else {
@@ -546,9 +536,13 @@ function upscale(draw: (p: P) => void, map: GridMap | undefined, px: number, n =
 }
 
 /** A creature token for the battle map: the sprite standing on a coloured ring (side / disposition). */
-export function pixelToken(px: number, opts: { kind: MapEntity["kind"]; sprite: string; look?: Look; ring: string; creature?: Sprite }): HTMLCanvasElement {
+export function pixelToken(px: number, opts: { kind: MapEntity["kind"]; sprite: string; look?: Look; ring: string; dead?: boolean }): HTMLCanvasElement {
 	return upscale((p) => {
 		const ctx = p.ctx;
+		if (opts.dead) {
+			ctx.drawImage(creatureCanvas({ kind: opts.kind, sprite: opts.sprite }, opts.look, true), 0, 0);
+			return;
+		}
 		// ring at the feet
 		ctx.fillStyle = opts.ring;
 		ctx.fillRect(3, 13, 10, 1);
@@ -556,12 +550,7 @@ export function pixelToken(px: number, opts: { kind: MapEntity["kind"]; sprite: 
 		ctx.fillRect(3, 15, 10, 1);
 		ctx.fillStyle = "rgba(0,0,0,0.35)";
 		ctx.fillRect(4, 14, 8, 1);
-		if (opts.creature) p.draw(opts.creature, 0, -1);
-		else if (opts.kind === "monster") p.sprite("monster", 0, -1, { C: "#6b2a2a", c: darken("#6b2a2a", 0.7) });
-		else {
-			const l = opts.look ?? { hair: "#5a3a1e", cloth: opts.kind === "pc" ? "#3f4f86" : "#6b5a3a", skin: "#e4b48c" };
-			p.sprite("person", 0, -2, { H: l.hair, C: l.cloth, c: darken(l.cloth, 0.7), S: l.skin });
-		}
+		ctx.drawImage(creatureCanvas({ kind: opts.kind, sprite: opts.sprite }, opts.look, false), 0, opts.kind === "monster" ? -1 : -2);
 	}, undefined, px);
 }
 
@@ -569,4 +558,46 @@ export function pixelToken(px: number, opts: { kind: MapEntity["kind"]; sprite: 
 export function pixelProp(px: number, e: Pick<MapEntity, "sprite" | "name" | "kind">): HTMLCanvasElement {
 	const name = featureSprite(e as MapEntity);
 	return upscale((p) => p.sprite(name === "campfire" && /hearth/i.test(`${e.sprite} ${e.name}`) ? "flame" : name, 0, 0), undefined, px);
+}
+
+/** A creature's 16×16 sprite; dead ones lie on their side, drained of colour, in a pool of blood. */
+export function creatureCanvas(e: Pick<MapEntity, "kind" | "sprite">, look: Look | undefined, dead: boolean): HTMLCanvasElement {
+	const c = document.createElement("canvas");
+	c.width = c.height = 16;
+	const p = new P({ seed: 1 } as GridMap, c.getContext("2d")!);
+	if (e.kind === "monster") p.draw(creatureSprite(e.sprite, "monster"), 0, 0);
+	else {
+		const l = look ?? { hair: "#5a3a1e", cloth: e.kind === "pc" ? "#3f4f86" : "#6b5a3a", skin: "#e4b48c" };
+		p.sprite("person", 0, 0, { H: l.hair, C: l.cloth, c: darken(l.cloth, 0.7), S: l.skin });
+	}
+	if (!dead) return c;
+	const ctx = c.getContext("2d")!;
+	const src = ctx.getImageData(0, 0, 16, 16);
+	const out = ctx.createImageData(16, 16);
+	// Rotate 90° clockwise, drop the shadow row, desaturate and darken.
+	for (let y = 0; y < 16; y++)
+		for (let x = 0; x < 16; x++) {
+			const i = (y * 16 + x) * 4;
+			if (src.data[i + 3] < 200) continue;
+			const nx = 15 - y, ny = x;
+			const o = (ny * 16 + nx) * 4;
+			const g = (src.data[i] * 0.3 + src.data[i + 1] * 0.59 + src.data[i + 2] * 0.11) * 0.75;
+			out.data[o] = Math.round(src.data[i] * 0.35 + g * 0.65);
+			out.data[o + 1] = Math.round(src.data[i + 1] * 0.25 + g * 0.6);
+			out.data[o + 2] = Math.round(src.data[i + 2] * 0.25 + g * 0.6);
+			out.data[o + 3] = 255;
+		}
+	ctx.clearRect(0, 0, 16, 16);
+	// blood pool under the body
+	ctx.fillStyle = "rgba(110,12,12,0.85)";
+	ctx.fillRect(3, 8, 11, 6);
+	ctx.fillRect(2, 9, 13, 4);
+	ctx.fillRect(5, 14, 6, 1);
+	ctx.fillStyle = "rgba(160,24,20,0.9)";
+	ctx.fillRect(5, 10, 5, 2);
+	const body = document.createElement("canvas");
+	body.width = body.height = 16;
+	body.getContext("2d")!.putImageData(out, 0, 0);
+	ctx.drawImage(body, 0, 2);
+	return c;
 }

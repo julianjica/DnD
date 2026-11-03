@@ -260,7 +260,12 @@ export const endCombatTool = tool<{ status?: "victory" | "defeat" | "fled" | "en
 			}
 			// Remove dead monster tokens' combat links; keep corpses on the map.
 			const map = state.maps[enc.mapId];
-			if (map) for (const e of map.entities) delete e.combatantId;
+			if (map)
+				for (const e of map.entities) {
+					const c = Object.values((state.encounter ?? enc).combatants).find((x) => x.entityId === e.id);
+					if (c?.dead && e.kind !== "pc") e.dead = true;
+					delete e.combatantId;
+				}
 			state.encounter = undefined;
 			state.mode = "explore";
 			state.scene.mood = a.status === "defeat" ? "somber" : "tense";

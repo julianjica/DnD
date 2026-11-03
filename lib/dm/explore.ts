@@ -10,7 +10,7 @@ export function exploreMove(state: GameState, path: { x: number; y: number }[]):
 	if (!pc) throw new Error("No player token on the map.");
 	if (!path.length || path.length > 200) throw new Error("Invalid path.");
 	let cur = { x: pc.x, y: pc.y };
-	const occupied = new Set(map.entities.filter((e) => e.id !== pc.id && (e.kind === "monster" || e.kind === "npc" || e.kind === "feature")).map((e) => `${e.x},${e.y}`));
+	const occupied = new Set(map.entities.filter((e) => e.id !== pc.id && !e.dead && (e.kind === "monster" || e.kind === "npc" || e.kind === "feature")).map((e) => `${e.x},${e.y}`));
 	for (const step of path) {
 		if (Math.max(Math.abs(step.x - cur.x), Math.abs(step.y - cur.y)) !== 1) throw new Error("Path must be contiguous.");
 		if (!canStand(map, step.x, step.y, pc.size, occupied, { allowDoors: true })) break;
