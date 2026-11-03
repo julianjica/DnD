@@ -13,6 +13,8 @@ import type { AoeTemplate } from "@/lib/maps/aoe";
 import type { FxItem } from "./useGame";
 import type { MapFxEvent, TokenStatus } from "@/components/map/BattleMap";
 import { useT } from "@/components/i18n/I18nProvider";
+import { Tooltip } from "@/components/ui/Tooltip";
+import { CreatureCard, CreatureTypeLine } from "./CreatureCard";
 import type { MessageKey } from "@/lib/i18n";
 
 function Loading({ k }: { k: MessageKey }) {
@@ -72,13 +74,14 @@ function Initiative({ state }: { state: GameState }) {
 				const active = i === e.turnIndex;
 				const pct = c.maxHp ? (c.hp / c.maxHp) * 100 : 0;
 				const color = c.side === "party" ? "border-emerald/70" : c.side === "enemy" ? "border-crimson/70" : "border-line";
-				return (
-					<div key={id} className={`relative shrink-0 rounded-md border px-2 py-1 text-xs transition ${color} ${active ? "scale-105 bg-gold/15 shadow-[0_0_12px_rgba(212,166,74,0.4)]" : "bg-bg-2/80"} ${c.dead ? "opacity-40 line-through" : ""}`}>
-						<div className="flex items-center gap-1">
+				const card = (
+					<div tabIndex={c.stats && c.kind !== "pc" ? 0 : undefined} className={`relative shrink-0 rounded-md border px-2 py-1 text-xs transition outline-none focus-visible:ring-1 focus-visible:ring-gold ${color} ${active ? "scale-105 bg-gold/15 shadow-[0_0_12px_rgba(212,166,74,0.4)]" : "bg-bg-2/80"} ${c.dead ? "opacity-40" : ""} ${c.stats && c.kind !== "pc" ? "cursor-help" : ""}`}>
+						<div className={`flex items-center gap-1 ${c.dead ? "line-through" : ""}`}>
 							<span className="tabular-nums text-faint">{c.initiative}</span>
 							<span className={active ? "text-gold-2" : "text-text"}>{ts(c.name)}</span>
 							{c.dead && <Skull size={11} />}
 						</div>
+						<CreatureTypeLine c={c} className="text-[10px] italic leading-tight text-dim" />
 						{c.side === "party" || c.dead ? (
 							<div className="mt-0.5 h-1 w-full overflow-hidden rounded bg-bg">
 								<div className="h-full bg-hp" style={{ width: `${pct}%` }} />
@@ -87,6 +90,13 @@ function Initiative({ state }: { state: GameState }) {
 							<div className="mt-0.5 text-[9px] uppercase tracking-wider text-faint">{te("health", pct >= 100 ? "unhurt" : pct > 50 ? "wounded" : pct > 0 ? "bloodied" : "down")}</div>
 						)}
 					</div>
+				);
+				return c.stats && c.kind !== "pc" ? (
+					<Tooltip key={id} content={<CreatureCard c={c} />} side="bottom" widthClass="max-w-sm" className="shrink-0">
+						{card}
+					</Tooltip>
+				) : (
+					<span key={id} className="shrink-0">{card}</span>
 				);
 			})}
 		</div>
