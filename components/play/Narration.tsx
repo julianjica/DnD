@@ -1,5 +1,6 @@
 "use client";
 
+import { CheckTag } from "@/components/dice/CheckTag";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Dices, Send, Square, ScrollText, Sparkles, Wrench, ChevronDown } from "lucide-react";
 import type { GameState, LogEntry, RollRecord } from "@/lib/game/types";
@@ -56,6 +57,7 @@ function RollChip({ roll }: { roll: RollRecord }) {
 	return (
 		<div className={`inline-flex items-center gap-2 rounded-md border border-line bg-bg-2/70 px-2.5 py-1 text-xs ${tone}`} title={roll.dice.map((d) => `d${d.sides}:${d.value}${d.dropped ? "✗" : ""}`).join(" ")}>
 			<Dices size={13} className="shrink-0 opacity-80" />
+			<CheckTag rec={roll} tone="theme" />
 			<span className="text-dim">{le(roll.label)}</span>
 			<span className="font-semibold tabular-nums">{roll.total}</span>
 			{roll.target !== undefined && <span className={roll.success ? "text-emerald" : "text-crimson-2"}>{roll.success ? "✓" : "✗"} {roll.target}</span>}

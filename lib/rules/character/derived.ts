@@ -1,5 +1,5 @@
 /** Derived character statistics (pure; computed from Character on demand). */
-import type { Ability, Abilities, Character, DamageType, InventoryItem } from "../../game/types";
+import type { Ability, Abilities, Character, DamageType, InventoryItem, RollCheck } from "../../game/types";
 import { ABILITIES } from "../../game/types";
 import { abilityMod, signed } from "../dice";
 import { getClass, getEquipment, getSubclass, classLevel as classLevelRow } from "../../srd/index";
@@ -413,4 +413,33 @@ export function deriveSheet(c: Character, xpToNext?: number): CharacterSheet {
 		classNumbers,
 		...(xpToNext !== undefined ? { xpToNext } : {}),
 	};
+}
+
+/**
+ * A player check or save with its modifier broken down (ability, proficiency,
+ * expertise, Jack of All Trades, exhaustion), so the dice UI can show what was
+ * tested and why the bonus is what it is.
+ */
+export function checkBreakdown(
+	c: Character,
+	q: { kind: "check" | "save"; ability?: Ability; skill?: string },
+): { mod: number; check: RollCheck } {
+	const skill = q.kind === "check" && q.skill && SKILL_ABILITY[q.skill] ? q.skill : undefined;
+	const ability: Ability = q.ability ?? (skill ? SKILL_ABILITY[skill] : "str");
+	const pb = profBonusOf(c);
+	const parts: RollCheck["parts"] = [{ k: "ability", value: abilityMod(c.abilities[ability]) }];
+	if (q.kind === "save") {
+		if (c.savingThrows.includes(ability)) parts.push({ k: "prof", value: pb });
+	} else if (skill) {
+		const info = skillInfo(c, skill);
+		if (info.expertise) parts.push({ k: "expertise", value: 2 * pb });
+		else if (info.proficient) parts.push({ k: "prof", value: pb });
+		else if (info.half) parts.push({ k: "half", value: halfProfBonus(c, ability) });
+	} else {
+		const half = halfProfBonus(c, ability);
+		if (half) parts.push({ k: "half", value: half });
+	}
+	if (c.exhaustion) parts.push({ k: "exhaustion", value: -2 * c.exhaustion });
+	const mod = parts.reduce((n, p) => n + p.value, 0);
+	return { mod, check: { kind: q.kind, ability, skill, parts } };
 }

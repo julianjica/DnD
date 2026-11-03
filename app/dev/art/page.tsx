@@ -69,9 +69,10 @@ export default function ArtDevPage() {
 		props,
 	};
 
-	const doRoll = (notation: string, label: string, adv?: "advantage" | "disadvantage", target?: number) => {
+	const doRoll = (notation: string, label: string, adv?: "advantage" | "disadvantage", target?: number, check?: RollRecord["check"]) => {
 		rng.current ??= new Rng(newSeed());
 		const rec = roll(rng.current, notation, { label, advantage: adv, attack: notation.startsWith("1d20"), target });
+		if (check) rec.check = check;
 		setRolls((rs) => [rec, ...rs].slice(0, 30));
 		playSfx("dice");
 		void tray.current?.roll(rec);
@@ -163,6 +164,9 @@ export default function ArtDevPage() {
 						</button>
 						<button className="rounded bg-stone-800 px-3 py-1.5 text-sm hover:bg-stone-700" onClick={() => doRoll("1d20+2", "DEX save (disadvantage) vs DC 14", "disadvantage", 14)}>
 							1d20+2 dis
+						</button>
+						<button className="rounded bg-stone-800 px-3 py-1.5 text-sm hover:bg-stone-700" onClick={() => doRoll("1d20+5", "Search the sarcophagus", undefined, 13, { kind: "check", ability: "wis", skill: "perception", parts: [{ k: "ability", value: 1 }, { k: "expertise", value: 4 }] })}>
+							Perception check
 						</button>
 						<button className="rounded bg-stone-800 px-3 py-1.5 text-sm hover:bg-stone-700" onClick={() => doRoll("8d6", "Fireball damage")}>
 							8d6

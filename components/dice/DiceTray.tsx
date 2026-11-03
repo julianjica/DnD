@@ -9,6 +9,7 @@ import { DieGlyph } from "./DieGlyph";
 import { outcomeText, rollChips, signedMod } from "./rollFormat";
 import { useT } from "@/components/i18n/I18nProvider";
 import { useEngineText } from "@/components/i18n/useEngineText";
+import { CheckTag, ModBreakdown } from "./CheckTag";
 
 export interface DiceTrayHandle {
 	/** Animates a roll. Resolves when that roll is dismissed (click, Esc, auto-dismiss or clear()). */
@@ -260,6 +261,7 @@ function ResultCard({ rec, flat }: { rec: RollRecord; flat: boolean }) {
 				}}
 			>
 				{crit && <div className={clsx("dh-dice-sheen pointer-events-none absolute inset-0", crit === "gold" ? "dh-gold" : "dh-red")} />}
+				{rec.check && <div className="relative mb-1 flex justify-center"><CheckTag rec={rec} className="px-2.5 py-0.5 text-xs" /></div>}
 				<div className="relative truncate text-[11px] font-semibold uppercase tracking-[0.2em] text-amber-200/75">{le(rec.label)}</div>
 				<div className="relative mt-1 flex items-center justify-center gap-3">
 					<span
@@ -281,7 +283,11 @@ function ResultCard({ rec, flat }: { rec: RollRecord; flat: boolean }) {
 					{chips.map((c, i) => (
 						<DieGlyph key={i} sides={c.sides} value={c.value} dropped={c.dropped} nat={c.nat} size={chips.length > 10 ? 26 : 32} />
 					))}
-					{rec.modifier !== 0 && <span className="ml-1 font-serif text-lg text-stone-300">{signedMod(rec.modifier)}</span>}
+					{rec.check?.parts.length ? (
+						<ModBreakdown rec={rec} className="ml-1 text-lg text-stone-300" />
+					) : (
+						rec.modifier !== 0 && <span className="ml-1 font-serif text-lg text-stone-300">{signedMod(rec.modifier)}</span>
+					)}
 				</div>
 				<div className="relative mt-2 flex items-center justify-center gap-2 text-xs text-stone-400">
 					<span className="font-mono">{rec.notation}</span>

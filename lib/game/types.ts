@@ -51,7 +51,18 @@ export interface RollRecord {
 	critical?: "hit" | "miss";
 	/** Who rolled (character/combatant id or "dm"). */
 	actor?: string;
+	/** What was tested, for checks and saves (shown as "Perception · WIS"). */
+	check?: RollCheck;
 	ts: number;
+}
+
+export interface RollCheck {
+	kind: "check" | "save";
+	ability: Ability;
+	/** Skill index ("perception") or tool name, when a skill/tool applied. */
+	skill?: string;
+	/** Where the modifier comes from (ability score, proficiency, exhaustion…). */
+	parts: { k: "ability" | "prof" | "expertise" | "half" | "exhaustion" | "bonus"; value: number }[];
 }
 
 // ─── SRD data shapes (produced by lib/srd, consumed by rules/combat) ───────

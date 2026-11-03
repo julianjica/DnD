@@ -3,8 +3,8 @@ import { campaignExists } from "@/lib/store/campaigns";
 import { isTurnRunning, runTurn } from "@/lib/dm/turn";
 import { withState, type ClientEvent } from "@/lib/dm/context";
 import { roll, signed } from "@/lib/rules/dice";
-import { saveMod, skillMod } from "@/lib/rules/character";
-import { abilityMod } from "@/lib/rules/dice";
+import { checkBreakdown } from "@/lib/rules/character";
+import type { RollCheck } from "@/lib/game/types";
 import { jsonError, sseResponse } from "@/lib/server/sse";
 
 /** POST → the player rolls the DM's pending roll; the DM then continues. */
@@ -21,11 +21,14 @@ export async function POST(_req: NextRequest, ctx: RouteContext<"/api/campaigns/
 				if (!p) throw new Error("No roll pending.");
 				const c = state.character;
 				let notation = p.notation;
-				if (notation === "1d20") {
-					const mod = p.kind === "save" && p.ability ? saveMod(c, p.ability) : p.skill ? skillMod(c, p.skill) : p.ability ? abilityMod(c.abilities[p.ability]) : 0;
-					notation = `1d20${signed(mod - 2 * c.exhaustion)}`;
+				let check: RollCheck | undefined;
+				if ((p.kind === "check" || p.kind === "save") && (p.ability || p.skill)) {
+					const b = checkBreakdown(c, { kind: p.kind, ability: p.ability, skill: p.skill });
+					check = b.check;
+					if (notation === "1d20") notation = `1d20${signed(b.mod)}`;
 				}
 				const r = roll(rng, notation, { label: p.label, advantage: p.advantage, target: p.dc, actor: c.id });
+				if (check) r.check = check;
 				record(r);
 				state.pendingRoll = undefined;
 				return `${p.label}: rolled ${r.total}${p.dc !== undefined ? ` vs DC ${p.dc} → ${r.success ? "SUCCESS" : "FAILURE"}` : ""}`;

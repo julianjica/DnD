@@ -21,7 +21,7 @@ function hourToTime(hour: number): TimeOfDay {
 
 export const rollTool = tool<{ notation: string; label: string; advantage?: "advantage" | "disadvantage"; target?: number; secret?: boolean }>(
 	"roll",
-	"Roll dice (e.g. '1d20+3', '2d6', '4d6kh3'). Use for any roll without a more specific tool (random tables, damage of traps, NPC checks). secret=true hides it from the player (still logged for you).",
+	"Roll dice (e.g. '1d20+3', '2d6', '4d6kh3'). Use for any roll without a more specific tool (random tables, damage of traps, NPC checks). Never for the PLAYER's checks or saves: use ability_check / saving_throw so their real modifiers apply and they see what was tested. secret=true hides it from the player (still logged for you).",
 	S.obj(
 		{
 			notation: S.str("Dice notation"),
@@ -381,7 +381,7 @@ export const requestPlayerRoll = tool<{ label: string; notation?: string; kind: 
 			notation: S.str("Defaults to the right d20 + modifier for the check/save"),
 			kind: S.str(undefined, ["check", "save", "attack", "other"]),
 			ability: S.str(undefined, ["str", "dex", "con", "int", "wis", "cha"]),
-			skill: S.str("skill index, e.g. 'athletics'"),
+			skill: S.str("skill index, e.g. 'athletics' (always give the skill or ability for checks and saves)"),
 			dc: S.int(),
 			advantage: S.str(undefined, ["advantage", "disadvantage"]),
 		},

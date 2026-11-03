@@ -233,6 +233,7 @@ export function rollSave(
 		advantage: netAdvantage(adv, dis),
 		target: dc,
 	});
+	r.check = { kind: "save", ability, parts: [] };
 	const success = !!r.success;
 	emit(ctx, { type: "save", targetId, ability, dc, success, source });
 	say(ctx, `${t.name} ${success ? "succeeds" : "fails"} a DC ${dc} ${ability.toUpperCase()} save vs ${source} (${r.total}).`);

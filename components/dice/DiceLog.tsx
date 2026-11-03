@@ -6,6 +6,7 @@ import { DieGlyph } from "./DieGlyph";
 import { critKind, outcomeText, rollChips, signedMod } from "./rollFormat";
 import { useT } from "@/components/i18n/I18nProvider";
 import { useEngineText } from "@/components/i18n/useEngineText";
+import { CheckTag, ModBreakdown } from "./CheckTag";
 
 export interface DiceLogProps {
 	rolls: RollRecord[];
@@ -47,6 +48,7 @@ export function DiceLog({ rolls, max = 8, className, onSelect }: DiceLogProps) {
 							</span>
 							<span className="min-w-0 flex-1">
 								<span className="flex items-baseline gap-1.5">
+									<CheckTag rec={rec} />
 									<span className="truncate text-xs font-medium text-stone-200">{le(rec.label)}</span>
 									{outcome && (
 										<span
@@ -64,7 +66,11 @@ export function DiceLog({ rolls, max = 8, className, onSelect }: DiceLogProps) {
 										<DieGlyph key={i} sides={c.sides} value={c.value} dropped={c.dropped} nat={c.nat} size={18} />
 									))}
 									{chips.length > 12 && <span>+{chips.length - 12}</span>}
-									{rec.modifier !== 0 && <span className="ml-0.5 font-serif text-xs text-stone-300">{signedMod(rec.modifier)}</span>}
+									{rec.check?.parts.length ? (
+										<ModBreakdown rec={rec} className="ml-0.5 text-xs text-stone-300" />
+									) : (
+										rec.modifier !== 0 && <span className="ml-0.5 font-serif text-xs text-stone-300">{signedMod(rec.modifier)}</span>
+									)}
 									<span className="ml-1 font-mono text-stone-500">{rec.notation}</span>
 									{rec.advantage && <span className="text-stone-500">{t(rec.advantage === "advantage" ? "play.dice.adv" : "play.dice.dis").toLowerCase()}</span>}
 									{rec.target !== undefined && <span className="text-stone-500">{t("play.dice.vs", { n: rec.target })}</span>}

@@ -1,6 +1,6 @@
 import type { Ability } from "../../game/types";
 import { roll, signed } from "../../rules/dice";
-import { canLevelUp, longRest, saveMod, shortRest, skillMod } from "../../rules/character";
+import { canLevelUp, checkBreakdown, longRest, shortRest } from "../../rules/character";
 import { SKILL_ABILITY } from "../../rules/character/tables";
 import { lookupText } from "../../srd";
 import { abilityMod } from "../../rules/dice";
@@ -10,7 +10,7 @@ const ABILS = ["str", "dex", "con", "int", "wis", "cha"] as const;
 
 export const abilityCheck = tool<{ skill?: string; ability?: Ability; dc?: number; advantage?: "advantage" | "disadvantage"; label?: string; passive?: boolean }>(
 	"ability_check",
-	"Roll an ability check for the PLAYER using their real modifiers (skill index like 'perception', 'stealth', 'athletics', or a raw ability). Set dc to get success/failure. passive=true returns the passive score instead of rolling.",
+	"Roll an ability check for the PLAYER using their real modifiers. Always pass the skill index ('perception', 'stealth', 'athletics'…) when one applies, or the raw ability otherwise; the player sees which one was tested. Set dc to get success/failure. passive=true returns the passive score instead of rolling.",
 	S.obj(
 		{
 			skill: S.str("Skill index", Object.keys(SKILL_ABILITY)),
@@ -24,14 +24,13 @@ export const abilityCheck = tool<{ skill?: string; ability?: Ability; dc?: numbe
 	async (a, ctx) =>
 		withState(ctx, ({ state, rng, roll: record }) => {
 			const c = state.character;
-			const ability = (a.skill ? SKILL_ABILITY[a.skill] : a.ability) ?? "str";
-			const mod = a.skill ? skillMod(c, a.skill) : abilityMod(c.abilities[ability]);
-			const exhaustion = c.exhaustion ? -2 * c.exhaustion : 0;
-			const label = a.label ?? `${a.skill ?? ability.toUpperCase()} check`;
+			const { mod, check } = checkBreakdown(c, { kind: "check", ability: a.ability, skill: a.skill });
+			const label = a.label ?? `${a.skill ?? check.ability.toUpperCase()} check`;
 			if (a.passive) return `Passive ${label}: ${10 + mod + (a.advantage === "advantage" ? 5 : a.advantage === "disadvantage" ? -5 : 0)}`;
-			const r = roll(rng, `1d20${signed(mod + exhaustion)}`, { label, advantage: a.advantage, target: a.dc, actor: c.id });
+			const r = roll(rng, `1d20${signed(mod)}`, { label, advantage: a.advantage, target: a.dc, actor: c.id });
+			r.check = check;
 			record(r);
-			return `${label}: ${r.total} (d20 ${r.dice.filter((d) => !d.dropped).map((d) => d.value).join("")} ${signed(mod)})${a.dc !== undefined ? ` vs DC ${a.dc}: ${r.success ? "SUCCESS" : "FAILURE"}` : ""}`;
+			return `${label} (${a.skill ? `${a.skill}, ` : ""}${check.ability.toUpperCase()}): ${r.total} (d20 ${r.dice.filter((d) => !d.dropped).map((d) => d.value).join("")} ${signed(mod)})${a.dc !== undefined ? ` vs DC ${a.dc}: ${r.success ? "SUCCESS" : "FAILURE"}` : ""}`;
 		}),
 );
 
@@ -42,9 +41,10 @@ export const savingThrow = tool<{ ability: Ability; dc: number; advantage?: "adv
 	async (a, ctx) =>
 		withState(ctx, ({ state, rng, roll: record }) => {
 			const c = state.character;
-			const mod = saveMod(c, a.ability) + (c.exhaustion ? -2 * c.exhaustion : 0);
+			const { mod, check } = checkBreakdown(c, { kind: "save", ability: a.ability });
 			const label = a.label ?? `${a.ability.toUpperCase()} save`;
 			const r = roll(rng, `1d20${signed(mod)}`, { label, advantage: a.advantage, target: a.dc, actor: c.id });
+			r.check = check;
 			record(r);
 			return `${label}: ${r.total} vs DC ${a.dc}: ${r.success ? "SUCCESS" : "FAILURE"}`;
 		}),
