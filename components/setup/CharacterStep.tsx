@@ -257,7 +257,7 @@ export function CharacterStep({ draft, update }: StepProps) {
 									: ch;
 							return <ChoicePicker key={ch.id} names={names} choice={choice} value={c.choices[ch.id]} onChange={(v) => set({ choices: { ...c.choices, ...(v ? { [ch.id]: v } : { [ch.id]: [] }) } })} />;
 						})}
-						{level > 1 && <p className="text-xs text-faint italic">{t("char.laterChoices", { level })}</p>}
+						{level > 1 && <p className="text-xs text-faint italic">{t(zombie ? "z.char.laterChoices" : "char.laterChoices", { level })}</p>}
 						{preparedFormula && <p className="text-xs text-faint italic">{t(zombie ? "z.char.prepared" : "char.prepared", { formula: preparedFormula })}</p>}
 					</div>
 				)}

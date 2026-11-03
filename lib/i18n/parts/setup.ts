@@ -586,6 +586,10 @@ export const en = {
 	"z.equip.kit": "Profession kit",
 	"z.equip.kitEmpty": "Your starting gear is whatever you had on you when it started; the DM will fill in your pockets.",
 	"z.equip.noMoney": "No money: cash stopped meaning anything on Day 0.",
+	"z.char.laterChoices": "Choices from levels 2–{level} (new techniques, features, ASIs) are picked automatically. The preview shows the result.",
+	"z.sheet.spellcasting": "Techniques",
+	"z.sheet.cantrips": "Knacks",
+	"z.sheet.spells": "Techniques",
 } as const satisfies Record<string, string>;
 
 export const es: { [K in keyof typeof en]: string } = {
@@ -1156,4 +1160,8 @@ export const es: { [K in keyof typeof en]: string } = {
 	"z.equip.kit": "Equipo de tu profesión",
 	"z.equip.kitEmpty": "Empiezas con lo que llevabas encima cuando todo comenzó; el DM llenará tus bolsillos.",
 	"z.equip.noMoney": "Sin dinero: el efectivo dejó de valer algo el Día 0.",
+	"z.char.laterChoices": "Las elecciones de los niveles 2–{level} (técnicas nuevas, rasgos, mejoras de característica) se hacen automáticamente. La vista previa muestra el resultado.",
+	"z.sheet.spellcasting": "Técnicas",
+	"z.sheet.cantrips": "Trucos",
+	"z.sheet.spells": "Técnicas",
 };

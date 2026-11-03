@@ -5,7 +5,7 @@ import { AlertTriangle, Footprints, Heart, Shield, Sparkles, Swords, Zap } from 
 import type { Character } from "@/lib/game/types";
 import { ABILITIES } from "@/lib/game/types";
 import { createCharacterDetailed, deriveSheet, type CharacterSheet, type CreationOptions } from "@/lib/rules/character";
-import { getBackground, getClass, getSkill, getSpecies, getSpell, getSubclass, getSubspecies } from "@/lib/srd";
+import { getBackground, getClass, getLanguage, getSkill, getSpecies, getSpell, getSubclass, getSubspecies } from "@/lib/srd";
 import { signed } from "@/lib/rules/dice";
 import { Portrait } from "@/components/art/Portrait";
 import { Tooltip } from "@/components/ui/Tooltip";
@@ -38,6 +38,11 @@ export function usePreview(c: CharacterDraft, level: number, opts: CreationOptio
 			return { error: e instanceof Error ? e.message : String(e) };
 		}
 	}, [c, level, opts, t]);
+}
+
+/** Display name of a language id (SRD languages, or The Quiet's real-world ones from the Bilingual origin). */
+function languageName(id: string): string {
+	return getLanguage(id)?.name ?? getSpecies("z-origin-bilingual")?.choices[0]?.options.find((o) => o.index === id)?.name ?? id;
 }
 
 export function speciesLabel(speciesId: string, subspeciesId?: string, lang: Lang = "en", ruleset: Ruleset = "fantasy"): string {
@@ -120,15 +125,15 @@ export function SheetPreview({ preview, draft, compact }: { preview: PreviewResu
 					</Block>
 
 					{sheet.spellcasting.length > 0 && ch.spellcasting && (
-						<Block title={t("sheet.spellcasting")}>
+						<Block title={t(ruleset === "zombie" ? "z.sheet.spellcasting" : "sheet.spellcasting")}>
 							{sheet.spellcasting.map((s) => (
 								<div key={s.classId} className="text-sm">
 									<span>{srdNameIn(ruleset, lang, "class", s.classId, getClass(s.classId)?.name ?? s.classId)}</span> ({te("abilityShort", s.ability)}): {t("sheet.saveDc")} <b>{s.saveDc}</b>, {t("sheet.attack")} <b>{signed(s.attackBonus)}</b>
 									{s.preparedLimit !== undefined && <span className="text-ink/60"> · {t("sheet.prepares", { n: s.preparedLimit })}</span>}
 								</div>
 							))}
-							<SpellList label={t("sheet.cantrips")} ids={ch.spellcasting.classes.flatMap((x) => x.cantrips)} />
-							<SpellList label={t("sheet.spells")} ids={[...new Set(ch.spellcasting.classes.flatMap((x) => [...x.known, ...x.prepared]))]} />
+							<SpellList label={t(ruleset === "zombie" ? "z.sheet.cantrips" : "sheet.cantrips")} ids={ch.spellcasting.classes.flatMap((x) => x.cantrips)} />
+							<SpellList label={t(ruleset === "zombie" ? "z.sheet.spells" : "sheet.spells")} ids={[...new Set(ch.spellcasting.classes.flatMap((x) => [...x.known, ...x.prepared]))]} />
 							{ch.spellcasting.slots.some(Boolean) && (
 								<div className="mt-1 text-xs text-ink/70">
 									{t("sheet.slots")}{" "}
@@ -169,7 +174,7 @@ export function SheetPreview({ preview, draft, compact }: { preview: PreviewResu
 							</Block>
 							<Block title={t("sheet.proficiencies")}>
 								<p className="text-xs leading-relaxed text-ink/80">
-									<b>{t("sheet.languages")}</b> {ch.languages.join(", ") || "—"}
+									<b>{t("sheet.languages")}</b> {ch.languages.map((l) => ts(languageName(l))).join(", ") || "—"}
 									<br />
 									<b>{t("sheet.tools")}</b> {ch.tools.join(", ").replace(/-/g, " ") || "—"}
 									<br />
@@ -212,14 +217,14 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
 }
 
 function SpellList({ label, ids }: { label: string; ids: string[] }) {
-	const { lang, ruleset } = useT();
+	const { lang, ruleset, ts } = useT();
 	if (!ids.length) return null;
 	return (
 		<div className="mt-1 flex flex-wrap items-center gap-1 text-xs">
 			<span className="text-ink/60">{label}:</span>
 			{ids.map((id) => (
 				<Tooltip key={id} content={describeOption(id, lang, ruleset)}>
-					<span className="cursor-help rounded border border-[#b89b68]/70 bg-white/30 px-1.5 py-0.5">{getSpell(id)?.name ?? id}</span>
+					<span className="cursor-help rounded border border-[#b89b68]/70 bg-white/30 px-1.5 py-0.5">{ts(getSpell(id)?.name ?? id)}</span>
 				</Tooltip>
 			))}
 		</div>
