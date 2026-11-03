@@ -473,6 +473,7 @@ export function createCharacterDetailed(input: CreateCharacterInput): CreateResu
 
 	const id = input.id ?? nanoid(10);
 	const c = blankCharacter(id, sp.index);
+	if (zombie) c.ruleset = "zombie";
 	c.name = input.name.trim();
 	if (sub) c.subspeciesId = sub.index;
 	c.backgroundId = bg.index;

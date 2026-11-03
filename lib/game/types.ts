@@ -218,6 +218,8 @@ export interface PortraitSpec {
 }
 
 export interface Character {
+	/** Content set the character was made in ("zombie" = The Quiet); absent = from the species (fantasy for SRD species). */
+	ruleset?: "fantasy" | "zombie";
 	id: string;
 	name: string;
 	speciesId: string; // "elf"

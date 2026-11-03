@@ -161,8 +161,8 @@ export function preparedLimit(c: Character, classId: string): number | undefined
  * origin as species, so the character itself tells which content to offer
  * (techniques vs spells) on level-up, without threading campaign settings.
  */
-export function characterRuleset(c: Pick<Character, "speciesId">): Ruleset {
-	return getSpecies(c.speciesId)?.ruleset ?? "fantasy";
+export function characterRuleset(c: Pick<Character, "speciesId" | "ruleset">): Ruleset {
+	return c.ruleset ?? getSpecies(c.speciesId)?.ruleset ?? "fantasy";
 }
 
 export function alwaysPreparedSpells(c: Character, classId: string): string[] {
