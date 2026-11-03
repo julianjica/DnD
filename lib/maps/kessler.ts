@@ -74,7 +74,7 @@ export function kesslerFalls(seed: number, lang: "en" | "es" = "en"): WorldMap {
 		seed,
 		name: "Kessler Falls",
 		// Inland valley: no sea at all.
-		terrain: { seaLevel: -1, biome: "temperate", features: TERRAIN },
+		terrain: { seaLevel: 0.2, biome: "temperate", style: "town", features: TERRAIN },
 		locations,
 		routes: ROADS.map(([a, b, h], i) => ({ id: `r-kf-${i}`, from: `loc-kf-${a}`, to: `loc-kf-${b}`, kind: "road" as const, travelDays: Math.round((h / 24) * 1000) / 1000, discovered: known.has(a) && known.has(b) })),
 		currentLocationId: `loc-kf-${KESSLER_START}`,

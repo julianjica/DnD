@@ -361,6 +361,8 @@ export interface WorldMap {
 	terrain: {
 		seaLevel: number;
 		biome: "temperate" | "arid" | "frozen" | "tropical" | "volcanic" | "mixed";
+		/** "town": a modern town map (The Quiet) drawn as streets, river and districts instead of a fantasy overworld. */
+		style?: "town";
 		/** Narrated terrain painted onto the procedural map (marshes, forests, hills…). */
 		features?: TerrainFeature[];
 	};
