@@ -4,6 +4,8 @@ import { aoeSquares, type AoeTemplate } from "@/lib/maps/aoe";
 import { computeFov, computePlayerView, parseKey, sqKey, type Point } from "@/lib/maps/grid";
 import { rand2 } from "@/lib/maps/noise";
 import { paintMap, tileSizeFor } from "../art/tilePainter";
+import { paintPixelMap, pixelProp, pixelToken, type Look } from "@/components/art/sprite/pixelScene";
+import { creatureSprite } from "@/components/art/sprite/creatures";
 import { hasProp, lightStyle, paintProp, paintToken, ringFor } from "../art/tokens";
 
 type Pixi = typeof PIXI;
@@ -47,6 +49,8 @@ export interface RenderInput {
 	selectedId?: string;
 	showGrid: boolean;
 	darkvision?: number;
+	/** Pixel-sprite style (matches the scene panel): looks per entity id for PCs/NPCs. */
+	pixel?: { looks: Record<string, Look> };
 }
 
 interface TokenView {
@@ -156,7 +160,7 @@ export class BattleRenderer {
 		if (this.destroyed) return;
 		const prev = this.input;
 		this.input = next;
-		if (!prev || !sameLayout(prev.map, next.map)) this.buildMap(next.map);
+		if (!prev || !sameLayout(prev.map, next.map) || !!prev.pixel !== !!next.pixel) this.buildMap(next.map);
 		else this.map = next.map;
 		this.syncEntities(next);
 		this.recomputeVisibility(next);
@@ -238,7 +242,8 @@ export class BattleRenderer {
 	private buildMap(map: GridMap) {
 		const P = this.P;
 		this.map = map;
-		this.T = tileSizeFor(map);
+		const pixel = !!this.input?.pixel;
+		this.T = pixel ? Math.max(32, Math.floor(tileSizeFor(map) / 16) * 16) : tileSizeFor(map);
 		for (const c of this.base.removeChildren()) c.destroy();
 		for (const c of this.fx.removeChildren()) c.destroy();
 		for (const t of this.mapTextures) t.destroy(true);
@@ -248,8 +253,9 @@ export class BattleRenderer {
 		if (this.lightSprite) { this.lightSprite.destroy(); this.lightSprite = undefined; }
 		if (this.fogSprite) { this.fogSprite.destroy(); this.fogSprite = undefined; }
 		const T = this.T;
-		for (const ch of paintMap(map, T)) {
+		for (const ch of pixel ? paintPixelMap(map, T) : paintMap(map, T)) {
 			const tex = P.Texture.from(ch.canvas, true);
+			if (pixel) tex.source.scaleMode = "nearest";
 			this.mapTextures.push(tex);
 			const s = new P.Sprite(tex);
 			s.position.set(ch.x0 * T, ch.y0 * T);
@@ -587,7 +593,7 @@ export class BattleRenderer {
 		let t = this.textures.get(key);
 		if (!t) {
 			t = this.P.Texture.from(paint(), true);
-			t.source.scaleMode = "linear";
+			t.source.scaleMode = key.startsWith("px|") ? "nearest" : "linear";
 			this.textures.set(key, t);
 		}
 		return t;
@@ -601,7 +607,11 @@ export class BattleRenderer {
 			const st = inp.status[e.id];
 			const creature = CREATURE.has(e.kind);
 			const ring = ringFor(e, st?.side);
-			const texKey = creature ? `tok|${e.sprite}|${e.kind}|${ring}|${e.size > 1 ? 2 : 1}` : `prop|${e.sprite}|${e.kind}`;
+			const pixel = inp.pixel;
+			const look = pixel?.looks[e.id];
+			const texKey = pixel
+				? creature ? `px|tok|${e.sprite}|${e.kind}|${ring}|${look ? `${look.hair}${look.cloth}${look.skin}` : ""}` : `px|prop|${e.sprite}|${e.name}`
+				: creature ? `tok|${e.sprite}|${e.kind}|${ring}|${e.size > 1 ? 2 : 1}` : `prop|${e.sprite}|${e.kind}`;
 			let v = this.tokens.get(e.id);
 			if (v && (v.key !== texKey || !!v.light !== (e.lightRadius ?? 0) > 0)) {
 				v.glow?.destroy();
@@ -613,7 +623,11 @@ export class BattleRenderer {
 				const root = new P.Container();
 				const body = new P.Container();
 				const px = creature ? (e.size > 1 ? 256 : 160) : 128;
-				const tex = this.textureFor(texKey, () => (creature ? paintToken(px, e.sprite, e.kind, ring) : paintProp(px, hasProp(e.sprite) ? e.sprite : e.sprite || "crate", e.kind)));
+				const tex = this.textureFor(texKey, () =>
+					pixel
+						? creature ? pixelToken(128, { kind: e.kind, sprite: e.sprite, look, ring, creature: e.kind === "monster" ? creatureSprite(e.sprite, "monster") : undefined }) : pixelProp(128, e)
+						: creature ? paintToken(px, e.sprite, e.kind, ring) : paintProp(px, hasProp(e.sprite) ? e.sprite : e.sprite || "crate", e.kind),
+				);
 				const sprite = new P.Sprite(tex);
 				sprite.anchor.set(0.5);
 				body.addChild(sprite);
@@ -642,7 +656,7 @@ export class BattleRenderer {
 				const d = Math.hypot(v.to.x - v.from.x, v.to.y - v.from.y);
 				v.dur = Math.min(900, 140 + d * 90);
 			}
-			const scale = creature ? (e.size * T * 0.94) / v.sprite.texture.width : (e.size * T * 1) / v.sprite.texture.width;
+			const scale = (e.size * T * (creature && !inp.pixel ? 0.94 : 1)) / v.sprite.texture.width;
 			v.sprite.scale.set(scale);
 			v.root.zIndex = creature ? 10 + (e.kind === "pc" ? 2 : 0) : e.kind === "light" ? 2 : 1;
 			const dead = st?.dead || (st?.hp !== undefined && st.hp <= 0 && e.kind !== "pc");

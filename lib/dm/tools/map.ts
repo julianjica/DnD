@@ -374,10 +374,10 @@ export const markRegionTool = tool<{ terrain: TerrainKind; name?: string; nearLo
 		}),
 );
 
-export const travelTool = tool<{ locationId: string; days?: number; show?: boolean }>(
+export const travelTool = tool<{ locationId: string; days?: number; hours?: number; show?: boolean }>(
 	"travel",
-	"Move the party to a world location (advances time by travel days; leaves the current tactical map). Shows the world map unless show=false.",
-	S.obj({ locationId: S.str(), days: S.num(), show: S.bool() }, ["locationId"]),
+	"Move the party to a world location (advances the clock by the travel time; leaves the current tactical map). Pass hours for short trips (a walk to a nearby place = 1-4 hours); otherwise the time comes from the route or the map distance. Shows the world map unless show=false.",
+	S.obj({ locationId: S.str(), days: S.num("Travel time in days (fractions allowed)"), hours: S.num("Travel time in hours; overrides days"), show: S.bool() }, ["locationId"]),
 	async (a, ctx) =>
 		withState(ctx, ({ state }) => {
 			if (state.encounter?.status === "active") throw new Error("Cannot travel during combat.");
@@ -385,8 +385,10 @@ export const travelTool = tool<{ locationId: string; days?: number; show?: boole
 			const loc = w.locations.find((l) => l.id === a.locationId || l.name.toLowerCase() === a.locationId.toLowerCase());
 			if (!loc) throw new Error(`Unknown location ${a.locationId}`);
 			const route = w.routes.find((r) => (r.from === w.currentLocationId && r.to === loc.id) || (r.to === w.currentLocationId && r.from === loc.id));
-			const days = a.days ?? route?.travelDays ?? 1;
-			const totalHours = state.time.hour + Math.round(days * 24);
+			const here = w.locations.find((l) => l.id === w.currentLocationId);
+			const hours = Math.max(0, a.hours ?? (a.days ?? route?.travelDays ?? (here ? daysForDistance(mapDistance(here, loc)) : 1)) * 24);
+			const days = Math.round((hours / 24) * 100) / 100;
+			const totalHours = state.time.hour + Math.round(hours);
 			state.time.day += Math.floor(totalHours / 24);
 			state.time.hour = totalHours % 24;
 			w.currentLocationId = loc.id;
@@ -396,7 +398,7 @@ export const travelTool = tool<{ locationId: string; days?: number; show?: boole
 			state.activeMapId = undefined;
 			state.mode = "explore";
 			if (a.show !== false) state.view = "world";
-			return `Travelled to ${loc.name} in ${days} day(s). Now day ${state.time.day}. Set the new scene with set_scene.`;
+			return `Travelled to ${loc.name} in ${hours < 24 ? `${Math.round(hours)} hour(s)` : `${days} day(s)`}. Now day ${state.time.day}, ${String(state.time.hour).padStart(2, "0")}:00. Set the new scene with set_scene.`;
 		}),
 );
 

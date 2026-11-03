@@ -6,6 +6,7 @@ import type { AoeTemplate } from "@/lib/maps/aoe";
 import type { Point } from "@/lib/maps/grid";
 import { useT } from "@/components/i18n/I18nProvider";
 import type { BattleRenderer, MapFxEvent, RendererCallbacks, TokenStatus } from "./battle/BattleRenderer";
+import type { Look } from "@/components/art/sprite/pixelScene";
 
 export type { MapFxEvent, TokenStatus };
 
@@ -50,6 +51,8 @@ export interface BattleMapProps {
 	initialView?: "focus" | "fit";
 	/** Show the zoom/fit/grid controls (default true). */
 	controls?: boolean;
+	/** Pixel-sprite style with per-entity looks (PCs/NPCs). */
+	pixel?: { looks: Record<string, Look> };
 }
 
 /**
@@ -139,8 +142,9 @@ export default function BattleMap(props: BattleMapProps) {
 			selectedId,
 			showGrid: gridOn,
 			darkvision,
+			pixel: props.pixel,
 		});
-	}, [ready, map, entities, status, visibleSquares, fog, showHidden, highlights, highlightColor, pathPreview, pathLabel, aoe, selectedId, gridOn, darkvision]);
+	}, [ready, map, entities, status, visibleSquares, fog, showHidden, highlights, highlightColor, pathPreview, pathLabel, aoe, selectedId, gridOn, darkvision, props.pixel]);
 
 	const focusKey = props.focus == null ? "" : typeof props.focus === "string" ? props.focus : `${props.focus.x},${props.focus.y}`;
 	useEffect(() => {

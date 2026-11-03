@@ -4,7 +4,8 @@
  * 16×16 sprites in ./sprites. The result is a close-up framed on the party.
  */
 import type { GridMap, MapEntity, Tile, TimeOfDay, Weather } from "@/lib/game/types";
-import { FEATURE_ALIASES, LIGHTS, SPRITES } from "./sprites";
+import { FEATURE_ALIASES, LIGHTS, SPRITES, type Sprite } from "./sprites";
+import { creatureSprite } from "./creatures";
 
 const C = 16;
 
@@ -88,7 +89,9 @@ class P {
 	}
 	sprite(name: string, X: number, Y: number, extra: Record<string, string> = {}) {
 		const s = SPRITES[name];
-		if (!s) return;
+		if (s) this.draw(s, X, Y, extra);
+	}
+	draw(s: Sprite, X: number, Y: number, extra: Record<string, string> = {}) {
 		const pal = { ...s.pal, ...extra };
 		for (let y = 0; y < 16; y++) {
 			const row = s.rows[y];
@@ -416,14 +419,13 @@ export function paintPixelScene(canvas: HTMLCanvasElement, input: PixelSceneInpu
 				y: e.y + 0.5,
 				fn: () => {
 					if (e.kind === "monster") {
-						const cloth = e.disposition === "hostile" || !e.disposition ? "#6b2a2a" : "#4f6b3a";
-						if (size === 1) p.sprite("monster", X, Y, { C: cloth, c: darken(cloth, 0.7) });
+						const spr = creatureSprite(e.sprite, "monster");
+						if (size === 1) p.draw(spr, X, Y);
 						else {
 							// Scale the sprite up for large creatures.
 							const off = document.createElement("canvas");
 							off.width = off.height = 16;
-							const q = new P(map, off.getContext("2d")!);
-							q.sprite("monster", 0, 0, { C: cloth, c: darken(cloth, 0.7) });
+							new P(map, off.getContext("2d")!).draw(spr, 0, 0);
 							ctx.drawImage(off, X, Y, 16 * size, 16 * size);
 						}
 					} else {
@@ -492,4 +494,79 @@ export function skyMask(map: GridMap, frame: Frame): boolean[] {
 	for (let y = frame.y0; y < frame.y0 + frame.h; y++)
 		for (let x = frame.x0; x < frame.x0 + frame.w; x++) out.push(allOut || SKY_TILES.has(map.tiles[idx(map, x, y)]));
 	return out;
+}
+
+// ─── battle map (Map tab) ─────────────────────────────────────────────────
+
+/** Ground and fixed objects (trees, tables, pillars) of a rectangle of squares, 16 px per square, no entities. */
+export function paintPixelTiles(ctx: CanvasRenderingContext2D, map: GridMap, x0: number, y0: number, w: number, h: number) {
+	ctx.save();
+	ctx.imageSmoothingEnabled = false;
+	ctx.translate(-x0 * C, -y0 * C);
+	const p = new P(map, ctx);
+	for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) p.tile(x, y);
+	// Objects may overhang the square above, so draw one extra row below the chunk too.
+	for (let y = y0; y < Math.min(map.height, y0 + h + 1); y++) for (let x = x0; x < x0 + w; x++) p.object(x, y);
+	ctx.restore();
+}
+
+/** Same contract as tilePainter's paintMap: chunks of the whole map at T px per square (T a multiple of 16). */
+export function paintPixelMap(map: GridMap, T: number, maxChunkPx = 2048): { canvas: HTMLCanvasElement; x0: number; y0: number; cols: number; rows: number }[] {
+	const per = Math.max(8, Math.floor(maxChunkPx / T));
+	const out: { canvas: HTMLCanvasElement; x0: number; y0: number; cols: number; rows: number }[] = [];
+	for (let y0 = 0; y0 < map.height; y0 += per)
+		for (let x0 = 0; x0 < map.width; x0 += per) {
+			const cols = Math.min(per, map.width - x0), rows = Math.min(per, map.height - y0);
+			const small = document.createElement("canvas");
+			small.width = cols * C;
+			small.height = rows * C;
+			paintPixelTiles(small.getContext("2d")!, map, x0, y0, cols, rows);
+			const canvas = document.createElement("canvas");
+			canvas.width = cols * T;
+			canvas.height = rows * T;
+			const ctx = canvas.getContext("2d")!;
+			ctx.imageSmoothingEnabled = false;
+			ctx.drawImage(small, 0, 0, canvas.width, canvas.height);
+			out.push({ canvas, x0, y0, cols, rows });
+		}
+	return out;
+}
+
+function upscale(draw: (p: P) => void, map: GridMap | undefined, px: number, n = 1): HTMLCanvasElement {
+	const small = document.createElement("canvas");
+	small.width = small.height = 16 * n;
+	const p = new P(map ?? ({ seed: 1 } as GridMap), small.getContext("2d")!);
+	draw(p);
+	const c = document.createElement("canvas");
+	c.width = c.height = px;
+	const ctx = c.getContext("2d")!;
+	ctx.imageSmoothingEnabled = false;
+	ctx.drawImage(small, 0, 0, px, px);
+	return c;
+}
+
+/** A creature token for the battle map: the sprite standing on a coloured ring (side / disposition). */
+export function pixelToken(px: number, opts: { kind: MapEntity["kind"]; sprite: string; look?: Look; ring: string; creature?: Sprite }): HTMLCanvasElement {
+	return upscale((p) => {
+		const ctx = p.ctx;
+		// ring at the feet
+		ctx.fillStyle = opts.ring;
+		ctx.fillRect(3, 13, 10, 1);
+		ctx.fillRect(2, 14, 12, 1);
+		ctx.fillRect(3, 15, 10, 1);
+		ctx.fillStyle = "rgba(0,0,0,0.35)";
+		ctx.fillRect(4, 14, 8, 1);
+		if (opts.creature) p.draw(opts.creature, 0, -1);
+		else if (opts.kind === "monster") p.sprite("monster", 0, -1, { C: "#6b2a2a", c: darken("#6b2a2a", 0.7) });
+		else {
+			const l = opts.look ?? { hair: "#5a3a1e", cloth: opts.kind === "pc" ? "#3f4f86" : "#6b5a3a", skin: "#e4b48c" };
+			p.sprite("person", 0, -2, { H: l.hair, C: l.cloth, c: darken(l.cloth, 0.7), S: l.skin });
+		}
+	}, undefined, px);
+}
+
+/** A feature/item/light for the battle map. */
+export function pixelProp(px: number, e: Pick<MapEntity, "sprite" | "name" | "kind">): HTMLCanvasElement {
+	const name = featureSprite(e as MapEntity);
+	return upscale((p) => p.sprite(name === "campfire" && /hearth/i.test(`${e.sprite} ${e.name}`) ? "flame" : name, 0, 0), undefined, px);
 }
