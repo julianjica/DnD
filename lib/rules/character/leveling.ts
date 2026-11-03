@@ -13,7 +13,8 @@ import {
 	FEATS, FEATURES, SKILLS, SPELLS, getClass, getFeat, getFeature, getSubclass, spellsForClass,
 } from "../../srd/index";
 import type { ClassData, FeatureData, OptionChoice, Ref } from "../../srd/types";
-import { alwaysPreparedSpells, classLevelOf, preparedLimit, totalLevel } from "./derived";
+import { alwaysPreparedSpells, characterRuleset, classLevelOf, preparedLimit, totalLevel } from "./derived";
+import { offeredIn } from "../ruleset";
 import { refreshFeatureUses, RulesError } from "./resources";
 import { computeSlots, maxSpellLevelFor } from "./slots";
 import { featureGroup, levelForXp, SKILL_IDS } from "./tables";
@@ -140,13 +141,14 @@ function knownSpellsOf(c: Character, classId: string) {
 
 /** Spells a class may pick from (incl. Fiend expanded list, Magical Secrets). */
 function spellOptions(c: Character, classId: string, maxLevel: number, anyClass: boolean): Ref[] {
-	const base = anyClass ? SPELLS.filter((s) => s.level >= 1 && s.level <= maxLevel) : spellsForClass(classId, { maxLevel }).filter((s) => s.level >= 1);
+	const ruleset = characterRuleset(c);
+	const base = anyClass ? offeredIn(SPELLS, ruleset).filter((s) => s.level >= 1 && s.level <= maxLevel) : spellsForClass(classId, { maxLevel, ruleset }).filter((s) => s.level >= 1);
 	const ids = new Set(base.map((s) => s.index));
 	const cl = c.classes.find((x) => x.classId === classId);
 	if (classId === "warlock" && cl?.subclassId) {
 		for (const s of getSubclass(cl.subclassId)?.spells ?? []) {
 			const sp = SPELLS.find((x) => x.index === s.spell);
-			if (sp && sp.level <= maxLevel) ids.add(sp.index);
+			if (sp && sp.level <= maxLevel && (sp.ruleset ?? "fantasy") === ruleset) ids.add(sp.index);
 		}
 	}
 	const known = new Set([...(knownSpellsOf(c, classId)?.known ?? [])]);
@@ -186,6 +188,8 @@ function hpForLevel(c: Character, die: number, method: HpMethod, conMod: number,
 }
 
 export function levelUpOptions(c: Character, classId: string, choicesSoFar: Choices = {}): LevelUpOptions {
+	/** Techniques (The Quiet) or spells: follows the character's origin/species. */
+	const ruleset = characterRuleset(c);
 	const cls = getClass(classId);
 	if (!cls) throw new RulesError(`Unknown class ${classId}`);
 	const cur = c.classes.find((x) => x.classId === classId);
@@ -257,7 +261,7 @@ export function levelUpOptions(c: Character, classId: string, choicesSoFar: Choi
 		if (cantripCount > 0) {
 			choices.push({
 				id: "cantrips", label: `${cls.name} cantrips`, choose: cantripCount,
-				options: spellsForClass(classId, { level: 0 })
+				options: spellsForClass(classId, { level: 0, ruleset })
 					.filter((s) => !(c.spellcasting?.classes ?? []).some((e) => e.cantrips.includes(s.index)))
 					.map((s) => ({ index: s.index, name: s.name })),
 			});
@@ -283,7 +287,7 @@ export function levelUpOptions(c: Character, classId: string, choicesSoFar: Choi
 			const arc = features.find((f) => /^mystic-arcanum-(\d)th-level$/.test(f.index));
 			if (arc) {
 				const lvl = Number(/(\d)th/.exec(arc.index)![1]);
-				choices.push({ id: "arcanum", label: `Mystic Arcanum (${lvl}th level)`, choose: 1, options: spellsForClass("warlock", { level: lvl }).map((s) => ({ index: s.index, name: s.name })) });
+				choices.push({ id: "arcanum", label: `Mystic Arcanum (${lvl}th level)`, choose: 1, options: spellsForClass("warlock", { level: lvl, ruleset }).map((s) => ({ index: s.index, name: s.name })) });
 			}
 		}
 	}
@@ -518,7 +522,7 @@ export function applyClassLevel(c0: Character, classId: string, choices: Choices
 			const always = alwaysPreparedSpells(c, classId);
 			const limit = preparedLimit(c, classId) ?? 0;
 			const maxL = maxSpellLevelFor(classId, lvl);
-			const pool = classId === "wizard" ? sEntry.known : spellsForClass(classId, { maxLevel: maxL }).filter((s) => s.level >= 1).map((s) => s.index);
+			const pool = classId === "wizard" ? sEntry.known : spellsForClass(classId, { maxLevel: maxL, ruleset: characterRuleset(c) }).filter((s) => s.level >= 1).map((s) => s.index);
 			let chosen: string[];
 			if (choices.prepared) {
 				chosen = choices.prepared.filter((s) => !always.includes(s));

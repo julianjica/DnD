@@ -54,6 +54,7 @@ export function createGame(input: NewGameInput): GameState {
 	const rng = new Rng(seed);
 	const { character } = createCharacterDetailed({
 		...input.character,
+		ruleset: rulesetOf(input.settings),
 		level: input.settings.structure.startingLevel,
 		rng,
 		portrait: input.character.portrait ?? randomPortrait(rng, input.character.speciesId),

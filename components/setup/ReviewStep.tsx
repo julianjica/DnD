@@ -7,7 +7,7 @@ import type { GameState } from "@/lib/game/types";
 import { SceneArt } from "@/components/art/SceneArt";
 import { Divider } from "@/components/ui/Divider";
 import { presetInfo } from "./presets";
-import { choiceLabel, srdName } from "./i18n";
+import { choiceLabel, srdNameIn } from "./i18n";
 import { getBackground, getClass } from "@/lib/srd";
 import { LANGS } from "@/lib/i18n";
 import { SheetPreview, usePreview } from "./SheetPreview";
@@ -18,22 +18,22 @@ import { useT } from "@/components/i18n/I18nProvider";
 import { buildNewGameInput, DRAFT_KEY, openChoices, optionsFor, removeKey } from "./wizardState";
 
 export function ReviewStep({ draft, update, goTo, engines }: StepProps & { goTo: (step: number) => void; engines: ReturnType<typeof useEngines> }) {
-	const { lang, t, te } = useT();
+	const { lang, t, te, ruleset } = useT();
 	const router = useRouter();
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const c = draft.character;
 	const s = draft.settings;
 	const level = s.structure.startingLevel;
-	const { opts } = useMemo(() => optionsFor(c), [c]);
+	const { opts } = useMemo(() => optionsFor(c, ruleset), [c, ruleset]);
 	const preview = usePreview(c, level, opts);
 	const open = openChoices(c, opts);
 	const model = engines.data?.models.find((m) => modelKey(m) === modelKey(s.engine));
 	const preset = presetInfo(s.world.preset);
 	const cls = getClass(c.classId);
 	const bg = getBackground(c.backgroundId);
-	const names = { cls: cls ? srdName(lang, "class", cls.index, cls.name) : undefined, bg: bg ? srdName(lang, "background", bg.index, bg.name) : undefined };
-	const openLabels = open.map((ch) => choiceLabel(ch, t, names, lang)).join(", ");
+	const names = { cls: cls ? srdNameIn(ruleset, lang, "class", cls.index, cls.name) : undefined, bg: bg ? srdNameIn(ruleset, lang, "background", bg.index, bg.name) : undefined };
+	const openLabels = open.map((ch) => choiceLabel(ch, t, names, lang, ruleset)).join(", ");
 
 	const begin = async () => {
 		setBusy(true);

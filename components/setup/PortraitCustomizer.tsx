@@ -14,12 +14,16 @@ export function newPortrait(speciesId: string): PortraitSpec {
 	return randomPortrait(new Rng(newSeed()), speciesId);
 }
 
+/** Portrait options that only make sense for fantasy species; The Quiet (everyone human) hides them. */
+const FANTASY_ONLY = new Set(["pointed_ears", "long_ears", "horns", "ram_horns", "tusks", "scales", "snout", "solid_eyes", "circlet", "crown"]);
+
 const AGE_VALUES: Record<string, number> = { young: 0.1, adult: 0.3, "middle-aged": 0.55, old: 0.8 };
 const ageKey = (a: number) => (a < 0.2 ? "young" : a < 0.45 ? "adult" : a < 0.7 ? "middle-aged" : "old");
 
 export function PortraitCustomizer({ spec, speciesId, name, onChange }: { spec: PortraitSpec; speciesId: string; name?: string; onChange: (p: PortraitSpec) => void }) {
 	const set = (patch: Partial<PortraitSpec>) => onChange({ ...spec, ...patch });
-	const { t, te } = useT();
+	const { t, te, ruleset } = useT();
+	const offered = (v: string) => ruleset !== "zombie" || !FANTASY_ONLY.has(v);
 	const pretty = (id: string) => te("portrait", id);
 	const skins = skinTonesFor(speciesId);
 	const toggleFeature = (f: string) => set({ features: spec.features.includes(f) ? spec.features.filter((x) => x !== f) : [...spec.features, f] });
@@ -63,12 +67,12 @@ export function PortraitCustomizer({ spec, speciesId, name, onChange }: { spec: 
 				<SelectField label={t("portrait.outfit")} pretty={pretty} value={spec.clothingStyle ?? portraitTraits(spec, speciesId).clothingStyle} values={["tunic", "armor", "robe", "leather", "cloak"]} onPick={(v) => set({ clothingStyle: v as PortraitSpec["clothingStyle"] })} />
 				<SelectField label={t("portrait.hairStyle")} pretty={pretty} value={spec.hairStyle} values={portraitOptions.hairStyle} onPick={(v) => set({ hairStyle: v })} />
 				<SelectField label={t("portrait.facialHair")} pretty={pretty} value={spec.facialHair ?? "none"} values={portraitOptions.facialHair} onPick={(v) => set({ facialHair: v })} />
-				<SelectField label={t("portrait.accessory")} pretty={pretty} value={spec.accessory ?? "none"} values={portraitOptions.accessory} onPick={(v) => set({ accessory: v })} />
+				<SelectField label={t("portrait.accessory")} pretty={pretty} value={spec.accessory ?? "none"} values={portraitOptions.accessory.filter(offered)} onPick={(v) => set({ accessory: v })} />
 				<div className="sm:col-span-2">
 					<FieldLabel>{t("portrait.features")}</FieldLabel>
 					<div className="flex flex-wrap gap-1.5">
 						{portraitOptions.features
-							.filter((f) => f !== "whiskers_none")
+							.filter((f) => f !== "whiskers_none" && offered(f))
 							.map((f) => (
 								<button key={f} type="button" className="chip py-0.5 text-xs" data-active={spec.features.includes(f)} aria-pressed={spec.features.includes(f)} onClick={() => toggleFeature(f)}>
 									{pretty(f)}

@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import { ALIGNMENTS, assignByPriority, STANDARD_ARRAY, type CreationOptions } from "@/lib/rules/character";
 import { BACKGROUNDS, CLASSES, SPECIES, getClass, getSubclass, getBackground, getSpecies, getSkill } from "@/lib/srd";
+import { offeredIn, rulesetOf, type Ruleset } from "@/lib/rules/ruleset";
 import { Tabs } from "@/components/ui/Tabs";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { cn } from "@/components/ui/cn";
@@ -20,13 +21,13 @@ import { patchCharacter, type StepProps } from "./types";
 import { optionsFor, speciesCantripPicks, subclassAvailable, type CharacterDraft } from "./wizardState";
 import { useT } from "@/components/i18n/I18nProvider";
 import type { MessageKey } from "@/lib/i18n";
-import { srdName } from "./i18n";
+import { srdNameIn } from "./i18n";
 
 type Sub = "origins" | "abilities" | "choices" | "equipment" | "persona";
-const SUBS: { id: Sub; label: MessageKey; icon: ComponentType<{ className?: string }> }[] = [
+const SUBS: { id: Sub; label: MessageKey; zLabel?: MessageKey; icon: ComponentType<{ className?: string }> }[] = [
 	{ id: "origins", label: "char.tab.origins", icon: UserRound },
 	{ id: "abilities", label: "char.tab.abilities", icon: Dices },
-	{ id: "choices", label: "char.tab.choices", icon: Sparkles },
+	{ id: "choices", label: "char.tab.choices", zLabel: "z.char.tab.choices", icon: Sparkles },
 	{ id: "equipment", label: "char.tab.equipment", icon: Backpack },
 	{ id: "persona", label: "char.tab.persona", icon: Drama },
 ];
@@ -53,14 +54,14 @@ function pruneChoices(c: CharacterDraft, opts: CreationOptions | undefined): Cha
 	return out;
 }
 
-function withOrigins(c: CharacterDraft, patch: Partial<CharacterDraft>): CharacterDraft {
+function withOrigins(c: CharacterDraft, patch: Partial<CharacterDraft>, rs: Ruleset): CharacterDraft {
 	const next = { ...c, ...patch };
-	return { ...next, choices: pruneChoices(next, optionsFor(next).opts) };
+	return { ...next, choices: pruneChoices(next, optionsFor(next, rs).opts) };
 }
 
-export function randomCharacter(c: CharacterDraft): CharacterDraft {
+export function randomCharacter(c: CharacterDraft, rs: Ruleset = "fantasy"): CharacterDraft {
 	const r = <T,>(xs: readonly T[]) => xs[Math.floor(Math.random() * xs.length)];
-	const sp = r(SPECIES);
+	const sp = r(offeredIn(SPECIES, rs));
 	const cls = r(CLASSES);
 	const bg = r(BACKGROUNDS);
 	return {
@@ -85,14 +86,25 @@ export function CharacterStep({ draft, update }: StepProps) {
 	const c = draft.character;
 	const level = draft.settings.structure.startingLevel;
 	const [sub, setSub] = useState<Sub>("origins");
-	const { t, te, lang, ts } = useT();
+	const { t, te, lang, ts, ruleset } = useT();
 	const abil = (a: string) => te("abilityShort", a);
 	const bonus = (b: Partial<Record<string, number>>) => bonusText(b, te);
-	const nm = (group: string, x: { index: string; name: string }) => srdName(lang, group, x.index, x.name);
-	const speedText = (s: { speed: number; darkvision?: number }) => `${t("char.speed", { n: s.speed })}${s.darkvision ? ` · ${t("char.darkvision", { n: s.darkvision })}` : ""}`;	const { opts, error: optsError } = useMemo(() => optionsFor(c), [c]);
+	const nm = (group: string, x: { index: string; name: string }) => srdNameIn(ruleset, lang, group, x.index, x.name);
+	const speedText = (s: { speed: number; darkvision?: number }) => `${t("char.speed", { n: s.speed })}${s.darkvision ? ` · ${t("char.darkvision", { n: s.darkvision })}` : ""}`;	const rs = rulesetOf(draft.settings);
+	const zombie = rs === "zombie";
+	const speciesList = useMemo(() => offeredIn(SPECIES, rs), [rs]);
+	const { opts, error: optsError } = useMemo(() => optionsFor(c, rs), [c, rs]);
 	const preview = usePreview(c, level, opts);
 	const set = (patch: Partial<CharacterDraft>) => patchCharacter(update, patch);
-	const setOrigins = (patch: Partial<CharacterDraft>) => update((d) => ({ ...d, character: withOrigins(d.character, patch) }));
+	const setOrigins = (patch: Partial<CharacterDraft>) => update((d) => ({ ...d, character: withOrigins(d.character, patch, rulesetOf(d.settings)) }));
+
+	// Switching to/from The Quiet: the species must be one the ruleset offers (origins vs SRD species).
+	const speciesOk = speciesList.some((s) => s.index === c.speciesId);
+	useEffect(() => {
+		if (speciesOk || !speciesList[0]) return;
+		const sp = speciesList[0];
+		update((d) => ({ ...d, character: withOrigins(d.character, { speciesId: sp.index, subspeciesId: undefined, portrait: newPortrait(sp.index) }, rulesetOf(d.settings)) }));
+	}, [speciesOk, speciesList, update]);
 
 	// First visit: give the hero a face.
 	useEffect(() => {
@@ -108,7 +120,7 @@ export function CharacterStep({ draft, update }: StepProps) {
 	const subIdx = SUBS.findIndex((s) => s.id === sub);
 	const nextSub = SUBS[subIdx + 1];
 	const names = { cls: cls ? nm("class", cls) : undefined, bg: bg ? nm("background", bg) : undefined };
-	const flavor = cls ? srdName(lang, "subclassFlavor", cls.index, cls.subclassFlavor) : "";
+	const flavor = cls ? srdNameIn(ruleset, lang, "subclassFlavor", cls.index, cls.subclassFlavor) : "";
 	const preparedFormula =
 		opts?.preparedFormula && cls?.spellcasting
 			? t(cls.spellcasting.type === "half" ? "char.preparedFormulaHalf" : "char.preparedFormula", { abil: te("abilityShort", cls.spellcasting.ability), cls: names.cls ?? cls.name })
@@ -118,17 +130,17 @@ export function CharacterStep({ draft, update }: StepProps) {
 		<div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
 			<div className="min-w-0">
 				<div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-					<Tabs<Sub> label={t("char.sectionsAria")} tabs={SUBS.map((s) => ({ id: s.id, label: <span className="whitespace-nowrap">{t(s.label)}</span>, icon: <s.icon className="size-4" /> }))} value={sub} onChange={setSub} className="min-w-0 flex-1 overflow-x-auto" />
-					<button type="button" className="btn text-sm" onClick={() => update((d) => ({ ...d, character: randomCharacter(d.character) }))}title={t("char.surpriseTitle")}>
+					<Tabs<Sub> label={t("char.sectionsAria")} tabs={SUBS.map((s) => ({ id: s.id, label: <span className="whitespace-nowrap">{t(zombie && s.zLabel ? s.zLabel : s.label)}</span>, icon: <s.icon className="size-4" /> }))} value={sub} onChange={setSub} className="min-w-0 flex-1 overflow-x-auto" />
+					<button type="button" className="btn text-sm" onClick={() => update((d) => ({ ...d, character: randomCharacter(d.character, rulesetOf(d.settings)) }))}title={t("char.surpriseTitle")}>
 							<Dices className="size-4" /> {t("char.surprise")}
 					</button>
 				</div>
 
 				{sub === "origins" && (
 					<div className="flex flex-col gap-8">
-						<Section title={t("char.species")} hint={species ? `${nm("species", species)}: ${bonus(opts?.abilityBonuses ?? species.abilityBonuses)} · ${speedText(species)}` : undefined}>
+						<Section title={t(zombie ? "z.char.species" : "char.species")} hint={species ? `${nm("species", species)}: ${bonus(opts?.abilityBonuses ?? species.abilityBonuses)} · ${speedText(species)}` : undefined}>
 							<div className="grid grid-cols-3 gap-2 xl:grid-cols-5">
-								{SPECIES.map((s) => (
+								{speciesList.map((s) => (
 									<Tooltip key={s.index} content={<OriginTip title={nm("species", s)} lines={[bonus(s.abilityBonuses), speedText(s), s.traits.map((tr) => ts(tr.name)).join(", ")]} />}>
 										<PickCard active={s.index === c.speciesId} onClick={() => setOrigins({ speciesId: s.index, subspeciesId: s.subspecies.length > 1 ? s.subspecies[0].index : undefined, portrait: newPortrait(s.index) })}>
 											{nm("species", s)}
@@ -149,10 +161,10 @@ export function CharacterStep({ draft, update }: StepProps) {
 						</Section>
 
 						<Section
-							title={t("char.class")}
+							title={t(zombie ? "z.char.class" : "char.class")}
 							hint={
 								cls
-									? `${t("char.hitDieHint", { n: cls.hitDie })} · ${t("char.primaryHint", { list: cls.primaryAbility.map(abil).join("/") })} · ${t("char.savesHint", { list: cls.savingThrows.map(abil).join(", ") })}${cls.spellcasting ? ` · ${t("char.castsWith", { abil: abil(cls.spellcasting.ability) })}` : ""}`
+									? `${t("char.hitDieHint", { n: cls.hitDie })} · ${t("char.primaryHint", { list: cls.primaryAbility.map(abil).join("/") })} · ${t("char.savesHint", { list: cls.savingThrows.map(abil).join(", ") })}${cls.spellcasting ? ` · ${t(zombie ? "z.char.castsWith" : "char.castsWith", { abil: abil(cls.spellcasting.ability) })}` : ""}`
 									: undefined
 							}
 						>
@@ -165,8 +177,8 @@ export function CharacterStep({ draft, update }: StepProps) {
 											lines={[
 												t("char.tip.hitDie", { n: k.hitDie }),
 												t("char.tip.primary", { list: k.primaryAbility.map(abil).join(", ") }),
-												t("char.tip.armor", { list: k.armor.map((x) => srdName(lang, "armorProf", x, x)).join(", ") || t("char.tip.none") }),
-												k.spellcasting ? t("char.tip.spellcaster", { abil: abil(k.spellcasting.ability) }) : t("char.tip.martial"),
+												t("char.tip.armor", { list: k.armor.map((x) => srdNameIn(ruleset, lang, "armorProf", x, x)).join(", ") || t("char.tip.none") }),
+												k.spellcasting ? t(zombie ? "z.char.tip.spellcaster" : "char.tip.spellcaster", { abil: abil(k.spellcasting.ability) }) : t(zombie ? "z.char.tip.martial" : "char.tip.martial"),
 											]}
 										/>}>
 											<PickCard
@@ -201,7 +213,7 @@ export function CharacterStep({ draft, update }: StepProps) {
 							)}
 						</Section>
 
-						<Section title={t("char.background")} hint={bg ? t("char.bgHint", { list: bg.skills.map((s) => srdName(lang, "skill", s, getSkill(s)?.name ?? s)).join(", "), feature: ts(bg.feature.name) }) : undefined}>
+						<Section title={t("char.background")} hint={bg ? t("char.bgHint", { list: bg.skills.map((s) => srdNameIn(ruleset, lang, "skill", s, getSkill(s)?.name ?? s)).join(", "), feature: ts(bg.feature.name) }) : undefined}>
 							<div className="grid grid-cols-2 gap-2 xl:grid-cols-4">
 								{BACKGROUNDS.map((b) => (
 									<Tooltip key={b.index} content={<OriginTip title={ts(b.feature.name)} lines={[ts(b.feature.description).slice(0, 320)]} />}>
@@ -232,7 +244,7 @@ export function CharacterStep({ draft, update }: StepProps) {
 					<div className="flex flex-col gap-4">
 						{opts && opts.grantedSkills.length > 0 && (
 							<p className="text-sm text-dim">
-								{t("char.alreadyProf")} <span className="text-text">{opts.grantedSkills.map((s) => srdName(lang, "skill", s, getSkill(s)?.name ?? s)).join(", ")}</span>
+								{t("char.alreadyProf")} <span className="text-text">{opts.grantedSkills.map((s) => srdNameIn(ruleset, lang, "skill", s, getSkill(s)?.name ?? s)).join(", ")}</span>
 							</p>
 						)}
 						{choiceList.length === 0 && <p className="text-dim">{t("char.noChoices")}</p>}
@@ -246,7 +258,7 @@ export function CharacterStep({ draft, update }: StepProps) {
 							return <ChoicePicker key={ch.id} names={names} choice={choice} value={c.choices[ch.id]} onChange={(v) => set({ choices: { ...c.choices, ...(v ? { [ch.id]: v } : { [ch.id]: [] }) } })} />;
 						})}
 						{level > 1 && <p className="text-xs text-faint italic">{t("char.laterChoices", { level })}</p>}
-						{preparedFormula && <p className="text-xs text-faint italic">{t("char.prepared", { formula: preparedFormula })}</p>}
+						{preparedFormula && <p className="text-xs text-faint italic">{t(zombie ? "z.char.prepared" : "char.prepared", { formula: preparedFormula })}</p>}
 					</div>
 				)}
 
@@ -257,7 +269,7 @@ export function CharacterStep({ draft, update }: StepProps) {
 				{nextSub && (
 					<div className="mt-6 flex justify-end">
 						<button type="button" className="btn text-sm" onClick={() => setSub(nextSub.id)}>
-							{t(nextSub.label)} <ChevronRight className="size-4" />
+							{t(zombie && nextSub.zLabel ? nextSub.zLabel : nextSub.label)} <ChevronRight className="size-4" />
 						</button>
 					</div>
 				)}
@@ -316,7 +328,7 @@ const PERSONALITY: { key: keyof CharacterDraft["personality"]; from?: "personali
 
 function PersonaPanel({ c, set }: { c: CharacterDraft; set: (p: Partial<CharacterDraft>) => void }) {
 	const bg = getBackground(c.backgroundId);
-	const { t, te, lang } = useT();
+	const { t, te, lang, ruleset } = useT();
 	return (
 		<div className="flex flex-col gap-8">
 			<div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_260px]">
@@ -358,7 +370,7 @@ function PersonaPanel({ c, set }: { c: CharacterDraft; set: (p: Partial<Characte
 							className="btn py-1 text-xs"
 							onClick={() => set({ personality: { ...c.personality, traits: pick(bg.personalityTraits) ?? "", ideals: pick(bg.ideals) ?? "", bonds: pick(bg.bonds) ?? "", flaws: pick(bg.flaws) ?? "" } })}
 						>
-							<Dices className="size-3.5" /> {t("char.rollFrom", { bg: srdName(lang, "background", bg.index, bg.name) })}
+							<Dices className="size-3.5" /> {t("char.rollFrom", { bg: srdNameIn(ruleset, lang, "background", bg.index, bg.name) })}
 						</button>
 					)
 				}

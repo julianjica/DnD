@@ -12,9 +12,9 @@ import { getFeature, getSubclass } from "@/lib/srd";
 
 /** Hover details for a level-up option: a subclass shows its flavor and every feature by level; spells/features/skills use the wizard's descriptions. */
 function OptionTip({ index }: { index: string }) {
-	const { lang, ts, t } = useT();
+	const { lang, ts, t, ruleset } = useT();
 	const sub = getSubclass(index);
-	if (!sub) return <>{describeOption(index, lang) ?? null}</>;
+	if (!sub) return <>{describeOption(index, lang, ruleset) ?? null}</>;
 	return (
 		<div className="flex max-h-[45vh] flex-col gap-1.5 overflow-y-auto text-left">
 			<div className="font-display text-sm text-gold-2">

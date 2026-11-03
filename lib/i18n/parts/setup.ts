@@ -570,6 +570,22 @@ export const en = {
 	"enum.portrait.teal": "Teal",
 	"enum.portrait.night": "Night",
 	"enum.portrait.gold": "Gold",
+
+	// ─── The Quiet (zombie ruleset): wizard wording ───
+	"z.char.species": "Origin",
+	"z.char.class": "Profession",
+	"z.char.tab.choices": "Skills & Techniques",
+	"z.char.castsWith": "techniques with {abil}",
+	"z.char.tip.spellcaster": "Techniques ({abil})",
+	"z.char.tip.martial": "No techniques: pure grit",
+	"z.char.prepared": "Prepared techniques: {formula}. You can change them after each long rest.",
+	"z.char.blurb": "Build your survivor: origin, profession, gear and a face.",
+	"z.choice.cantrips": "{cls} knacks",
+	"z.choice.spellsKnown": "{cls} techniques known",
+	"z.choice.spellbook": "Techniques written in your notebook",
+	"z.equip.kit": "Profession kit",
+	"z.equip.kitEmpty": "Your starting gear is whatever you had on you when it started; the DM will fill in your pockets.",
+	"z.equip.noMoney": "No money: cash stopped meaning anything on Day 0.",
 } as const satisfies Record<string, string>;
 
 export const es: { [K in keyof typeof en]: string } = {
@@ -1124,4 +1140,20 @@ export const es: { [K in keyof typeof en]: string } = {
 	"enum.portrait.teal": "Verde azulado",
 	"enum.portrait.night": "Noche",
 	"enum.portrait.gold": "Oro",
+
+	// ─── El Silencio (reglas zombi): textos del asistente ───
+	"z.char.species": "Origen",
+	"z.char.class": "Profesión",
+	"z.char.tab.choices": "Hab. y técnicas",
+	"z.char.castsWith": "técnicas con {abil}",
+	"z.char.tip.spellcaster": "Técnicas ({abil})",
+	"z.char.tip.martial": "Sin técnicas: puro aguante",
+	"z.char.prepared": "Técnicas preparadas: {formula}. Puedes cambiarlas tras cada descanso largo.",
+	"z.char.blurb": "Crea a tu superviviente: origen, profesión, equipo y un rostro.",
+	"z.choice.cantrips": "Trucos de {cls}",
+	"z.choice.spellsKnown": "Técnicas conocidas de {cls}",
+	"z.choice.spellbook": "Técnicas anotadas en tu cuaderno",
+	"z.equip.kit": "Equipo de tu profesión",
+	"z.equip.kitEmpty": "Empiezas con lo que llevabas encima cuando todo comenzó; el DM llenará tus bolsillos.",
+	"z.equip.noMoney": "Sin dinero: el efectivo dejó de valer algo el Día 0.",
 };

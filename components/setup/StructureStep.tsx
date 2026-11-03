@@ -7,7 +7,7 @@ import { Slider } from "@/components/ui/Slider";
 import { cn } from "@/components/ui/cn";
 import { getClass } from "@/lib/srd";
 import { FieldLabel, Section } from "./Field";
-import { srdName } from "./i18n";
+import { srdNameIn } from "./i18n";
 import { DIFFICULTIES, FORMATS, HOOKS, randomTitle } from "./presets";
 import { useT } from "@/components/i18n/I18nProvider";
 import { patchSettings, type StepProps } from "./types";
@@ -16,7 +16,7 @@ const FORMAT_ICON = { one_shot: ScrollText, short_campaign: BookOpen, long_campa
 
 export function StructureStep({ draft, update }: StepProps) {
 	const s = draft.settings.structure;
-	const { t, te, lang } = useT();
+	const { t, te, lang, ruleset } = useT();
 	const set = (patch: Partial<typeof s>) => patchSettings(update, "structure", patch);
 	const allHooks = useMemo(() => [...HOOKS[lang][draft.settings.world.preset], ...HOOKS[lang].any], [draft.settings.world.preset, lang]);
 	const [hookOffset, setHookOffset] = useState(0);
@@ -65,7 +65,7 @@ export function StructureStep({ draft, update }: StepProps) {
 							{cls &&
 								s.startingLevel >= cls.subclassLevel &&
 								cls.subclassLevel > 1 &&
-								t("structure.subclassNote", { cls: srdName(lang, "class", cls.index, cls.name).toLowerCase(), flavor: srdName(lang, "subclassFlavor", cls.index, cls.subclassFlavor).toLowerCase() })}
+								t("structure.subclassNote", { cls: srdNameIn(ruleset, lang, "class", cls.index, cls.name).toLowerCase(), flavor: srdNameIn(ruleset, lang, "subclassFlavor", cls.index, cls.subclassFlavor).toLowerCase() })}
 						</p>
 					</div>
 				</Section>

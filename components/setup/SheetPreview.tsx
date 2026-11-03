@@ -14,7 +14,8 @@ import { describeOption } from "./ChoicePicker";
 import { characterInput, type CharacterDraft } from "./wizardState";
 import { useT } from "@/components/i18n/I18nProvider";
 import type { Lang } from "@/lib/i18n";
-import { srdName } from "./i18n";
+import { srdNameIn } from "./i18n";
+import type { Ruleset } from "@/lib/rules/ruleset";
 
 export interface PreviewResult {
 	character?: Character;
@@ -39,16 +40,16 @@ export function usePreview(c: CharacterDraft, level: number, opts: CreationOptio
 	}, [c, level, opts, t]);
 }
 
-export function speciesLabel(speciesId: string, subspeciesId?: string, lang: Lang = "en"): string {
+export function speciesLabel(speciesId: string, subspeciesId?: string, lang: Lang = "en", ruleset: Ruleset = "fantasy"): string {
 	const sub = subspeciesId ? getSubspecies(subspeciesId) : undefined;
-	if (sub) return srdName(lang, "subspecies", sub.index, sub.name);
-	return srdName(lang, "species", speciesId, getSpecies(speciesId)?.name ?? speciesId);
+	if (sub) return srdNameIn(ruleset, lang, "subspecies", sub.index, sub.name);
+	return srdNameIn(ruleset, lang, "species", speciesId, getSpecies(speciesId)?.name ?? speciesId);
 }
 
 export function SheetPreview({ preview, draft, compact }: { preview: PreviewResult; draft: CharacterDraft; compact?: boolean }) {
 	const { character: ch, sheet, error } = preview;
 	const cls = getClass(draft.classId);
-	const { t, te, lang, ts } = useT();
+	const { t, te, lang, ts, ruleset } = useT();
 	const bg = getBackground(draft.backgroundId);
 	const subId = ch?.classes[0]?.subclassId;
 	const sub = subId ? getSubclass(subId) : undefined;
@@ -59,12 +60,12 @@ export function SheetPreview({ preview, draft, compact }: { preview: PreviewResu
 				<div className="min-w-0">
 					<div className="truncate font-display text-lg leading-tight text-[#3d2a12]">{draft.name || t("sheet.unnamed")}</div>
 					<div className="font-serif text-sm text-ink/80 italic">
-						{speciesLabel(draft.speciesId, draft.subspeciesId, lang)} · {cls ? srdName(lang, "class", cls.index, cls.name) : draft.classId}
+						{speciesLabel(draft.speciesId, draft.subspeciesId, lang, ruleset)} · {cls ? srdNameIn(ruleset, lang, "class", cls.index, cls.name) : draft.classId}
 						{ch ? ` ${ch.classes[0]?.level ?? 1}` : ""}
-						{subId ? ` · ${sub ? srdName(lang, "subclass", sub.index, sub.name) : subId}` : ""}
+						{subId ? ` · ${sub ? srdNameIn(ruleset, lang, "subclass", sub.index, sub.name) : subId}` : ""}
 					</div>
 					<div className="font-serif text-xs text-ink/60">
-							{bg ? srdName(lang, "background", bg.index, bg.name) : ""}
+							{bg ? srdNameIn(ruleset, lang, "background", bg.index, bg.name) : ""}
 							{draft.alignment ? ` · ${te("alignment", draft.alignment)}` : ""}
 						</div>
 				</div>
@@ -110,7 +111,7 @@ export function SheetPreview({ preview, draft, compact }: { preview: PreviewResu
 											{ts(at.name)}
 										</span>
 										<span className="shrink-0 tabular-nums text-ink/80">
-											{signed(at.toHit)} · {at.damage} {srdName(lang, "damage", at.damageType.toLowerCase(), at.damageType).toLowerCase()}
+											{signed(at.toHit)} · {at.damage} {srdNameIn(ruleset, lang, "damage", at.damageType.toLowerCase(), at.damageType).toLowerCase()}
 										</span>
 									</li>
 								))}
@@ -122,7 +123,7 @@ export function SheetPreview({ preview, draft, compact }: { preview: PreviewResu
 						<Block title={t("sheet.spellcasting")}>
 							{sheet.spellcasting.map((s) => (
 								<div key={s.classId} className="text-sm">
-									<span>{srdName(lang, "class", s.classId, getClass(s.classId)?.name ?? s.classId)}</span> ({te("abilityShort", s.ability)}): {t("sheet.saveDc")} <b>{s.saveDc}</b>, {t("sheet.attack")} <b>{signed(s.attackBonus)}</b>
+									<span>{srdNameIn(ruleset, lang, "class", s.classId, getClass(s.classId)?.name ?? s.classId)}</span> ({te("abilityShort", s.ability)}): {t("sheet.saveDc")} <b>{s.saveDc}</b>, {t("sheet.attack")} <b>{signed(s.attackBonus)}</b>
 									{s.preparedLimit !== undefined && <span className="text-ink/60"> · {t("sheet.prepares", { n: s.preparedLimit })}</span>}
 								</div>
 							))}
@@ -149,7 +150,7 @@ export function SheetPreview({ preview, draft, compact }: { preview: PreviewResu
 										<div key={id} className={cn("flex justify-between", s.proficient ? "font-semibold text-[#5a3c0e]" : "text-ink/55")}>
 											<span>
 												{s.expertise ? "◆ " : s.proficient ? "● " : ""}
-												{srdName(lang, "skill", id, getSkill(id)?.name ?? id)}
+												{srdNameIn(ruleset, lang, "skill", id, getSkill(id)?.name ?? id)}
 											</span>
 											<span className="tabular-nums">{signed(s.mod)}</span>
 										</div>
@@ -172,7 +173,7 @@ export function SheetPreview({ preview, draft, compact }: { preview: PreviewResu
 									<br />
 									<b>{t("sheet.tools")}</b> {ch.tools.join(", ").replace(/-/g, " ") || "—"}
 									<br />
-									<b>{t("sheet.armor")}</b> {ch.armorProf.map((x) => srdName(lang, "armorProf", x, x)).join(", ") || "—"} · <b>{t("sheet.weapons")}</b> {ch.weaponProf.join(", ").replace(/-/g, " ") || "—"}
+									<b>{t("sheet.armor")}</b> {ch.armorProf.map((x) => srdNameIn(ruleset, lang, "armorProf", x, x)).join(", ") || "—"} · <b>{t("sheet.weapons")}</b> {ch.weaponProf.join(", ").replace(/-/g, " ") || "—"}
 								</p>
 							</Block>
 							<Block title={t("sheet.equipment")}>
@@ -211,13 +212,13 @@ function Block({ title, children }: { title: string; children: React.ReactNode }
 }
 
 function SpellList({ label, ids }: { label: string; ids: string[] }) {
-	const { lang } = useT();
+	const { lang, ruleset } = useT();
 	if (!ids.length) return null;
 	return (
 		<div className="mt-1 flex flex-wrap items-center gap-1 text-xs">
 			<span className="text-ink/60">{label}:</span>
 			{ids.map((id) => (
-				<Tooltip key={id} content={describeOption(id, lang)}>
+				<Tooltip key={id} content={describeOption(id, lang, ruleset)}>
 					<span className="cursor-help rounded border border-[#b89b68]/70 bg-white/30 px-1.5 py-0.5">{getSpell(id)?.name ?? id}</span>
 				</Tooltip>
 			))}

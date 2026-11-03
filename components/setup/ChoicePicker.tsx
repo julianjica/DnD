@@ -9,10 +9,12 @@ import { Tooltip } from "@/components/ui/Tooltip";
 import { cn } from "@/components/ui/cn";
 import { useT } from "@/components/i18n/I18nProvider";
 import { translate, translateEnum, type Lang } from "@/lib/i18n";
-import { choiceLabel, srdName } from "./i18n";
-import { srdDictIfLoaded, translateSrd } from "@/lib/i18n/srd";
+import { choiceLabel, srdNameIn } from "./i18n";
+import { srdDictIfLoaded } from "@/lib/i18n/srd";
 import { localizeEngine } from "@/lib/i18n/engine";
 import { SpellCard } from "@/components/play/SpellCard";
+import { rulesetText } from "@/lib/i18n/ruleset-labels";
+import type { Ruleset } from "@/lib/rules/ruleset";
 
 
 function clip(s: string, n = 420) {
@@ -21,9 +23,9 @@ function clip(s: string, n = 420) {
 }
 
 /** Rich hover description for any SRD option (spell, feature, skill, language, item). */
-export function describeOption(index: string, lang: Lang = "en"): ReactNode {
+export function describeOption(index: string, lang: Lang = "en", ruleset: Ruleset = "fantasy"): ReactNode {
 	const tr = (k: Parameters<typeof translate>[1], v?: Record<string, string | number>) => translate(lang, k, v);
-	const S = (x: string | undefined) => translateSrd(lang, srdDictIfLoaded(), x);
+	const S = (x: string | undefined) => rulesetText(ruleset, lang, srdDictIfLoaded(), x);
 	const sp = getSpell(index);
 	if (sp) return <SpellCard spell={sp} />;
 	const f = getFeature(index);
@@ -39,7 +41,7 @@ export function describeOption(index: string, lang: Lang = "en"): ReactNode {
 		return (
 			<div>
 				<div className="mb-1 font-display text-sm text-gold-2">
-						{srdName(lang, "skill", sk.index, sk.name)} <span className="text-[11px] text-dim">({translateEnum(lang, "abilityShort", sk.ability)})</span>
+						{srdNameIn(ruleset, lang, "skill", sk.index, sk.name)} <span className="text-[11px] text-dim">({translateEnum(lang, "abilityShort", sk.ability)})</span>
 				</div>
 				<p>{clip(S(sk.description))}</p>
 			</div>
@@ -74,9 +76,9 @@ export interface ChoicePickerProps {
 /** "Choose N of these" picker with descriptions on hover, search for long lists and an auto-pick button. */
 export function ChoicePicker({ choice, value, onChange, names = {} }: ChoicePickerProps) {
 	const [q, setQ] = useState("");
-	const { t, te, lang } = useT();
-	const label = choiceLabel(choice, t, names, lang);
-	const optName = (o: { index: string; name: string }) => (ABILITY_IDS.has(o.index) ? te("ability", o.index) : getSkill(o.index) ? srdName(lang, "skill", o.index, o.name) : localizeEngine(lang, o.name, (x) => translateSrd(lang, srdDictIfLoaded(), x)));
+	const { t, te, lang, ruleset } = useT();
+	const label = choiceLabel(choice, t, names, lang, ruleset);
+	const optName = (o: { index: string; name: string }) => (ABILITY_IDS.has(o.index) ? te("ability", o.index) : getSkill(o.index) ? srdNameIn(ruleset, lang, "skill", o.index, o.name) : localizeEngine(lang, o.name, (x) => rulesetText(ruleset, lang, srdDictIfLoaded(), x)));
 	const picks = (value ?? []).filter((p) => choice.options.some((o) => o.index === p));
 	const full = picks.length >= choice.choose;
 	const isSpell = choice.options.length > 0 && !!getSpell(choice.options[0].index);
@@ -123,7 +125,7 @@ export function ChoicePicker({ choice, value, onChange, names = {} }: ChoicePick
 					const on = picks.includes(o.index);
 					const sp = isSpell ? getSpell(o.index) : undefined;
 					return (
-						<Tooltip key={o.index} content={describeOption(o.index, lang)}>
+						<Tooltip key={o.index} content={describeOption(o.index, lang, ruleset)}>
 							<button
 								type="button"
 								aria-pressed={on}

@@ -7,7 +7,7 @@ import { cn } from "@/components/ui/cn";
 import { describeOption } from "./ChoicePicker";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { useT } from "@/components/i18n/I18nProvider";
-import { srdName } from "./i18n";
+import { srdNameIn } from "./i18n";
 
 export interface EquipmentPickerProps {
 	opts: CreationOptions;
@@ -20,7 +20,7 @@ const nameOf = (ref: string) => getEquipment(ref)?.name ?? ref;
 /** Starting equipment: one option per choice, plus category picks ("any martial weapon"). */
 export function EquipmentPicker({ opts, value, onChange }: EquipmentPickerProps) {
 	const cls = getClass(opts.classId);
-	const { t, lang, ts } = useT();
+	const { t, lang, ts, ruleset } = useT();
 	const bg = getBackground(opts.backgroundId);
 	const fixed = [...(cls?.startingEquipment ?? []), ...(bg?.equipment ?? [])];
 	const get = (i: number) => value[i] ?? { option: 0, picks: [] };
@@ -28,6 +28,34 @@ export function EquipmentPicker({ opts, value, onChange }: EquipmentPickerProps)
 		const next = opts.equipment.map((_, j) => (j === i ? v : get(j)));
 		onChange(next);
 	};
+
+	if (opts.ruleset === "zombie") {
+		// The Quiet: a fixed profession kit, no gear choices and no money.
+		return (
+			<div className="rounded-lg border border-line bg-bg-2/50 p-4">
+				<div className="mb-2 flex items-center gap-2 font-display text-sm tracking-wide">
+					<Backpack className="size-4 text-gold/80" /> {t("z.equip.kit")}
+				</div>
+				{opts.kit.length ? (
+					<div className="flex flex-wrap gap-1.5">
+						{opts.kit.map((g, i) => (
+							<Tooltip key={`${g.ref}-${i}`} content={describeOption(g.ref, lang, ruleset)}>
+								<span className="chip text-xs">
+									{g.qty > 1 ? `${g.qty}× ` : ""}
+									{ts(g.name)}
+								</span>
+							</Tooltip>
+						))}
+					</div>
+				) : (
+					<p className="text-sm text-dim">{t("z.equip.kitEmpty")}</p>
+				)}
+				<p className="mt-3 flex items-center gap-1.5 text-xs text-faint italic">
+					<Coins className="size-3" /> {t("z.equip.noMoney")}
+				</p>
+			</div>
+		);
+	}
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -38,7 +66,7 @@ export function EquipmentPicker({ opts, value, onChange }: EquipmentPickerProps)
 					</div>
 					<div className="flex flex-wrap gap-1.5">
 						{fixed.map((g, i) => (
-							<Tooltip key={`${g.ref}-${i}`} content={describeOption(g.ref, lang)}>
+							<Tooltip key={`${g.ref}-${i}`} content={describeOption(g.ref, lang, ruleset)}>
 								<span className="chip text-xs">
 									{g.qty > 1 ? `${g.qty}× ` : ""}
 									{nameOf(g.ref)}
@@ -59,7 +87,7 @@ export function EquipmentPicker({ opts, value, onChange }: EquipmentPickerProps)
 					<fieldset key={ec.index} className="rounded-lg border border-line bg-bg-2/50 p-4">
 						<legend className="sr-only">{ts(ec.desc)}</legend>
 						<div className="mb-2 flex items-center gap-2 text-xs tracking-wider text-dim uppercase">
-							{t("equip.chooseOne", { from: (ec.from === "class" ? cls && srdName(lang, "class", cls.index, cls.name) : bg && srdName(lang, "background", bg.index, bg.name)) ?? "" })}
+							{t("equip.chooseOne", { from: (ec.from === "class" ? cls && srdNameIn(ruleset, lang, "class", cls.index, cls.name) : bg && srdNameIn(ruleset, lang, "background", bg.index, bg.name)) ?? "" })}
 						</div>
 						<div className="grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label={ts(ec.desc)}>
 							{ec.options.map((o, oi) => {

@@ -2,7 +2,8 @@
 import type { Ability, Abilities, Character, DamageType, InventoryItem, RollCheck } from "../../game/types";
 import { ABILITIES } from "../../game/types";
 import { abilityMod, signed } from "../dice";
-import { getClass, getEquipment, getSubclass, classLevel as classLevelRow } from "../../srd/index";
+import { getClass, getEquipment, getSpecies, getSpell, getSubclass, classLevel as classLevelRow } from "../../srd/index";
+import type { Ruleset } from "../ruleset";
 import { FEATURE_IMMUNITY, FEATURE_RESISTANCE, SKILL_ABILITY, proficiencyBonus } from "./tables";
 
 // ─── basic helpers ─────────────────────────────────────────────────────────
@@ -155,12 +156,23 @@ export function preparedLimit(c: Character, classId: string): number | undefined
 }
 
 /** Subclass spells always prepared (domain/oath/circle) at the current class level. */
+/**
+ * The ruleset a character belongs to. Everyone in The Quiet has a zombie
+ * origin as species, so the character itself tells which content to offer
+ * (techniques vs spells) on level-up, without threading campaign settings.
+ */
+export function characterRuleset(c: Pick<Character, "speciesId">): Ruleset {
+	return getSpecies(c.speciesId)?.ruleset ?? "fantasy";
+}
+
 export function alwaysPreparedSpells(c: Character, classId: string): string[] {
 	const cl = c.classes.find((x) => x.classId === classId);
 	if (!cl?.subclassId) return [];
 	const sub = getSubclass(cl.subclassId);
 	if (!sub || classId === "warlock") return [];
-	return sub.spells.filter((s) => s.level <= cl.level && (!s.requires || hasFeature(c, s.requires))).map((s) => s.spell);
+	const rs = characterRuleset(c);
+	// Subclass spell lists are SRD spells: none of them exist in The Quiet.
+	return sub.spells.filter((s) => s.level <= cl.level && (!s.requires || hasFeature(c, s.requires)) && (getSpell(s.spell)?.ruleset ?? "fantasy") === rs).map((s) => s.spell);
 }
 
 // ─── defenses ──────────────────────────────────────────────────────────────

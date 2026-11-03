@@ -1,5 +1,8 @@
 import { doorSummary, roomOf } from "./mapsync";
 import type { GameState, LogEntry } from "../game/types";
+import { rulesetOf } from "../rules/ruleset";
+import { rulesetLabelEn } from "../i18n/ruleset-labels";
+import { getClass, getSpecies, getSubclass } from "../srd/index";
 import { compassOf, daysForDistance, mapDistance } from "../maps/geography";
 
 /**
@@ -26,8 +29,16 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 		if (regions.length) lines.push(`Named regions: ${regions.map((f) => `${f.name} (${f.terrain}) ${compassOf(loc, f)} of here`).join("; ")}`);
 	}
 
+	const rs = rulesetOf(s.settings);
+	// The Quiet: the DM reads professions and origins ("Chemistry Teacher · Engineer (Demolitions) 3 [wizard/evocation]").
+	const label = (text: string) => rulesetLabelEn(rs, text);
+	const classText = (k: (typeof c.classes)[number]) =>
+		rs === "fantasy"
+			? `${k.classId}${k.subclassId ? `(${k.subclassId})` : ""} ${k.level}`
+			: `${label(getClass(k.classId)?.name ?? k.classId)}${k.subclassId ? ` (${label(getSubclass(k.subclassId)?.name ?? k.subclassId)})` : ""} ${k.level} [${k.classId}${k.subclassId ? `/${k.subclassId}` : ""}]`;
+	const speciesText = rs === "fantasy" ? `${c.speciesId}${c.subspeciesId ? `/${c.subspeciesId}` : ""}` : `${getSpecies(c.speciesId)?.name ?? c.speciesId} origin`;
 	lines.push(
-		`PC: ${c.name}, ${c.speciesId}${c.subspeciesId ? `/${c.subspeciesId}` : ""} ${c.classes.map((k) => `${k.classId}${k.subclassId ? `(${k.subclassId})` : ""} ${k.level}`).join("/")} (level ${lvl}), HP ${c.hp}/${c.maxHp}${c.tempHp ? ` +${c.tempHp} temp` : ""}${opts.ac !== undefined ? `, AC ${opts.ac}` : ""}, XP ${c.xp}`,
+		`PC: ${c.name}, ${speciesText} ${c.classes.map(classText).join("/")} (level ${lvl}), HP ${c.hp}/${c.maxHp}${c.tempHp ? ` +${c.tempHp} temp` : ""}${opts.ac !== undefined ? `, AC ${opts.ac}` : ""}, XP ${c.xp}`,
 	);
 	const ab = c.abilities;
 	lines.push(`Abilities: STR ${ab.str} DEX ${ab.dex} CON ${ab.con} INT ${ab.int} WIS ${ab.wis} CHA ${ab.cha}`);
@@ -38,12 +49,12 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 			.map((max, i) => (max ? `L${i + 1} ${max - (c.spellcasting!.slotsUsed[i] ?? 0)}/${max}` : ""))
 			.filter(Boolean)
 			.join(", ");
-		if (sl) lines.push(`Spell slots: ${sl}${c.spellcasting.pact ? `; pact L${c.spellcasting.pact.level} ${c.spellcasting.pact.max - c.spellcasting.pact.used}/${c.spellcasting.pact.max}` : ""}`);
+		if (sl) lines.push(`${rs === "zombie" ? "Technique slots" : "Spell slots"}: ${sl}${c.spellcasting.pact ? `; pact L${c.spellcasting.pact.level} ${c.spellcasting.pact.max - c.spellcasting.pact.used}/${c.spellcasting.pact.max}` : ""}`);
 		const prepared = c.spellcasting.classes.flatMap((k) => [...k.cantrips, ...k.prepared]);
-		if (prepared.length) lines.push(`Spells ready: ${prepared.join(", ")}`);
+		if (prepared.length) lines.push(`${rs === "zombie" ? "Techniques ready" : "Spells ready"}: ${prepared.join(", ")}`);
 	}
 	if (c.concentration) lines.push(`Concentrating on: ${c.concentration.spell}`);
-	const limited = c.features.filter((f) => f.uses).map((f) => `${f.name} ${f.uses!.max - f.uses!.used}/${f.uses!.max}`);
+	const limited = c.features.filter((f) => f.uses).map((f) => `${label(f.name)} ${f.uses!.max - f.uses!.used}/${f.uses!.max}`);
 	if (limited.length) lines.push(`Limited features: ${limited.join(", ")}`);
 	const gear = c.inventory.map((i) => `${i.name}${i.quantity > 1 ? ` x${i.quantity}` : ""}${i.equipped ? " (eq)" : ""}`);
 	lines.push(`Inventory: ${gear.join(", ") || "nothing"}; coins ${c.currency.gp} gp, ${c.currency.sp} sp, ${c.currency.cp} cp${c.currency.pp ? `, ${c.currency.pp} pp` : ""}`);

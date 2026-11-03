@@ -39,8 +39,14 @@ const NAMES: Record<string, { first: string[]; last: string[] }> = {
 	},
 };
 
+/** The Quiet: ordinary modern names for a small river town (origins are all human). */
+const MODERN = {
+	first: ["Alex", "Maya", "Jordan", "Sam", "Rosa", "Danny", "Priya", "Marcus", "Lena", "Tyler", "Ana", "Omar", "Kelly", "Luis", "Grace", "Nate", "Tasha", "Wes", "Mei", "Hector", "Erin", "Kofi", "Jess", "Pete"],
+	last: ["Miller", "Novak", "Garcia", "Reyes", "Okafor", "Brennan", "Kowalski", "Nguyen", "Price", "Delgado", "Harper", "Chen", "Walsh", "Moreno", "Lindqvist", "Dawson", "Patel", "Hale", "Ruiz", "Sorensen"],
+};
+
 export function randomName(speciesId: string, rand: () => number = Math.random): string {
-	const n = NAMES[speciesId] ?? NAMES.human;
+	const n = speciesId.startsWith("z-origin-") ? MODERN : NAMES[speciesId] ?? NAMES.human;
 	const pick = (xs: string[]) => xs[Math.floor(rand() * xs.length)];
 	const last = pick(n.last);
 	return last ? `${pick(n.first)} ${last}` : pick(n.first);

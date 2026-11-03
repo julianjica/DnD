@@ -3,6 +3,7 @@ import { ABILITIES } from "@/lib/game/types";
 import type { NewGameInput } from "@/lib/dm/newgame";
 import { assignByPriority, creationOptions, STANDARD_ARRAY, type AbilityInput, type Choices, type CreateCharacterInput, type CreationOptions } from "@/lib/rules/character";
 import { getClass } from "@/lib/srd";
+import { rulesetOf, type Ruleset } from "@/lib/rules/ruleset";
 
 /** localStorage keys shared by the wizard and the settings page. */
 export const DRAFT_KEY = "dh:wizard-draft:v1";
@@ -134,9 +135,9 @@ export function loadDraft(): WizardDraft {
 // ─── character helpers ─────────────────────────────────────────────────────
 
 /** CreationOptions for the draft (pure, runs client-side), or an error message. */
-export function optionsFor(c: CharacterDraft): { opts?: CreationOptions; error?: string } {
+export function optionsFor(c: CharacterDraft, ruleset: Ruleset = "fantasy"): { opts?: CreationOptions; error?: string } {
 	try {
-		return { opts: creationOptions(c.classId, c.speciesId, c.backgroundId, c.subspeciesId) };
+		return { opts: creationOptions(c.classId, c.speciesId, c.backgroundId, c.subspeciesId, ruleset) };
 	} catch (e) {
 		return { error: e instanceof Error ? e.message : String(e) };
 	}
@@ -187,7 +188,7 @@ export function subclassAvailable(classId: string, level: number): boolean {
 	return !!cls && cls.subclasses.length > 0 && cls.subclassLevel <= level;
 }
 
-export function characterInput(c: CharacterDraft, level: number, opts: CreationOptions | undefined, nameFallback = "Adventurer"): Omit<CreateCharacterInput, "rng"> | null {
+export function characterInput(c: CharacterDraft, level: number, opts: CreationOptions | undefined, nameFallback = "Adventurer", ruleset: Ruleset = opts?.ruleset ?? "fantasy"): Omit<CreateCharacterInput, "rng"> | null {
 	const abilities = abilityInput(c);
 	if (!abilities) return null;
 	const p = c.personality;
@@ -200,6 +201,7 @@ export function characterInput(c: CharacterDraft, level: number, opts: CreationO
 		classId: c.classId,
 		...(subclass ? { subclassId: subclass } : {}),
 		backgroundId: c.backgroundId,
+		ruleset,
 		abilities,
 		choices: completeChoices(c, opts),
 		equipment: (opts?.equipment ?? []).map((ec, i) => equipmentSelection(ec, c.equipment[i])),
@@ -234,7 +236,7 @@ function equipmentSelection(ec: CreationOptions["equipment"][number], e: { optio
 }
 
 export function buildNewGameInput(d: WizardDraft, opts: CreationOptions | undefined): NewGameInput | null {
-	const ci = characterInput(d.character, d.settings.structure.startingLevel, opts);
+	const ci = characterInput(d.character, d.settings.structure.startingLevel, opts, "Adventurer", rulesetOf(d.settings));
 	if (!ci) return null;
 	const settings: CampaignSettings = {
 		...d.settings,

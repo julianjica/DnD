@@ -24,6 +24,16 @@ export function rulesetText(rs: Ruleset, lang: Lang, dict: SrdDict | null, text:
 	return translateSrd(lang, dict, text);
 }
 
+/** The ruleset's own label for an SRD text, or undefined when it has none (callers keep their usual lookup). */
+export function rulesetLabel(rs: Ruleset, lang: Lang, dict: SrdDict | null, text: string | undefined): string | undefined {
+	if (!text || rs === "fantasy") return undefined;
+	const L = LABELS[rs];
+	const t = text.trim();
+	if (lang === "es" && L.es[t]) return L.es[t];
+	if (L.en[t]) return lang === "en" ? L.en[t] : translateSrd(lang, dict, L.en[t]);
+	return undefined;
+}
+
 /** English modern label for server-side text (DM digest), or the text itself. */
 export function rulesetLabelEn(rs: Ruleset, text: string): string {
 	return rs === "fantasy" ? text : (LABELS[rs].en[text.trim()] ?? text);

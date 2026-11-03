@@ -6,8 +6,9 @@ import type { Abilities, Ability, Character, Feature, InventoryItem, PortraitSpe
 import { ABILITIES } from "../../game/types";
 import { roll, Rng } from "../dice";
 import {
-	EQUIPMENT, LANGUAGES, SKILLS, getBackground, getClass, getEquipment, getSpecies, getSubclass, spellsForClass, toIndex,
+	EQUIPMENT, LANGUAGES, SKILLS, getBackground, getClass, getEquipment, getSpecies, getSubclass, spellsForClass, toIndex, zombieKit,
 } from "../../srd/index";
+import type { Ruleset } from "../ruleset";
 import type {
 	BackgroundData, ClassData, EquipmentChoice, EquipmentData, OptionChoice, Ref, SpeciesData, SubspeciesData,
 } from "../../srd/types";
@@ -96,6 +97,8 @@ export interface ResolvedEquipmentChoice {
 }
 
 export interface CreationOptions {
+	/** Content set: "zombie" (The Quiet) uses origins, techniques and a fixed profession kit with no gold. */
+	ruleset: Ruleset;
 	classId: string;
 	speciesId: string;
 	subspeciesId?: string;
@@ -111,6 +114,8 @@ export interface CreationOptions {
 	/** Every choice point with its id (key into `CreateCharacterInput.choices`). */
 	choices: OptionChoice[];
 	equipment: ResolvedEquipmentChoice[];
+	/** The Quiet: the profession's fixed starting kit (replaces class/background gear; `equipment` is empty). */
+	kit: { ref: string; name: string; qty: number }[];
 	startingGold: number;
 	subspecies: { index: string; name: string }[];
 	/** How many spells a prepared caster prepares at level 1 = mod + level (needs the final score). */
@@ -168,14 +173,34 @@ function lookupAll(classId: string, speciesId: string, backgroundId: string, sub
 	return { cls, sp, bg, sub };
 }
 
-const langRefs = (exclude: string[]) => LANGUAGES.filter((l) => !exclude.includes(l.index)).map((l) => ({ index: l.index, name: l.name }));
+/**
+ * Languages a character may learn. The Quiet has no fantasy tongues: it offers
+ * the real-world languages listed by the Bilingual origin.
+ */
+function langRefs(exclude: string[], rs: Ruleset): Ref[] {
+	const pool = rs === "zombie" ? (getSpecies("z-origin-bilingual")?.choices.find((c) => c.id.endsWith(":languages"))?.options ?? []) : LANGUAGES.map((l) => ({ index: l.index, name: l.name }));
+	return pool.filter((l) => !exclude.includes(l.index));
+}
+
+/**
+ * Ruleset of a creation: explicit (the campaign's), or the species' own
+ * (origins belong to The Quiet). An origin can't be used in a fantasy game;
+ * a plain SRD species in The Quiet is tolerated (the wizard always offers origins).
+ */
+function creationRuleset(sp: SpeciesData, ruleset?: Ruleset): Ruleset {
+	const own = sp.ruleset ?? "fantasy";
+	if (ruleset === "fantasy" && own === "zombie") throw new RulesError(`${sp.name} is only available in The Quiet`);
+	return ruleset ?? own;
+}
 
 /**
  * Lists every choice the setup wizard needs for this combination. Choice
  * ids are the keys of `CreateCharacterInput.choices`.
  */
-export function creationOptions(classId: string, speciesId: string, backgroundId: string, subspeciesId?: string): CreationOptions {
+export function creationOptions(classId: string, speciesId: string, backgroundId: string, subspeciesId?: string, ruleset?: Ruleset): CreationOptions {
 	const { cls, sp, bg, sub } = lookupAll(classId, speciesId, backgroundId, subspeciesId);
+	const rs = creationRuleset(sp, ruleset);
+	const zombie = rs === "zombie";
 	const granted = [...new Set([...sp.skills, ...(sub?.skills ?? []), ...bg.skills])];
 	const choices: OptionChoice[] = [];
 	for (const ch of [...sp.choices, ...(sub?.choices ?? [])]) {
@@ -190,7 +215,7 @@ export function creationOptions(classId: string, speciesId: string, backgroundId
 		options: cls.skillChoice.from.filter((s) => !granted.includes(s)).map((s) => ({ index: s, name: s.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase()) })),
 	});
 	for (const oc of cls.otherChoices) choices.push(oc);
-	if (bg.languageChoose) choices.push({ id: "background:languages", label: `${bg.name} languages`, choose: bg.languageChoose, options: langRefs(sp.languages) });
+	if (bg.languageChoose) choices.push({ id: "background:languages", label: `${bg.name} languages`, choose: bg.languageChoose, options: langRefs(sp.languages, rs) });
 	for (const tc of bg.toolChoices) choices.push(tc);
 	// Level-1 class choices (subclass at 1, fighting style, expertise, spells…).
 	const stub = blankCharacter("stub", speciesId);
@@ -203,10 +228,12 @@ export function creationOptions(classId: string, speciesId: string, backgroundId
 			choices.push({ ...ch, options: [...SKILL_IDS.map((s) => ({ index: s, name: SKILLS.find((k) => k.index === s)?.name ?? s })), ...(classId === "rogue" ? [{ index: "thieves-tools", name: "Thieves' Tools" }] : [])] });
 		} else choices.push(ch);
 	}
-	const equipment = [...resolveEquipment(cls.equipmentChoices, "class", 0), ...resolveEquipment(bg.equipmentChoices, "background", cls.equipmentChoices.length)];
+	const equipment = zombie ? [] : [...resolveEquipment(cls.equipmentChoices, "class", 0), ...resolveEquipment(bg.equipmentChoices, "background", cls.equipmentChoices.length)];
+	const kit = zombie ? zombieKit(classId).map((g) => ({ ref: g.ref, name: getEquipment(g.ref)?.name ?? g.ref, qty: g.qty })) : [];
 	const bonuses: Partial<Record<Ability, number>> = { ...sp.abilityBonuses };
 	for (const [a, v] of Object.entries(sub?.abilityBonuses ?? {}) as [Ability, number][]) bonuses[a] = (bonuses[a] ?? 0) + v;
 	return {
+		ruleset: rs,
 		classId, speciesId, ...(sub ? { subspeciesId: sub.index } : {}), backgroundId,
 		hitDie: cls.hitDie,
 		savingThrows: cls.savingThrows,
@@ -216,7 +243,8 @@ export function creationOptions(classId: string, speciesId: string, backgroundId
 		grantedSkills: granted,
 		choices,
 		equipment,
-		startingGold: bg.gold,
+		kit,
+		startingGold: zombie ? 0 : bg.gold,
 		subspecies: sp.subspecies.map((s) => ({ index: s.index, name: s.name })),
 		...(cls.spellcasting?.prepares ? { preparedFormula: `${cls.spellcasting.ability.toUpperCase()} modifier + ${cls.spellcasting.type === "half" ? "half " : ""}${cls.name} level (min 1)` } : {}),
 	};
@@ -365,6 +393,12 @@ export interface CreateCharacterInput {
 	portrait?: PortraitSpec;
 	/** Throw on any missing choice instead of auto-filling. */
 	strict?: boolean;
+	/**
+	 * Content set (from the campaign's world preset). "zombie" requires an
+	 * origin as species and gives the profession kit with no gold. Defaults to
+	 * the species' own ruleset, i.e. fantasy for every SRD species.
+	 */
+	ruleset?: Ruleset;
 }
 
 export function blankCharacter(id: string, speciesId: string): Character {
@@ -415,7 +449,8 @@ export function createCharacterDetailed(input: CreateCharacterInput): CreateResu
 	const level = input.level ?? 1;
 	if (!Number.isInteger(level) || level < 1 || level > 20) throw new RulesError("Starting level must be 1–20");
 	if (!input.name.trim()) throw new RulesError("Name is required");
-	const opts = creationOptions(input.classId, input.speciesId, input.backgroundId, input.subspeciesId);
+	const opts = creationOptions(input.classId, input.speciesId, input.backgroundId, input.subspeciesId, input.ruleset);
+	const zombie = opts.ruleset === "zombie";
 	const { cls, sp, bg, sub } = lookupAll(input.classId, input.speciesId, input.backgroundId, input.subspeciesId);
 	if (!sub && sp.subspecies.length > 1) throw new RulesError(`Choose a subspecies of ${sp.name}`);
 	const choices: Choices = { ...(input.choices ?? {}) };
@@ -490,7 +525,7 @@ export function createCharacterDetailed(input: CreateCharacterInput): CreateResu
 	c.features.push({ id: toIndex(bg.feature.name), name: bg.feature.name, source: `background:${bg.index}`, description: bg.feature.description });
 	c.languages.push(...take("background:languages", "plain", c.languages));
 	for (const tc of bg.toolChoices) c.tools.push(...take(tc.id));
-	c.currency.gp = bg.gold;
+	c.currency.gp = opts.startingGold;
 
 	// Class level-1 skills/tools (level-1 features are applied by applyClassLevel).
 	c.skills.push(...take("class:skills"));
@@ -500,7 +535,7 @@ export function createCharacterDetailed(input: CreateCharacterInput): CreateResu
 	c.languages = [...new Set(c.languages)];
 
 	// Equipment.
-	let grants: { ref: string; qty: number }[] = [...cls.startingEquipment, ...bg.equipment];
+	let grants: { ref: string; qty: number }[] = zombie ? opts.kit.map((k) => ({ ref: k.ref, qty: k.qty })) : [...cls.startingEquipment, ...bg.equipment];
 	opts.equipment.forEach((ec, i) => {
 		const sel = input.equipment?.[i] ?? { option: 0 };
 		const opt = ec.options[sel.option];
@@ -558,6 +593,6 @@ export function subclassOptions(classId: string): Ref[] {
 }
 
 /** Cantrip/spell lists for a class at a spell level (UI helper). */
-export function classSpellRefs(classId: string, level: number): Ref[] {
-	return spellsForClass(classId, { level }).map((s) => ({ index: s.index, name: s.name }));
+export function classSpellRefs(classId: string, level: number, ruleset: Ruleset = "fantasy"): Ref[] {
+	return spellsForClass(classId, { level, ruleset }).map((s) => ({ index: s.index, name: s.name }));
 }

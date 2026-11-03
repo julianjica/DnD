@@ -42,6 +42,8 @@ import zTechniques from "./data/zombie/techniques.json";
 import zEquipment from "./data/zombie/equipment.json";
 import zMonsters from "./data/zombie/monsters.json";
 import zOrigins from "./data/zombie/origins.json";
+import zKits from "./data/zombie/kits.json";
+import type { Ruleset } from "../rules/ruleset";
 
 export * from "./types";
 
@@ -159,13 +161,21 @@ export function searchMonsters(q: MonsterQuery = {}): MonsterStats[] {
  * Spells on a class's list. `maxLevel` limits by spell level (0 = cantrips
  * only); pass `level` instead to get only one spell level.
  */
-export function spellsForClass(classId: string, opts: { maxLevel?: number; level?: number } = {}): SpellInfo[] {
+export function spellsForClass(classId: string, opts: { maxLevel?: number; level?: number; ruleset?: Ruleset } = {}): SpellInfo[] {
+	const rs = opts.ruleset ?? "fantasy";
 	return SPELLS.filter(
 		(s) =>
+			(s.ruleset ?? "fantasy") === rs &&
 			s.classes.includes(classId) &&
 			(opts.level === undefined || s.level === opts.level) &&
 			(opts.maxLevel === undefined || s.level <= opts.maxLevel),
 	).sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
+}
+
+/** The Quiet: a profession's starting kit (lib/srd/data/zombie/kits.json), replacing class/background gear and gold. */
+export function zombieKit(classId: string): { ref: string; qty: number }[] {
+	const kits = zKits as unknown as Record<string, { ref: string; qty: number }[] | undefined>;
+	return (kits[classId] ?? []).filter((g) => g && typeof g.ref === "string" && g.qty > 0);
 }
 
 export function featuresOf(classId: string, subclassId?: string): FeatureData[] {
