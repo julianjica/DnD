@@ -1,1 +1,458 @@
-[]
+[
+	{
+		"index": "z-origin-athletic",
+		"name": "Athletic",
+		"speed": 35,
+		"size": "medium",
+		"sizeDescription": "People come in every height and build, from barely 5 feet to well over 6 feet tall. Regardless of your position in that range, your size is Medium.",
+		"age": "You're an adult, somewhere between your late teens and your seventies. How old you are shapes what you remember of the world before.",
+		"alignment": "The end of the world doesn't make anyone good or evil; it shows who they already were.",
+		"abilityBonuses": {
+			"str": 1,
+			"dex": 1
+		},
+		"languages": [
+			"common"
+		],
+		"languageDescription": "You can speak, read, and write the common tongue of the region.",
+		"traits": [
+			{
+				"index": "z-in-shape",
+				"name": "In Shape",
+				"description": "Years of training never left you. Your base walking speed is 35 feet."
+			},
+			{
+				"index": "z-varsity",
+				"name": "Varsity",
+				"description": "You have proficiency in the Athletics skill."
+			}
+		],
+		"skills": [
+			"athletics"
+		],
+		"weapons": [],
+		"tools": [],
+		"choices": [],
+		"darkvision": 0,
+		"subspecies": [],
+		"portraitFeatures": []
+	},
+	{
+		"index": "z-origin-streetwise",
+		"name": "Streetwise",
+		"speed": 30,
+		"size": "medium",
+		"sizeDescription": "People come in every height and build, from barely 5 feet to well over 6 feet tall. Regardless of your position in that range, your size is Medium.",
+		"age": "You're an adult, somewhere between your late teens and your seventies. How old you are shapes what you remember of the world before.",
+		"alignment": "The end of the world doesn't make anyone good or evil; it shows who they already were.",
+		"abilityBonuses": {
+			"dex": 1,
+			"wis": 1
+		},
+		"languages": [
+			"common"
+		],
+		"languageDescription": "You can speak, read, and write the common tongue of the region.",
+		"traits": [
+			{
+				"index": "z-read-the-block",
+				"name": "Read the Block",
+				"description": "You have proficiency in the Insight and Stealth skills."
+			},
+			{
+				"index": "z-bad-feeling",
+				"name": "Bad Feeling",
+				"description": "In town (streets, alleys, parking lots, buildings) you have advantage on Wisdom (Perception) checks to notice an ambush before it springs."
+			}
+		],
+		"skills": [
+			"insight",
+			"stealth"
+		],
+		"weapons": [],
+		"tools": [],
+		"choices": [],
+		"darkvision": 0,
+		"subspecies": [],
+		"portraitFeatures": []
+	},
+	{
+		"index": "z-origin-rural",
+		"name": "Rural",
+		"speed": 30,
+		"size": "medium",
+		"sizeDescription": "People come in every height and build, from barely 5 feet to well over 6 feet tall. Regardless of your position in that range, your size is Medium.",
+		"age": "You're an adult, somewhere between your late teens and your seventies. How old you are shapes what you remember of the world before.",
+		"alignment": "The end of the world doesn't make anyone good or evil; it shows who they already were.",
+		"abilityBonuses": {
+			"con": 1,
+			"wis": 1
+		},
+		"languages": [
+			"common"
+		],
+		"languageDescription": "You can speak, read, and write the common tongue of the region.",
+		"traits": [
+			{
+				"index": "z-country-raised",
+				"name": "Country Raised",
+				"description": "You have proficiency in the Survival and Animal Handling skills."
+			},
+			{
+				"index": "z-know-whats-safe",
+				"name": "Know What's Safe",
+				"description": "With a few minutes and a close look, you can tell whether food is safe to eat and whether water is safe to drink, and which wild plants won't make you sick."
+			}
+		],
+		"skills": [
+			"survival",
+			"animal-handling"
+		],
+		"weapons": [],
+		"tools": [],
+		"choices": [],
+		"darkvision": 0,
+		"subspecies": [],
+		"portraitFeatures": []
+	},
+	{
+		"index": "z-origin-military-family",
+		"name": "Military family",
+		"speed": 30,
+		"size": "medium",
+		"sizeDescription": "People come in every height and build, from barely 5 feet to well over 6 feet tall. Regardless of your position in that range, your size is Medium.",
+		"age": "You're an adult, somewhere between your late teens and your seventies. How old you are shapes what you remember of the world before.",
+		"alignment": "The end of the world doesn't make anyone good or evil; it shows who they already were.",
+		"abilityBonuses": {
+			"str": 1,
+			"con": 1
+		},
+		"languages": [
+			"common"
+		],
+		"languageDescription": "You can speak, read, and write the common tongue of the region.",
+		"traits": [
+			{
+				"index": "z-raised-on-the-range",
+				"name": "Raised on the Range",
+				"description": "You grew up around firearms. You have proficiency with martial weapons, including military firearms."
+			},
+			{
+				"index": "z-gun-care",
+				"name": "Gun Care",
+				"description": "You have proficiency with tinker's tools: you can clean, clear, repair and adjust firearms and other small mechanisms."
+			}
+		],
+		"skills": [],
+		"weapons": [
+			"martial"
+		],
+		"tools": [
+			"tinkers-tools"
+		],
+		"choices": [],
+		"darkvision": 0,
+		"subspecies": [],
+		"portraitFeatures": []
+	},
+	{
+		"index": "z-origin-bookworm",
+		"name": "Bookworm",
+		"speed": 30,
+		"size": "medium",
+		"sizeDescription": "People come in every height and build, from barely 5 feet to well over 6 feet tall. Regardless of your position in that range, your size is Medium.",
+		"age": "You're an adult, somewhere between your late teens and your seventies. How old you are shapes what you remember of the world before.",
+		"alignment": "The end of the world doesn't make anyone good or evil; it shows who they already were.",
+		"abilityBonuses": {
+			"int": 1
+		},
+		"languages": [
+			"common"
+		],
+		"languageDescription": "You can speak, read, and write the common tongue of the region.",
+		"traits": [
+			{
+				"index": "z-well-read",
+				"name": "Well Read",
+				"description": "You read everything you could get your hands on. You gain proficiency in one skill of your choice, and your Intelligence score increases by 1."
+			}
+		],
+		"skills": [],
+		"weapons": [],
+		"tools": [],
+		"choices": [
+			{
+				"id": "z-origin-bookworm:skills",
+				"label": "Well Read",
+				"choose": 1,
+				"options": [
+					{
+						"index": "acrobatics",
+						"name": "Acrobatics"
+					},
+					{
+						"index": "animal-handling",
+						"name": "Animal Handling"
+					},
+					{
+						"index": "arcana",
+						"name": "Arcana"
+					},
+					{
+						"index": "athletics",
+						"name": "Athletics"
+					},
+					{
+						"index": "deception",
+						"name": "Deception"
+					},
+					{
+						"index": "history",
+						"name": "History"
+					},
+					{
+						"index": "insight",
+						"name": "Insight"
+					},
+					{
+						"index": "intimidation",
+						"name": "Intimidation"
+					},
+					{
+						"index": "investigation",
+						"name": "Investigation"
+					},
+					{
+						"index": "medicine",
+						"name": "Medicine"
+					},
+					{
+						"index": "nature",
+						"name": "Nature"
+					},
+					{
+						"index": "perception",
+						"name": "Perception"
+					},
+					{
+						"index": "performance",
+						"name": "Performance"
+					},
+					{
+						"index": "persuasion",
+						"name": "Persuasion"
+					},
+					{
+						"index": "religion",
+						"name": "Religion"
+					},
+					{
+						"index": "sleight-of-hand",
+						"name": "Sleight of Hand"
+					},
+					{
+						"index": "stealth",
+						"name": "Stealth"
+					},
+					{
+						"index": "survival",
+						"name": "Survival"
+					}
+				]
+			}
+		],
+		"darkvision": 0,
+		"subspecies": [],
+		"portraitFeatures": []
+	},
+	{
+		"index": "z-origin-bilingual",
+		"name": "Bilingual / immigrant",
+		"speed": 30,
+		"size": "medium",
+		"sizeDescription": "People come in every height and build, from barely 5 feet to well over 6 feet tall. Regardless of your position in that range, your size is Medium.",
+		"age": "You're an adult, somewhere between your late teens and your seventies. How old you are shapes what you remember of the world before.",
+		"alignment": "The end of the world doesn't make anyone good or evil; it shows who they already were.",
+		"abilityBonuses": {
+			"wis": 1,
+			"cha": 1
+		},
+		"languages": [
+			"common"
+		],
+		"languageDescription": "You can speak, read, and write the common tongue of the region and one other language you grew up with.",
+		"traits": [
+			{
+				"index": "z-two-worlds",
+				"name": "Two Worlds",
+				"description": "You speak one extra language of your choice and have proficiency in the Insight skill."
+			},
+			{
+				"index": "z-read-people",
+				"name": "Read People",
+				"description": "You have spent your life reading people across a language gap. You have advantage on Wisdom (Insight) checks to tell whether someone is lying or what they really want."
+			}
+		],
+		"skills": [
+			"insight"
+		],
+		"weapons": [],
+		"tools": [],
+		"choices": [
+			{
+				"id": "z-origin-bilingual:languages",
+				"label": "Second language",
+				"choose": 1,
+				"options": [
+					{
+						"index": "spanish",
+						"name": "Spanish"
+					},
+					{
+						"index": "french",
+						"name": "French"
+					},
+					{
+						"index": "portuguese",
+						"name": "Portuguese"
+					},
+					{
+						"index": "italian",
+						"name": "Italian"
+					},
+					{
+						"index": "german",
+						"name": "German"
+					},
+					{
+						"index": "polish",
+						"name": "Polish"
+					},
+					{
+						"index": "russian",
+						"name": "Russian"
+					},
+					{
+						"index": "ukrainian",
+						"name": "Ukrainian"
+					},
+					{
+						"index": "arabic",
+						"name": "Arabic"
+					},
+					{
+						"index": "mandarin",
+						"name": "Mandarin"
+					},
+					{
+						"index": "cantonese",
+						"name": "Cantonese"
+					},
+					{
+						"index": "vietnamese",
+						"name": "Vietnamese"
+					},
+					{
+						"index": "tagalog",
+						"name": "Tagalog"
+					},
+					{
+						"index": "korean",
+						"name": "Korean"
+					},
+					{
+						"index": "japanese",
+						"name": "Japanese"
+					},
+					{
+						"index": "hindi",
+						"name": "Hindi"
+					},
+					{
+						"index": "somali",
+						"name": "Somali"
+					},
+					{
+						"index": "sign-language",
+						"name": "Sign Language"
+					}
+				]
+			}
+		],
+		"darkvision": 0,
+		"subspecies": [],
+		"portraitFeatures": []
+	},
+	{
+		"index": "z-origin-night-owl",
+		"name": "Night owl",
+		"speed": 30,
+		"size": "medium",
+		"sizeDescription": "People come in every height and build, from barely 5 feet to well over 6 feet tall. Regardless of your position in that range, your size is Medium.",
+		"age": "You're an adult, somewhere between your late teens and your seventies. How old you are shapes what you remember of the world before.",
+		"alignment": "The end of the world doesn't make anyone good or evil; it shows who they already were.",
+		"abilityBonuses": {
+			"dex": 1,
+			"wis": 1
+		},
+		"languages": [
+			"common"
+		],
+		"languageDescription": "You can speak, read, and write the common tongue of the region.",
+		"traits": [
+			{
+				"index": "z-dim-light-vision",
+				"name": "Dim-Light Vision",
+				"description": "Your eyes are used to the dark. Within 30 feet of you, you can see in dim light as if it were bright light, and in darkness as if it were dim light. You can't discern color in darkness, only shades of gray."
+			},
+			{
+				"index": "z-day-sleeper",
+				"name": "Day Sleeper",
+				"description": "You sleep as well by day as by night. Resting during daylight hours never counts against you, and you take no penalty for keeping a night schedule."
+			}
+		],
+		"skills": [],
+		"weapons": [],
+		"tools": [],
+		"choices": [],
+		"darkvision": 30,
+		"subspecies": [],
+		"portraitFeatures": []
+	},
+	{
+		"index": "z-origin-local-legend",
+		"name": "Local legend",
+		"speed": 30,
+		"size": "medium",
+		"sizeDescription": "People come in every height and build, from barely 5 feet to well over 6 feet tall. Regardless of your position in that range, your size is Medium.",
+		"age": "You're an adult, somewhere between your late teens and your seventies. How old you are shapes what you remember of the world before.",
+		"alignment": "The end of the world doesn't make anyone good or evil; it shows who they already were.",
+		"abilityBonuses": {
+			"int": 1,
+			"cha": 1
+		},
+		"languages": [
+			"common"
+		],
+		"languageDescription": "You can speak, read, and write the common tongue of the region.",
+		"traits": [
+			{
+				"index": "z-everybody-knows-you",
+				"name": "Everybody Knows You",
+				"description": "You grew up here and everyone knows your name: the diner owner, the pastor, the kid who mows the lawns. You know where people keep their spare keys and who owes whom a favor."
+			},
+			{
+				"index": "z-shortcuts",
+				"name": "Shortcuts",
+				"description": "You know the town's back alleys, culverts and shortcuts. You have advantage on checks to find your way around town and on Intelligence checks to recall local lore (people, places, history and gossip)."
+			}
+		],
+		"skills": [],
+		"weapons": [],
+		"tools": [],
+		"choices": [],
+		"darkvision": 0,
+		"subspecies": [],
+		"portraitFeatures": []
+	}
+]
