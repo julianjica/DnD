@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { LANG_COOKIE, translate, translateEnum, type Lang, type MessageKey } from "@/lib/i18n";
 import { loadSrdDict, type SrdDict } from "@/lib/i18n/srd";
 import { rulesetLabel, rulesetText } from "@/lib/i18n/ruleset-labels";
+import { getSpecies } from "@/lib/srd";
 import type { Ruleset } from "@/lib/rules/ruleset";
 
 interface I18n {
@@ -41,7 +42,7 @@ export function I18nProvider({ initial, children }: { initial: Lang; children: R
 			setLang,
 			t: (key, vars) => translate(lang, key, vars),
 			// The Quiet relabels classes, subclasses, backgrounds and skills (Wizard → Chemistry Teacher).
-			te: (group, v) => (ruleset !== "fantasy" && RELABELED_ENUMS.has(group) && rulesetLabel(ruleset, lang, srd, translateEnum("en", group, v))) || translateEnum(lang, group, v),
+			te: (group, v) => (group === "species" && v.startsWith("z-") ? rulesetText(ruleset, lang, srd, getSpecies(v)?.name ?? v) : null) || (ruleset !== "fantasy" && RELABELED_ENUMS.has(group) && rulesetLabel(ruleset, lang, srd, translateEnum("en", group, v))) || translateEnum(lang, group, v),
 			ts: (text) => rulesetText(ruleset, lang, srd, text),
 			ruleset,
 			setRuleset,
