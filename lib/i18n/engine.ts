@@ -83,6 +83,11 @@ const ATTACK_WHY: Record<string, string> = {
 	"three-quarters cover": "cobertura de tres cuartos",
 };
 
+/** One engine attack/save reason ("target prone", "ranged attack in melee"…) in the UI language. */
+export function attackReasonText(lang: Lang, reason: string): string {
+	return lang === "es" ? (ATTACK_WHY[reason] ?? reason) : reason;
+}
+
 const COMBAT_STATUS: Record<string, string> = { victory: "victoria", defeat: "derrota", fled: "huida", ended: "terminado", active: "activo" };
 
 function whyEs(why: string): string {

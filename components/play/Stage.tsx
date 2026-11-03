@@ -8,7 +8,7 @@ import { SceneArt } from "@/components/art/SceneArt";
 import { SpriteScene } from "@/components/art/sprite/SpriteScene";
 import type { Look } from "@/components/art/sprite/pixelScene";
 import { portraitTraits } from "@/lib/art/portrait";
-import { findPath, reachable } from "@/lib/rules/combat";
+import { findPath, previewSpell, reachable, type SpellPreview } from "@/lib/rules/combat";
 import { isPassable } from "@/lib/maps/grid";
 import { deriveSheet } from "@/lib/rules/character";
 import { getSpell } from "@/lib/srd";
@@ -18,6 +18,7 @@ import type { MapFxEvent, TokenStatus } from "@/components/map/BattleMap";
 import { useT } from "@/components/i18n/I18nProvider";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { CreatureCard, CreatureTypeLine } from "./CreatureCard";
+import { SpellAdvChips, SpellCard, SpellLive } from "./SpellCard";
 import type { MessageKey } from "@/lib/i18n";
 
 function Loading({ k }: { k: MessageKey }) {
@@ -137,6 +138,16 @@ function ActionBar(props: { state: GameState; pc: Combatant; mode: Mode; setMode
 	const features = state.character.features.filter((f) => /second-wind|action-surge|second wind|action surge/i.test(f.id + f.name));
 	const dying = pc.hp <= 0 && !pc.dead;
 	const [spellMenu, setSpellMenu] = useState(false);
+	// While the spell menu is open: what the engine would apply right now against the nearest enemy, per spell.
+	const live = useMemo(() => {
+		const map = state.activeMapId ? state.maps[state.activeMapId] : undefined;
+		const enc = state.encounter;
+		if (!spellMenu || !map || !enc) return undefined;
+		const out = new Map<string, SpellPreview | string>();
+		for (const s of spells) if (s.attack || s.save) out.set(s.index, previewSpell({ encounter: enc, map, character: state.character }, pc.id, s));
+		return out;
+	}, [spellMenu, spells, state.activeMapId, state.maps, state.encounter, state.character, pc.id]);
+	const liveName = (r: SpellPreview | string | undefined) => (r && typeof r !== "string" ? ts(state.encounter?.combatants[r.targetId]?.name ?? "") : undefined);
 
 	const slotFor = (s: SpellInfo) => {
 		if (s.level === 0) return 0;
@@ -193,21 +204,23 @@ function ActionBar(props: { state: GameState; pc: Combatant; mode: Mode; setMode
 								const slot = slotFor(s);
 								const bonus = /bonus/i.test(s.castingTime);
 								const can = slot >= 0 && (bonus ? t.bonusAction : t.action);
+								const r = live?.get(s.index);
 								return (
-									<button
-										key={s.index}
-										disabled={!can}
-										className="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-sm hover:bg-panel-3 disabled:opacity-40"
-										onClick={() => {
-											setSpellMenu(false);
-											setMode({ kind: "cast", spell: s, slotLevel: Math.max(0, slot), targets: [] });
-										}}
-									>
-										<span>{ts(s.name)}</span>
-										<span className="text-xs text-faint">{s.level === 0 ? tr("play.combat.cantrip") : tr("play.spells.slot", { n: slot > 0 ? slot : s.level })}
-											{bonus ? ` · ${tr("play.combat.bonusShort")}` : ""}
-											{s.area ? ` · ${te("shape", s.area.shape)}` : ""}</span>
-									</button>
+									<Tooltip key={s.index} className="flex w-full" widthClass="max-w-sm" content={<SpellCard spell={s} live={r} liveName={liveName(r)} />}>
+										<button
+											disabled={!can}
+											className="flex w-full items-center justify-between rounded px-2 py-1.5 text-left text-sm hover:bg-panel-3 disabled:opacity-40"
+											onClick={() => {
+												setSpellMenu(false);
+												setMode({ kind: "cast", spell: s, slotLevel: Math.max(0, slot), targets: [] });
+											}}
+										>
+											<span className="flex items-center gap-1.5">{ts(s.name)}<SpellAdvChips spell={s} /></span>
+											<span className="text-xs text-faint">{s.level === 0 ? tr("play.combat.cantrip") : tr("play.spells.slot", { n: slot > 0 ? slot : s.level })}
+												{bonus ? ` · ${tr("play.combat.bonusShort")}` : ""}
+												{s.area ? ` · ${te("shape", s.area.shape)}` : ""}</span>
+										</button>
+									</Tooltip>
 								);
 							})}
 						</div>
@@ -252,16 +265,19 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 	// The sprite scene shows the active map only while the party is still at the place it belongs to.
 	const here = state.world.locations.find((l) => l.id === state.world.currentLocationId);
 	const spriteMap = artStyle === "sprites" && map && (!here || here.mapIds.includes(map.id)) ? map : undefined;
+	const pixelMap = artStyle === "sprites" ? map : undefined;
 	const looks = useMemo(() => {
-		if (!spriteMap) return {};
+		if (!pixelMap) return {};
 		const out: Record<string, Look> = {};
 		const lookOf = (spec: GameState["character"]["portrait"], species?: string): Look => ({ hair: spec.hairColor, skin: spec.skinTone, cloth: portraitTraits(spec, species).clothing });
-		for (const e of spriteMap.entities) {
+		for (const e of pixelMap.entities) {
 			if (e.kind === "pc") out[e.id] = lookOf(state.character.portrait, state.character.speciesId);
 			else if (e.npcId && state.npcs[e.npcId]) out[e.id] = lookOf(state.npcs[e.npcId].portrait, state.npcs[e.npcId].speciesId);
 		}
 		return out;
-	}, [spriteMap, state.character, state.npcs]);
+	}, [pixelMap, state.character, state.npcs]);
+	const pixel = useMemo(() => (pixelMap ? { looks } : undefined), [pixelMap, looks]);
+	const deadIds = useMemo(() => new Set(Object.values(state.encounter?.combatants ?? {}).filter((c) => c.dead).map((c) => c.entityId)), [state.encounter]);
 
 	const reach = useMemo(() => {
 		if (!enc || !map || !myTurn || mode.kind !== "move" || busy) return undefined;
@@ -319,6 +335,16 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 		[props.fx, pcEntity?.id, t],
 	);
 
+	// Cast mode: the engine's adv/dis verdict against the hovered creature (else the nearest enemy).
+	const castLive = useMemo(() => {
+		if (mode.kind !== "cast" || !enc || !map || (!mode.spell.attack && !mode.spell.save)) return undefined;
+		const ent = hover
+			? map.entities.find((e) => e.combatantId && e.combatantId !== state.character.id && !e.hidden && hover.x >= e.x && hover.x < e.x + (e.size || 1) && hover.y >= e.y && hover.y < e.y + (e.size || 1))
+			: undefined;
+		const r = previewSpell({ encounter: enc, map, character: state.character }, state.character.id, mode.spell, ent?.combatantId);
+		return { r, name: typeof r === "string" ? undefined : ts(enc.combatants[r.targetId]?.name ?? "") };
+	}, [mode, enc, map, hover, state.character, ts]);
+
 	const onSquareClick = (p: Point) => {
 		if (busy || !map) return;
 		if (!enc) {
@@ -374,12 +400,13 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 			<div className="relative min-h-0 flex-1 overflow-hidden">
 				{view === "scene" && (
 					<div className="flex h-full items-center justify-center bg-bg p-3">
-						<SceneArt style={artStyle === "sprites" ? "paintings" : artStyle} backdrop={spriteMap ? <SpriteScene map={spriteMap} looks={looks} time={state.scene.timeOfDay} weather={state.scene.weather} /> : undefined} scene={state.scene} npcs={state.scene.npcIds.map((id) => state.npcs[id]).filter(Boolean).map((n) => ({ id: n.id, name: n.name, portrait: n.portrait, speciesId: n.speciesId, role: n.role }))} className="max-h-full w-full rounded-lg shadow-2xl" />
+						<SceneArt style={artStyle === "sprites" ? "paintings" : artStyle} backdrop={spriteMap ? <SpriteScene map={spriteMap} looks={looks} dead={deadIds} time={state.scene.timeOfDay} weather={state.scene.weather} /> : undefined} scene={state.scene} npcs={state.scene.npcIds.map((id) => state.npcs[id]).filter(Boolean).map((n) => ({ id: n.id, name: n.name, portrait: n.portrait, speciesId: n.speciesId, role: n.role }))} className="max-h-full w-full rounded-lg shadow-2xl" />
 					</div>
 				)}
 				{view === "map" && map && (
 					<BattleMap
 						map={map}
+						pixel={pixel}
 						status={status}
 						highlights={reach}
 						highlightColor={0x5b8fb9}
@@ -401,9 +428,14 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 					</div>
 				)}
 				{mode.kind !== "move" && enc && myTurn && (
-					<div className="panel absolute left-1/2 top-3 z-20 flex -translate-x-1/2 items-center gap-2 px-3 py-1.5 text-sm">
+					<div className="panel absolute left-1/2 top-3 z-20 flex -translate-x-1/2 flex-wrap items-center gap-x-2 gap-y-1 px-3 py-1.5 text-sm">
 						{mode.kind === "attack" ? t("play.combat.chooseTarget", { name: ts(mode.label) }) : mode.kind === "cast" ? (mode.spell.area ? t("play.combat.chooseArea", { name: ts(mode.spell.name) }) : t("play.combat.chooseTarget", { name: ts(mode.spell.name) })) : ""}
 						<button className="text-faint hover:text-text" title={t("common.cancel")} aria-label={t("common.cancel")} onClick={() => setMode({ kind: "move" })}><X size={14} /></button>
+						{castLive && (
+							<div className="basis-full text-xs" data-testid="cast-live">
+								<SpellLive live={castLive.r} name={castLive.name} />
+							</div>
+						)}
 					</div>
 				)}
 			</div>

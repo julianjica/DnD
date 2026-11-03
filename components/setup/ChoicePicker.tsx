@@ -12,6 +12,7 @@ import { translate, translateEnum, type Lang } from "@/lib/i18n";
 import { choiceLabel, srdName } from "./i18n";
 import { srdDictIfLoaded, translateSrd } from "@/lib/i18n/srd";
 import { localizeEngine } from "@/lib/i18n/engine";
+import { SpellCard } from "@/components/play/SpellCard";
 
 
 function clip(s: string, n = 420) {
@@ -24,21 +25,7 @@ export function describeOption(index: string, lang: Lang = "en"): ReactNode {
 	const tr = (k: Parameters<typeof translate>[1], v?: Record<string, string | number>) => translate(lang, k, v);
 	const S = (x: string | undefined) => translateSrd(lang, srdDictIfLoaded(), x);
 	const sp = getSpell(index);
-	if (sp)
-		return (
-			<div className="flex flex-col gap-1">
-				<div className="font-display text-sm text-gold-2">{S(sp.name)}</div>
-				<div className="text-[11px] text-dim italic">
-					{sp.level === 0 ? tr("pick.schoolCantrip", { school: srdName(lang, "school", sp.school.toLowerCase(), sp.school) }) : tr("pick.schoolLevel", { n: sp.level, school: srdName(lang, "school", sp.school.toLowerCase(), sp.school) })}
-					{sp.concentration ? tr("pick.concentration") : ""}
-					{sp.ritual ? tr("pick.ritual") : ""}
-				</div>
-				<div className="text-[11px] text-dim">
-					{S(sp.castingTime)} · {S(sp.range)} · {S(sp.duration)}
-				</div>
-				<p>{clip(S(sp.description))}</p>
-			</div>
-		);
+	if (sp) return <SpellCard spell={sp} />;
 	const f = getFeature(index);
 	if (f)
 		return (

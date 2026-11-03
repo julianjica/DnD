@@ -6,7 +6,7 @@ export type { CombatEvent, CombatOptions, CombatResult, CombatState, FeatureUseO
 export { addMonsters, currentCombatant, endCombat, endTurn, removeCombatant, startCombat } from "./encounter";
 export { applyPlayerAction, builtinFeatureFor, builtinItem, standUp } from "./player";
 export { autoMonsterTurn, monsterAct, type MonsterActInput } from "./monster";
-export { applyDamageTo, applyConditionTo, healTo, previewAttack, previewSpellArea, removeConditionFrom } from "./dm";
+export { applyDamageTo, applyConditionTo, healTo, previewAttack, previewSpell, previewSpellArea, removeConditionFrom, type SpellPreview } from "./dm";
 export {
 	areaSquares,
 	canSee,
@@ -27,4 +27,4 @@ export {
 	sizeSquares,
 } from "./grid";
 export { type AttackProfile, averageDamage, characterLevel, derivePcProfile, estimateAc, monsterAttackProfile, pcAttackProfile, proficiencyBonus } from "./profile";
-export { pickByKey, spellDamageDice, spellRangeFeet } from "./spells";
+export { pickByKey, spellAttackProfile, spellDamageDice, spellRangeFeet } from "./spells";

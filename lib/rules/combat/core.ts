@@ -208,6 +208,20 @@ export function saveBonus(ctx: Ctx, c: Combatant, ability: Ability): number {
 	return monsterSaveBonus(c.stats, ability);
 }
 
+/**
+ * Condition effects on a saving throw, as reasons (same wording as attack
+ * reasons): STR/DEX auto-fail while paralyzed/stunned/unconscious/petrified
+ * (or a PC at 0 HP), DEX advantage while dodging, DEX disadvantage while restrained.
+ */
+export function saveModifiers(t: Combatant, ability: Ability): { autoFail: string[]; advantage: string[]; disadvantage: string[] } {
+	const physical = ability === "str" || ability === "dex";
+	const autoFail = physical ? (["paralyzed", "stunned", "unconscious", "petrified"] as const).filter((k) => hasCond(t, k)).map((k) => `target ${k}`) : [];
+	if (physical && !autoFail.length && t.kind === "pc" && t.hp <= 0) autoFail.push("target unconscious");
+	const advantage = ability === "dex" && t.turn.dodging && !hasCond(t, "incapacitated") ? ["target dodging"] : [];
+	const disadvantage = ability === "dex" && hasCond(t, "restrained") ? ["target restrained"] : [];
+	return { autoFail, advantage, disadvantage };
+}
+
 /** Rolls a saving throw with condition effects. Returns success. */
 export function rollSave(
 	ctx: Ctx,
@@ -218,14 +232,14 @@ export function rollSave(
 	extra: { advantage?: boolean; disadvantage?: boolean; bonus?: number } = {},
 ): boolean {
 	const t = getC(ctx, targetId);
-	const autoFail = (ability === "str" || ability === "dex") && ["paralyzed", "stunned", "unconscious", "petrified"].some((k) => hasCond(t, k as ConditionId));
-	if (autoFail || (t.kind === "pc" && t.hp <= 0 && (ability === "str" || ability === "dex"))) {
+	const mods = saveModifiers(t, ability);
+	if (mods.autoFail.length) {
 		emit(ctx, { type: "save", targetId, ability, dc, success: false, source });
 		say(ctx, `${t.name} automatically fails the ${ability.toUpperCase()} save vs ${source} (DC ${dc}).`);
 		return false;
 	}
-	const adv = !!extra.advantage || (ability === "dex" && !!t.turn.dodging && !hasCond(t, "incapacitated"));
-	const dis = !!extra.disadvantage || (ability === "dex" && hasCond(t, "restrained"));
+	const adv = !!extra.advantage || mods.advantage.length > 0;
+	const dis = !!extra.disadvantage || mods.disadvantage.length > 0;
 	const bonus = saveBonus(ctx, t, ability) + (extra.bonus ?? 0) - 2 * exhaustion(ctx, t);
 	const r = doRoll(ctx, `1d20${bonus ? signed(bonus) : ""}`, {
 		label: `${t.name} ${ability.toUpperCase()} save vs ${source}`,

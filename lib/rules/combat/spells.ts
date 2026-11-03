@@ -18,6 +18,12 @@ export function spellRangeFeet(spell: SpellInfo): number {
 	return 0;
 }
 
+/** The attack profile a spell attack rolls with (range = reach = the spell's range, at least 5 ft). */
+export function spellAttackProfile(spell: SpellInfo, toHit = 0, damage: AttackProfile["damage"] = []): AttackProfile {
+	const range = Math.max(5, spellRangeFeet(spell));
+	return { name: spell.name, kind: spell.attack ?? "ranged", toHit, damage, reach: range, range: { normal: range } };
+}
+
 export function pickByKey(table: Record<number, string> | undefined, level: number): string | undefined {
 	if (!table) return undefined;
 	const keys = Object.keys(table).map(Number).sort((a, b) => a - b);
@@ -102,14 +108,7 @@ export function resolveSpell(ctx: Ctx, p: CastParams): void {
 
 	const dice = spellDamageDice(spell, p.slotLevel, p.characterLevel);
 	if (spell.attack && dice && spell.damage) {
-		const ap: AttackProfile = {
-			name: spell.name,
-			kind: spell.attack,
-			toHit: p.attackBonus,
-			damage: [{ dice, type: spell.damage.type }],
-			reach: Math.max(5, range),
-			range: { normal: Math.max(5, range) },
-		};
+		const ap = spellAttackProfile(spell, p.attackBonus, [{ dice, type: spell.damage.type }]);
 		for (const t of targets) if (!ctx.enc.combatants[t].dead) performAttack(ctx, p.casterId, t, ap);
 		return;
 	}

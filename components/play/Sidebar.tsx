@@ -9,6 +9,8 @@ import { signed } from "@/lib/rules/dice";
 import Portrait from "@/components/art/Portrait";
 import { useT } from "@/components/i18n/I18nProvider";
 import type { MessageKey } from "@/lib/i18n";
+import { Tooltip } from "@/components/ui/Tooltip";
+import { SpellAdvChips, SpellCard } from "./SpellCard";
 
 const ABIL: Ability[] = ["str", "dex", "con", "int", "wis", "cha"];
 
@@ -282,7 +284,12 @@ function SpellsTab({ state, actions }: { state: GameState; actions: SheetActions
 						{list.map((s) => (
 							<details key={s!.index} className="rounded-md bg-bg-2/60 px-2 py-1 text-sm">
 								<summary className="flex cursor-pointer justify-between gap-2">
-									<span>{ts(s!.name)}</span>
+									<Tooltip content={<SpellCard spell={s!} />} side="bottom" widthClass="max-w-sm">
+										<span className="flex items-center gap-1.5">
+											{ts(s!.name)}
+											<SpellAdvChips spell={s!} />
+										</span>
+									</Tooltip>
 									<span className="flex items-center gap-2">
 										<span className="text-xs text-faint">
 											{ts(s!.castingTime)}
