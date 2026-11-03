@@ -120,8 +120,17 @@ export function drawMap(input: DrawInput): DrawResult {
 			}
 		}
 	if (unknown.size) throw new Error(`Unknown characters ${[...unknown].map((c) => `"${c}"`).join(", ")}: use the legend or define them in key.`);
-	// Marked squares take the most common ground around them.
+	// Marked squares take the ground of the row or column they sit in (a lamp on a
+	// sidewalk stays sidewalk next to a wide road), else the most common ground around.
+	const groundAt = (x: number, y: number): Tile | undefined => {
+		if (x < 0 || y < 0 || x >= width || y >= height || !DRAW_LEGEND[grid[y][x]]) return undefined;
+		const t = tiles[y * width + x];
+		return GROUNDISH.has(t) ? t : undefined;
+	};
 	for (const m of marks) {
+		const l = groundAt(m.x - 1, m.y), r = groundAt(m.x + 1, m.y), u = groundAt(m.x, m.y - 1), d = groundAt(m.x, m.y + 1);
+		if (l && l === r) { tiles[m.y * width + m.x] = l; continue; }
+		if (u && u === d) { tiles[m.y * width + m.x] = u; continue; }
 		const count = new Map<Tile, number>();
 		for (let r = 1; r <= 3 && !count.size; r++)
 			for (let dy = -r; dy <= r; dy++)

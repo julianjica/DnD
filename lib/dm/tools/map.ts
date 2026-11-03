@@ -1,5 +1,6 @@
 import { rulesetOf } from "../../rules/ruleset";
 import type { EntityKind, GameState, GridMap, LocationKind, MapKind, TerrainKind, Tile, WorldLocation } from "../../game/types";
+import { MODERN_FEATURE_SPRITES } from "../../maps/draw";
 import { climateForPreset, drawMap, FEATURE_SPRITES, generateMap, LEGEND_TEXT, MAP_KINDS, placeEntity, revealAround, WORLD_ASPECT, type Climate, type DrawKey } from "../../maps";
 import { addTerrainFeature, BEARING, betweenFromText, compassOf, daysForDistance, directionFromText, distanceForDays, fits, mapDistance, placeFor, REGION_SIZE, retimeRoutes, terrainFor, type Compass, type PlaceSpec } from "../../maps/geography";
 import { S, newId, tool, withState, type ToolFactory } from "../context";
@@ -49,7 +50,7 @@ export const drawMapTool = tool<{ name: string; kind: MapKind; rows: string[]; k
 	"draw_map",
 	`Draw the place the player is in, square by square (5 ft each), as rows of characters. It becomes the picture in the scene panel AND the battle map, so draw what you narrate: walls, doors, furniture, terrain, who stands where. Typical size 24-40 wide x 14-22 tall; all rows the same length.
 Legend: ${LEGEND_TEXT}.
-Anything else (features, NPCs) goes in key: one character each (letters/digits not in the legend, e.g. R, 1, 2). Feature sprites: ${FEATURE_SPRITES.join(", ")}. NPCs: {char, npcId}. Light sources: add lightRadius.
+Anything else (features, NPCs) goes in key: one character each (letters/digits not in the legend, e.g. R, 1, 2). Feature sprites: ${FEATURE_SPRITES.filter((f) => !(MODERN_FEATURE_SPRITES as readonly string[]).includes(f)).join(", ")}. Modern props (The Quiet only): ${MODERN_FEATURE_SPRITES.join(", ")}. NPCs: {char, npcId}. Light sources: add lightRadius.
 Example (a hall): rows ["########+########", "#.....=====.....#", "#.R.==hhhh==..1.#", "#....==@===.....#", "#################"] with key [{char:"R", sprite:"runestone"}, {char:"h", sprite:"hearth", lightRadius:6}, {char:"1", npcId:"npc_…"}].
 Draw each place once; return later with use_map. Monsters for a fight are added by start_combat as usual.`,
 	S.obj(
