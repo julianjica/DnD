@@ -242,6 +242,9 @@ export const en = {
 	"play.map.visited": "visited",
 	"play.map.day": "{n} day",
 	"play.map.days": "{n} days",
+	"play.map.region": "Region",
+	"play.map.world": "World",
+	"play.map.regionOf": "Environs of {name}",
 } as const satisfies Record<string, string>;
 
 export const es: { [K in keyof typeof en]: string } = {
@@ -469,4 +472,7 @@ export const es: { [K in keyof typeof en]: string } = {
 	"play.map.visited": "visitado",
 	"play.map.day": "{n} día",
 	"play.map.days": "{n} días",
+	"play.map.region": "Región",
+	"play.map.world": "Mundo",
+	"play.map.regionOf": "Alrededores de {name}",
 };

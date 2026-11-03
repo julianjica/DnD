@@ -1,6 +1,8 @@
 import type { LocationKind, WorldLocation, WorldMap } from "@/lib/game/types";
-import { hashString, makeNoise2D, rand2 } from "@/lib/maps/noise";
-import { mountainLine, worldTerrain, type WorldTerrain } from "@/lib/maps/world";
+import { fbm, hashString, makeNoise2D, rand2 } from "@/lib/maps/noise";
+import { mountainLine, WORLD_ASPECT, worldTerrain, type WorldTerrain } from "@/lib/maps/world";
+import { distanceForDays } from "@/lib/maps/geography";
+import { exitPoint, FULL_VIEW, inView, type MapView } from "@/lib/maps/region";
 import { hexToRgb } from "./color";
 
 /**
@@ -37,19 +39,32 @@ export interface WorldGrid {
 	T: WorldTerrain;
 }
 
-export function sampleWorld(world: Pick<WorldMap, "seed" | "terrain">, gw = 300, gh = 200): WorldGrid {
+export function sampleWorld(world: Pick<WorldMap, "seed" | "terrain">, gw = 300, gh = 200, view: MapView = FULL_VIEW): WorldGrid {
 	const T = worldTerrain(world);
 	const elev = new Float32Array(gw * gh), moist = new Float32Array(gw * gh);
+	const zoom = 1 / view.s;
+	// Zoomed in, the continent noise is too smooth: add fine relief and wetness
+	// inland only (never near the coast, so land/sea stays exactly as placed).
+	const nD = zoom > 1.5 ? makeNoise2D(world.seed ^ 0x7e7a11) : null;
+	const sea = world.terrain.seaLevel;
 	for (let y = 0; y < gh; y++) for (let x = 0; x < gw; x++) {
-		const s = T.sample((x + 0.5) / gw, (y + 0.5) / gh);
-		elev[y * gw + x] = s.elevation;
-		moist[y * gw + x] = s.moisture;
+		const wx = view.x0 + ((x + 0.5) / gw) * view.s, wy = view.y0 + ((y + 0.5) / gh) * view.s;
+		const s = T.sample(wx, wy);
+		let e = s.elevation, m = s.moisture;
+		if (nD) {
+			const k = Math.min(1, Math.max(0, (e - sea - 0.015) / 0.04));
+			const X = wx * 40 * WORLD_ASPECT, Y = wy * 40;
+			e += fbm(nD, X, Y, 4) * 0.045 * k;
+			m = Math.max(0, Math.min(1, m + fbm(nD, X * 1.3 + 50, Y * 1.3 - 20, 3) * 0.12 * k));
+		}
+		elev[y * gw + x] = e;
+		moist[y * gw + x] = m;
 	}
 	return { gw, gh, elev, moist, T };
 }
 
 /** Paints the static terrain (paper, sea, land, coast ripples, relief, forests, rivers, frame, compass). */
-export function paintWorldBase(canvas: HTMLCanvasElement, world: WorldMap, grid: WorldGrid, fontFamily: string) {
+export function paintWorldBase(canvas: HTMLCanvasElement, world: WorldMap, grid: WorldGrid, fontFamily: string, zoomed = false) {
 	const ctx = canvas.getContext("2d")!;
 	const W = canvas.width, H = canvas.height;
 	const { gw, gh, elev, moist } = grid;
@@ -137,7 +152,9 @@ export function paintWorldBase(canvas: HTMLCanvasElement, world: WorldMap, grid:
 
 	// 4. relief & vegetation glyphs, sorted top-to-bottom
 	const glyphs: { x: number; y: number; kind: "mount" | "hill" | "tree" | "pine" | "palm" | "tuft" | "dune"; s: number; k: number }[] = [];
-	const step = 3;
+	// Zoomed in, sparser and bigger glyphs read as terrain instead of texture.
+	const step = zoomed ? 6 : 3;
+	const gk = zoomed ? 1.6 : 1;
 	for (let gy = 2; gy < gh - 2; gy += step) for (let gx = 2; gx < gw - 2; gx += step) {
 		const jx = gx + (rnd(gx, gy, 10) - 0.5) * step, jy = gy + (rnd(gx, gy, 11) - 0.5) * step;
 		const ix = Math.round(jx), iy = Math.round(jy);
@@ -146,18 +163,18 @@ export function paintWorldBase(canvas: HTMLCanvasElement, world: WorldMap, grid:
 		if (e < sea + 0.01) continue;
 		const r = rnd(gx, gy, 12);
 		if (e > ml) {
-			if (r < 0.75) glyphs.push({ x: jx * sx, y: jy * sy, kind: "mount", s: (0.7 + (e - ml) * 2.4) * W / 90, k: r });
+			if (r < (zoomed ? 0.6 : 0.75)) glyphs.push({ x: jx * sx, y: jy * sy, kind: "mount", s: (0.7 + Math.min(0.25, e - ml) * 2.4) * W / 90 * gk, k: r });
 		} else if (e > ml - 0.06) {
-			if (r < 0.35) glyphs.push({ x: jx * sx, y: jy * sy, kind: "hill", s: W / 110, k: r });
+			if (r < 0.35) glyphs.push({ x: jx * sx, y: jy * sy, kind: "hill", s: (W / 110) * gk, k: r });
 		} else if ((world.terrain.biome === "arid" && m < 0.45) || m < 0.14) {
-			if (r < 0.12) glyphs.push({ x: jx * sx, y: jy * sy, kind: "dune", s: W / 120, k: r });
+			if (r < 0.12) glyphs.push({ x: jx * sx, y: jy * sy, kind: "dune", s: (W / 120) * gk, k: r });
 		} else if (m > 0.6 && e < sea + 0.05) {
-			if (r < 0.35) glyphs.push({ x: jx * sx, y: jy * sy, kind: "tuft", s: W / 160, k: r });
+			if (r < 0.35) glyphs.push({ x: jx * sx, y: jy * sy, kind: "tuft", s: (W / 160) * gk, k: r });
 		} else if (m > 0.53) {
 			const dens = (m - 0.53) * 6;
 			if (r < Math.min(0.95, dens)) {
 				const kind = world.terrain.biome === "frozen" || e > ml - 0.12 ? "pine" : world.terrain.biome === "tropical" && r < 0.3 ? "palm" : "tree";
-				glyphs.push({ x: jx * sx, y: jy * sy, kind, s: W / 150, k: r });
+				glyphs.push({ x: jx * sx, y: jy * sy, kind, s: (W / 150) * gk, k: r });
 			}
 		}
 	}
@@ -476,7 +493,15 @@ export interface OverlayOptions {
 	selectedId?: string | null;
 	/** Route travel-time label (default "1 day" / "N days"). */
 	daysLabel?: (days: number) => string;
+	/** Side of the view in world units (1 = whole world); draws a scale bar and edge markers when zoomed. */
+	viewScale?: number;
+	/** Device pixel ratio: keeps text and icons legible on small maps. */
+	pixelRatio?: number;
+	/** Height of the "you are here" pin drawn above the current location, in canvas px. */
+	pinHeight?: number;
 }
+
+const unitOf = (W: number, opt: OverlayOptions) => Math.max(W / 1000, 0.85 * (opt.pixelRatio ?? 1));
 
 export function routeCurve(world: WorldMap, r: WorldMap["routes"][number], W: number, H: number): { a: [number, number]; c: [number, number]; b: [number, number] } | null {
 	const A = world.locations.find((l) => l.id === r.from), B = world.locations.find((l) => l.id === r.to);
@@ -492,7 +517,7 @@ export function paintWorldOverlay(ctx: CanvasRenderingContext2D, world: WorldMap
 	ctx.clearRect(0, 0, W, H);
 	const show = (l: WorldLocation) => l.discovered || !!opt.showUndiscovered;
 	const byId = new Map(world.locations.map((l) => [l.id, l]));
-	const u = W / 1000;
+	const u = unitOf(W, opt);
 	// routes
 	for (const r of world.routes) {
 		const A = byId.get(r.from), B = byId.get(r.to);
@@ -548,17 +573,28 @@ export function paintWorldOverlay(ctx: CanvasRenderingContext2D, world: WorldMap
 		ctx.restore();
 	}
 	// locations
-	const locs = world.locations.filter(show).sort((a, b) => a.y - b.y);
+	const zoomed = !!opt.viewScale && opt.viewScale < 1;
+	const locs = world.locations.filter((l) => show(l) && (!zoomed || inView(l, -0.02))).sort((a, b) => a.y - b.y);
 	// Icons are obstacles for labels too, so nearby places don't print over each other.
 	const placedLabels: [number, number, number, number][] = locs.map((l) => {
 		const s = 18 * u * (l.kind === "city" ? 1.35 : l.kind === "village" || l.kind === "camp" ? 0.85 : 1);
 		return [l.x * W - s * 0.9, l.y * H - s * 0.9, s * 1.8, s * 1.8];
 	});
+	// The DOM pin above the party's location is an obstacle for labels too.
+	const here = locs.find((l) => l.id === world.currentLocationId);
+	if (here && opt.pinHeight) placedLabels.push([here.x * W - opt.pinHeight * 0.3, here.y * H - opt.pinHeight, opt.pinHeight * 0.6, opt.pinHeight]);
 	for (const l of locs) {
 		const x = l.x * W, y = l.y * H;
 		const s = 18 * u * (l.kind === "city" ? 1.35 : l.kind === "village" || l.kind === "camp" ? 0.85 : 1);
 		ctx.save();
 		ctx.globalAlpha = l.discovered ? 1 : 0.45;
+		if (zoomed) {
+			const g = ctx.createRadialGradient(x, y, s * 0.6, x, y, s * 2.1);
+			g.addColorStop(0, "rgba(240,228,196,0.85)");
+			g.addColorStop(1, "rgba(240,228,196,0)");
+			ctx.fillStyle = g;
+			ctx.beginPath(); ctx.arc(x, y, s * 2.1, 0, Math.PI * 2); ctx.fill();
+		}
 		if (opt.hoverId === l.id || opt.selectedId === l.id) {
 			ctx.fillStyle = "rgba(255,240,190,0.55)";
 			ctx.beginPath(); ctx.arc(x, y, s * 1.5, 0, Math.PI * 2); ctx.fill();
@@ -571,13 +607,17 @@ export function paintWorldOverlay(ctx: CanvasRenderingContext2D, world: WorldMap
 		const tw = ctx.measureText(l.name).width;
 		const box = (cx: number, cy: number): [number, number, number, number] => [cx - tw / 2, cy - fs / 2, tw, fs];
 		const own: [number, number, number, number] = [x - s * 0.9, y - s * 0.9, s * 1.8, s * 1.8];
-		const hit = (b: [number, number, number, number]) => placedLabels.some((p) => p !== own && !(p[0] === own[0] && p[1] === own[1]) && b[0] < p[0] + p[2] && b[0] + b[2] > p[0] && b[1] < p[1] + p[3] && b[1] + b[3] > p[1]);
+		const outside = (b: [number, number, number, number]) => b[0] < W * 0.03 || b[0] + b[2] > W * 0.97 || b[1] < H * 0.04 || b[1] + b[3] > H * 0.96;
+		const hit = (b: [number, number, number, number]) => outside(b) || placedLabels.some((p) => p !== own && !(p[0] === own[0] && p[1] === own[1]) && b[0] < p[0] + p[2] && b[0] + b[2] > p[0] && b[1] < p[1] + p[3] && b[1] + b[3] > p[1]);
 		// below, above, right, left, then further below/above
 		const cands: [number, number][] = [
 			[x, y + s * 1.25 + fs * 0.5], [x, y - s * 1.35 - fs * 0.4], [x + s * 1.1 + tw / 2, y], [x - s * 1.1 - tw / 2, y],
 			[x, y + s * 1.25 + fs * 1.6], [x, y - s * 1.35 - fs * 1.5], [x + s * 1.1 + tw / 2, y + fs * 1.1], [x - s * 1.1 - tw / 2, y - fs * 1.1],
 		];
-		const [lx, ly] = cands.find(([cx, cy]) => !hit(box(cx, cy))) ?? cands[0];
+		const free = cands.find(([cx, cy]) => !hit(box(cx, cy)));
+		// Crowded spots on the world view: the name stays available on hover.
+		if (!free && l.id !== world.currentLocationId && l.id !== opt.selectedId && l.id !== opt.hoverId) continue;
+		const [lx, ly] = free ?? cands.find(([cx, cy]) => !outside(box(cx, cy))) ?? cands[0];
 		placedLabels.push(box(lx, ly));
 		ctx.textAlign = "center";
 		ctx.textBaseline = "middle";
@@ -590,6 +630,75 @@ export function paintWorldOverlay(ctx: CanvasRenderingContext2D, world: WorldMap
 		ctx.fillText(l.name, lx, ly);
 		ctx.globalAlpha = 1;
 	}
+	if (opt.viewScale && opt.viewScale < 1) {
+		drawEdgeMarkers(ctx, world, W, H, opt);
+		drawScaleBar(ctx, W, H, opt.viewScale, opt);
+	}
+}
+
+function drawEdgeMarkers(ctx: CanvasRenderingContext2D, world: WorldMap, W: number, H: number, opt: OverlayOptions) {
+	const u = unitOf(W, opt);
+	const byId = new Map(world.locations.map((l) => [l.id, l]));
+	const done = new Set<string>();
+	for (const r of world.routes) {
+		if (!r.discovered) continue;
+		for (const [a, b] of [[r.from, r.to], [r.to, r.from]] as const) {
+			const A = byId.get(a), B = byId.get(b);
+			if (!A || !B || !A.discovered || !B.discovered || done.has(B.id)) continue;
+			if (!inView(A, 0.02) || inView(B, 0)) continue;
+			done.add(B.id);
+			const p = exitPoint(A, B, 0.045);
+			const x = p.x * W, y = p.y * H;
+			const ang = Math.atan2((B.y - A.y) * H, (B.x - A.x) * W);
+			ctx.save();
+			ctx.translate(x, y);
+			ctx.rotate(ang);
+			ctx.fillStyle = INK;
+			ctx.beginPath();
+			ctx.moveTo(9 * u, 0); ctx.lineTo(-5 * u, -6 * u); ctx.lineTo(-5 * u, 6 * u);
+			ctx.closePath();
+			ctx.fill();
+			ctx.restore();
+			const label = `${B.name} · ${opt.daysLabel ? opt.daysLabel(r.travelDays) : `${r.travelDays}d`}`;
+			ctx.font = `italic ${Math.round(16 * u)}px ${opt.fontFamily}`;
+			const tw = ctx.measureText(label).width;
+			// Keep the text inside the frame, on the inner side of the arrow.
+			const lx = Math.max(W * 0.04 + tw / 2, Math.min(W * 0.96 - tw / 2, x - Math.cos(ang) * (tw / 2 + 14 * u)));
+			const ly = Math.max(H * 0.06, Math.min(H * 0.94, y - Math.sin(ang) * 16 * u));
+			ctx.textAlign = "center";
+			ctx.textBaseline = "middle";
+			ctx.lineWidth = 3;
+			ctx.strokeStyle = "rgba(240,228,196,0.92)";
+			ctx.strokeText(label, lx, ly);
+			ctx.fillStyle = INK;
+			ctx.fillText(label, lx, ly);
+		}
+	}
+}
+
+function drawScaleBar(ctx: CanvasRenderingContext2D, W: number, H: number, viewScale: number, opt: OverlayOptions) {
+	const u = unitOf(W, opt);
+	// One day on foot, in pixels (x distances are scaled by the aspect ratio).
+	const dayPx = (distanceForDays(1) / WORLD_ASPECT / viewScale) * W;
+	let days = 1;
+	for (const d of [0.25, 0.5, 1, 2, 3, 5, 10]) if (dayPx * d <= W * 0.22) days = d;
+	const len = dayPx * days;
+	const x = W * 0.05, y = H * 0.05 + 6 + Math.round(W / 34) * 1.9 + 26 * u;
+	ctx.save();
+	ctx.strokeStyle = INK;
+	ctx.fillStyle = INK;
+	ctx.lineWidth = Math.max(1, 1.5 * u);
+	ctx.strokeRect(x, y, len, 6 * u);
+	ctx.fillRect(x, y, len / 2, 6 * u);
+	ctx.font = `italic ${Math.round(15 * u)}px ${opt.fontFamily}`;
+	ctx.textAlign = "left";
+	ctx.textBaseline = "bottom";
+	const label = days < 1 ? `${Math.round(days * 24)} h` : opt.daysLabel ? opt.daysLabel(days) : `${days} days`;
+	ctx.lineWidth = 3;
+	ctx.strokeStyle = "rgba(240,228,196,0.92)";
+	ctx.strokeText(label, x, y - 3 * u);
+	ctx.fillText(label, x, y - 3 * u);
+	ctx.restore();
 }
 
 function drawLocationIcon(ctx: CanvasRenderingContext2D, kind: LocationKind, x: number, y: number, s: number) {
