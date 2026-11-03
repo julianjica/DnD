@@ -562,8 +562,10 @@ export function creatureCanvas(e: Pick<MapEntity, "kind" | "sprite">, look: Look
 	const c = document.createElement("canvas");
 	c.width = c.height = 16;
 	const p = new P({ seed: 1 } as GridMap, c.getContext("2d")!);
-	if (e.kind === "monster") p.draw(creatureSprite(e.sprite, "monster"), 0, 0);
-	else if (look) {
+	if (e.kind === "monster") {
+		p.draw(creatureSprite(e.sprite, "monster"), 0, 0);
+		outline(c);
+	} else if (look) {
 		const ctx0 = p.ctx;
 		paintPerson((x, y, col) => {
 			if (x < 0 || y < 0 || x > 15 || y > 15) return;
@@ -604,4 +606,25 @@ export function creatureCanvas(e: Pick<MapEntity, "kind" | "sprite">, look: Look
 	body.getContext("2d")!.putImageData(out, 0, 0);
 	ctx.drawImage(body, 0, 2);
 	return c;
+}
+
+/** Dark 1-px outline around the opaque pixels of a 16×16 sprite (same look as the people). */
+export function outline(c: HTMLCanvasElement, rgba: [number, number, number, number] = [26, 17, 12, 224]) {
+	const ctx = c.getContext("2d")!;
+	const img = ctx.getImageData(0, 0, 16, 16);
+	const d = img.data;
+	const solid = (x: number, y: number) => x >= 0 && y >= 0 && x < 16 && y < 16 && d[(y * 16 + x) * 4 + 3] >= 160;
+	const add: number[] = [];
+	for (let y = 0; y < 16; y++)
+		for (let x = 0; x < 16; x++) {
+			if (solid(x, y)) continue;
+			if (solid(x + 1, y) || solid(x - 1, y) || solid(x, y + 1) || solid(x, y - 1)) add.push(y * 16 + x);
+		}
+	for (const i of add) {
+		d[i * 4] = rgba[0];
+		d[i * 4 + 1] = rgba[1];
+		d[i * 4 + 2] = rgba[2];
+		d[i * 4 + 3] = rgba[3];
+	}
+	ctx.putImageData(img, 0, 0);
 }

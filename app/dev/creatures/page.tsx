@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { CREATURE_SPRITES } from "@/components/art/sprite/creatures";
 import type { Sprite } from "@/components/art/sprite/sprites";
+import { outline } from "@/components/art/sprite/pixelScene";
 
 const SCALE = 4;
 
@@ -11,17 +12,22 @@ function draw(canvas: HTMLCanvasElement, s: Sprite, bg: string) {
 	canvas.height = 16 * SCALE;
 	const g = canvas.getContext("2d");
 	if (!g) return;
-	g.imageSmoothingEnabled = false;
-	g.fillStyle = bg;
-	g.fillRect(0, 0, canvas.width, canvas.height);
+	const small = document.createElement("canvas");
+	small.width = small.height = 16;
+	const sg = small.getContext("2d")!;
 	s.rows.forEach((row, y) => {
 		for (let x = 0; x < row.length; x++) {
 			const c = s.pal[row[x]];
 			if (!c) continue;
-			g.fillStyle = c;
-			g.fillRect(x * SCALE, y * SCALE, SCALE, SCALE);
+			sg.fillStyle = c;
+			sg.fillRect(x, y, 1, 1);
 		}
 	});
+	outline(small);
+	g.imageSmoothingEnabled = false;
+	g.fillStyle = bg;
+	g.fillRect(0, 0, canvas.width, canvas.height);
+	g.drawImage(small, 0, 0, canvas.width, canvas.height);
 }
 
 function Cell({ name, sprite, bg }: { name: string; sprite: Sprite; bg: string }) {
@@ -40,6 +46,7 @@ function Cell({ name, sprite, bg }: { name: string; sprite: Sprite; bg: string }
 const BACKGROUNDS = [
 	{ label: "Snow", bg: "#dfe7ee" },
 	{ label: "Stone", bg: "#34322f" },
+	{ label: "Wood", bg: "#6b4a2e" },
 ];
 
 export default function CreaturesPreview() {
