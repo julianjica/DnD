@@ -1,4 +1,5 @@
 import { syncSpellTokens } from "./spellTokens";
+import { isZombie, survivalOf, tick as survivalTick } from "../rules/survival";
 import type { DmTool, GameState, JsonSchema, RollRecord, ToolResult } from "../game/types";
 import { mutate } from "../store/campaigns";
 import { Rng } from "../rules/dice";
@@ -49,8 +50,10 @@ export async function withState<T>(ctx: ToolContext, fn: (tx: StateTxn) => T | P
 	let snapshot: GameState | undefined;
 	const result = await mutate(ctx.campaignId, async (state) => {
 		const rng = new Rng(state.rng);
+		// The Quiet: the survival clock starts before the mutation, so time it advances counts.
+		if (isZombie(state)) survivalOf(state);
 		let out = await fn({ state, rng, roll: (r) => rolls.push(r), fx: (f) => fxs.push(f) });
-		const note = syncSpellTokens(state);
+		const note = [syncSpellTokens(state), isZombie(state) ? survivalTick(state, rng) : undefined].filter(Boolean).join("\n");
 		if (note && typeof out === "string") out = `${out}\n${note}` as typeof out;
 		state.rng = rng.state;
 		snapshot = state;

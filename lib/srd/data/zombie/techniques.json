@@ -164,7 +164,8 @@
 				"ref": "z-rag",
 				"qty": 1
 			}
-		]
+		],
+		"loud": 2
 	},
 	{
 		"index": "t-flashbang",
@@ -201,7 +202,8 @@
 				"ref": "z-black-powder",
 				"qty": 1
 			}
-		]
+		],
+		"loud": 4
 	},
 	{
 		"index": "t-tripwire",
@@ -370,7 +372,8 @@
 				"ref": "z-fuse",
 				"qty": 1
 			}
-		]
+		],
+		"loud": 5
 	},
 	{
 		"index": "t-thermite",
@@ -468,7 +471,8 @@
 				"ref": "z-road-flare",
 				"qty": 1
 			}
-		]
+		],
+		"loud": 5
 	},
 	{
 		"index": "t-stabilize",
@@ -978,7 +982,8 @@
 		"area": {
 			"shape": "cube",
 			"size": 15
-		}
+		},
+		"loud": 4
 	},
 	{
 		"index": "t-sweet-talk",
@@ -1133,7 +1138,8 @@
 				"ref": "z-batteries",
 				"qty": 1
 			}
-		]
+		],
+		"loud": 3
 	},
 	{
 		"index": "t-decoy-broadcast",
@@ -1926,7 +1932,8 @@
 				"ref": "z-ammo-9mm",
 				"qty": 5
 			}
-		]
+		],
+		"loud": 3
 	},
 	{
 		"index": "t-hurled-brick",

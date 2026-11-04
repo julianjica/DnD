@@ -792,6 +792,18 @@
 		"description": "A course of antibiotics. Treats infected wounds and fevers. It does not treat a bite from the dead."
 	},
 	{
+		"index": "z-lazarus-antiviral",
+		"name": "LAZARUS Antiviral",
+		"category": "gear",
+		"subcategory": "medical",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.1,
+		"description": "An unlabelled Ventara Biologics autoinjector from the lab wing, batch code LZ-7/AV. Injected before the end, it stops the LAZARUS infection at any stage."
+	},
+	{
 		"index": "z-epinephrine",
 		"name": "Epinephrine Auto-injector",
 		"category": "gear",
@@ -850,6 +862,18 @@
 		},
 		"weight": 2,
 		"description": "A large bottle of clean water. One day's water."
+	},
+	{
+		"index": "z-preserves",
+		"name": "Preserves",
+		"category": "gear",
+		"subcategory": "food",
+		"cost": {
+			"qty": 0,
+			"unit": "usd"
+		},
+		"weight": 0.5,
+		"description": "A portion of jerky, pickled roots or berries in syrup, put up by hand. One day's food. Spoils in a day or two."
 	},
 	{
 		"index": "z-flashlight",

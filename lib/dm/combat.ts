@@ -3,17 +3,21 @@ import type { Rng } from "../rules/dice";
 import { applyPlayerAction, type CombatOptions, type CombatResult, type CombatState } from "../rules/combat";
 import { getEquipment, getSpell } from "../srd";
 import { pcCombatProfile } from "./derived";
+import { addNoise, DEFAULT_LOUDNESS, infectionSave, isZombie, survivalItem, survivalItemEffect } from "../rules/survival";
 import type { StateTxn } from "./context";
 
 /** Combat options bound to the current character and the SRD. */
 export function combatOpts(state: GameState): CombatOptions {
-	return { profile: pcCombatProfile(state.character), spells: (index: string) => getSpell(index), equipment: (index: string) => getEquipment(index) };
+	const opts: CombatOptions = { profile: pcCombatProfile(state.character), spells: (index: string) => getSpell(index), equipment: (index: string) => getEquipment(index) };
+	// The Quiet: medkits, bandages, food, water, pills and the antiviral work in combat (effects beyond healing: survivalEvents).
+	if (isZombie(state)) opts.onUseItem = (item) => survivalItem(item);
+	return opts;
 }
 
 /**
- * The Quiet, Phase-2 hook: loud actions (gunshots) are appended here with the
- * game time so the noise rules (docs/zombie.md §5) can read them later. Kept
- * off the GameState type until Phase 2 defines the noise model; capped.
+ * The Quiet: a history of loud actions (gunshots) with the game time. The
+ * noise level itself lives in GameState.survival (lib/rules/survival.ts); this
+ * log is kept off the GameState type as a capped history.
  */
 export interface NoiseEntry {
 	day: number;
@@ -47,6 +51,7 @@ export function applyCombatResult(tx: StateTxn, res: CombatResult): string {
 	const { state } = tx;
 	state.encounter = res.encounter;
 	state.maps[res.map.id] = res.map;
+	const before = state.character;
 	if (res.character) state.character = res.character;
 	for (const r of res.rolls) tx.roll(r);
 	for (const ev of res.events) {
@@ -59,12 +64,50 @@ export function applyCombatResult(tx: StateTxn, res: CombatResult): string {
 		else if (ev.type === "death") tx.fx({ kind: "sfx", sound: "death" });
 		else if (ev.type === "noise") recordNoise(state, ev.source, ev.loudness);
 	}
+	const survival = isZombie(state) ? survivalEvents(tx, res, before) : [];
 	if (res.encounter.status !== "active") {
 		state.mode = "explore";
 		if (state.ambience === "combat" || state.ambience === "boss") state.ambience = res.encounter.status === "victory" ? "victory" : "tension";
 	} else state.mode = "combat";
 	const needs = res.events.filter((e) => e.type === "needs_dm").map((e) => `DM ADJUDICATE: ${(e as { text: string }).text}`);
-	return [...res.log, ...needs].join("\n");
+	return [...res.log, ...needs, ...survival].join("\n");
+}
+
+/**
+ * The Quiet: what a combat result means for survival. Loud weapons, loud
+ * techniques and a screamer's shriek raise the noise level; a zombie's bite
+ * that wounds the player forces the infection save.
+ */
+function survivalEvents(tx: StateTxn, res: CombatResult, before: GameState["character"]): string[] {
+	const { state, rng } = tx;
+	const out: string[] = [];
+	const pcId = state.character.id;
+	let lastAttack: Extract<CombatResult["events"][number], { type: "attack" }> | undefined;
+	let bitten = false;
+	for (const ev of res.events) {
+		if (ev.type === "noise") out.push(addNoise(state, rng, ev.loudness, ev.source));
+		else if (ev.type === "item_used" && ev.combatantId === pcId) {
+			const item = before.inventory.find((i) => i.id === ev.itemId);
+			const note = item && survivalItemEffect(state, rng, tx.roll, item);
+			if (note) out.push(note);
+		}
+		else if (ev.type === "spell_cast" && ev.casterId === pcId) {
+			const loud = getSpell(ev.spell)?.loud;
+			if (loud) out.push(addNoise(state, rng, typeof loud === "number" ? loud : DEFAULT_LOUDNESS, getSpell(ev.spell)!.name));
+		} else if (ev.type === "action_used" && /shriek/i.test(ev.action)) {
+			const c = res.encounter.combatants[ev.combatantId];
+			if (c?.stats?.ruleset === "zombie") out.push(addNoise(state, rng, 10, `${c.name}'s shriek`));
+		} else if (ev.type === "attack") lastAttack = ev;
+		else if (ev.type === "damage" && ev.targetId === pcId && ev.amount > 0 && !bitten && lastAttack?.hit && lastAttack.targetId === pcId && /\bbites?\b/i.test(lastAttack.name)) {
+			const attacker = res.encounter.combatants[lastAttack.attackerId];
+			if (attacker?.stats?.ruleset === "zombie" && /undead/i.test(attacker.stats.type)) {
+				bitten = true;
+				const note = infectionSave(state, rng, tx.roll, { monster: attacker.stats, attack: lastAttack.name });
+				if (note) out.push(`ENGINE (infection): ${note}`);
+			}
+		}
+	}
+	return out;
 }
 
 /** Applies a player's clicked combat action. Returns the log lines. */

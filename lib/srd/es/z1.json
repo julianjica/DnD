@@ -493,5 +493,8 @@
 	"passive Perception 12": "Percepción pasiva 12",
 	"passive Perception 13": "Percepción pasiva 13",
 	"loud": "ruidosa",
-	"quiet": "silenciosa"
+	"quiet": "silenciosa",
+	"LAZARUS Antiviral": "Antiviral LAZARUS",
+	"An unlabelled Ventara Biologics autoinjector from the lab wing, batch code LZ-7/AV. Injected before the end, it stops the LAZARUS infection at any stage.": "Un autoinyector sin etiqueta de Ventara Biologics, del ala del laboratorio, lote LZ-7/AV. Inyectado antes del final, detiene la infección LAZARUS en cualquier fase.",
+	"A portion of jerky, pickled roots or berries in syrup, put up by hand. One day's food. Spoils in a day or two.": "Una ración de cecina, raíces encurtidas o bayas en almíbar, preparada a mano. Comida para un día. Se echa a perder en uno o dos días."
 }

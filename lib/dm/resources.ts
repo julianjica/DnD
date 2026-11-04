@@ -7,6 +7,7 @@ import { rulesetOf } from "../rules/ruleset";
 import { missingSupplies, suppliesText, spendSupplies } from "../rules/combat/supplies";
 import type { StateTxn } from "./context";
 import { isPcTurn, playerCombatAction } from "./combat";
+import { addNoise, DEFAULT_LOUDNESS, survivalItem, survivalItemEffect } from "../rules/survival";
 
 /**
  * System-owned bookkeeping for the player's limited resources: spell slots,
@@ -105,7 +106,11 @@ export function consumeItem(tx: StateTxn, a: ConsumeItemInput): string {
 	if (!a.keep && n > item.quantity) throw new RulesError(`Only ${item.quantity} ${item.name} left.`);
 	const lines: string[] = [];
 	const effect = builtinItem(item.name);
-	const healDice = effect?.heal ?? a.heal;
+	// The Quiet: medkits, bandages, food, water, painkillers, the antiviral (lib/rules/survival.ts).
+	const zombie = rulesetOf(tx.state.settings) === "zombie";
+	const zItem = zombie ? survivalItem(item) : undefined;
+	const healDice = effect?.heal ?? zItem?.heal ?? a.heal;
+	const used = { ref: item.ref, name: item.name };
 	// Consume first: healing replaces the character object.
 	if (!a.keep && (effect?.consume ?? true)) {
 		item.quantity -= n;
@@ -113,6 +118,10 @@ export function consumeItem(tx: StateTxn, a: ConsumeItemInput): string {
 		lines.push(`Used ${n} × ${item.name} (${Math.max(0, item.quantity)} left).`);
 	} else lines.push(`Used ${item.name} (kept).`);
 	if (healDice) for (let k = 0; k < n; k++) lines.push(healSelf(tx, healDice, `${item.name} healing`));
+	if (zItem) for (let k = 0; k < n; k++) {
+		const note = survivalItemEffect(tx.state, tx.rng, tx.roll, used);
+		if (note) lines.push(note);
+	}
 	tx.fx({ kind: "sfx", sound: healDice ? "gem" : "draw" });
 	return lines.join(" ");
 }
@@ -194,6 +203,7 @@ export function castSpell(tx: StateTxn, a: CastSpellInput): string {
 		spendSupplies(ch, needs, nameOf);
 		lines.push(`Used up ${suppliesText(ch, needs, nameOf)}.`);
 	}
+	if (rs === "zombie" && spell.loud) lines.push(addNoise(tx.state, tx.rng, typeof spell.loud === "number" ? spell.loud : DEFAULT_LOUDNESS, spell.name));
 	if (spell.concentration) {
 		if (ch.concentration) lines.push(`Concentration on ${getSpell(ch.concentration.spell)?.name ?? ch.concentration.spell} ends.`);
 		ch.concentration = { spell: spell.index };

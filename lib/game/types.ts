@@ -132,6 +132,8 @@ export interface SpellInfo extends SrdRef {
 	ruleset?: "fantasy" | "zombie";
 	/** Items used up from the caster's inventory on every use (techniques with components), by equipment index. */
 	consumes?: { ref: string; qty: number }[];
+	/** The Quiet: the technique is loud and raises the noise level (a number = how much, true = like a gunshot, +3). */
+	loud?: number | true;
 	level: number; // 0 = cantrip
 	school: string;
 	castingTime: string; // "1 action", "1 bonus action", "1 reaction", "1 minute"
