@@ -263,7 +263,7 @@ export type Tile =
 	| "void" | "floor" | "wall" | "door" | "door_open" | "door_locked" | "secret_door"
 	| "water" | "deep_water" | "difficult" | "pit" | "stairs_up" | "stairs_down"
 	| "grass" | "tall_grass" | "tree" | "rock" | "road" | "sand" | "mud" | "lava"
-	| "bridge" | "building" | "wood_floor" | "rubble" | "pillar" | "table" | "bar_counter" | "ice";
+	| "bridge" | "building" | "wood_floor" | "rubble" | "pillar" | "table" | "bar_counter" | "ice" | "barricade";
 
 export type MapKind = "dungeon" | "cave" | "forest" | "town" | "tavern" | "road" | "camp" | "crypt" | "castle" | "swamp" | "mountain_pass" | "temple" | "ship" | "arena";
 
@@ -329,6 +329,8 @@ export interface GridMap {
 	drawn?: boolean;
 	/** Art theme: "modern" repaints the same tiles as a present-day town (asphalt, brick, linoleum). Missing = fantasy. */
 	theme?: "modern";
+	/** The Quiet: hit points of each barricade square, keyed "x,y". At 0 the square becomes rubble. */
+	barricades?: Record<string, { hp: number; max: number }>;
 }
 
 export type LocationKind = "town" | "city" | "village" | "dungeon" | "cave" | "forest" | "mountain" | "ruins" | "castle" | "temple" | "swamp" | "coast" | "camp" | "tower" | "landmark";
@@ -553,6 +555,32 @@ export interface CampaignSettings {
 
 export type GameMode = "explore" | "combat" | "travel" | "rest" | "dialogue";
 
+// ─── The Quiet: survival (docs/zombie.md §5) ──────────────────────────────
+
+export type BodyPart = "left arm" | "right arm" | "left leg" | "right leg" | "torso" | "neck";
+
+/** Survival state of a zombie-ruleset campaign. Times are game minutes: day*1440 + hour*60 + minute. */
+export interface SurvivalState {
+	/** Game minute of the last survival tick (noise decay, infection, hunger/thirst). */
+	lastTick: number;
+	/** Noise where the party is, 0..10; decays 1 per 10 quiet minutes; resets when the party moves to another place. */
+	noise: { level: number; locationId?: string; mapId?: string; lastEvent?: string };
+	/** The LAZARUS infection from a bite. `turnsAt` is secret: never show it to the player. */
+	infection?: {
+		bittenAt: number;
+		turnsAt: number;
+		part: BodyPart;
+		stage: "incubating" | "fever" | "delirium" | "turned";
+		source?: string;
+	};
+	/** Limbs lost (amputation stops an infection if done within an hour of the bite). */
+	amputations: BodyPart[];
+	/** Food and water: when the character last ate/drank and how many daily needs went unmet in a row. */
+	needs: { lastMeal: number; lastDrink: number; missedMeals: number; missedDrinks: number };
+	/** Times each place was scavenged, by "<locationId>|<placeType>" (yields shrink). */
+	looted: Record<string, number>;
+}
+
 export interface GameState {
 	version: 1;
 	id: string;
@@ -587,6 +615,8 @@ export interface GameState {
 	levelUpsGranted?: number;
 	/** What the player did on their combat turn, waiting to be narrated at end of turn. */
 	combatNotes?: string[];
+	/** The Quiet only: survival systems. */
+	survival?: SurvivalState;
 }
 
 /** One line in the play log (data/campaigns/<id>/log.jsonl). */
