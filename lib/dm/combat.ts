@@ -54,12 +54,15 @@ export function applyCombatResult(tx: StateTxn, res: CombatResult): string {
 	const before = state.character;
 	if (res.character) state.character = res.character;
 	for (const r of res.rolls) tx.roll(r);
+	// A loud attack (gunfire) sounds like a gunshot, hit or miss.
+	const gunfire = res.events.some((e) => e.type === "noise" && e.loudness >= 3);
+	if (gunfire) tx.fx({ kind: "sfx", sound: "gunshot" });
 	for (const ev of res.events) {
 		const ent = (id: string) => res.encounter.combatants[id]?.entityId;
 		if (ev.type === "damage") tx.fx({ kind: "damage", entityId: ent(ev.targetId), amount: ev.amount });
 		else if (ev.type === "heal") tx.fx({ kind: "heal", entityId: ent(ev.targetId), amount: ev.amount });
 		else if (ev.type === "attack" && !ev.hit) tx.fx({ kind: "miss", entityId: ent(ev.targetId) });
-		else if (ev.type === "attack" && ev.hit) tx.fx({ kind: "sfx", sound: "sword" });
+		else if (ev.type === "attack" && ev.hit && !gunfire) tx.fx({ kind: "sfx", sound: "sword" });
 		else if (ev.type === "spell_cast") tx.fx({ kind: "sfx", sound: "spell" });
 		else if (ev.type === "death") tx.fx({ kind: "sfx", sound: "death" });
 		else if (ev.type === "noise") recordNoise(state, ev.source, ev.loudness);

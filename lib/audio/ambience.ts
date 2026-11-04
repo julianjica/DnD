@@ -33,11 +33,12 @@ export type SfxName =
 	| "gong"
 	| "victory"
 	| "draw"
-	| "footstep";
+	| "footstep"
+	| "gunshot";
 
 export const SFX_NAMES: SfxName[] = [
 	"dice", "sword", "hit", "spell", "fire", "door", "coin", "levelup", "death",
-	"roar", "hurt", "lock", "book", "gem", "gong", "victory", "draw", "footstep",
+	"roar", "hurt", "lock", "book", "gem", "gong", "victory", "draw", "footstep", "gunshot",
 ];
 
 export const AMBIENCE_TRACKS: AmbienceTrack[] = [
@@ -124,6 +125,8 @@ const DICE_SLICES: [number, number][] = [[0.0, 0.75], [1.28, 0.75], [2.62, 0.9],
 
 const SFX: Record<SfxName, SfxSpec> = {
 	dice: { files: DICE_SLICES.map(([offset, duration]) => ({ src: "sfx/dice-roll.ogg", offset, duration })), gain: 1, jitter: 0.06 },
+	// Synthesized only (no recording bundled): sharp crack, low thump, room echo.
+	gunshot: { files: [], gain: 1, synthAlways: true, jitter: 0.05 },
 	sword: { files: [{ src: "sfx/sword-1.ogg" }, { src: "sfx/sword-2.ogg" }, { src: "sfx/sword-3.ogg" }], gain: 0.9, jitter: 0.06 },
 	hit: { files: [{ src: "sfx/hit-1.ogg" }, { src: "sfx/hit-2.ogg" }], gain: 0.9, jitter: 0.08 },
 	spell: { files: [{ src: "sfx/spell-1.ogg" }, { src: "sfx/spell-2.ogg" }], gain: 0.8, synthAlways: true, jitter: 0.04 },
@@ -521,6 +524,11 @@ function synthSfx(c: Ctx, name: SfxName, out: AudioNode) {
 			}
 			break;
 		}
+		case "gunshot":
+			burst(c, out, { f: 3500, f1: 900, q: 0.7, t, d: 0.09, g: 1 });
+			blip(c, out, { f0: 140, f1: 40, t, d: 0.25, g: 0.9 });
+			burst(c, out, { color: "pink", type: "lowpass", f: 1400, f1: 300, t: t + 0.02, d: 0.9, g: 0.35, reverb: 0.9 });
+			break;
 		case "sword":
 		case "draw":
 			burst(c, out, { f: 5000, f1: 2500, q: 1.5, t, d: 0.18, g: 0.5 });
