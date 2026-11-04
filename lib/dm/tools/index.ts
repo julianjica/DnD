@@ -1,6 +1,7 @@
 import type { DmTool } from "../../game/types";
 import type { ToolContext } from "../context";
 import { enrichItem } from "../items";
+import { BASE_TOOLS } from "./base";
 import { CHARACTER_TOOLS } from "./character";
 import { COMBAT_TOOLS } from "./combat";
 import { MAP_TOOLS } from "./map";
@@ -12,5 +13,5 @@ import { SURVIVAL_TOOLS } from "./survival";
 setItemEnricher(enrichItem);
 
 export function allTools(ctx: ToolContext): DmTool[] {
-	return [...STORY_TOOLS, ...CHARACTER_TOOLS, ...RESOURCE_TOOLS, ...MAP_TOOLS, ...COMBAT_TOOLS, ...SCAVENGE_TOOLS, ...SURVIVAL_TOOLS].map((f) => f(ctx));
+	return [...STORY_TOOLS, ...CHARACTER_TOOLS, ...RESOURCE_TOOLS, ...MAP_TOOLS, ...COMBAT_TOOLS, ...SCAVENGE_TOOLS, ...SURVIVAL_TOOLS, ...BASE_TOOLS].map((f) => f(ctx));
 }

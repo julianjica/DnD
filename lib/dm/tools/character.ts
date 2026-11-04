@@ -7,6 +7,7 @@ import { lookupForCampaign } from "../content";
 import { abilityMod } from "../../rules/dice";
 import { S, tool, withState, type ToolFactory } from "../context";
 import { advanceClock, fed, isZombie, restInterruption } from "../../rules/survival";
+import { baseSecuresRest, infirmaryCare } from "../../rules/base";
 
 const ABILS = ["str", "dex", "con", "int", "wis", "cha"] as const;
 
@@ -81,16 +82,19 @@ export const shortRestTool = tool<{ hitDice?: number }>(
 
 export const longRestTool = tool<{ interrupted?: boolean; secured?: boolean }>(
 	"long_rest",
-	"The player takes an 8-hour long rest: full HP, half hit dice back, all slots and features, -1 exhaustion. Advances the clock 8 hours. The Quiet: pass secured (true only if barricaded/locked, dark and quiet); the engine rolls whether something interrupts the rest (noise, night and an unsecured spot make it likelier), and exhaustion only drops if the character ate and drank in the last 24 h.",
+	"The player takes an 8-hour long rest: full HP, half hit dice back, all slots and features, -1 exhaustion. Advances the clock 8 hours. The Quiet: pass secured (true only if barricaded/locked, dark and quiet; at the base with fortification 3+ it is secured automatically); the engine rolls whether something interrupts the rest (noise, night and an unsecured spot make it likelier), and exhaustion only drops if the character ate and drank in the last 24 h.",
 	S.obj({ interrupted: S.bool(), secured: S.bool("The Quiet (required there): the spot is barricaded or locked, dark and quiet") }),
 	async (a, ctx) =>
 		withState(ctx, ({ state, rng }) => {
 			if (state.encounter?.status === "active") throw new Error("Cannot rest during combat.");
 			if (a.interrupted) return "Long rest interrupted; no benefits.";
 			const zombie = isZombie(state);
-			if (zombie && typeof a.secured !== "boolean") throw new Error("In The Quiet a long rest needs secured: true (barricaded or locked, dark and quiet) or false (anywhere else). Decide honestly from the scene and call again.");
+			// At a base with fortification 3+ the rest is secured whatever was passed.
+			const base = zombie ? baseSecuresRest(state) : undefined;
+			const secured = base?.secured ? true : a.secured;
+			if (zombie && typeof secured !== "boolean") throw new Error(`In The Quiet a long rest needs secured: true (barricaded or locked, dark and quiet) or false (anywhere else).${base ? ` The base's fortification is only ${base.fortification}/10 (3+ secures it automatically).` : ""} Decide honestly from the scene and call again.`);
 			if (zombie) {
-				const chance = restInterruption(state, rng, a.secured!);
+				const chance = restInterruption(state, rng, secured!);
 				if (chance.interrupted) {
 					advanceClock(state, chance.afterMinutes ?? 60);
 					return `Long rest INTERRUPTED (${chance.chance}% chance): ${chance.text} No long-rest benefits. DM: make it real now: describe it, place them on the map and start_combat (or let the player flee/hide).`;
@@ -102,7 +106,8 @@ export const longRestTool = tool<{ interrupted?: boolean; secured?: boolean }>(
 			const total = state.time.hour + 8;
 			state.time.day += Math.floor(total / 24);
 			state.time.hour = total % 24;
-			return `Long rest complete. HP ${state.character.hp}/${state.character.maxHp}; resources restored.${!fedWell && exhaustion ? " Exhaustion NOT reduced: no food and water in the last 24 hours." : ""}`;
+			const care = zombie ? infirmaryCare(state) : undefined;
+			return `Long rest complete${base?.secured ? ` (at the base, fortification ${base.fortification}/10: secured)` : ""}. HP ${state.character.hp}/${state.character.maxHp}; resources restored.${!fedWell && exhaustion ? " Exhaustion NOT reduced: no food and water in the last 24 hours." : ""}${care ? ` ${care}` : ""}`;
 		}),
 );
 
