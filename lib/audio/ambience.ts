@@ -14,6 +14,10 @@
  */
 
 import type { AmbienceTrack } from "../game/types";
+import type { Ruleset } from "../rules/ruleset";
+import { blip, burst, every, makeImpulse, makeNoise, mtof, noiseSrc, panner, pick, rand, stopNodes, wander, type Ctx, type Stop } from "./kit";
+import { makeQuietSynth, quietSfx, type QuietSfxName, type QuietSynthKind } from "./quiet";
+import { isScoreKind, makeScoreSynth, type ScoreSynthKind } from "./quiet-score";
 
 export type SfxName =
 	| "dice"
@@ -34,17 +38,42 @@ export type SfxName =
 	| "victory"
 	| "draw"
 	| "footstep"
-	| "gunshot";
+	| "gunshot"
+	| QuietSfxName;
 
 export const SFX_NAMES: SfxName[] = [
 	"dice", "sword", "hit", "spell", "fire", "door", "coin", "levelup", "death",
 	"roar", "hurt", "lock", "book", "gem", "gong", "victory", "draw", "footstep", "gunshot",
+	"groan", "bite", "glass", "car_alarm", "shotgun", "radio", "door_bang",
 ];
 
-export const AMBIENCE_TRACKS: AmbienceTrack[] = [
+/** The Quiet's own effects: never offered to fantasy campaigns. */
+export const QUIET_SFX: SfxName[] = ["groan", "bite", "glass", "car_alarm", "shotgun", "radio", "door_bang"];
+/** Fantasy-only effects: not offered to zombie campaigns. */
+const FANTASY_ONLY_SFX: SfxName[] = ["spell", "gem", "gong", "levelup", "victory"];
+
+/** SFX the DM may play in a campaign of this ruleset. */
+export function sfxFor(rs: Ruleset): SfxName[] {
+	return rs === "zombie" ? SFX_NAMES.filter((s) => !FANTASY_ONLY_SFX.includes(s)) : SFX_NAMES.filter((s) => !QUIET_SFX.includes(s));
+}
+
+/** The Quiet (zombie ruleset) beds. */
+export const QUIET_TRACKS = [
+	"q_outbreak", "q_quiet_town", "q_night", "q_hospital", "q_safehouse", "q_dread",
+	"q_horde", "q_chase", "q_combat", "q_radio", "q_grief",
+] as const satisfies readonly AmbienceTrack[];
+
+export const FANTASY_TRACKS: AmbienceTrack[] = [
 	"none", "tavern", "town", "forest", "dungeon", "cave", "combat", "boss", "rain",
 	"storm", "night", "temple", "sea", "tension", "victory",
 ];
+
+export const AMBIENCE_TRACKS: AmbienceTrack[] = [...FANTASY_TRACKS, ...QUIET_TRACKS];
+
+/** Beds offered in a ruleset: zombie games get the q_ tracks plus rain/storm weather; fantasy never sees q_. */
+export function tracksFor(rs: Ruleset): AmbienceTrack[] {
+	return rs === "zombie" ? ["none", ...QUIET_TRACKS, "rain", "storm"] : FANTASY_TRACKS;
+}
 
 export interface AudioVolumes {
 	/** 0..1 — ambience and music beds. */
@@ -63,7 +92,7 @@ export interface SfxOptions {
 export interface AmbienceEngineState {
 	unlocked: boolean;
 	muted: boolean;
-	track: AmbienceTrack;
+	track: PlayableTrack;
 	volumes: AudioVolumes;
 }
 
@@ -77,7 +106,9 @@ const CROSSFADE_S = 2.2;
 type SynthKind =
 	| "wind" | "softWind" | "rain" | "fire" | "drips" | "drone" | "darkDrone" | "birds"
 	| "crickets" | "surf" | "thunder" | "padWarm" | "padMinor" | "padMajor" | "choir"
-	| "heartbeat" | "drums" | "crowd" | "creaks" | "owl";
+	| "heartbeat" | "drums" | "crowd" | "creaks" | "owl"
+	| QuietSynthKind
+	| ScoreSynthKind;
 
 type Layer =
 	| {
@@ -88,11 +119,33 @@ type Layer =
 			mode: "xfade" | "native" | "once";
 			/** Synth layers to use instead if the file fails to load/decode. */
 			fallback?: SynthKind[];
+			/** Optional lowpass cutoff (Hz) to push a recording far back. */
+			lowpass?: number;
 	  }
 	| { kind: "synth"; synth: SynthKind; gain: number };
 
-const file = (src: string, gain: number, mode: "xfade" | "native" | "once", fallback?: SynthKind[]): Layer => ({ kind: "file", src, gain, mode, fallback });
+const file = (src: string, gain: number, mode: "xfade" | "native" | "once", fallback?: SynthKind[], lowpass?: number): Layer => ({ kind: "file", src, gain, mode, fallback, lowpass });
 const synth = (s: SynthKind, gain: number): Layer => ({ kind: "synth", synth: s, gain });
+
+/**
+ * Candidate versions of two Quiet beds, playable only from the listening page
+ * (never offered to the DM). The chosen one becomes the recipe of the real id.
+ */
+export const QUIET_PREVIEW_TRACKS = ["q_quiet_town_a", "q_quiet_town_b", "q_dread_a", "q_dread_b"] as const;
+export type PreviewTrack = (typeof QUIET_PREVIEW_TRACKS)[number];
+/** Anything the engine can play: a real track or a preview candidate. */
+export type PlayableTrack = AmbienceTrack | PreviewTrack;
+
+const PREVIEW_RECIPES: Record<PreviewTrack, Layer[]> = {
+	// A: empty street at dusk — far, dark wind; warm slow pad; a few plucked notes; a rare far electronic tone.
+	q_quiet_town_a: [file("amb/wind-winter.mp3", 0.3, "xfade", ["softWind"], 650), synth("sDusk", 0.9), synth("sDistantTone", 1)],
+	// B: deserted, uneasy — no melody: deep beating drone, wind singing in wires, rare far thuds, silence.
+	q_quiet_town_b: [file("amb/wind-winter.mp3", 0.24, "xfade", ["softWind"], 480), synth("sDeepDrone", 1.1), synth("sWires", 0.6), synth("sFarThuds", 1)],
+	// A: slow breathing low strings with a sub; rare dissonant clusters that drop into silence.
+	q_dread_a: [synth("sStrings", 1.05)],
+	// B: a slow sub pulse, glassy harmonics, reverse swells, a far metal scrape.
+	q_dread_b: [synth("sSubPulse", 0.8), synth("sGlass", 1), synth("sReverseSwell", 1), synth("sScrape", 1), synth("sDeepDrone", 0.35)],
+};
 
 const RECIPES: Record<Exclude<AmbienceTrack, "none">, Layer[]> = {
 	tavern: [file("amb/tavern-crowded-pub.mp3", 0.85, "xfade", ["crowd", "padWarm"]), synth("fire", 0.32)],
@@ -109,6 +162,20 @@ const RECIPES: Record<Exclude<AmbienceTrack, "none">, Layer[]> = {
 	sea: [file("amb/sea-waves.ogg", 0.7, "xfade", ["surf"]), synth("surf", 0.45), synth("wind", 0.22), synth("creaks", 0.4)],
 	tension: [synth("darkDrone", 0.4), synth("heartbeat", 0.4), file("amb/wind-winter.mp3", 0.25, "xfade", ["wind"])],
 	victory: [file("amb/victory-fanfare.ogg", 0.55, "once", ["padMajor"]), synth("padMajor", 0.16)],
+
+	// ── The Quiet (zombie ruleset): all procedural, plus two existing CC0 beds (wind, rain).
+	// Variant A until the user picks one (PREVIEW_RECIPES above).
+	q_quiet_town: PREVIEW_RECIPES.q_quiet_town_a,
+	q_outbreak: [synth("qCityRumble", 0.6), synth("softWind", 0.25), synth("qSirens", 1), synth("qHelicopter", 0.7), synth("qScreams", 0.9), synth("qChurchBell", 0.8), synth("qAlarmBell", 0.8), synth("qCarAlarm", 0.7), synth("qFarShots", 0.7)],
+	q_night: [synth("softWind", 0.4), synth("qCrickets", 1), synth("qMoans", 0.6), synth("qFarShot", 0.8), synth("qPadCold", 0.45)],
+	q_hospital: [synth("qFluoHum", 1), synth("qFlicker", 0.9), synth("qMonitor", 1), synth("drips", 0.3), synth("darkDrone", 0.12), synth("qMoans", 0.25)],
+	q_safehouse: [file("amb/rain-loop.mp3", 0.5, "xfade", ["rain"]), synth("rain", 0.06), synth("qClock", 0.7), synth("qPiano", 0.9)],
+	q_dread: PREVIEW_RECIPES.q_dread_a,
+	q_horde: [synth("qHordeBed", 0.8), synth("qMoansNear", 0.7), synth("qShuffle", 0.8), synth("qBanging", 0.7), synth("darkDrone", 0.15)],
+	q_chase: [synth("qChase", 0.9)],
+	q_combat: [synth("qCombat", 0.7)],
+	q_radio: [synth("qStatic", 0.8), synth("qTuning", 1.1), synth("qNumbers", 1.4)],
+	q_grief: [synth("qGrief", 1.2), synth("softWind", 0.12)],
 };
 
 interface SfxSpec {
@@ -144,6 +211,14 @@ const SFX: Record<SfxName, SfxSpec> = {
 	victory: { files: [{ src: "sfx/victory-sting.ogg" }], gain: 0.7 },
 	draw: { files: [{ src: "sfx/draw-blade.ogg" }], gain: 0.9, jitter: 0.05 },
 	footstep: { files: [{ src: "sfx/footstep.ogg" }], gain: 0.8, jitter: 0.1 },
+	// The Quiet: synthesized only.
+	groan: { files: [], gain: 0.7, synthAlways: true },
+	bite: { files: [], gain: 0.9, synthAlways: true },
+	glass: { files: [], gain: 0.9, synthAlways: true },
+	car_alarm: { files: [], gain: 1, synthAlways: true },
+	shotgun: { files: [], gain: 0.85, synthAlways: true },
+	radio: { files: [], gain: 1, synthAlways: true },
+	door_bang: { files: [], gain: 0.8, synthAlways: true },
 };
 
 /** Every bundled file path (relative to /assets/audio/), for preloading/tests. */
@@ -152,129 +227,6 @@ export function audioAssetPaths(): string[] {
 	for (const layers of Object.values(RECIPES)) for (const l of layers) if (l.kind === "file") s.add(l.src);
 	for (const spec of Object.values(SFX)) for (const f of spec.files) s.add(f.src);
 	return [...s];
-}
-
-// ─── Helpers ────────────────────────────────────────────────────────────────
-
-type Stop = () => void;
-const rand = (a: number, b: number) => a + Math.random() * (b - a);
-const pick = <T,>(xs: readonly T[]): T => xs[Math.floor(Math.random() * xs.length)];
-const mtof = (m: number) => 440 * Math.pow(2, (m - 69) / 12);
-
-interface Ctx {
-	ac: AudioContext;
-	reverb: AudioNode;
-	noise: { white: AudioBuffer; pink: AudioBuffer; brown: AudioBuffer };
-}
-
-function makeNoise(ac: AudioContext, color: "white" | "pink" | "brown", seconds = 6): AudioBuffer {
-	const len = Math.floor(ac.sampleRate * seconds);
-	const buf = ac.createBuffer(2, len, ac.sampleRate);
-	for (let ch = 0; ch < 2; ch++) {
-		const d = buf.getChannelData(ch);
-		let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0, last = 0;
-		for (let i = 0; i < len; i++) {
-			const w = Math.random() * 2 - 1;
-			if (color === "white") d[i] = w * 0.5;
-			else if (color === "pink") {
-				b0 = 0.99886 * b0 + w * 0.0555179; b1 = 0.99332 * b1 + w * 0.0750759; b2 = 0.969 * b2 + w * 0.153852;
-				b3 = 0.8665 * b3 + w * 0.3104856; b4 = 0.55 * b4 + w * 0.5329522; b5 = -0.7616 * b5 - w * 0.016898;
-				d[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.11; b6 = w * 0.115926;
-			} else {
-				last = (last + 0.02 * w) / 1.02; d[i] = last * 3.5;
-			}
-		}
-		// Short crossfade of the tail into the head so the loop is seamless.
-		const fade = Math.floor(ac.sampleRate * 0.05);
-		for (let i = 0; i < fade; i++) { const t = i / fade; d[len - fade + i] = d[len - fade + i] * (1 - t) + d[i] * t; }
-	}
-	return buf;
-}
-
-function makeImpulse(ac: AudioContext, seconds = 3.2, decay = 2.4): AudioBuffer {
-	const len = Math.floor(ac.sampleRate * seconds);
-	const buf = ac.createBuffer(2, len, ac.sampleRate);
-	for (let ch = 0; ch < 2; ch++) {
-		const d = buf.getChannelData(ch);
-		for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
-	}
-	return buf;
-}
-
-function noiseSrc(c: Ctx, color: "white" | "pink" | "brown"): AudioBufferSourceNode {
-	const s = c.ac.createBufferSource();
-	s.buffer = c.noise[color];
-	s.loop = true;
-	s.loopStart = 0;
-	s.start(c.ac.currentTime, Math.random() * 4);
-	return s;
-}
-
-/** Repeatedly calls fn at random intervals until stopped. */
-function every(minS: number, maxS: number, fn: () => void, startNow = false): Stop {
-	let alive = true;
-	let id: ReturnType<typeof setTimeout> | undefined;
-	const tick = () => { if (!alive) return; try { fn(); } catch { /* ignore */ } id = setTimeout(tick, rand(minS, maxS) * 1000); };
-	id = setTimeout(tick, startNow ? 0 : rand(minS, maxS) * 1000);
-	return () => { alive = false; if (id) clearTimeout(id); };
-}
-
-/** Slowly wanders an AudioParam between lo and hi. */
-function wander(c: Ctx, p: AudioParam, lo: number, hi: number, minS: number, maxS: number): Stop {
-	p.setValueAtTime(rand(lo, hi), c.ac.currentTime);
-	return every(minS, maxS, () => p.setTargetAtTime(rand(lo, hi), c.ac.currentTime, rand(minS, maxS) / 3), true);
-}
-
-function panner(c: Ctx, pan: number, out: AudioNode): AudioNode {
-	if (typeof c.ac.createStereoPanner !== "function") return out;
-	const p = c.ac.createStereoPanner();
-	p.pan.value = Math.max(-1, Math.min(1, pan));
-	p.connect(out);
-	return p;
-}
-
-/** Simple envelope'd tone; returns nothing (self-stopping). */
-function blip(c: Ctx, out: AudioNode, o: { type?: OscillatorType; f0: number; f1?: number; t?: number; a?: number; d: number; g: number; glide?: number; reverb?: number }) {
-	const ac = c.ac;
-	const t = o.t ?? ac.currentTime;
-	const osc = ac.createOscillator();
-	osc.type = o.type ?? "sine";
-	osc.frequency.setValueAtTime(o.f0, t);
-	if (o.f1) osc.frequency.exponentialRampToValueAtTime(Math.max(1, o.f1), t + (o.glide ?? o.d));
-	const g = ac.createGain();
-	g.gain.setValueAtTime(0.0001, t);
-	g.gain.exponentialRampToValueAtTime(o.g, t + (o.a ?? 0.005));
-	g.gain.exponentialRampToValueAtTime(0.0001, t + (o.a ?? 0.005) + o.d);
-	osc.connect(g);
-	g.connect(out);
-	if (o.reverb) { const s = ac.createGain(); s.gain.value = o.reverb; g.connect(s); s.connect(c.reverb); }
-	osc.start(t);
-	osc.stop(t + (o.a ?? 0.005) + o.d + 0.05);
-}
-
-/** Short filtered noise burst. */
-function burst(c: Ctx, out: AudioNode, o: { color?: "white" | "pink" | "brown"; type?: BiquadFilterType; f: number; q?: number; f1?: number; t?: number; a?: number; d: number; g: number; reverb?: number }) {
-	const ac = c.ac;
-	const t = o.t ?? ac.currentTime;
-	const s = ac.createBufferSource();
-	s.buffer = c.noise[o.color ?? "white"];
-	const f = ac.createBiquadFilter();
-	f.type = o.type ?? "bandpass";
-	f.frequency.setValueAtTime(o.f, t);
-	if (o.f1) f.frequency.exponentialRampToValueAtTime(o.f1, t + o.d);
-	f.Q.value = o.q ?? 1;
-	const g = ac.createGain();
-	g.gain.setValueAtTime(0.0001, t);
-	g.gain.exponentialRampToValueAtTime(o.g, t + (o.a ?? 0.003));
-	g.gain.exponentialRampToValueAtTime(0.0001, t + (o.a ?? 0.003) + o.d);
-	s.connect(f); f.connect(g); g.connect(out);
-	if (o.reverb) { const r = ac.createGain(); r.gain.value = o.reverb; g.connect(r); r.connect(c.reverb); }
-	s.start(t, Math.random() * 3);
-	s.stop(t + (o.a ?? 0.003) + o.d + 0.05);
-}
-
-function stopNodes(nodes: (AudioScheduledSourceNode | null)[]) {
-	for (const n of nodes) { try { n?.stop(); } catch { /* already stopped */ } }
 }
 
 // ─── Synth layers ───────────────────────────────────────────────────────────
@@ -507,6 +459,8 @@ function makeSynth(c: Ctx, kind: SynthKind, out: AudioNode, emit: (e: EngineEven
 				o.connect(bp); bp.connect(g); g.connect(panner(c, rand(-0.6, 0.6), out));
 				o.start(t); o.stop(t + 1);
 			});
+		default:
+			return isScoreKind(kind) ? makeScoreSynth(c, kind, out) : makeQuietSynth(c, kind, out);
 	}
 }
 
@@ -582,13 +536,15 @@ function synthSfx(c: Ctx, name: SfxName, out: AudioNode) {
 		case "footstep":
 			burst(c, out, { color: "pink", type: "lowpass", f: 600, t, d: 0.1, g: 0.5 });
 			break;
+		default:
+			quietSfx(c, name, out);
 	}
 }
 
 // ─── Engine ─────────────────────────────────────────────────────────────────
 
 interface ActiveTrack {
-	track: AmbienceTrack;
+	track: PlayableTrack;
 	gain: GainNode;
 	stops: Stop[];
 	token: number;
@@ -597,6 +553,7 @@ interface ActiveTrack {
 export class AmbienceEngine {
 	private c: Ctx | null = null;
 	private master: GainNode | null = null;
+	private comp: DynamicsCompressorNode | null = null;
 	private musicBus: GainNode | null = null;
 	private sfxBus: GainNode | null = null;
 	private active: ActiveTrack | null = null;
@@ -641,6 +598,7 @@ export class AmbienceEngine {
 		const comp = ac.createDynamicsCompressor();
 		comp.threshold.value = -14; comp.knee.value = 12; comp.ratio.value = 3; comp.attack.value = 0.01; comp.release.value = 0.25;
 		comp.connect(ac.destination);
+		this.comp = comp;
 		this.master = ac.createGain();
 		this.master.gain.value = this.state.muted ? 0 : 1;
 		this.master.connect(comp);
@@ -700,7 +658,7 @@ export class AmbienceEngine {
 	}
 
 	/** Crossfades to a new ambience bed. Before unlock it just remembers the request. */
-	setTrack(track: AmbienceTrack) {
+	setTrack(track: PlayableTrack) {
 		if (track === this.state.track && (this.active?.track === track || !this.c)) return;
 		this.patch({ track });
 		const c = this.c;
@@ -723,9 +681,13 @@ export class AmbienceEngine {
 		const active: ActiveTrack = { track, gain, stops: [], token };
 		this.active = active;
 		const emit = (e: EngineEvent) => { if (this.active === active) this.emit(e); };
-		for (const layer of RECIPES[track]) {
+		const recipe = (QUIET_PREVIEW_TRACKS as readonly string[]).includes(track) ? PREVIEW_RECIPES[track as PreviewTrack] : RECIPES[track as Exclude<AmbienceTrack, "none">];
+		for (const layer of recipe) {
 			const lg = c.ac.createGain();
-			lg.connect(gain);
+			if (layer.kind === "file" && layer.lowpass) {
+				const lp = c.ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = layer.lowpass; lp.Q.value = 0.4;
+				lg.connect(lp); lp.connect(gain);
+			} else lg.connect(gain);
 			if (layer.kind === "synth") {
 				lg.gain.value = layer.gain;
 				active.stops.push(makeSynth(c, layer.synth, lg, emit));
@@ -842,6 +804,20 @@ export class AmbienceEngine {
 			}
 			s.onended = () => { try { g.disconnect(); } catch { /* ignore */ } };
 		});
+	}
+
+	/**
+	 * Dev/QA only: an AnalyserNode tapping the mix before ("pre") or after
+	 * ("post") the master compressor, for level checks. Null before unlock.
+	 */
+	meterTap(where: "pre" | "post" = "post"): AnalyserNode | null {
+		const c = this.c;
+		const node = where === "pre" ? this.master : this.comp;
+		if (!c || !node) return null;
+		const an = c.ac.createAnalyser();
+		an.fftSize = 8192;
+		node.connect(an);
+		return an;
 	}
 
 	dispose() {

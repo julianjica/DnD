@@ -404,7 +404,10 @@ export interface SceneState {
 	props: string[];
 }
 
-export type AmbienceTrack = "none" | "tavern" | "town" | "forest" | "dungeon" | "cave" | "combat" | "boss" | "rain" | "storm" | "night" | "temple" | "sea" | "tension" | "victory";
+export type AmbienceTrack =
+	| "none" | "tavern" | "town" | "forest" | "dungeon" | "cave" | "combat" | "boss" | "rain" | "storm" | "night" | "temple" | "sea" | "tension" | "victory"
+	// The Quiet (zombie ruleset) only; fantasy campaigns never see these.
+	| "q_quiet_town" | "q_outbreak" | "q_night" | "q_hospital" | "q_safehouse" | "q_dread" | "q_horde" | "q_chase" | "q_combat" | "q_radio" | "q_grief";
 
 // ─── NPCs, quests, journal ────────────────────────────────────────────────
 

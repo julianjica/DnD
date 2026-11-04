@@ -173,3 +173,38 @@ test("a gunshot in combat spends a round and lands in the noise log", async () =
 	m.saveState(st);
 	assert.equal(m.combat.noiseLog(m.loadState(z)).length, 1, "the noise log persists");
 });
+
+test("audio: The Quiet offers only its own beds and sounds; fantasy never sees them", async () => {
+	const enumOf = (id: string, tool: string, prop: string) => {
+		const t = m.allTools({ campaignId: id, emit: () => undefined, rolls: [] }).find((x) => x.name === tool)!;
+		return (t.parameters as { properties: Record<string, { enum: string[] }> }).properties[prop].enum;
+	};
+	const z = newGame(true, "fighter");
+	assert.equal(m.loadState(z).ambience, "q_outbreak", "a new zombie game opens on the outbreak night");
+	const zt = enumOf(z, "set_ambience", "track");
+	assert.ok(zt.includes("q_outbreak") && zt.includes("q_grief") && zt.includes("rain"));
+	assert.ok(!zt.some((t) => ["tavern", "town", "temple", "combat", "victory"].includes(t)), zt.join());
+	assert.equal((await call(z, "set_ambience", { track: "tavern" })).isError, true);
+	assert.notEqual((await call(z, "set_ambience", { track: "q_hospital" })).isError, true);
+	assert.equal(m.loadState(z).ambience, "q_hospital");
+	assert.ok(enumOf(z, "play_sfx", "sound").includes("shotgun"));
+	assert.ok(!enumOf(z, "play_sfx", "sound").includes("spell"));
+
+	const f = newGame(false);
+	assert.equal(m.loadState(f).ambience, "none");
+	const ft = enumOf(f, "set_ambience", "track");
+	assert.ok(ft.includes("tavern") && !ft.some((t) => t.startsWith("q_")), ft.join());
+	assert.equal((await call(f, "set_ambience", { track: "q_dread" })).isError, true);
+	assert.ok(!enumOf(f, "play_sfx", "sound").includes("groan"));
+});
+
+test("audio: zombie fights switch to q_combat and end in q_dread", async () => {
+	const z = newGame(true, "fighter");
+	await withMap(z);
+	const r = await call(z, "start_combat", { monsters: [{ monster: "z-shambler" }] });
+	assert.notEqual(r.isError, true, r.text);
+	assert.equal(m.loadState(z).ambience, "q_combat");
+	const end = await call(z, "end_combat", { status: "fled" });
+	assert.notEqual(end.isError, true, end.text);
+	assert.equal(m.loadState(z).ambience, "q_dread");
+});

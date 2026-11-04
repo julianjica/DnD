@@ -18,6 +18,7 @@ import { monsterForCampaign } from "../content";
 import { placeEntity, revealAround } from "../../maps";
 import { SIGHT_RADIUS } from "./map";
 import { checkBudget } from "../../rules/encounter-budget";
+import { isZombie } from "../../rules/survival";
 import { applyCombatResult, combatOpts, combatState, isPcTurn, playerCombatAction } from "../combat";
 import { describeSeparation, separation, where } from "../mapsync";
 import { findPath, hasLineOfSight, reachable } from "../../rules/combat";
@@ -25,7 +26,6 @@ import type { Encounter, GridMap } from "../../game/types";
 import { S, newId, tool, withState, type StateTxn, type ToolFactory } from "../context";
 import { applyDamageToCharacter, healCharacter } from "../derived";
 import { linkSurvivorCombatants, survivorForCombatant, survivorsAfterCombat, survivorsForCombat, survivorSpawn } from "../../rules/group";
-import { isZombie } from "../../rules/survival";
 
 const CONDITIONS: ConditionId[] = ["blinded", "charmed", "deafened", "frightened", "grappled", "incapacitated", "invisible", "paralyzed", "petrified", "poisoned", "prone", "restrained", "stunned", "unconscious"];
 const DAMAGE: DamageType[] = ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"];
@@ -189,7 +189,10 @@ export const startCombatTool = tool<{ monsters: SpawnArg[]; pcSurprised?: boolea
 			linkSurvivorCombatants(state);
 			state.mode = "combat";
 			state.view = "map";
-			if (state.ambience !== "boss") state.ambience = "combat";
+			// The Quiet fights to its own synth score; a horde keeps its bed.
+			if (isZombie(state)) {
+				if (state.ambience !== "q_horde") state.ambience = "q_combat";
+			} else if (state.ambience !== "boss") state.ambience = "combat";
 			state.scene.mood = "combat";
 			const ids = Object.values(state.encounter!.combatants).map((c) => `${c.name} [${c.id}] @${map.entities.find((e) => e.id === c.entityId)?.x},${map.entities.find((e) => e.id === c.entityId)?.y}`);
 			return `${budgetNote}\n${log}\nCombatants: ${ids.join("; ")}${turnStatus(state)}${autoUntilPc(tx, false)}`;

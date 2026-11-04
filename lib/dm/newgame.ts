@@ -90,7 +90,8 @@ export function createGame(input: NewGameInput): GameState {
 		scene: zombie
 			? { title: sc.title, kind: sc.kind, timeOfDay: "night", weather: "rain", mood: "tense", npcIds: [], props: [] }
 			: { title: sc.title, kind: sc.kind, timeOfDay: "dusk", weather: "clear", mood: "calm", npcIds: [], props: [] },
-		ambience: "none",
+		// The Quiet opens on the outbreak night: sirens, helicopters, bells.
+		ambience: zombie ? "q_outbreak" : "none",
 		world,
 		maps: {},
 		view: "scene",
