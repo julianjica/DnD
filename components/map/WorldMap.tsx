@@ -110,6 +110,8 @@ export default function WorldMap({ world: rawWorld, onLocationClick, selectedLoc
 	}, [size]);
 
 	const featureKey = JSON.stringify(world.terrain.features ?? []);
+	// Town maps draw only discovered districts and roads, so discovery repaints the base.
+	const discoveryKey = isTown ? `${rawWorld.locations.map((l) => +l.discovered).join("")}|${rawWorld.routes.map((r) => +r.discovered).join("")}` : "";
 	const viewKey = `${view.x0},${view.y0},${view.s}`;
 	const grid = useMemo(() => (isTown ? null : sampleWorld(rawWorld, 300, 200, view)), [isTown, rawWorld.seed, rawWorld.terrain.seaLevel, rawWorld.terrain.biome, featureKey, viewKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -134,10 +136,11 @@ export default function WorldMap({ world: rawWorld, onLocationClick, selectedLoc
 				},
 				damLabel: t("play.map.town.dam"),
 				walkLabel: (mins) => t("play.map.town.onFoot", { t: travelLabel(mins / 1440) }),
+				showUndiscovered,
 			});
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [box, grid, world.name, featureKey, fontReady, family, dpr, viewKey, isTown, lang, t, travelLabel]);
+	}, [box, grid, world.name, featureKey, fontReady, family, dpr, viewKey, isTown, lang, t, travelLabel, showUndiscovered, discoveryKey]);
 
 	useEffect(() => {
 		const c = overRef.current;

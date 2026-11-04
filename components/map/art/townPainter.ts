@@ -234,12 +234,15 @@ interface Layout {
 	places: Map<string, P>;
 }
 
-function buildLayout(world: WorldMap): Layout {
+/** Builds the town's geometry; undiscovered places (and the roads to them) stay off the map unless `showUndiscovered`. */
+function buildLayout(world: WorldMap, showUndiscovered = false): Layout {
 	const kessler = world.locations.some((l) => l.id.startsWith("loc-kf-"));
 	const seed = world.seed >>> 0;
 	const noise = makeNoise2D(seed ^ 0x70b1);
 	const zones: Zone[] = [];
+	const known = (l: WorldLocation | undefined) => !!l && (l.discovered || showUndiscovered);
 	for (const l of world.locations) {
+		if (!known(l)) continue;
 		const z = kessler ? ZONE_BY_ID[shortId(l.id)] : ZONE_BY_KIND[l.kind];
 		const spec = z === undefined ? ZONE_BY_KIND[l.kind] : z;
 		if (!spec) continue;
@@ -271,12 +274,12 @@ function buildLayout(world: WorldMap): Layout {
 	const byId = new Map(world.locations.map((l) => [l.id, l]));
 	for (const r of world.routes) {
 		const a = byId.get(r.from), b = byId.get(r.to);
-		if (!a || !b) continue;
+		if (!a || !b || !known(a) || !known(b) || !(r.discovered || showUndiscovered)) continue;
 		roads.push({ id: r.id, pts: townRoad(a, b, r.id, seed).map((p) => W(p.x, p.y)), discovered: r.discovered });
 	}
 	if (kessler) for (const [from, pts] of KESSLER.exits) {
-		const a = byId.get(`loc-kf-${from}`);
-		if (a) roads.push({ id: `exit-${from}`, pts: spline([W(a.x, a.y), ...pts.map(([x, y]) => W(x, y))], 10), discovered: true });
+		const a = byId.get(`loc-kf-${from}`)!;
+		if (known(a)) roads.push({ id: `exit-${from}`, pts: spline([W(a.x, a.y), ...pts.map(([x, y]) => W(x, y))], 10), discovered: true });
 	}
 	return {
 		zones,
@@ -313,6 +316,8 @@ export interface TownBaseOptions {
 	damLabel: string;
 	/** "12 min on foot" for the scale bar. */
 	walkLabel: (minutes: number) => string;
+	/** DM view: draw undiscovered places' districts and roads too. */
+	showUndiscovered?: boolean;
 }
 
 type Ctx = CanvasRenderingContext2D;
@@ -324,7 +329,7 @@ export function paintTownBase(canvas: HTMLCanvasElement, world: WorldMap, view: 
 	const ctx = canvas.getContext("2d")!;
 	const Wpx = canvas.width, Hpx = canvas.height;
 	const u = Math.max(Wpx / 1000, 0.85 * (opt.pixelRatio ?? 1));
-	const L = buildLayout(world);
+	const L = buildLayout(world, opt.showUndiscovered);
 	const kx = Wpx / (view.s * A), ky = Hpx / view.s;
 	const k = Math.min(kx, ky);
 	/** Device pixels → world units. */
