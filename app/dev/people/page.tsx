@@ -20,7 +20,7 @@ function Sprite({ look, dead = false }: { look: PersonLook; dead?: boolean }) {
 	return <canvas ref={ref} width={192} height={192} style={{ imageRendering: "pixelated" }} className="rounded bg-[#6b4a2e]" />;
 }
 
-interface Row { name: string; spec: PortraitSpec; species?: string; look: PersonLook; note: string }
+interface Row { name: string; spec: PortraitSpec; species?: string; look: PersonLook; note: string; modern?: { classes?: string[]; text?: string } }
 
 export default function PeoplePreview() {
 	const [rows, setRows] = useState<{ title: string; people: Row[] }[]>([]);
@@ -33,10 +33,10 @@ export default function PeoplePreview() {
 					// zombie campaigns dress people by profession / role
 					const ruleset = rulesetOf(state.settings);
 					const pcWho = { ruleset, classes: ch.classes.map((c) => c.classId) };
-					const pc: Row = { name: ch.name, spec: ch.portrait, species: ch.speciesId, look: personLook(ch.portrait, ch.speciesId, gearFor(pcWho), pcWho), note: ch.classes.map((c) => c.classId).join("/") };
+					const pc: Row = { name: ch.name, spec: ch.portrait, species: ch.speciesId, look: personLook(ch.portrait, ch.speciesId, gearFor(pcWho), pcWho), note: ch.classes.map((c) => c.classId).join("/"), modern: ruleset === "zombie" ? pcWho : undefined };
 					const npcs = Object.values(state.npcs).map((n) => {
 						const who = { ruleset, text: `${n.role ?? ""} ${n.description ?? ""}` };
-						return { name: n.name, spec: n.portrait, species: n.speciesId, look: personLook(n.portrait, n.speciesId, gearFor(who), who), note: n.role ?? "" };
+						return { name: n.name, spec: n.portrait, species: n.speciesId, look: personLook(n.portrait, n.speciesId, gearFor(who), who), note: n.role ?? "", modern: ruleset === "zombie" ? who : undefined };
 					});
 					return { title: state.title, people: [pc, ...npcs] };
 				}),
@@ -51,7 +51,7 @@ export default function PeoplePreview() {
 					<div className="grid grid-cols-4 gap-4">
 						{g.people.map((p) => (
 							<div key={p.name} className="flex items-center gap-2 rounded border border-stone-800 p-2">
-								<Portrait spec={p.spec} speciesId={p.species} size={96} />
+								<Portrait spec={p.spec} speciesId={p.species} size={96} modern={p.modern} />
 								<Sprite look={p.look} />
 								<div className="min-w-0 text-xs">
 									<div className="font-semibold">{p.name}</div>

@@ -5,6 +5,7 @@ import type { PortraitSpec } from "@/lib/game/types";
 import { BACKGROUND_COLORS, portraitOptions, portraitTraits, randomPortrait, skinTonesFor } from "@/lib/art/portrait";
 import { Rng, newSeed } from "@/lib/rules/dice";
 import { Portrait } from "@/components/art/Portrait";
+import type { ModernWho } from "@/components/art/PortraitModern";
 import { cn } from "@/components/ui/cn";
 import { FieldLabel } from "./Field";
 import { useT } from "@/components/i18n/I18nProvider";
@@ -23,7 +24,7 @@ const FANTASY_ONLY = new Set(["pointed_ears", "long_ears", "horns", "ram_horns",
 const AGE_VALUES: Record<string, number> = { young: 0.1, adult: 0.3, "middle-aged": 0.55, old: 0.8 };
 const ageKey = (a: number) => (a < 0.2 ? "young" : a < 0.45 ? "adult" : a < 0.7 ? "middle-aged" : "old");
 
-export function PortraitCustomizer({ spec, speciesId, name, onChange }: { spec: PortraitSpec; speciesId: string; name?: string; onChange: (p: PortraitSpec) => void }) {
+export function PortraitCustomizer({ spec, speciesId, name, onChange, who }: { spec: PortraitSpec; speciesId: string; name?: string; onChange: (p: PortraitSpec) => void; /** The Quiet: profession/role, so the portrait wears its clothes. */ who?: ModernWho }) {
 	const set = (patch: Partial<PortraitSpec>) => onChange({ ...spec, ...patch });
 	const { t, te, ruleset } = useT();
 	const offered = (v: string) => ruleset !== "zombie" || !FANTASY_ONLY.has(v);
@@ -34,7 +35,7 @@ export function PortraitCustomizer({ spec, speciesId, name, onChange }: { spec: 
 	return (
 		<div className="grid gap-5 md:grid-cols-[auto_minmax(0,1fr)]">
 			<div className="flex flex-col items-center gap-3">
-				<Portrait spec={spec} speciesId={speciesId} size={180} name={name || undefined} />
+				<Portrait spec={spec} speciesId={speciesId} size={180} name={name || undefined} modern={ruleset === "zombie" ? (who ?? true) : undefined} />
 				<div className="flex gap-2">
 					<button type="button" className="btn btn-gold py-1.5 text-sm" onClick={() => onChange(newPortrait(speciesId))}>
 						<Dices className="size-4" /> {t("portrait.randomize")}
