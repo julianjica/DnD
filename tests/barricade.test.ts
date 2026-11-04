@@ -8,6 +8,7 @@ import { blocksSight as combatBlocksSight, blocksCover, findPath, hasLineOfSight
 import { startCombat } from "../lib/rules/combat/encounter";
 import { blocksSight, canStand, computeFov, isPassable } from "../lib/maps/grid";
 import { drawMap } from "../lib/maps/draw";
+import { stateDigest } from "../lib/dm/digest";
 import type { GameState, GridMap } from "../lib/game/types";
 
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), "dh-barricade-"));
@@ -138,6 +139,7 @@ test("damage_barricade: hp drops, at 0 it becomes rubble; build on it repairs", 
 	const b = await call(id, "build_barricade", { x: 5, y: 3, material: "furniture" });
 	assert.notEqual(b.isError, true, b.text);
 	assert.deepEqual(activeMap(m.loadState(id)).barricades, { "5,3": { hp: 15, max: 15 } });
+	assert.match(stateDigest(m.loadState(id)), /Barricades \(.*\): \(5,3\) 15\/15/);
 
 	const hit = await call(id, "damage_barricade", { x: 5, y: 3, amount: 9 });
 	assert.match(hit.text, /6\/15 HP left \(badly damaged/);

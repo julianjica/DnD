@@ -1,5 +1,6 @@
 import { doorSummary, roomOf } from "./mapsync";
 import type { GameState, LogEntry } from "../game/types";
+import { barricadeSummary } from "../rules/barricade";
 import { outbreakDay, rulesetOf } from "../rules/ruleset";
 import { survivalDigest } from "../rules/survival";
 import { rulesetLabelEn } from "../i18n/ruleset-labels";
@@ -84,6 +85,8 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 		lines.push(`Entities: ${ents.join(", ")}`);
 		const doors = doorSummary(m);
 		if (doors) lines.push(`Doors (closed ones open when walked through; locked ones need set_tile): ${doors}`);
+		const barricades = barricadeSummary(m);
+		if (barricades) lines.push(`Barricades (block movement and sight; damage_barricade when the dead pound on them, build_barricade repairs): ${barricades}`);
 	}
 
 	if (s.encounter && s.encounter.status === "active") {
