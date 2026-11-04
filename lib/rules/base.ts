@@ -171,10 +171,11 @@ export function claimBase(state: GameState, a: ClaimArgs): string {
 	}
 	if (old) {
 		old.name = name;
-		old.mapId = mapId;
+		// Renaming while another map is active keeps the base's own map.
+		old.mapId = a.mapId ?? old.mapId ?? state.activeMapId;
 		old.structure = a.structure !== undefined ? structure : old.structure;
 		old.fortification = fortificationOf(state, old);
-		return `Base updated: ${name} (${locationName(state, locationId)}${mapId ? `, map ${mapId}` : ""}). Fortification ${old.fortification}/10.`;
+		return `Base updated: ${name} (${locationName(state, locationId)}${old.mapId ? `, map ${old.mapId}` : ""}). Fortification ${old.fortification}/10.`;
 	}
 	const b: BaseState = {
 		name,
