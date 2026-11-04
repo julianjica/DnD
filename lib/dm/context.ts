@@ -4,6 +4,8 @@ import { isZombie, survivalOf, tick as survivalTick } from "../rules/survival";
 import type { DmTool, GameState, JsonSchema, RollRecord, ToolResult } from "../game/types";
 import { mutate } from "../store/campaigns";
 import { Rng } from "../rules/dice";
+import { groupTick } from "../rules/group";
+import { addInventoryItem } from "./items";
 
 /** Events streamed to the browser during a turn (SSE). */
 export type ClientEvent =
@@ -54,7 +56,15 @@ export async function withState<T>(ctx: ToolContext, fn: (tx: StateTxn) => T | P
 		// The Quiet: the survival clock starts before the mutation, so time it advances counts.
 		if (isZombie(state)) survivalOf(state);
 		let out = await fn({ state, rng, roll: (r) => rolls.push(r), fx: (f) => fxs.push(f) });
-		const note = [syncSpellTokens(state), isZombie(state) ? survivalTick(state, rng) : undefined].filter(Boolean).join("\n");
+		const zombie = isZombie(state);
+		const note = [
+			syncSpellTokens(state),
+			zombie ? survivalTick(state, rng) : undefined,
+			// After the player's tick: companions eat after the player; errands come back.
+			zombie ? groupTick(state, rng, (s, item) => void addInventoryItem(s, item, () => newId("it"))) : undefined,
+		]
+			.filter(Boolean)
+			.join("\n");
 		if (note && typeof out === "string") out = `${out}\n${note}` as typeof out;
 		state.rng = rng.state;
 		snapshot = state;

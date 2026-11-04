@@ -7,6 +7,7 @@ import { lookupForCampaign } from "../content";
 import { abilityMod } from "../../rules/dice";
 import { S, tool, withState, type ToolFactory } from "../context";
 import { advanceClock, fed, isZombie, restInterruption } from "../../rules/survival";
+import { restSurvivors } from "../../rules/group";
 
 const ABILS = ["str", "dex", "con", "int", "wis", "cha"] as const;
 
@@ -102,7 +103,8 @@ export const longRestTool = tool<{ interrupted?: boolean; secured?: boolean }>(
 			const total = state.time.hour + 8;
 			state.time.day += Math.floor(total / 24);
 			state.time.hour = total % 24;
-			return `Long rest complete. HP ${state.character.hp}/${state.character.maxHp}; resources restored.${!fedWell && exhaustion ? " Exhaustion NOT reduced: no food and water in the last 24 hours." : ""}`;
+			const companions = zombie ? restSurvivors(state) : undefined;
+			return `Long rest complete. HP ${state.character.hp}/${state.character.maxHp}; resources restored.${!fedWell && exhaustion ? " Exhaustion NOT reduced: no food and water in the last 24 hours." : ""}${companions ? ` ${companions}` : ""}`;
 		}),
 );
 
