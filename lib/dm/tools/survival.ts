@@ -13,7 +13,7 @@ const notZombie = "This tool only exists in The Quiet (zombie-ruleset campaigns)
 export const makeNoiseTool = tool<{ amount: number; reason: string }>(
 	"make_noise",
 	"The Quiet: something loud happens where the player is (not their gunshots or loud techniques: the engine counts those). Typical: shouting 1, breaking glass 2, a slammed door or crash 2, a car alarm 4, an explosion 5. Noise 0–10 decays 1 per 10 quiet minutes and resets when the party moves elsewhere. Crossing 4 brings wanderers, 7 a pack, 10 a horde (one step worse at night); the engine rolls what comes and when, and you must then put them in play.",
-	S.obj({ amount: S.int("Noise added, 1–10", 1, 10), reason: S.str("What made it: 'car alarm', 'window smashed'") }, ["amount", "reason"]),
+	S.obj({ amount: S.int("Noise added, 1–10", 1, 10), reason: S.str("What made it, written in the campaign's language (shown to the player): 'car alarm', 'ventana rota'") }, ["amount", "reason"]),
 	async (a, ctx) =>
 		withState(ctx, ({ state, rng }) => {
 			if (!isZombie(state)) throw new Error(notZombie);

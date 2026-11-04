@@ -66,12 +66,12 @@ function levelColor(n: number): string {
 // ─── pieces ─────────────────────────────────────────────────────────────────
 
 function NoiseTip({ level, lastEvent }: { level: number; lastEvent?: string }) {
-	const { t } = useT();
+	const { t, ts } = useT();
 	const { le } = useEngineText();
 	return (
 		<div className="space-y-1">
 			<div className="font-semibold" style={{ color: levelColor(level) }}>{t("play.surv.noiseLevel", { n: level })}</div>
-			{lastEvent ? <div>{t("play.surv.noiseLast", { e: le(lastEvent) })}</div> : level === 0 ? <div>{t("play.surv.noiseQuiet")}</div> : null}
+			{lastEvent ? <div>{t("play.surv.noiseLast", { e: ts(le(lastEvent)) })}</div> : level === 0 ? <div>{t("play.surv.noiseQuiet")}</div> : null}
 			<div className="text-dim">{t("play.surv.noiseHelp")}</div>
 		</div>
 	);
