@@ -342,6 +342,9 @@ const TEMPLATES: Tpl[] = [
 	[/^(.+) rolls hit points$/, (m, h) => `${h.n(m[1])} tira puntos de golpe`],
 	[/^(.+) hit points$/, (m, h) => `Puntos de golpe de ${h.n(m[1])}`],
 	[/^(.+) recharge (.+) \((\d)–6\)$/, (m, h) => `${h.n(m[1])}: recarga de ${h.s(m[2])} (${m[3]}–6)`],
+	// The Quiet: a bite's infection save (the player's has no name; a companion's does) and a fallen companion's last roll.
+	[/^(?:(.+?):? )?CON save vs infection \((.+)\)$/, (m, h) => (m[1] ? `${h.n(m[1])}: salvación de CON contra la infección (${h.n(m[2])})` : `Salvación de CON contra la infección (${h.n(m[2])})`)],
+	[/^(.+): still breathing\?$/, (m, h) => `${h.n(m[1])}: ¿sigue respirando?`],
 	[new RegExp(`^(?!.* (?:succeeds|fails) )(.+) ${AB} save vs (.+)$`), (m, h) => `${h.n(m[1])}: salvación de ${h.ab(m[2])} contra ${h.s(m[3])}`],
 	[/^(.+) spends a hit die$/, (m, h) => `${h.n(m[1])} gasta un dado de golpe`],
 	[/^Song of Rest$/, (_m, h) => (h.s("Song of Rest") !== "Song of Rest" ? h.s("Song of Rest") : "Canción de descanso")],

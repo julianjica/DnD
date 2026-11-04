@@ -486,3 +486,31 @@ test("update_survivor: morale deltas, gear hand-offs, death; dismiss_survivor", 
 	assert.equal(sv(m.loadState(z), n).status, "left");
 	assert.equal((await call(z, "update_survivor", { npcId: n, morale: 1 })).isError, true);
 });
+
+test("morale driven to 0 by the story: they leave at the next 08:00 even with full packs", async () => {
+	const z = newGame(true);
+	const n = await npc(z, "Otto");
+	await ok(z, "recruit_survivor", { npcId: n, profession: "teacher", specialty: "x", traits: ["proud"] });
+	assert.match(await ok(z, "update_survivor", { npcId: n, morale: -10, note: "the player left his brother behind" }), /AT ZERO/);
+	edit(z, (s) => s.character.inventory.push(item("z-canned-food", "Canned Food", 5), item("z-bottled-water", "Bottled Water", 5)));
+	const out = await ok(z, "advance_time", { hours: 12 });
+	assert.match(out, /MORALE BROKEN: Otto has had enough and LEAVES/);
+	assert.doesNotMatch(out, /Otto went without/);
+	assert.equal(sv(m.loadState(z), n).status, "left");
+});
+
+test("a turned companion comes back as the dead: an enemy, not a companion", async () => {
+	const z = newGame(true);
+	await ok(z, "draw_map", { name: "Alley", kind: "town", rows: ROWS });
+	const n = await npc(z, "Sol");
+	await ok(z, "recruit_survivor", { npcId: n, profession: "athlete", specialty: "x", traits: ["kind"] });
+	const s = m.loadState(z);
+	const note = m.group.turnSurvivor(s, sv(s, n), "died of the LAZARUS infection");
+	assert.match(note, /Sol died of the LAZARUS infection and TURNED, right there/);
+	m.saveState(s);
+	const start = await ok(z, "start_combat", { monsters: [{ monster: "z-shambler", name: "Sol", npcId: n, x: 6, y: 3 }], override: "a companion turned" });
+	assert.doesNotMatch(start, /Companions/);
+	const sol = Object.values(m.loadState(z).encounter!.combatants).find((x) => x.refId === n)!;
+	assert.equal(sol.side, "enemy");
+	assert.equal(sol.stats!.index, "z-shambler");
+});

@@ -331,6 +331,7 @@ export function survivorBitten(state: GameState, rng: Rng, record: RecordRoll, s
 export function turnSurvivor(state: GameState, sv: Survivor, how: string): string {
 	const name = nameOf(state, sv);
 	const where = sv.status === "with_party" ? "right there, next to the player" : sv.status === "at_base" ? "inside the base, among the others" : "out there, wherever their errand took them";
+	const body = sv.status === "with_party" && state.activeMapId ? state.maps[state.activeMapId]?.entities.find((e) => e.npcId === sv.npcId && e.kind !== "pc") : undefined;
 	sv.status = "turned";
 	sv.hp = 0;
 	delete sv.away;
@@ -340,7 +341,7 @@ export function turnSurvivor(state: GameState, sv: Survivor, how: string): strin
 		npc.alive = false;
 		npc.disposition = "hostile";
 	}
-	const note = `${name} ${how} and TURNED, ${where}. Make them one of the dead: when they get up, use start_combat (or add_monsters) with monster "z-fresh-turned", name "${name}", npcId "${sv.npcId}" (at their body if it is on the map). Let the player see who it was.`;
+	const note = `${name} ${how} and TURNED, ${where}. Make them one of the dead: when they get up, use start_combat (or add_monsters) with monster "z-fresh-turned" (or "z-shambler" if the budget refuses; override "a companion turned"), name "${name}", npcId "${sv.npcId}"${body ? `, entityId "${body.id}" (their body on the map)` : ""}. Let the player see who it was.`;
 	state.dmNotes.push(note);
 	return `DM NOTE: ${note}${shakeGroup(state, sv.npcId, -2)}`;
 }
@@ -609,11 +610,12 @@ function dailyNeeds(state: GameState, rng: Rng, at: number): string[] {
 		if (ate && drank) {
 			sv.missedDays = 0;
 			if (sv.hp > 0 && sv.hp < sv.maxHp) sv.hp = Math.min(sv.maxHp, sv.hp + Math.max(1, sv.level));
-			continue;
+		} else {
+			sv.missedDays += 1;
+			adjustMorale(sv, -1);
+			out.push(`Day ${day}, 08:00: ${name} went without ${!ate && !drank ? "food and water" : !ate ? "food" : "water"} (${sv.missedDays} day(s) short${sv.status === "at_base" ? ", base stock" : ", from the party's packs"}): morale −1 → ${sv.morale}/10.`);
 		}
-		sv.missedDays += 1;
-		adjustMorale(sv, -1);
-		out.push(`Day ${day}, 08:00: ${name} went without ${!ate && !drank ? "food and water" : !ate ? "food" : "water"} (${sv.missedDays} day(s) short${sv.status === "at_base" ? ", base stock" : ", from the party's packs"}): morale −1 → ${sv.morale}/10.`);
+		// Morale at 0 (hunger, or the story via update_survivor): the morning they walk.
 		if (sv.morale <= 0) out.push(moraleBreak(state, rng, sv));
 	}
 	return out;

@@ -99,7 +99,8 @@ function survivorsAsThemselves(state: GameState, spawns: MonsterSpawn[]): Monste
 function withSurvivors(state: GameState, map: GridMap, spawns: MonsterSpawn[]): { spawns: MonsterSpawn[]; note: string } {
 	if (!isZombie(state) || !state.group) return { spawns, note: "" };
 	const own = survivorsAsThemselves(state, spawns);
-	const listed = new Set(own.filter((s) => s.kind === "npc" && s.refId && state.group!.survivors[s.refId]).map((s) => s.refId!));
+	// Listed by the DM: companions fighting as themselves; a turned one comes back as the dead and doesn't count.
+	const listed = new Set(own.filter((s) => s.kind === "npc" && s.refId && s.side === "party" && state.group!.survivors[s.refId]?.status === "with_party").map((s) => s.refId!));
 	const alliesXp = own.filter((s) => s.side === "party").reduce((n, s) => n + (s.stats.xp ?? 0), 0);
 	const { spawns: joined, held } = survivorsForCombat(state, map, alliesXp, listed);
 	const names = [...joined.map((s) => `${s.name} [${s.id}]`), ...[...listed].map((id) => state.npcs[id]?.name ?? id)];
