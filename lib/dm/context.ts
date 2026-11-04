@@ -1,3 +1,4 @@
+import { clientState } from "../game/client";
 import { syncSpellTokens } from "./spellTokens";
 import { isZombie, survivalOf, tick as survivalTick } from "../rules/survival";
 import type { DmTool, GameState, JsonSchema, RollRecord, ToolResult } from "../game/types";
@@ -64,7 +65,7 @@ export async function withState<T>(ctx: ToolContext, fn: (tx: StateTxn) => T | P
 		ctx.emit({ type: "roll", roll: r });
 	}
 	for (const f of fxs) ctx.emit({ type: "fx", fx: f });
-	if (snapshot) ctx.emit({ type: "state", state: snapshot });
+	if (snapshot) ctx.emit({ type: "state", state: clientState(snapshot) });
 	return result;
 }
 

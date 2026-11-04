@@ -1,3 +1,4 @@
+import { clientState } from "@/lib/game/client";
 import { rulesetOf } from "@/lib/rules/ruleset";
 import type { NextRequest } from "next/server";
 import type { CampaignSettings } from "@/lib/game/types";
@@ -34,5 +35,5 @@ export async function PATCH(req: NextRequest, ctx: RouteContext<"/api/campaigns/
 		if (body.title) s.title = body.title.slice(0, 120);
 		return s;
 	});
-	return Response.json({ state });
+	return Response.json({ state: clientState(state) });
 }

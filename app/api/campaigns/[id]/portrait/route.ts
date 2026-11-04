@@ -1,3 +1,4 @@
+import { clientState } from "@/lib/game/client";
 import type { NextRequest } from "next/server";
 import type { PortraitSpec } from "@/lib/game/types";
 import { campaignExists, mutate } from "@/lib/store/campaigns";
@@ -14,5 +15,5 @@ export async function PUT(req: NextRequest, ctx: RouteContext<"/api/campaigns/[i
 		s.character.portrait = p;
 		return s;
 	});
-	return Response.json({ state });
+	return Response.json({ state: clientState(state) });
 }

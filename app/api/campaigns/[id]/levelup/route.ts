@@ -1,3 +1,4 @@
+import { clientState } from "@/lib/game/client";
 import type { NextRequest } from "next/server";
 import { campaignExists, loadState, appendLog } from "@/lib/store/campaigns";
 import { canLevelUp, canMulticlass, levelUp, levelUpOptions } from "@/lib/rules/character";
@@ -46,7 +47,7 @@ export async function POST(req: NextRequest, ctx: RouteContext<"/api/campaigns/[
 			return { level: lvl, hpGained: res.hpGained, newFeatures: res.newFeatures, autoChoices: res.autoChoices };
 		});
 		appendLog(id, { id: newId("l"), role: "system", text: `Level up! Now level ${result.level} (+${result.hpGained} HP).`, ts: Date.now() });
-		return Response.json({ ...result, state: loadState(id) });
+		return Response.json({ ...result, state: clientState(loadState(id)) });
 	} catch (error) {
 		return jsonError(error instanceof Error ? error.message : String(error));
 	}

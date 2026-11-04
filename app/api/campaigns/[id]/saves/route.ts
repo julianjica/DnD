@@ -1,3 +1,4 @@
+import { clientState } from "@/lib/game/client";
 import type { NextRequest } from "next/server";
 import { campaignExists, deleteSave, listSaves, loadSave, writeSave } from "@/lib/store/campaigns";
 import { isTurnRunning } from "@/lib/dm/turn";
@@ -23,7 +24,7 @@ export async function POST(req: NextRequest, ctx: RouteContext<"/api/campaigns/[
 			const state = loadSave(id, body.slot);
 			// The engine session remembers events after the save point: start fresh.
 			getEngine(loadState(id).settings.engine.provider).resetSession(id);
-			return Response.json({ state });
+			return Response.json({ state: clientState(state) });
 		}
 		if (body.op === "delete" && body.slot) {
 			deleteSave(id, body.slot);
