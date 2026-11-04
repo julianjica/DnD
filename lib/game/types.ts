@@ -217,6 +217,8 @@ export interface PortraitSpec {
 	clothingStyle?: "tunic" | "armor" | "robe" | "leather" | "cloak";
 	/** Clothing color (hex). */
 	clothing?: string;
+	/** The Quiet: chosen modern outfit ("hoodie", "scrubs", "police"…). Absent = everyday clothes for the player, role-based for NPCs. */
+	outfit?: string;
 }
 
 export interface Character {

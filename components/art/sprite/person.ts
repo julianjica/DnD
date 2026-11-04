@@ -169,7 +169,7 @@ export function personLook(spec: PortraitSpec, speciesId: string | undefined, ge
 		age,
 		species: normalizeSpecies(speciesId),
 		gear,
-		...(modern ? (({ outfit, hat }) => ({ outfit, hat }))(modernDress(spec.seed, opts ?? {})) : {}),
+		...(modern ? (({ outfit, hat }) => ({ outfit, hat }))(modernDress(spec, opts ?? {})) : {}),
 	};
 }
 
@@ -178,10 +178,24 @@ export function personLook(spec: PortraitSpec, speciesId: string | undefined, ge
  * sprite and the SVG portrait so both dress them the same. Plain civilians
  * ("denim") wear a hoodie one time in three.
  */
-export function modernDress(seed: number, who: { classes?: string[]; text?: string }): ModernRole {
+export function modernDress(spec: Pick<PortraitSpec, "seed" | "outfit">, who: { classes?: string[]; text?: string }): ModernRole {
+	const seed = spec.seed;
 	const r = modernRole(who);
-	return r.outfit === "denim" && seed % 3 === 0 ? { ...r, outfit: "hoodie" } : r;
+	// A chosen outfit wins, and brings its own headwear (a uniform comes with its cap or helmet).
+	if (spec.outfit && spec.outfit in OUTFIT) return { ...r, outfit: spec.outfit as Outfit, hat: OUTFIT_HAT[spec.outfit as Outfit] };
+	// The player's profession sets their gear, not their clothes: by default they wear everyday clothes.
+	const everyday = who.classes?.length ? { ...r, outfit: "denim" as Outfit, hat: "none" as Hat } : r;
+	return everyday.outfit === "denim" && seed % 3 === 0 ? { ...everyday, outfit: "hoodie" } : everyday;
 }
+
+/** Outfits a player can pick in The Quiet, everyday clothes first. */
+export const OUTFIT_CHOICES: Outfit[] = ["denim", "hoodie", "flannel", "cardigan", "tracksuit", "apron", "scrubs", "labcoat", "police", "turnout", "fatigues", "camo", "clergy", "prison"];
+
+/** Headwear that comes with an outfit when it's chosen on purpose. */
+export const OUTFIT_HAT: Record<Outfit, Hat> = {
+	scrubs: "none", police: "police_cap", turnout: "fire_helmet", fatigues: "army_helmet", flannel: "cap", camo: "blaze_cap",
+	tracksuit: "none", labcoat: "none", denim: "none", hoodie: "none", prison: "none", clergy: "none", apron: "none", cardigan: "none",
+};
 
 
 /**

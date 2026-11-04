@@ -283,10 +283,10 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 				out[e.id] = personLook(state.character.portrait, state.character.speciesId, gearFor(who), who);
 			} else if (e.npcId && state.npcs[e.npcId]) {
 				const n = state.npcs[e.npcId];
-				// The Quiet: a survivor dresses by their profession, like the player.
+				// The Quiet: people dress as described (role/description); a survivor's profession sets only their gear.
 				const sv = state.group?.survivors[e.npcId];
-				const who = { ruleset, classes: sv ? [sv.profession] : undefined, text: `${n.role ?? ""} ${n.description ?? ""}` };
-				out[e.id] = personLook(n.portrait, n.speciesId, gearFor(who), who);
+				const who = { ruleset, text: `${n.role ?? ""} ${n.description ?? ""}` };
+				out[e.id] = personLook(n.portrait, n.speciesId, gearFor(sv ? { ...who, classes: [sv.profession] } : who), who);
 			}
 		}
 		return out;

@@ -62,12 +62,12 @@ function when(m: number, state: GameState, t: T): string {
 	return day === state.time.day ? time : t("play.clock", { day, time });
 }
 
-/** The person-look of a survivor's pixel sprite: dressed by profession (modern). */
+/** The person-look of a survivor's pixel sprite: dressed as described; their profession sets the gear (modern). */
 function survivorLook(state: GameState, s: Survivor): PersonLook | null {
 	const n = state.npcs[s.npcId];
 	if (!n) return null;
-	const who = { ruleset: "zombie" as const, classes: [s.profession], text: `${n.role ?? ""} ${n.description ?? ""}` };
-	return personLook(n.portrait, n.speciesId, gearFor(who), who);
+	const who = { ruleset: "zombie" as const, text: `${n.role ?? ""} ${n.description ?? ""}` };
+	return personLook(n.portrait, n.speciesId, gearFor({ ...who, classes: [s.profession] }), who);
 }
 
 // ─── pieces ─────────────────────────────────────────────────────────────────
@@ -141,7 +141,7 @@ function SurvivorCard({ s, state }: { s: Survivor; state: GameState }) {
 		<article className="rounded-lg border border-line bg-bg-2/60 p-2.5" data-testid="survivor-card">
 			<div className="flex gap-3">
 				<div className="relative shrink-0 self-start">
-					{n ? <Portrait spec={n.portrait} size={58} speciesId={n.speciesId} framed={false} className="rounded-md" /> : <div className="h-[70px] w-[58px] rounded-md bg-bg" />}
+					{n ? <Portrait spec={n.portrait} size={58} speciesId={n.speciesId} framed={false} className="rounded-md" modern={{ text: `${n.role ?? ""} ${n.description ?? ""}` }} /> : <div className="h-[70px] w-[58px] rounded-md bg-bg" />}
 					{look && (
 						<span className="absolute -bottom-2 -right-3 rounded-md border border-line bg-[#14110e]/95 p-0.5 shadow-md">
 							<Sprite look={look} size={30} />
@@ -206,7 +206,7 @@ function MemoryRow({ s, state }: { s: Survivor; state: GameState }) {
 	const look = useMemo(() => survivorLook(state, s), [state, s]);
 	return (
 		<div className="flex items-center gap-2 py-1">
-			{n && <Portrait spec={n.portrait} size={30} speciesId={n.speciesId} framed={false} className="shrink-0 rounded opacity-60 grayscale" />}
+			{n && <Portrait spec={n.portrait} size={30} speciesId={n.speciesId} framed={false} className="shrink-0 rounded opacity-60 grayscale" modern={{ text: `${n.role ?? ""} ${n.description ?? ""}` }} />}
 			{look && <span className="shrink-0 opacity-70"><Sprite look={look} dead={s.status !== "left"} size={24} /></span>}
 			<div className="min-w-0 flex-1">
 				<div className="truncate text-xs text-dim">{n?.name ?? s.npcId}</div>

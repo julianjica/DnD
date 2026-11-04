@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { PortraitSpec } from "@/lib/game/types";
 import { mix, shade } from "@/lib/art/color";
 import { ArtRng, r1 } from "@/lib/art/rand";
-import { modernDress, OUTFIT, type Hat, type Outfit } from "./sprite/person";
+import { modernDress, modernRole, OUTFIT, type Hat, type Outfit } from "./sprite/person";
 
 /**
  * The Quiet (modern zombie ruleset): present-day clothes, headwear, extras and
@@ -67,7 +67,7 @@ const DEPT: Partial<Record<Outfit, Dept>> = {
 
 /** Deterministic modern dress for a spec. Uses its own rng: the face's draws are untouched. */
 export function modernLook(spec: PortraitSpec, who: ModernWho, cloth: string, age: number): ModernLook {
-	const role = modernDress(spec.seed, who);
+	const role = modernDress(spec, who);
 	const r = new ArtRng((spec.seed ^ 0x2c1b3c6d) >>> 0);
 	const civ = r.pick(["denim_jacket", "leather", "flannel", "puffer", "denim_jacket"] as const);
 	const shirt = r.pick(TEES);
@@ -110,7 +110,8 @@ export function modernLook(spec: PortraitSpec, who: ModernWho, cloth: string, ag
 		grime: grimeRoll < 0.3 ? 1 : grimeRoll < 0.42 ? 2 : 0,
 		blood: bloodRoll < 0.22,
 		plaster: plasterRoll < 0.16 ? plasterAt : "none",
-		dept: DEPT[o] ?? "civ",
+		// The ID card is from where they worked (profession/role), whatever they wear now.
+		dept: DEPT[modernRole(who).outfit] ?? DEPT[o] ?? "civ",
 		specks,
 	};
 }

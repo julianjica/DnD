@@ -1,5 +1,6 @@
 "use client";
 
+import { OUTFIT_CHOICES } from "@/components/art/sprite/person";
 import { Dices } from "lucide-react";
 import type { PortraitSpec } from "@/lib/game/types";
 import { BACKGROUND_COLORS, portraitOptions, portraitTraits, randomPortrait, skinTonesFor } from "@/lib/art/portrait";
@@ -68,7 +69,11 @@ export function PortraitCustomizer({ spec, speciesId, name, onChange, who }: { s
 				</div>
 				<SelectField label={t("portrait.gender")} pretty={pretty} value={spec.gender ?? (portraitTraits(spec, speciesId).female ? "female" : "male")} values={["female", "male"]} onPick={(v) => set({ gender: v as "female" | "male", ...(v === "female" ? { facialHair: "none" } : {}) })} />
 				<SelectField label={t("portrait.age")} pretty={pretty} value={ageKey(spec.age ?? portraitTraits(spec, speciesId).age)} values={Object.keys(AGE_VALUES)} onPick={(v) => set({ age: AGE_VALUES[v] })} />
-				<SelectField label={t("portrait.outfit")} pretty={pretty} value={spec.clothingStyle ?? portraitTraits(spec, speciesId).clothingStyle} values={["tunic", "armor", "robe", "leather", "cloak"]} onPick={(v) => set({ clothingStyle: v as PortraitSpec["clothingStyle"] })} />
+				{ruleset === "zombie" ? (
+					<SelectField label={t("portrait.outfit")} pretty={pretty} value={spec.outfit ?? "auto"} values={["auto", ...OUTFIT_CHOICES]} onPick={(v) => set({ outfit: v === "auto" ? undefined : v })} />
+				) : (
+					<SelectField label={t("portrait.outfit")} pretty={pretty} value={spec.clothingStyle ?? portraitTraits(spec, speciesId).clothingStyle} values={["tunic", "armor", "robe", "leather", "cloak"]} onPick={(v) => set({ clothingStyle: v as PortraitSpec["clothingStyle"] })} />
+				)}
 				<SelectField label={t("portrait.hairStyle")} pretty={pretty} value={spec.hairStyle} values={portraitOptions.hairStyle} onPick={(v) => set({ hairStyle: v })} />
 				<SelectField label={t("portrait.facialHair")} pretty={pretty} value={spec.facialHair ?? "none"} values={portraitOptions.facialHair} onPick={(v) => set({ facialHair: v })} />
 				<SelectField label={t("portrait.accessory")} pretty={pretty} value={spec.accessory ?? "none"} values={portraitOptions.accessory.filter(offered)} onPick={(v) => set({ accessory: v })} />
