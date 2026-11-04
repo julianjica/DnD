@@ -17,6 +17,7 @@ import type { AmbienceTrack } from "../game/types";
 import type { Ruleset } from "../rules/ruleset";
 import { blip, burst, every, makeImpulse, makeNoise, mtof, noiseSrc, panner, pick, rand, stopNodes, wander, type Ctx, type Stop } from "./kit";
 import { makeQuietSynth, quietSfx, type QuietSfxName, type QuietSynthKind } from "./quiet";
+import { isScoreKind, makeScoreSynth, type ScoreSynthKind } from "./quiet-score";
 
 export type SfxName =
 	| "dice"
@@ -91,7 +92,7 @@ export interface SfxOptions {
 export interface AmbienceEngineState {
 	unlocked: boolean;
 	muted: boolean;
-	track: AmbienceTrack;
+	track: PlayableTrack;
 	volumes: AudioVolumes;
 }
 
@@ -106,7 +107,8 @@ type SynthKind =
 	| "wind" | "softWind" | "rain" | "fire" | "drips" | "drone" | "darkDrone" | "birds"
 	| "crickets" | "surf" | "thunder" | "padWarm" | "padMinor" | "padMajor" | "choir"
 	| "heartbeat" | "drums" | "crowd" | "creaks" | "owl"
-	| QuietSynthKind;
+	| QuietSynthKind
+	| ScoreSynthKind;
 
 type Layer =
 	| {
@@ -117,11 +119,33 @@ type Layer =
 			mode: "xfade" | "native" | "once";
 			/** Synth layers to use instead if the file fails to load/decode. */
 			fallback?: SynthKind[];
+			/** Optional lowpass cutoff (Hz) to push a recording far back. */
+			lowpass?: number;
 	  }
 	| { kind: "synth"; synth: SynthKind; gain: number };
 
-const file = (src: string, gain: number, mode: "xfade" | "native" | "once", fallback?: SynthKind[]): Layer => ({ kind: "file", src, gain, mode, fallback });
+const file = (src: string, gain: number, mode: "xfade" | "native" | "once", fallback?: SynthKind[], lowpass?: number): Layer => ({ kind: "file", src, gain, mode, fallback, lowpass });
 const synth = (s: SynthKind, gain: number): Layer => ({ kind: "synth", synth: s, gain });
+
+/**
+ * Candidate versions of two Quiet beds, playable only from the listening page
+ * (never offered to the DM). The chosen one becomes the recipe of the real id.
+ */
+export const QUIET_PREVIEW_TRACKS = ["q_quiet_town_a", "q_quiet_town_b", "q_dread_a", "q_dread_b"] as const;
+export type PreviewTrack = (typeof QUIET_PREVIEW_TRACKS)[number];
+/** Anything the engine can play: a real track or a preview candidate. */
+export type PlayableTrack = AmbienceTrack | PreviewTrack;
+
+const PREVIEW_RECIPES: Record<PreviewTrack, Layer[]> = {
+	// A: empty street at dusk — far, dark wind; warm slow pad; a few plucked notes; a rare far electronic tone.
+	q_quiet_town_a: [file("amb/wind-winter.mp3", 0.3, "xfade", ["softWind"], 650), synth("sDusk", 0.9), synth("sDistantTone", 1)],
+	// B: deserted, uneasy — no melody: deep beating drone, wind singing in wires, rare far thuds, silence.
+	q_quiet_town_b: [file("amb/wind-winter.mp3", 0.24, "xfade", ["softWind"], 480), synth("sDeepDrone", 1.1), synth("sWires", 0.6), synth("sFarThuds", 1)],
+	// A: slow breathing low strings with a sub; rare dissonant clusters that drop into silence.
+	q_dread_a: [synth("sStrings", 1.05)],
+	// B: a slow sub pulse, glassy harmonics, reverse swells, a far metal scrape.
+	q_dread_b: [synth("sSubPulse", 0.8), synth("sGlass", 1), synth("sReverseSwell", 1), synth("sScrape", 1), synth("sDeepDrone", 0.35)],
+};
 
 const RECIPES: Record<Exclude<AmbienceTrack, "none">, Layer[]> = {
 	tavern: [file("amb/tavern-crowded-pub.mp3", 0.85, "xfade", ["crowd", "padWarm"]), synth("fire", 0.32)],
@@ -140,12 +164,13 @@ const RECIPES: Record<Exclude<AmbienceTrack, "none">, Layer[]> = {
 	victory: [file("amb/victory-fanfare.ogg", 0.55, "once", ["padMajor"]), synth("padMajor", 0.16)],
 
 	// ── The Quiet (zombie ruleset): all procedural, plus two existing CC0 beds (wind, rain).
-	q_quiet_town: [file("amb/wind-winter.mp3", 0.3, "xfade", ["wind"]), synth("softWind", 0.35), synth("qPadCold", 0.9), synth("qCarAlarm", 0.8), synth("qDogBark", 0.6), synth("qSignCreak", 0.6)],
+	// Variant A until the user picks one (PREVIEW_RECIPES above).
+	q_quiet_town: PREVIEW_RECIPES.q_quiet_town_a,
 	q_outbreak: [synth("qCityRumble", 0.6), synth("softWind", 0.25), synth("qSirens", 1), synth("qHelicopter", 0.7), synth("qScreams", 0.9), synth("qChurchBell", 0.8), synth("qAlarmBell", 0.8), synth("qCarAlarm", 0.7), synth("qFarShots", 0.7)],
 	q_night: [synth("softWind", 0.4), synth("qCrickets", 1), synth("qMoans", 0.6), synth("qFarShot", 0.8), synth("qPadCold", 0.45)],
 	q_hospital: [synth("qFluoHum", 1), synth("qFlicker", 0.9), synth("qMonitor", 1), synth("drips", 0.3), synth("darkDrone", 0.12), synth("qMoans", 0.25)],
 	q_safehouse: [file("amb/rain-loop.mp3", 0.5, "xfade", ["rain"]), synth("rain", 0.06), synth("qClock", 0.7), synth("qPiano", 0.9)],
-	q_dread: [synth("darkDrone", 0.35), synth("heartbeat", 0.32), synth("qBreath", 0.35), synth("qSwell", 1), synth("qGroanLow", 0.5), file("amb/wind-winter.mp3", 0.15, "xfade", ["wind"])],
+	q_dread: PREVIEW_RECIPES.q_dread_a,
 	q_horde: [synth("qHordeBed", 0.8), synth("qMoansNear", 0.7), synth("qShuffle", 0.8), synth("qBanging", 0.7), synth("darkDrone", 0.15)],
 	q_chase: [synth("qChase", 0.9)],
 	q_combat: [synth("qCombat", 0.7)],
@@ -435,7 +460,7 @@ function makeSynth(c: Ctx, kind: SynthKind, out: AudioNode, emit: (e: EngineEven
 				o.start(t); o.stop(t + 1);
 			});
 		default:
-			return makeQuietSynth(c, kind, out);
+			return isScoreKind(kind) ? makeScoreSynth(c, kind, out) : makeQuietSynth(c, kind, out);
 	}
 }
 
@@ -519,7 +544,7 @@ function synthSfx(c: Ctx, name: SfxName, out: AudioNode) {
 // ─── Engine ─────────────────────────────────────────────────────────────────
 
 interface ActiveTrack {
-	track: AmbienceTrack;
+	track: PlayableTrack;
 	gain: GainNode;
 	stops: Stop[];
 	token: number;
@@ -633,7 +658,7 @@ export class AmbienceEngine {
 	}
 
 	/** Crossfades to a new ambience bed. Before unlock it just remembers the request. */
-	setTrack(track: AmbienceTrack) {
+	setTrack(track: PlayableTrack) {
 		if (track === this.state.track && (this.active?.track === track || !this.c)) return;
 		this.patch({ track });
 		const c = this.c;
@@ -656,9 +681,13 @@ export class AmbienceEngine {
 		const active: ActiveTrack = { track, gain, stops: [], token };
 		this.active = active;
 		const emit = (e: EngineEvent) => { if (this.active === active) this.emit(e); };
-		for (const layer of RECIPES[track]) {
+		const recipe = (QUIET_PREVIEW_TRACKS as readonly string[]).includes(track) ? PREVIEW_RECIPES[track as PreviewTrack] : RECIPES[track as Exclude<AmbienceTrack, "none">];
+		for (const layer of recipe) {
 			const lg = c.ac.createGain();
-			lg.connect(gain);
+			if (layer.kind === "file" && layer.lowpass) {
+				const lp = c.ac.createBiquadFilter(); lp.type = "lowpass"; lp.frequency.value = layer.lowpass; lp.Q.value = 0.4;
+				lg.connect(lp); lp.connect(gain);
+			} else lg.connect(gain);
 			if (layer.kind === "synth") {
 				lg.gain.value = layer.gain;
 				active.stops.push(makeSynth(c, layer.synth, lg, emit));

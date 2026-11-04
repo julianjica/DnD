@@ -1,7 +1,7 @@
 
 ## Audio (DungeonHarness presentation)
 
-All files live in `public/assets/audio/` and are used by `lib/audio/ambience.ts`. Every file is **CC0 1.0** (public domain dedication, https://creativecommons.org/publicdomain/zero/1.0/), checked on each OpenGameArt page's license field. Files were copied unmodified (only renamed). Anything not listed here is synthesized at runtime with Web Audio (wind, rain, fire crackle, drips, drones, pads, choir, heartbeat, drums, crowd murmur, thunder, birds, owl, crickets, surf, ship creaks, and fallback versions of every SFX). The Quiet (zombie ruleset) beds `q_*` and its SFX (groan, bite, glass, car alarm, shotgun, radio click, door bang) are fully synthesized in `lib/audio/quiet.ts` from original generative patterns; they add no files.
+All files live in `public/assets/audio/` and are used by `lib/audio/ambience.ts`. Every file is **CC0 1.0** (public domain dedication, https://creativecommons.org/publicdomain/zero/1.0/), checked on each OpenGameArt page's license field. Files were copied unmodified (only renamed). Anything not listed here is synthesized at runtime with Web Audio (wind, rain, fire crackle, drips, drones, pads, choir, heartbeat, drums, crowd murmur, thunder, birds, owl, crickets, surf, ship creaks, and fallback versions of every SFX). The Quiet (zombie ruleset) beds `q_*` and its SFX (groan, bite, glass, car alarm, shotgun, radio click, door bang) are fully synthesized in `lib/audio/quiet.ts` and `lib/audio/quiet-score.ts` from original generative patterns (q_quiet_town also reuses wind-winter.mp3, low-passed); they add no files.
 
 ### Ambience / music beds (`amb/`)
 
@@ -19,7 +19,7 @@ All files live in `public/assets/audio/` and are used by `lib/audio/ambience.ts`
 | amb/temple-fantasy-choir.mp3 | temple | Fantasy Choir 1.mp3 | cesisco | https://opengameart.org/content/fantasy-choir-3-orchestral-pieces | CC0 |
 | amb/victory-fanfare.ogg | victory | fanfare.ogg | Spring Spring | https://opengameart.org/content/just-a-random-fanfare | CC0 |
 | amb/sea-waves.ogg | sea | jasinski-wave-prev.ogg | qubodup | https://opengameart.org/content/beach-ocean-waves | CC0 |
-| amb/wind-winter.mp3 | tension, q_quiet_town, q_dread (wind layer) | winter-wind-short.mp3 | wipics | https://opengameart.org/content/winter-wind | CC0 |
+| amb/wind-winter.mp3 | tension, q_quiet_town (wind layer, low-passed) | winter-wind-short.mp3 | wipics | https://opengameart.org/content/winter-wind | CC0 |
 
 ### Sound effects (`sfx/`)
 

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import clsx from "clsx";
 import type { AmbienceTrack } from "@/lib/game/types";
-import { QUIET_SFX, QUIET_TRACKS, getAmbienceEngine, type SfxName } from "@/lib/audio/ambience";
+import { QUIET_PREVIEW_TRACKS, QUIET_SFX, QUIET_TRACKS, getAmbienceEngine, type PreviewTrack, type SfxName } from "@/lib/audio/ambience";
 
 /**
  * PREVIEW ONLY: The Quiet's new soundtrack. Every bed is synthesized live in the
@@ -11,15 +11,17 @@ import { QUIET_SFX, QUIET_TRACKS, getAmbienceEngine, type SfxName } from "@/lib/
  * swaps to the fantasy bed a zombie game used before, for comparison.
  */
 
-type QuietTrack = (typeof QUIET_TRACKS)[number];
+type CardTrack = Exclude<(typeof QUIET_TRACKS)[number], "q_quiet_town" | "q_dread"> | PreviewTrack;
 
-const INFO: Record<QuietTrack, { en: string; es: string; old: AmbienceTrack }> = {
+const INFO: Record<CardTrack, { en: string; es: string; old: AmbienceTrack }> = {
+	q_quiet_town_a: { en: "A · Empty street at dusk: far, dark wind; a warm slow pad that breathes; a few plucked notes with long echoes; very rarely a far electronic warble.", es: "A · Calle vacía al anochecer: viento lejano y oscuro; un pad cálido que respira; unas pocas notas punteadas con eco largo; muy de vez en cuando un pitido lejano.", old: "town" },
+	q_quiet_town_b: { en: "B · Deserted, uneasy: no melody. A deep, slowly beating drone; wind singing in power lines; a rare heavy thud far away; a lot of silence.", es: "B · Desierto, inquietante: sin melodía. Un dron grave que late despacio; viento que canta en los cables; un golpe pesado y lejano de vez en cuando; mucho silencio.", old: "town" },
+	q_dread_a: { en: "A · Low strings in C minor that slowly breathe over a sub bass; now and then a dissonant cluster swells, everything drops into silence and creeps back.", es: "A · Cuerdas graves en do menor que respiran despacio sobre un sub grave; a veces un cluster disonante crece, todo cae al silencio y vuelve poco a poco.", old: "tension" },
+	q_dread_b: { en: "B · A slow sub pulse (~50 bpm) felt more than heard; glassy high harmonics drifting in and out; reversed-cymbal swells; a single far metal scrape.", es: "B · Un pulso subgrave lento (~50 bpm) que se siente más que se oye; armónicos agudos de cristal que van y vienen; crescendos de platillo invertido; un roce metálico lejano.", old: "tension" },
 	q_outbreak: { en: "Day 0 at a distance: sirens passing, a helicopter, screams, a church bell, alarms, far gunfire.", es: "Día 0 a lo lejos: sirenas que pasan, un helicóptero, gritos, una campana, alarmas, disparos lejanos.", old: "town" },
-	q_quiet_town: { en: "Empty streets: cold wind, a far car alarm, a dog, a swinging sign, a sparse low pad.", es: "Calles vacías: viento frío, una alarma de coche lejana, un perro, un letrero que cruje, un pad grave.", old: "town" },
 	q_night: { en: "October night: the last crickets, distant moans, wind, very rarely a far gunshot.", es: "Noche de octubre: los últimos grillos, gemidos lejanos, viento, muy de vez en cuando un disparo.", old: "night" },
 	q_hospital: { en: "Fluorescent hum, a flickering tube, a monitor whose beeps slow down and stop, drips.", es: "Zumbido fluorescente, un tubo que parpadea, un monitor cuyos pitidos se frenan y se apagan, goteo.", old: "dungeon" },
 	q_safehouse: { en: "Rain on the window, a ticking clock and a quiet piano: the only warm music.", es: "Lluvia en la ventana, un reloj y un piano tranquilo: la única música cálida.", old: "rain" },
-	q_dread: { en: "Low drone, slow heartbeat, breathing in the dark, a swell of tension now and then.", es: "Dron grave, latido lento, respiración en la oscuridad, a ratos una ola de tensión.", old: "tension" },
 	q_horde: { en: "A wall of groans swelling, shuffling feet, fists on wood and metal.", es: "Un muro de gemidos que crece, pies que se arrastran, golpes en madera y metal.", old: "tension" },
 	q_chase: { en: "Run: driving 120 bpm synth bass, ticking hats, rising arpeggios.", es: "Corre: bajo sintetizado a 120 bpm, hi-hats, arpegios que suben.", old: "combat" },
 	q_combat: { en: "Fight: a distorted synth pulse, tom hits, stabs.", es: "Pelea: pulso de sintetizador distorsionado, toms, golpes de acorde.", old: "combat" },
@@ -47,7 +49,7 @@ const db = (x: number) => (x > 0 ? 20 * Math.log10(x) : -Infinity);
 const fmt = (x: number) => (Number.isFinite(x) ? `${x.toFixed(1)} dBFS` : "-∞");
 
 export default function AudioQuietPage() {
-	const [playing, setPlaying] = useState<QuietTrack | null>(null);
+	const [playing, setPlaying] = useState<CardTrack | null>(null);
 	const [ab, setAb] = useState<"new" | "old">("new");
 	const [vol, setVol] = useState(0.6);
 	const [unlocked, setUnlocked] = useState(false);
@@ -99,7 +101,7 @@ export default function AudioQuietPage() {
 		return () => { clearInterval(id); clearInterval(ui); document.removeEventListener("visibilitychange", vis); };
 	}, []);
 
-	const play = async (t: QuietTrack, which: "new" | "old" = "new") => {
+	const play = async (t: CardTrack, which: "new" | "old" = "new") => {
 		const e = await ensure();
 		if (!e) return;
 		e.setTrack(which === "new" ? t : INFO[t].old);
@@ -152,8 +154,38 @@ export default function AudioQuietPage() {
 				</div>
 			</header>
 
+			<section className="mx-auto mt-6 max-w-6xl rounded-2xl border border-amber-500/40 bg-amber-950/10 p-4">
+				<h2 className="flex flex-wrap items-baseline gap-3">
+					<span className="rounded bg-amber-500 px-2 py-0.5 text-xs font-bold uppercase tracking-widest text-stone-950">New — pick one</span>
+					<span className="font-serif text-xl text-stone-100">Empty town & Dread, redone</span>
+				</h2>
+				<p className="mt-1 text-sm text-stone-400">
+					Two different takes on each: pick A or B for each pair; the choice replaces q_quiet_town / q_dread. Give each a minute: they evolve slowly.
+					<br />
+					<span className="text-stone-500">Dos versiones de cada una: elige A o B en cada par. Dales un minuto: evolucionan despacio.</span>
+				</p>
+				<div className="mt-3 grid gap-3 sm:grid-cols-2">{QUIET_PREVIEW_TRACKS.map((t) => card(t))}</div>
+			</section>
+
 			<section className="mx-auto mt-6 grid max-w-6xl gap-3 sm:grid-cols-2 lg:grid-cols-3">
-				{QUIET_TRACKS.map((t) => {
+				{QUIET_TRACKS.filter((t) => t !== "q_quiet_town" && t !== "q_dread").map((t) => card(t))}
+			</section>
+
+			<section className="mx-auto mt-8 max-w-6xl pb-16">
+				<h2 className="font-serif text-xl text-stone-100">Sound effects / Efectos</h2>
+				<div className="mt-3 flex flex-wrap gap-2">
+					{[...QUIET_SFX, "gunshot" as SfxName].map((s) => (
+						<button key={s} onClick={() => sfx(s)} data-sfx={s} className="rounded-lg bg-stone-800 px-4 py-3 text-sm hover:bg-stone-700">
+							<span className="font-semibold">{s}</span>
+							<span className="ml-2 text-stone-500">{SFX_INFO[s]}</span>
+						</button>
+					))}
+				</div>
+			</section>
+		</main>
+	);
+
+	function card(t: CardTrack) {
 					const on = playing === t;
 					return (
 						<div key={t} className={clsx("flex flex-col rounded-xl border p-4 transition-colors", on ? "border-red-500/60 bg-red-950/30" : "border-stone-800 bg-stone-900/60")}>
@@ -172,20 +204,5 @@ export default function AudioQuietPage() {
 							</button>
 						</div>
 					);
-				})}
-			</section>
-
-			<section className="mx-auto mt-8 max-w-6xl pb-16">
-				<h2 className="font-serif text-xl text-stone-100">Sound effects / Efectos</h2>
-				<div className="mt-3 flex flex-wrap gap-2">
-					{[...QUIET_SFX, "gunshot" as SfxName].map((s) => (
-						<button key={s} onClick={() => sfx(s)} data-sfx={s} className="rounded-lg bg-stone-800 px-4 py-3 text-sm hover:bg-stone-700">
-							<span className="font-semibold">{s}</span>
-							<span className="ml-2 text-stone-500">{SFX_INFO[s]}</span>
-						</button>
-					))}
-				</div>
-			</section>
-		</main>
-	);
+	}
 }
