@@ -583,6 +583,61 @@ export interface SurvivalState {
 	looted: Record<string, number>;
 }
 
+// ─── The Quiet: survivors and the base (docs/zombie.md §7) ───────────────
+
+/** Someone who joined the player. Their identity (name, portrait, role, description) stays in state.npcs[npcId]. */
+export interface Survivor {
+	npcId: string;
+	/** Pre-apocalypse profession = class id ("cleric" = Nurse…), drives their skills and stat block. */
+	profession: string;
+	level: number;
+	hp: number;
+	maxHp: number;
+	/** 0 (about to leave or snap) … 10 (devoted). */
+	morale: number;
+	status: "with_party" | "at_base" | "away" | "dead" | "left" | "turned";
+	/** What they bring: skill ids they're proficient in, plus a one-line specialty ("can stitch wounds"). */
+	skills: string[];
+	specialty: string;
+	/** Short personality traits the DM plays (EN; the DM narrates in the campaign language). */
+	traits: string[];
+	/** Game minute they joined; for "away": when they're due back and why. */
+	joinedAt: number;
+	away?: { until: number; task: string };
+	/** Their own small inventory (weapon, a few rounds…), as equipment refs. */
+	gear: { ref: string; qty: number }[];
+	/** Same LAZARUS rules as the player; turnsAt is secret. */
+	infection?: { bittenAt: number; turnsAt: number; part: BodyPart; stage: "incubating" | "fever" | "delirium" | "turned" };
+	/** Daily needs met from the party's inventory or the base stock; missed days lower morale. */
+	missedDays: number;
+}
+
+export type BaseUpgrade = "rain_catcher" | "garden" | "workshop" | "infirmary" | "radio" | "watchtower" | "generator" | "alarm_cans";
+
+export interface BaseState {
+	name: string;
+	locationId: string;
+	/** Tactical map of the base (draw_map), if drawn. */
+	mapId?: string;
+	/** 0..10: how hard the dead/raiders find it to break in (from barricades + upgrades). */
+	fortification: number;
+	/** Stockpiles in units (1 food/water = one person-day; meds = treatments; ammo = rounds of any kind; fuel = liters; materials = loads of planks/nails/scrap). */
+	stock: { food: number; water: number; meds: number; ammo: number; fuel: number; materials: number };
+	upgrades: BaseUpgrade[];
+	/** Upgrades being built: done at game minute `readyAt`. */
+	building?: { upgrade: BaseUpgrade; readyAt: number }[];
+	/** Game minute of the last daily base tick. */
+	lastTick: number;
+	/** Recent base events for the log ("Day 6: the rain catcher filled 4 water"). */
+	log: { at: number; text: string }[];
+}
+
+/** The player's group in The Quiet (absent until someone joins or a base is claimed). */
+export interface GroupState {
+	survivors: Record<string, Survivor>;
+	base?: BaseState;
+}
+
 export interface GameState {
 	version: 1;
 	id: string;
@@ -619,6 +674,8 @@ export interface GameState {
 	combatNotes?: string[];
 	/** The Quiet only: survival systems. */
 	survival?: SurvivalState;
+	/** The Quiet only: survivors who joined and the base. */
+	group?: GroupState;
 }
 
 /** One line in the play log (data/campaigns/<id>/log.jsonl). */
