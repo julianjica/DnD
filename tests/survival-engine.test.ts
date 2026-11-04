@@ -153,7 +153,10 @@ test("make_noise: thresholds bring wanderers, a pack, a horde; gated by outbreak
 		s.time.day = 4;
 		s.scene.timeOfDay = "day";
 	});
-	assert.match((await call(later, "make_noise", { amount: 7, reason: "gunfire" })).text, /A PACK is coming: 1 × z-horde-pack/);
+	// Level 1: a pack is far beyond a survivable fight, so the first wave is small and the pack comes behind it.
+	const lp = (await call(later, "make_noise", { amount: 7, reason: "gunfire" })).text;
+	assert.match(lp, /A PACK is coming: the first wave is/);
+	assert.match(lp, /MORE are coming \(1 × z-horde-pack\)/);
 	const night = newGame(true);
 	edit(night, (s) => (s.time.day = 4));
 	const n = await call(night, "make_noise", { amount: 4, reason: "car alarm" });
@@ -450,4 +453,12 @@ test("digest: a Survival line with hours left for the DM only; prompt and power"
 	assert.match(m.prompt.buildSystemPrompt(s.settings), /make_noise.*amputate.*secured=true.*scavenge, build_barricade, damage_barricade/s);
 	assert.equal(m.survival.powerOn({ time: { day: 5 } }), true);
 	assert.equal(m.survival.powerOn({ time: { day: 6 } }), false);
+});
+
+test("brutal balance: crits on the dead are headshots; kits carry two days of food and water", async () => {
+	const { getZombieKit } = { getZombieKit: (await import("../lib/srd/data/zombie/kits.json")).default as unknown as Record<string, { ref: string; qty: number }[]> };
+	for (const [cls, kit] of Object.entries(getZombieKit)) {
+		assert.ok((kit.find((i) => i.ref === "z-canned-food")?.qty ?? 0) >= 2, `${cls} food`);
+		assert.ok((kit.find((i) => i.ref === "z-bottled-water")?.qty ?? 0) >= 2, `${cls} water`);
+	}
 });

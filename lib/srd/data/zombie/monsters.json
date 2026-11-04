@@ -7,8 +7,8 @@
 		"type": "undead",
 		"alignment": "unaligned",
 		"ac": 8,
-		"hp": 22,
-		"hitDice": "3d8+9",
+		"hp": 18,
+		"hitDice": "3d8+5",
 		"speed": {
 			"walk": 20
 		},
@@ -97,8 +97,8 @@
 		"type": "undead",
 		"alignment": "unaligned",
 		"ac": 10,
-		"hp": 26,
-		"hitDice": "4d8+8",
+		"hp": 21,
+		"hitDice": "4d8+3",
 		"speed": {
 			"walk": 30
 		},

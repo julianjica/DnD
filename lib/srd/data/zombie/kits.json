@@ -30,7 +30,7 @@
 		},
 		{
 			"ref": "z-canned-food",
-			"qty": 1
+			"qty": 2
 		}
 	],
 	"bard": [
@@ -64,11 +64,11 @@
 		},
 		{
 			"ref": "z-bottled-water",
-			"qty": 1
+			"qty": 2
 		},
 		{
 			"ref": "z-canned-food",
-			"qty": 1
+			"qty": 2
 		}
 	],
 	"cleric": [
@@ -102,11 +102,11 @@
 		},
 		{
 			"ref": "z-bottled-water",
-			"qty": 1
+			"qty": 2
 		},
 		{
 			"ref": "z-canned-food",
-			"qty": 1
+			"qty": 2
 		}
 	],
 	"druid": [
@@ -194,11 +194,11 @@
 		},
 		{
 			"ref": "z-bottled-water",
-			"qty": 1
+			"qty": 2
 		},
 		{
 			"ref": "z-canned-food",
-			"qty": 1
+			"qty": 2
 		}
 	],
 	"monk": [
@@ -228,7 +228,7 @@
 		},
 		{
 			"ref": "z-canned-food",
-			"qty": 1
+			"qty": 2
 		}
 	],
 	"paladin": [
@@ -278,7 +278,11 @@
 		},
 		{
 			"ref": "z-bottled-water",
-			"qty": 1
+			"qty": 2
+		},
+		{
+			"ref": "z-canned-food",
+			"qty": 2
 		}
 	],
 	"ranger": [
@@ -366,11 +370,11 @@
 		},
 		{
 			"ref": "z-bottled-water",
-			"qty": 1
+			"qty": 2
 		},
 		{
 			"ref": "z-canned-food",
-			"qty": 1
+			"qty": 2
 		}
 	],
 	"sorcerer": [
@@ -400,7 +404,7 @@
 		},
 		{
 			"ref": "z-canned-food",
-			"qty": 1
+			"qty": 2
 		}
 	],
 	"warlock": [
@@ -430,11 +434,11 @@
 		},
 		{
 			"ref": "z-bottled-water",
-			"qty": 1
+			"qty": 2
 		},
 		{
 			"ref": "z-canned-food",
-			"qty": 1
+			"qty": 2
 		}
 	],
 	"wizard": [
@@ -480,11 +484,11 @@
 		},
 		{
 			"ref": "z-bottled-water",
-			"qty": 1
+			"qty": 2
 		},
 		{
 			"ref": "z-canned-food",
-			"qty": 1
+			"qty": 2
 		}
 	]
 }

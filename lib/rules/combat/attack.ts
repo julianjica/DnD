@@ -10,6 +10,7 @@ import {
 	fail,
 	getC,
 	hasCond,
+	killCreature,
 	netAdvantage,
 	revealIfHidden,
 	say,
@@ -131,6 +132,12 @@ export function performAttack(
 		return { amount: Math.max(0, dr.total), type: d.type };
 	});
 	const damage = applyDamage(ctx, targetId, parts, { crit, sourceId: attackerId });
+	// The Quiet: a critical hit on the walking dead is a headshot. It goes down for good.
+	const tt = getC(ctx, targetId);
+	if (crit && !tt.dead && tt.hp > 0 && tt.stats?.ruleset === "zombie" && /undead/.test(tt.stats.type)) {
+		say(ctx, `Headshot: ${tt.name} drops and stays down.`);
+		killCreature(ctx, tt);
+	}
 	return { hit, crit, damage };
 }
 

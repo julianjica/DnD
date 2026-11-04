@@ -1,3 +1,4 @@
+import { soloMultiplier, XP_THRESHOLDS_BY_LEVEL } from "./encounter-budget";
 import type { BodyPart, Character, Feature, GameState, InventoryItem, MonsterStats, RollRecord, SurvivalState } from "../game/types";
 import { MONSTERS } from "../srd";
 import { checkBreakdown } from "./character/derived";
@@ -357,7 +358,35 @@ function threatFor(state: GameState, rng: Rng, severity: number): string {
 		if (severity >= 3) what.push(...(exists(state, "z-horde-pack") ? ["z-horde-pack"] : rollWanderers(state, rng, rng.int(1, 4))));
 		if (special.length) what.push(rng.pick(special).index);
 	}
-	return `NOISE THRESHOLD → ${label} is coming: ${countText(what)} arrive in ${minutes} minute${minutes === 1 ? "" : "s"}. DM, make it real: show them coming (sounds, shapes), then place them with start_combat (or add_monsters if a fight is on), passing override "drawn by noise" if the engine flags the budget; if it still refuses, bring the first arrivals as the fight and keep the rest as a closing threat the player must escape or hide from (barricade, flee, go quiet).`;
+	// Brutal, but scaled to the survivor: the first wave is at most ~1.5× a deadly fight
+	// for their level; everything else is still coming and must be escaped or hidden from.
+	const { wave, rest } = firstWave(state, what);
+	const restText = rest.length ? ` Behind them, MORE are coming (${countText(rest)}): a closing threat the player must escape, hide or barricade against, NOT a fight to start now.` : "";
+	return `NOISE THRESHOLD → ${label} is coming: the first wave is ${countText(wave)}, arriving in ${minutes} minute${minutes === 1 ? "" : "s"}.${restText} DM, make it real: show them coming (sounds, shapes), then place the first wave with start_combat (or add_monsters if a fight is on), passing override "drawn by noise" if the engine flags the budget.`;
+}
+
+/** Splits arrivals into a first wave the character can survive (brutal: ~1.5× deadly) and the rest. */
+function firstWave(state: GameState, ids: string[]): { wave: string[]; rest: string[] } {
+	const level = state.character.classes.reduce((n, k) => n + k.level, 0) || 1;
+	const cap = (XP_THRESHOLDS_BY_LEVEL[Math.min(20, level)]?.[3] ?? 100) * 1.5;
+	const xpOf = (id: string) => MONSTERS.find((m) => m.index === id)?.xp ?? 50;
+	const sorted = [...ids].sort((a, b) => xpOf(a) - xpOf(b));
+	const wave: string[] = [];
+	for (const id of sorted) {
+		const next = [...wave, id];
+		const adjusted = next.reduce((s, x) => s + xpOf(x), 0) * soloMultiplier(next.length);
+		if (wave.length && adjusted > cap) continue;
+		// Never leave the first wave empty: if even the weakest is too much, it comes alone.
+		if (!wave.length && adjusted > cap && xpOf(id) > cap * 2) continue;
+		wave.push(id);
+	}
+	if (!wave.length) wave.push("z-shambler");
+	const rest = [...ids];
+	for (const w of wave) {
+		const i = rest.indexOf(w);
+		if (i >= 0) rest.splice(i, 1);
+	}
+	return { wave, rest };
 }
 
 /**
