@@ -43,9 +43,12 @@ const EMPTY_NEEDS: SurvivalState["needs"] = { lastMeal: 0, lastDrink: 0, missedM
 /** Survival with safe defaults: zombie campaigns may not have ticked yet. */
 function survivalOf(state: GameState) {
 	const s = state.survival;
+	// Noise belongs to the place it was made: once the party has moved, it is quiet here (as the engine resets it).
+	const n = s?.noise;
+	const elsewhere = !!n && ((n.locationId !== undefined && n.locationId !== state.world.currentLocationId) || (n.mapId !== undefined && n.mapId !== state.activeMapId));
 	return {
-		noise: Math.max(0, Math.min(10, Math.round(s?.noise.level ?? 0))),
-		lastEvent: s?.noise.lastEvent,
+		noise: elsewhere ? 0 : Math.max(0, Math.min(10, Math.round(n?.level ?? 0))),
+		lastEvent: elsewhere ? undefined : n?.lastEvent,
 		infection: s?.infection && s.infection.stage !== "turned" ? { part: s.infection.part, stage: s.infection.stage } : undefined,
 		amputations: s?.amputations ?? [],
 		needs: s?.needs ?? EMPTY_NEEDS,

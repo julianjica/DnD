@@ -1,6 +1,7 @@
 "use client";
 
-import { rulesetOf } from "@/lib/rules/ruleset";
+import { outbreakDay, rulesetOf } from "@/lib/rules/ruleset";
+import { infectionVisual, SickVignette } from "./Survival";
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import { Footprints, Map as MapIcon, Globe2, Image as ImageIcon, Swords, Wand2, Wind, ShieldHalf, HandHelping, EyeOff, FlaskConical, Zap, Hourglass, Skull, X } from "lucide-react";
@@ -268,6 +269,9 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 	const spriteMap = artStyle === "sprites" && map && (!here || here.mapIds.includes(map.id)) ? map : undefined;
 	const pixelMap = artStyle === "sprites" ? map : undefined;
 	const ruleset = rulesetOf(state.settings);
+	// The Quiet: the grid fails on outbreak day 5 and the street lamps go dark.
+	const powerOn = ruleset !== "zombie" || outbreakDay(state) < 5;
+	const sick = ruleset === "zombie" ? infectionVisual(state) : null;
 	const looks = useMemo(() => {
 		if (!pixelMap) return {};
 		const out: Record<string, Look> = {};
@@ -407,13 +411,14 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 			<div className="relative min-h-0 flex-1 overflow-hidden">
 				{view === "scene" && (
 					<div className="flex h-full items-center justify-center bg-bg p-3">
-						<SceneArt style={artStyle === "sprites" ? "paintings" : artStyle} backdrop={spriteMap ? <SpriteScene map={spriteMap} looks={looks} dead={deadIds} time={state.scene.timeOfDay} weather={state.scene.weather} /> : rulesetOf(state.settings) === "zombie" ? <QuietBackdrop time={state.scene.timeOfDay} /> : undefined} scene={state.scene} npcs={state.scene.npcIds.map((id) => state.npcs[id]).filter(Boolean).map((n) => ({ id: n.id, name: n.name, portrait: n.portrait, speciesId: n.speciesId, role: n.role }))} className="max-h-full w-full rounded-lg shadow-2xl" />
+						<SceneArt style={artStyle === "sprites" ? "paintings" : artStyle} backdrop={spriteMap ? <><SpriteScene map={spriteMap} looks={looks} dead={deadIds} time={state.scene.timeOfDay} weather={state.scene.weather} powerOn={powerOn} />{sick && <SickVignette stage={sick} />}</> : ruleset === "zombie" ? <><QuietBackdrop time={state.scene.timeOfDay} />{sick && <SickVignette stage={sick} />}</> : undefined} scene={state.scene} npcs={state.scene.npcIds.map((id) => state.npcs[id]).filter(Boolean).map((n) => ({ id: n.id, name: n.name, portrait: n.portrait, speciesId: n.speciesId, role: n.role }))} className="max-h-full w-full rounded-lg shadow-2xl" />
 					</div>
 				)}
 				{view === "map" && map && (
 					<BattleMap
 						map={map}
 						pixel={pixel}
+						powerOn={powerOn}
 						status={status}
 						highlights={reach}
 						highlightColor={0x5b8fb9}
@@ -429,6 +434,7 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 						className="h-full w-full"
 					/>
 				)}
+				{sick && view === "map" && <SickVignette stage={sick} />}
 				{view === "world" && (
 					<div className="h-full w-full bg-bg">
 						<WorldMap world={state.world} selectedLocationId={state.world.currentLocationId} className="h-full w-full" />

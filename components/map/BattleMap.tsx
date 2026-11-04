@@ -53,6 +53,8 @@ export interface BattleMapProps {
 	controls?: boolean;
 	/** Pixel-sprite style with per-entity looks (PCs/NPCs). */
 	pixel?: { looks: Record<string, Look> };
+	/** The Quiet: false once the grid has failed (outbreak day 5+); street lamps stand dark. Default true. */
+	powerOn?: boolean;
 }
 
 /**
@@ -120,6 +122,7 @@ export default function BattleMap(props: BattleMapProps) {
 	}, []);
 
 	const { map, entities: rawEntities, status, highlights, highlightColor, pathPreview, pathLabel, aoe, selectedId, visibleSquares, darkvision, fog, showHidden } = props;
+	const barricadeLabel = t("play.barricade");
 	// Token labels in the UI language (SRD monster/object names).
 	const entities = useMemo(() => {
 		const list = rawEntities ?? map.entities;
@@ -143,8 +146,10 @@ export default function BattleMap(props: BattleMapProps) {
 			showGrid: gridOn,
 			darkvision,
 			pixel: props.pixel,
+			powerOn: props.powerOn,
+			barricadeLabel,
 		});
-	}, [ready, map, entities, status, visibleSquares, fog, showHidden, highlights, highlightColor, pathPreview, pathLabel, aoe, selectedId, gridOn, darkvision, props.pixel]);
+	}, [ready, map, entities, status, visibleSquares, fog, showHidden, highlights, highlightColor, pathPreview, pathLabel, aoe, selectedId, gridOn, darkvision, props.pixel, props.powerOn, barricadeLabel]);
 
 	const focusKey = props.focus == null ? "" : typeof props.focus === "string" ? props.focus : `${props.focus.x},${props.focus.y}`;
 	useEffect(() => {

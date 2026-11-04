@@ -14,20 +14,22 @@ export interface SpriteSceneProps {
 	/** Narrowest close-up, in squares (zooms out to fit what is nearby). */
 	viewW?: number;
 	animate?: boolean;
+	/** The Quiet: false once the grid has failed; street lamps stand dark. Default true. */
+	powerOn?: boolean;
 }
 
 /**
  * Pixel-sprite close-up of the active map, framed on the player, with falling
  * snow or rain. Fills its parent (which sets the 16:9 box).
  */
-export function SpriteScene({ map, looks, time, weather, dead, viewW = 18, animate = true }: SpriteSceneProps) {
+export function SpriteScene({ map, looks, time, weather, dead, viewW = 18, animate = true, powerOn = true }: SpriteSceneProps) {
 	const base = useRef<HTMLCanvasElement>(null);
 	const fx = useRef<HTMLCanvasElement>(null);
 	const frame = useMemo(() => frameAround(map, viewW), [map, viewW]);
 
 	useEffect(() => {
-		if (base.current) paintPixelScene(base.current, { map, looks, time, weather, dead }, frame);
-	}, [map, looks, time, weather, dead, frame]);
+		if (base.current) paintPixelScene(base.current, { map, looks, time, weather, dead, powerOn }, frame);
+	}, [map, looks, time, weather, dead, frame, powerOn]);
 
 	const mask = useMemo(() => skyMask(map, frame), [map, frame]);
 	const falling = hasSky(map) && (weather === "snow" || weather === "rain" || weather === "storm") ? (weather === "snow" ? "snow" : "rain") : null;

@@ -26,6 +26,8 @@ export interface PixelSceneInput {
 	dead?: Set<string>;
 	/** Entity to centre on (default the PC). */
 	focusId?: string;
+	/** The Quiet: false once the grid has failed (outbreak day 5+); street lamps stand dark. Default true. */
+	powerOn?: boolean;
 }
 
 export interface Frame {
@@ -465,12 +467,15 @@ export function paintPixelScene(canvas: HTMLCanvasElement, input: PixelSceneInpu
 				},
 			});
 		} else {
-			const name = featureSprite(e, map.theme === "modern");
+			const lamp = featureSprite(e, map.theme === "modern");
+			const name = lamp === "street_lamp" && input.powerOn === false ? "street_lamp_off" : lamp;
 			const flat = FLAT.has(name);
 			draws.push({ y: flat ? e.y : e.y + 0.3, fn: () => p.sprite(name === "campfire" && (e.sprite === "hearth" || e.name.toLowerCase().includes("hearth")) ? "flame" : name, X, Y - (name === "standing_stone" || name === "statue" ? 2 : 0)) });
 			const L = LIGHTS[name];
 			// street lamps are off in daylight
 			if (name === "street_lamp" && !e.lightRadius && input.time === "day" && map.lighting === "bright") continue;
+			// The Quiet: no power, no light (the post still stands)
+			if (name === "street_lamp_off") continue;
 			if (L || e.lightRadius) lights.push({ x: e.x + 0.5, y: e.y + 0.5, r: e.lightRadius ?? L.r, color: L?.color ?? "255,190,110", a: L?.a ?? 0.35 });
 		}
 	}
@@ -596,9 +601,15 @@ export function pixelToken(px: number, opts: { kind: MapEntity["kind"]; sprite: 
 	}, undefined, px);
 }
 
-/** A feature/item/light for the battle map. */
-export function pixelProp(px: number, e: Pick<MapEntity, "sprite" | "name" | "kind">, modern = false): HTMLCanvasElement {
-	const name = featureSprite(e as MapEntity, modern);
+/** Whether a map entity is drawn as a street lamp (The Quiet: these go dark when the grid fails). */
+export function isStreetLamp(e: Pick<MapEntity, "sprite" | "name">, modern = false): boolean {
+	return featureSprite(e as MapEntity, modern) === "street_lamp";
+}
+
+/** A feature/item/light for the battle map. `powerOn` false: street lamps are drawn unlit. */
+export function pixelProp(px: number, e: Pick<MapEntity, "sprite" | "name" | "kind">, modern = false, powerOn = true): HTMLCanvasElement {
+	const base = featureSprite(e as MapEntity, modern);
+	const name = base === "street_lamp" && !powerOn ? "street_lamp_off" : base;
 	return upscale((p) => p.sprite(name === "campfire" && /hearth/i.test(`${e.sprite} ${e.name}`) ? "flame" : name, 0, 0), undefined, px);
 }
 

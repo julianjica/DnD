@@ -4,7 +4,7 @@ import { aoeSquares, type AoeTemplate } from "@/lib/maps/aoe";
 import { computeFov, computePlayerView, parseKey, sqKey, type Point } from "@/lib/maps/grid";
 import { rand2 } from "@/lib/maps/noise";
 import { paintMap, tileSizeFor } from "../art/tilePainter";
-import { paintPixelMap, pixelProp, pixelToken, type Look } from "@/components/art/sprite/pixelScene";
+import { isStreetLamp, paintPixelMap, pixelProp, pixelToken, type Look } from "@/components/art/sprite/pixelScene";
 import { hasProp, lightStyle, paintProp, paintToken, ringFor } from "../art/tokens";
 
 type Pixi = typeof PIXI;
@@ -50,6 +50,16 @@ export interface RenderInput {
 	darkvision?: number;
 	/** Pixel-sprite style (matches the scene panel): looks per entity id for PCs/NPCs. */
 	pixel?: { looks: Record<string, Look> };
+	/** The Quiet: false once the grid has failed; street lamps give no light. Default true. */
+	powerOn?: boolean;
+	/** Hover label for barricade squares (translated), e.g. "Barricade". */
+	barricadeLabel?: string;
+}
+
+/** Light radius an entity actually casts (street lamps are dark without power). */
+function lightRadiusOf(e: MapEntity, inp: RenderInput): number {
+	if (inp.powerOn === false && (e.lightRadius ?? 0) > 0 && isStreetLamp(e, inp.map.theme === "modern")) return 0;
+	return e.lightRadius ?? 0;
 }
 
 interface TokenView {
@@ -419,9 +429,10 @@ export class BattleRenderer {
 		const amb = map.lighting === "dark" ? [26, 28, 44] : [112, 112, 136];
 		const sources: { x: number; y: number; r: number; c: number; k: number }[] = [];
 		for (const e of inp.entities) {
-			if ((e.lightRadius ?? 0) <= 0) continue;
+			const r = lightRadiusOf(e, inp);
+			if (r <= 0) continue;
 			if (e.hidden && !inp.showHidden) continue;
-			sources.push({ x: e.x + e.size / 2, y: e.y + e.size / 2, r: e.lightRadius!, c: lightStyle(e.sprite).color, k: 1 });
+			sources.push({ x: e.x + e.size / 2, y: e.y + e.size / 2, r, c: lightStyle(e.sprite).color, k: 1 });
 		}
 		if (pc && !(pc.lightRadius && pc.lightRadius > 0)) sources.push({ x: pc.x + 0.5, y: pc.y + 0.5, r: map.lighting === "dark" ? 3 : 2, c: 0xd8e0ff, k: 0.75 });
 		const c = this.lightSprite.texture.source.resource as HTMLCanvasElement;
@@ -610,11 +621,13 @@ export class BattleRenderer {
 			const look = pixel?.looks[e.id];
 			const modern = inp.map.theme === "modern";
 			const isDead = !!e.dead || !!st?.dead || (st?.hp !== undefined && st.hp <= 0 && e.kind !== "pc");
+			const lightR = lightRadiusOf(e, inp);
+			const unpowered = inp.powerOn === false && !creature && isStreetLamp(e, modern);
 			const texKey = pixel
-				? creature ? `px|tok|${e.sprite}|${e.kind}|${isDead ? "dead" : ring}|${modern ? "m" : ""}|${look ? JSON.stringify(look) : ""}` : `px|prop|${e.sprite}|${e.name}|${modern ? "m" : ""}`
+				? creature ? `px|tok|${e.sprite}|${e.kind}|${isDead ? "dead" : ring}|${modern ? "m" : ""}|${look ? JSON.stringify(look) : ""}` : `px|prop|${e.sprite}|${e.name}|${modern ? "m" : ""}${unpowered ? "|off" : ""}`
 				: creature ? `tok|${e.sprite}|${e.kind}|${ring}|${e.size > 1 ? 2 : 1}` : `prop|${e.sprite}|${e.kind}`;
 			let v = this.tokens.get(e.id);
-			if (v && (v.key !== texKey || !!v.light !== (e.lightRadius ?? 0) > 0)) {
+			if (v && (v.key !== texKey || !!v.light !== lightR > 0)) {
 				v.glow?.destroy();
 				v.root.destroy({ children: true });
 				this.tokens.delete(e.id);
@@ -626,7 +639,7 @@ export class BattleRenderer {
 				const px = creature ? (e.size > 1 ? 256 : 160) : 128;
 				const tex = this.textureFor(texKey, () =>
 					pixel
-						? creature ? pixelToken(128, { kind: e.kind, sprite: e.sprite, look, ring, dead: isDead, modern }) : pixelProp(128, e, modern)
+						? creature ? pixelToken(128, { kind: e.kind, sprite: e.sprite, look, ring, dead: isDead, modern }) : pixelProp(128, e, modern, !unpowered)
 						: creature ? paintToken(px, e.sprite, e.kind, ring) : paintProp(px, hasProp(e.sprite) ? e.sprite : e.sprite || "crate", e.kind),
 				);
 				const sprite = new P.Sprite(tex);
@@ -636,13 +649,13 @@ export class BattleRenderer {
 				root.addChild(body, hp);
 				let glow: PIXI.Sprite | undefined;
 				let light: TokenView["light"];
-				if ((e.lightRadius ?? 0) > 0) {
+				if (lightR > 0) {
 					const ls = lightStyle(e.sprite);
 					glow = new P.Sprite(this.glowTex!);
 					glow.anchor.set(0.5);
 					glow.tint = ls.color;
 					this.glowLayer.addChild(glow);
-					light = { ...ls, radius: e.lightRadius!, phase: rand2(e.x, e.y, 3) * 10 };
+					light = { ...ls, radius: lightR, phase: rand2(e.x, e.y, 3) * 10 };
 				}
 				this.tokenLayer.addChild(root);
 				v = { id: e.id, root, body, sprite, hp, glow, light, key: texKey, cur: { x: e.x, y: e.y }, from: { x: e.x, y: e.y }, to: { x: e.x, y: e.y }, t: 1, dur: 0, size: e.size, shake: 0, flash: 0, entity: e, creature };
@@ -666,7 +679,7 @@ export class BattleRenderer {
 			v.body.rotation = dead && !pixel ? Math.PI / 2 : 0;
 			v.root.alpha = e.hidden ? 0.5 : dead && !pixel ? 0.7 : 1;
 			v.root.zIndex = dead ? 5 : v.root.zIndex;
-			if (v.light) v.light.radius = e.lightRadius ?? v.light.radius;
+			if (v.light) v.light.radius = lightR || v.light.radius;
 			this.drawHp(v, st);
 		}
 		for (const [id, v] of this.tokens) {
@@ -939,6 +952,15 @@ export class BattleRenderer {
 			this.label.style.fontSize = Math.round(T * 0.26);
 			this.label.position.set(v.root.position.x, v.root.position.y - (tok.size * T) / 2 - 4);
 			this.label.visible = true;
+		} else if (!tok) {
+			// The Quiet: a barricade's remaining strength
+			const b = this.map?.barricades?.[sqKey(sq.x, sq.y)];
+			if (b && this.map?.tiles[sq.y * this.map.width + sq.x] === "barricade") {
+				this.label.text = `${this.input?.barricadeLabel ?? "Barricade"}  ${Math.max(0, b.hp)}/${b.max}`;
+				this.label.style.fontSize = Math.round(T * 0.26);
+				this.label.position.set((sq.x + 0.5) * T, sq.y * T - 4);
+				this.label.visible = true;
+			}
 		}
 	}
 }

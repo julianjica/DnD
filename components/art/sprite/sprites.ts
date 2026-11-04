@@ -57,6 +57,24 @@ const meshRows = (): string[] => {
 	return out;
 };
 
+const LAMP_ROWS = [
+	"......kkkk......",
+	".....kyyyyk.....",
+	".....kyYYyk.....",
+	".....kyYYyk.....",
+	"......kkkk......",
+	".......Kk.......",
+	".......Kk.......",
+	".......Kk.......",
+	".......Kk.......",
+	".......Kk.......",
+	".......Kk.......",
+	".......Kk.......",
+	"......KKkk......",
+	".....KKKkkk.....",
+	".....nnnnnn.....",
+];
+
 export const MODERN_SPRITES: Record<string, Sprite> = {
 	car: sedan("#3f6a9a", "#6a92c0", "#2a4a70"),
 	police_car: osp(
@@ -383,24 +401,9 @@ export const MODERN_SPRITES: Record<string, Sprite> = {
 		"sssdsssssdssssdd",
 		"nnnnnnnnnnnnnnnn",
 	),
-	street_lamp: osp(
-		{ k: "#2a3430", K: "#3e4a44", y: "#fff2c0", Y: "#ffe27a", n: SH },
-		"......kkkk......",
-		".....kyyyyk.....",
-		".....kyYYyk.....",
-		".....kyYYyk.....",
-		"......kkkk......",
-		".......Kk.......",
-		".......Kk.......",
-		".......Kk.......",
-		".......Kk.......",
-		".......Kk.......",
-		".......Kk.......",
-		".......Kk.......",
-		"......KKkk......",
-		".....KKKkkk.....",
-		".....nnnnnn.....",
-	),
+	street_lamp: osp({ k: "#2a3430", K: "#3e4a44", y: "#fff2c0", Y: "#ffe27a", n: SH }, ...LAMP_ROWS),
+	/** The Quiet: the grid has failed (outbreak day 5+); same post, dead glass. */
+	street_lamp_off: osp({ k: "#2a3430", K: "#3e4a44", y: "#5d6662", Y: "#4a524e", n: SH }, ...LAMP_ROWS),
 	traffic_cone: osp(
 		{ o: "#f07a1e", O: "#c85a10", w: "#f4f4f0", b: "#2a2c30", n: SH },
 		E, E, E, E, E,
