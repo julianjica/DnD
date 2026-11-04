@@ -49,7 +49,7 @@ export function survivalOf(state: GameState): SurvivalState {
 }
 
 /** Street lights and mains power: the grid fails on outbreak Day 5 (for the art). */
-export function powerOn(state: Pick<GameState, "time">): boolean {
+export function powerOn(state: { time: { day: number } }): boolean {
 	return outbreakDay(state) < 5;
 }
 
@@ -58,7 +58,7 @@ const inCombat = (state: GameState) => state.encounter?.status === "active";
 
 /** Keeps the PC combatant (authoritative during combat) in step with the character after a change outside the engine. */
 export function syncPcCombatant(state: GameState): void {
-	const pc = inCombat(state) ? state.encounter!.combatants[state.character.id] : undefined;
+	const pc = inCombat(state) ? state.encounter!.combatants?.[state.character.id] : undefined;
 	if (!pc) return;
 	const c = state.character;
 	pc.hp = c.hp;

@@ -1,6 +1,7 @@
 import { doorSummary, roomOf } from "./mapsync";
 import type { GameState, LogEntry } from "../game/types";
 import { outbreakDay, rulesetOf } from "../rules/ruleset";
+import { survivalDigest } from "../rules/survival";
 import { rulesetLabelEn } from "../i18n/ruleset-labels";
 import { getClass, getSpecies, getSubclass } from "../srd/index";
 import { compassOf, mapDistance, travelDaysIn, travelText } from "../maps/geography";
@@ -44,6 +45,8 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 	const ab = c.abilities;
 	lines.push(`Abilities: STR ${ab.str} DEX ${ab.dex} CON ${ab.con} INT ${ab.int} WIS ${ab.wis} CHA ${ab.cha}`);
 	if (c.conditions.length || c.exhaustion) lines.push(`Conditions: ${[...c.conditions.map((x) => x.id), c.exhaustion ? `exhaustion ${c.exhaustion}` : ""].filter(Boolean).join(", ")}`);
+	const survival = survivalDigest(s);
+	if (survival) lines.push(survival);
 	if (c.hp === 0) lines.push(`Death saves: ${c.deathSaves.successes} successes / ${c.deathSaves.failures} failures`);
 	if (c.spellcasting) {
 		const sl = c.spellcasting.slots
