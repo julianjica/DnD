@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Backpack, BookOpen, Feather, Scroll, Shield, Sparkles, Users, Heart, Swords, ArrowUpCircle, Coins } from "lucide-react";
+import { Backpack, BookOpen, BookUser, Feather, Scroll, Shield, Sparkles, Users, Heart, Swords, ArrowUpCircle, Coins } from "lucide-react";
 import type { Ability, GameState, InventoryItem, PlayerCombatAction } from "@/lib/game/types";
 import { canLevelUp, deriveSheet, XP_THRESHOLDS } from "@/lib/rules/character";
 import { getSpell } from "@/lib/srd";
@@ -12,6 +12,7 @@ import type { MessageKey } from "@/lib/i18n";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { SpellAdvChips, SpellCard } from "./SpellCard";
 import { SurvivalBlock } from "./Survival";
+import { GroupTab, livingSurvivors } from "./Group";
 import { rulesetOf } from "@/lib/rules/ruleset";
 
 const ABIL: Ability[] = ["str", "dex", "con", "int", "wis", "cha"];
@@ -47,7 +48,7 @@ function UseBtn({ label, onClick, disabled, title }: { label: string; onClick: (
 	);
 }
 
-type Tab = "sheet" | "inventory" | "spells" | "quests" | "journal" | "codex";
+type Tab = "sheet" | "inventory" | "spells" | "quests" | "journal" | "codex" | "group";
 
 function Bar({ value, max, color, label }: { value: number; max: number; color: string; label: string }) {
 	const pct = max > 0 ? Math.max(0, Math.min(100, (value / max) * 100)) : 0;
@@ -383,14 +384,24 @@ const TABS: { id: Tab; label: MessageKey; icon: typeof Heart }[] = [
 	{ id: "codex", label: "play.tab.codex", icon: Users },
 ];
 
+/** The Quiet: the group gets its own tab (and the codex a different icon, so the two don't look alike). */
+const ZOMBIE_TABS: typeof TABS = [
+	...TABS.filter((tb) => tb.id !== "codex"),
+	{ id: "group", label: "play.tab.group", icon: Users },
+	{ id: "codex", label: "play.tab.codex", icon: BookUser },
+];
+
 export function Sidebar({ state, onLevelUp, actions }: { state: GameState; onLevelUp: () => void; actions: SheetActions }) {
 	const { t } = useT();
 	const [tab, setTab] = useState<Tab>("sheet");
 	const activeQuests = state.quests.filter((q) => q.status === "active").length;
+	const zombie = rulesetOf(state.settings) === "zombie";
+	const tabs = zombie ? ZOMBIE_TABS : TABS;
+	const groupSize = zombie ? livingSurvivors(state).length : 0;
 	return (
 		<div className="@container flex h-full min-h-0 flex-col">
-			<div className="grid grid-cols-6 border-b border-line">
-				{TABS.map((tb) => (
+			<div className={`grid border-b border-line ${zombie ? "grid-cols-7" : "grid-cols-6"}`}>
+				{tabs.map((tb) => (
 					<button
 						key={tb.id}
 						onClick={() => setTab(tb.id)}
@@ -402,6 +413,7 @@ export function Sidebar({ state, onLevelUp, actions }: { state: GameState; onLev
 						<span className="hidden max-w-full truncate @[420px]:block">{t(tb.label)}</span>
 						{tab === tb.id && <span className="absolute inset-x-2 bottom-0 h-0.5 rounded bg-gold" />}
 						{tb.id === "quests" && activeQuests > 0 && <span className="absolute right-2 top-1 rounded-full bg-gold px-1 text-[9px] text-ink">{activeQuests}</span>}
+						{tb.id === "group" && groupSize > 0 && <span className="absolute right-1.5 top-1 rounded-full bg-gold px-1 text-[9px] text-ink">{groupSize}</span>}
 					</button>
 				))}
 			</div>
@@ -412,6 +424,7 @@ export function Sidebar({ state, onLevelUp, actions }: { state: GameState; onLev
 				{tab === "quests" && <QuestsTab state={state} />}
 				{tab === "journal" && <JournalTab state={state} />}
 				{tab === "codex" && <CodexTab state={state} />}
+				{tab === "group" && zombie && <GroupTab state={state} />}
 			</div>
 		</div>
 	);

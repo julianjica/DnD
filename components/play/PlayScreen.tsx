@@ -20,6 +20,7 @@ import { useT } from "@/components/i18n/I18nProvider";
 import { useEngineText } from "@/components/i18n/useEngineText";
 import { LanguageSwitch } from "@/components/i18n/LanguageSwitch";
 import { SurvivalStrip } from "./Survival";
+import { GroupCount } from "./Group";
 
 const TIME_ICON = { dawn: Sunrise, day: Sun, dusk: Sunset, night: Moon };
 
@@ -98,7 +99,11 @@ export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 				<div className="ml-4 hidden items-center gap-1.5 text-xs text-dim md:flex" title={te("time", state.scene.timeOfDay)}>
 					<TimeIcon size={14} className="text-gold" /> {t("play.clock", { day: state.time.day, time: clockTime(state) })}
 				</div>
-				{rs === "zombie" && <SurvivalStrip state={state} />}
+				{rs === "zombie" && (
+					<SurvivalStrip state={state}>
+						<GroupCount state={state} />
+					</SurvivalStrip>
+				)}
 				<div className="ml-auto flex items-center gap-2">
 					<span className="hidden text-[11px] text-faint lg:inline">
 						{state.settings.engine.provider} · {state.settings.engine.model} · {state.settings.engine.effort}

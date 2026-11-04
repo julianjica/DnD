@@ -9,6 +9,7 @@
  * time since the bite is shown (that would let the player count it down).
  */
 import { Biohazard, CalendarDays, Droplet, Scissors, Thermometer, Utensils, Volume2 } from "lucide-react";
+import type { ReactNode } from "react";
 import type { GameState, InventoryItem, SurvivalState } from "@/lib/game/types";
 import { outbreakDay } from "@/lib/rules/ruleset";
 import { isFood, isWater } from "@/lib/rules/survival";
@@ -114,12 +115,16 @@ function needWords(needs: SurvivalState["needs"], t: ReturnType<typeof useT>["t"
 	return out;
 }
 
-function InfectionChip({ inf, compact }: { inf: { part: string; stage: string }; compact?: boolean }) {
+/**
+ * Bitten / Feverish / Delirious: the stage and the bitten part only (never time).
+ * `other`: the chip is about a survivor, so the tooltip speaks in the third person.
+ */
+export function InfectionChip({ inf, compact, other }: { inf: { part: string; stage: string }; compact?: boolean; other?: boolean }) {
 	const { t, te } = useT();
 	const part = te("bodyPart", inf.part);
 	const label = inf.stage === "fever" ? t("play.surv.feverish") : inf.stage === "delirium" ? t("play.surv.delirious") : t("play.surv.bitten", { part });
 	const Icon = inf.stage === "incubating" ? Biohazard : Thermometer;
-	const tip = inf.stage === "delirium" ? t("play.surv.infectionLate") : t("play.surv.infectionTitle", { part });
+	const tip = inf.stage === "delirium" ? t(other ? "group.infectionLate" : "play.surv.infectionLate") : t(other ? "group.infectionTitle" : "play.surv.infectionTitle", { part });
 	return (
 		<Tooltip content={tip}>
 			<span tabIndex={0} className={`${compact ? "inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[11px]" : "chip gap-1"} ${inf.stage === "incubating" ? "border-[#5a2e2a] bg-[#1a0d0c] text-[#c9a9a3]" : "border-crimson/60 bg-crimson/15 text-crimson-2"}`}>
@@ -193,7 +198,7 @@ export function SurvivalBlock({ state }: { state: GameState }) {
 // ─── header strip ───────────────────────────────────────────────────────────
 
 /** Small status strip next to the clock in the header (zombie campaigns only). */
-export function SurvivalStrip({ state }: { state: GameState }) {
+export function SurvivalStrip({ state, children }: { state: GameState; children?: ReactNode }) {
 	const { t } = useT();
 	const s = survivalOf(state);
 	const sup = suppliesCarried(state.character.inventory);
@@ -213,6 +218,7 @@ export function SurvivalStrip({ state }: { state: GameState }) {
 					<span className={`inline-flex items-center gap-0.5 ${sup.water === 0 || s.needs.missedDrinks > 0 ? "text-[#e7b25a]" : ""}`}><Droplet size={12} />{sup.water}</span>
 				</span>
 			</Tooltip>
+			{children}
 			{s.infection && <span className="hidden lg:inline-flex"><InfectionChip inf={s.infection} compact /></span>}
 		</div>
 	);
