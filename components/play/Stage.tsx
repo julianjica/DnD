@@ -1,6 +1,7 @@
 "use client";
 
-import { outbreakDay, rulesetOf } from "@/lib/rules/ruleset";
+import { rulesetOf } from "@/lib/rules/ruleset";
+import { powerOn as gridPowered } from "@/lib/rules/survival";
 import { infectionVisual, SickVignette } from "./Survival";
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
@@ -270,7 +271,7 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 	const pixelMap = artStyle === "sprites" ? map : undefined;
 	const ruleset = rulesetOf(state.settings);
 	// The Quiet: the grid fails on outbreak day 5 and the street lamps go dark.
-	const powerOn = ruleset !== "zombie" || outbreakDay(state) < 5;
+	const powerOn = ruleset !== "zombie" || gridPowered(state);
 	const sick = ruleset === "zombie" ? infectionVisual(state) : null;
 	const looks = useMemo(() => {
 		if (!pixelMap) return {};

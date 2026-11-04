@@ -11,21 +11,16 @@
 import { Biohazard, CalendarDays, Droplet, Scissors, Thermometer, Utensils, Volume2 } from "lucide-react";
 import type { GameState, InventoryItem, SurvivalState } from "@/lib/game/types";
 import { outbreakDay } from "@/lib/rules/ruleset";
+import { isFood, isWater } from "@/lib/rules/survival";
 import { useT } from "@/components/i18n/I18nProvider";
 import { useEngineText } from "@/components/i18n/useEngineText";
 import { Tooltip } from "@/components/ui/Tooltip";
 
 // ─── pure helpers ───────────────────────────────────────────────────────────
 
-const WATER = /water|canteen|soda|juice|drink/i;
-const FOOD = /canned|jerky|preserves|\bmre\b|ration|food|snack|beans?\b|rice\b|peaches|soup/i;
-
-/** "food" | "water" | null for an inventory item (water first: "bottled water" is never food). */
+/** "food" | "water" | null for an inventory item, by the engine's own rules (what it will eat and drink at day change). */
 export function supplyKind(i: Pick<InventoryItem, "ref" | "name">): "food" | "water" | null {
-	const key = `${i.ref ?? ""} ${i.name}`;
-	if (WATER.test(key)) return "water";
-	if (FOOD.test(key)) return "food";
-	return null;
+	return isWater(i) ? "water" : isFood(i) ? "food" : null;
 }
 
 /** Days of food and water carried: one unit is one day's need. */
