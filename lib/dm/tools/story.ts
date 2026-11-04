@@ -6,13 +6,21 @@ import { rulesetOf, type Ruleset } from "../../rules/ruleset";
 import { assertItemRef } from "../content";
 import { loadState } from "../../store/campaigns";
 import { appearanceFromText, applyAppearance, portraitFromAppearance, type Appearance } from "../../art/appearance";
-import { SFX_NAMES } from "../../audio/ambience";
+import { sfxFor, tracksFor } from "../../audio/ambience";
 
 const SCENE_KINDS: SceneKind[] = ["tavern", "town", "forest", "dungeon", "cave", "mountain", "coast", "swamp", "desert", "castle", "temple", "camp", "road", "crypt", "plains", "ship", "underdark"];
 const MOODS: Mood[] = ["calm", "mysterious", "tense", "combat", "triumphant", "somber", "festive", "eerie"];
 const TIMES: TimeOfDay[] = ["dawn", "day", "dusk", "night"];
 const WEATHER: Weather[] = ["clear", "cloudy", "rain", "storm", "fog", "snow"];
-const TRACKS: AmbienceTrack[] = ["none", "tavern", "town", "forest", "dungeon", "cave", "combat", "boss", "rain", "storm", "night", "temple", "sea", "tension", "victory"];
+
+/** Ruleset of the campaign a tool set is built for (tools offer only that ruleset's tracks/sounds). */
+function campaignRuleset(campaignId: string): Ruleset {
+	try {
+		return rulesetOf(loadState(campaignId).settings);
+	} catch {
+		return "fantasy";
+	}
+}
 
 function hourToTime(hour: number): TimeOfDay {
 	if (hour >= 5 && hour < 8) return "dawn";
@@ -76,26 +84,36 @@ export const setScene = tool<{ title: string; kind: SceneKind; timeOfDay?: TimeO
 		}),
 );
 
-export const setAmbience = tool<{ track: AmbienceTrack }>(
-	"set_ambience",
-	"Set the looping background ambience/music.",
-	S.obj({ track: S.str(undefined, TRACKS) }, ["track"]),
-	async (a, ctx) =>
-		withState(ctx, ({ state }) => {
-			state.ambience = a.track;
-			return `Ambience: ${a.track}`;
-		}),
-);
+export const setAmbience: ToolFactory = (ctx) => {
+	// Each ruleset hears only its own beds: The Quiet's q_ tracks never reach fantasy games and vice versa.
+	const tracks = tracksFor(campaignRuleset(ctx.campaignId));
+	return tool<{ track: AmbienceTrack }>(
+		"set_ambience",
+		"Set the looping background ambience/music.",
+		S.obj({ track: S.str(undefined, tracks) }, ["track"]),
+		async (a, c) =>
+			withState(c, ({ state }) => {
+				const allowed = tracksFor(rulesetOf(state.settings));
+				if (!allowed.includes(a.track)) throw new Error(`Unknown ambience "${a.track}" for this campaign. Use one of: ${allowed.join(", ")}.`);
+				state.ambience = a.track;
+				return `Ambience: ${a.track}`;
+			}),
+	)(ctx);
+};
 
-export const playSfx = tool<{ sound: string }>(
-	"play_sfx",
-	"Play a one-shot sound effect.",
-	S.obj({ sound: S.str(undefined, SFX_NAMES) }, ["sound"]),
-	async (a, ctx) => {
-		ctx.emit({ type: "fx", fx: { kind: "sfx", sound: a.sound } });
-		return "ok";
-	},
-);
+export const playSfx: ToolFactory = (ctx) => {
+	const sounds: string[] = sfxFor(campaignRuleset(ctx.campaignId));
+	return tool<{ sound: string }>(
+		"play_sfx",
+		"Play a one-shot sound effect.",
+		S.obj({ sound: S.str(undefined, sounds) }, ["sound"]),
+		async (a, c) => {
+			if (!sounds.includes(a.sound)) return { text: `Unknown sound "${a.sound}". Use one of: ${sounds.join(", ")}.`, isError: true };
+			c.emit({ type: "fx", fx: { kind: "sfx", sound: a.sound } });
+			return "ok";
+		},
+	)(ctx);
+};
 
 export const setView = tool<{ view: "scene" | "map" | "world" }>(
 	"set_view",

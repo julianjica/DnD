@@ -12,7 +12,20 @@ const ZOMBIE_SETTING = `THE QUIET — a modern zombie apocalypse, survival horro
 - Play starts on DAY 0, the outbreak night: the player starts ALONE, in ordinary life breaking apart. Companions and a base come later, only through the story.
 - Survival horror: dread, scarcity, hard moral choices. Guns are SCARCE and ammo scarcer (police, the armory, a few hunters' homes); firearms are LOUD and draw the dead. Bites can infect (no known cure; amputating a bitten limb within an hour stops it; features granting immunity to disease do NOT stop the LAZARUS infection). Food, water, rest in a secured place, cold and darkness all matter. Let consequences land; death is possible.
 - SURVIVAL ENGINE (it is authoritative; the digest's "Survival:" line shows it): NOISE 0–10 where the player is. Gunshots and loud techniques count automatically; for anything else loud call make_noise (shouting 1, breaking glass 2, car alarm 4, explosion 5). It fades 1 per 10 quiet minutes and resets when they move elsewhere. Crossing 4/7/10 (worse at night) the engine says what the noise draws and when: put exactly that into play. BITES: when a zombie's bite wounds the player the engine rolls the CON save; infection is secret (show it through fever and delirium; never give the hours left). Cutting off a bitten arm or leg within an hour stops it: adjudicate the act, then amputate. FOOD AND WATER are eaten automatically at 08:00 each day (missing either adds exhaustion); when the player eats or drinks otherwise use use_item. LONG REST needs long_rest with secured=true only if barricaded or locked, dark and quiet; the engine may interrupt it. Scavenging and barricades: scavenge, build_barricade, damage_barricade.
-- SCAVENGING & BARRICADES: when the player searches a place call scavenge (place type; quick/careful/thorough): the engine rolls their check, adds the loot, spends the time and noise and remembers emptied shelves. Never hand out searched-for supplies with give_item instead, and play out any DANGER it reports. To block a door, window or gap call build_barricade on that square (furniture; planks + nails; a car); on an existing barricade it repairs it. When the dead pound on one call damage_barricade (each round or each minute); at 0 HP it collapses to rubble. Barricades block movement and sight (H in draw_map); a barricaded, dark, quiet room is a secured rest spot.`;
+- SCAVENGING & BARRICADES: when the player searches a place call scavenge (place type; quick/careful/thorough): the engine rolls their check, adds the loot, spends the time and noise and remembers emptied shelves. Never hand out searched-for supplies with give_item instead, and play out any DANGER it reports. To block a door, window or gap call build_barricade on that square (furniture; planks + nails; a car); on an existing barricade it repairs it. When the dead pound on one call damage_barricade (each round or each minute); at 0 HP it collapses to rubble. Barricades block movement and sight (H in draw_map); a barricaded, dark, quiet room is a secured rest spot.
+- AMBIENCE (set_ambience; only these exist here, change it whenever the situation turns):
+  q_outbreak: Day 0 and the first chaotic nights: sirens, helicopters, screams, alarms in the distance.
+  q_quiet_town: empty streets by day after the outbreak: wind, a far car alarm or dog.
+  q_night: outdoors after dark: dying crickets, distant moans, a rare far gunshot.
+  q_hospital: St. Brigid's, clinics, labs, any dead-lit institutional interior.
+  q_safehouse: a secured base or a calm rest indoors: rain, a clock, the only warm music.
+  q_dread: sneaking, searching a dark place, something is near; also the aftermath of a fight.
+  q_horde: a horde is seen or heard, or the dead pound on a barricade.
+  q_chase: running from the dead, a vehicle escape, any flight against the clock.
+  q_combat: a fight (start_combat sets it automatically; ends to q_dread).
+  q_radio: tuning a radio, the 101.7 FM broadcast, the Bald Hill tower.
+  q_grief: after a death, a loss, a goodbye.
+  rain / storm: when weather dominates the scene.`;
 
 const PRESETS: Record<CampaignSettings["world"]["preset"], string> = {
 	classic_high_fantasy: "Classic high fantasy: kingdoms, ancient ruins, dragons, wizards' towers, heroic quests.",

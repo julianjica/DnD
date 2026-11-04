@@ -27,7 +27,7 @@ test("bundled audio stays under 25MB and uses ogg/mp3", () => {
 });
 
 test("catalogs and SSR safety", () => {
-	assert.equal(AMBIENCE_TRACKS.length, 15);
+	assert.equal(AMBIENCE_TRACKS.length, 26);
 	assert.ok(SFX_NAMES.includes("death") && SFX_NAMES.includes("levelup"));
 	assert.equal(getAmbienceEngine(), null);
 });

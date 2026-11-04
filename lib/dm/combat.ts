@@ -71,6 +71,8 @@ export function applyCombatResult(tx: StateTxn, res: CombatResult): string {
 	if (res.encounter.status !== "active") {
 		state.mode = "explore";
 		if (state.ambience === "combat" || state.ambience === "boss") state.ambience = res.encounter.status === "victory" ? "victory" : "tension";
+		// The Quiet has no fanfare: after any fight, dread.
+		else if (state.ambience === "q_combat" || state.ambience === "q_horde") state.ambience = "q_dread";
 	} else state.mode = "combat";
 	const needs = res.events.filter((e) => e.type === "needs_dm").map((e) => `DM ADJUDICATE: ${(e as { text: string }).text}`);
 	return [...res.log, ...needs, ...survival].join("\n");

@@ -1,7 +1,7 @@
 
 ## Audio (DungeonHarness presentation)
 
-All files live in `public/assets/audio/` and are used by `lib/audio/ambience.ts`. Every file is **CC0 1.0** (public domain dedication, https://creativecommons.org/publicdomain/zero/1.0/), checked on each OpenGameArt page's license field. Files were copied unmodified (only renamed). Anything not listed here is synthesized at runtime with Web Audio (wind, rain, fire crackle, drips, drones, pads, choir, heartbeat, drums, crowd murmur, thunder, birds, owl, crickets, surf, ship creaks, and fallback versions of every SFX).
+All files live in `public/assets/audio/` and are used by `lib/audio/ambience.ts`. Every file is **CC0 1.0** (public domain dedication, https://creativecommons.org/publicdomain/zero/1.0/), checked on each OpenGameArt page's license field. Files were copied unmodified (only renamed). Anything not listed here is synthesized at runtime with Web Audio (wind, rain, fire crackle, drips, drones, pads, choir, heartbeat, drums, crowd murmur, thunder, birds, owl, crickets, surf, ship creaks, and fallback versions of every SFX). The Quiet (zombie ruleset) beds `q_*` and its SFX (groan, bite, glass, car alarm, shotgun, radio click, door bang) are fully synthesized in `lib/audio/quiet.ts` from original generative patterns; they add no files.
 
 ### Ambience / music beds (`amb/`)
 
@@ -14,12 +14,12 @@ All files live in `public/assets/audio/` and are used by `lib/audio/ambience.ts`
 | amb/cave-dark-cavern.ogg | cave | dark_cavern_ambient_001.ogg | Paul Wortmann | https://opengameart.org/content/dark-cavern-ambient | CC0 |
 | amb/combat-battle-theme-b.mp3 | combat | battleThemeB.mp3 | cynicmusic | https://opengameart.org/content/battle-theme-b-for-rpg | CC0 |
 | amb/boss-battle-theme-a.mp3 | boss | battleThemeA.mp3 | cynicmusic | https://opengameart.org/content/battle-theme-a | CC0 |
-| amb/rain-loop.mp3 | rain, storm | amb_rain_loop_1.mp3 | Kresiek The Furry | https://opengameart.org/content/amb-rain-loop-1 | CC0 |
+| amb/rain-loop.mp3 | rain, storm, q_safehouse | amb_rain_loop_1.mp3 | Kresiek The Furry | https://opengameart.org/content/amb-rain-loop-1 | CC0 |
 | amb/night-crickets.mp3 | night | crickets-oneloop.mp3 | Wolfgang_ | https://opengameart.org/content/crickets-ambient-noise-loopable | CC0 |
 | amb/temple-fantasy-choir.mp3 | temple | Fantasy Choir 1.mp3 | cesisco | https://opengameart.org/content/fantasy-choir-3-orchestral-pieces | CC0 |
 | amb/victory-fanfare.ogg | victory | fanfare.ogg | Spring Spring | https://opengameart.org/content/just-a-random-fanfare | CC0 |
 | amb/sea-waves.ogg | sea | jasinski-wave-prev.ogg | qubodup | https://opengameart.org/content/beach-ocean-waves | CC0 |
-| amb/wind-winter.mp3 | tension (wind layer) | winter-wind-short.mp3 | wipics | https://opengameart.org/content/winter-wind | CC0 |
+| amb/wind-winter.mp3 | tension, q_quiet_town, q_dread (wind layer) | winter-wind-short.mp3 | wipics | https://opengameart.org/content/winter-wind | CC0 |
 
 ### Sound effects (`sfx/`)
 
