@@ -11,6 +11,8 @@ import { useT } from "@/components/i18n/I18nProvider";
 import type { MessageKey } from "@/lib/i18n";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { SpellAdvChips, SpellCard } from "./SpellCard";
+import { SurvivalBlock } from "./Survival";
+import { rulesetOf } from "@/lib/rules/ruleset";
 
 const ABIL: Ability[] = ["str", "dex", "con", "int", "wis", "cha"];
 
@@ -110,6 +112,7 @@ function SheetTab({ state, onLevelUp, actions }: { state: GameState; onLevelUp: 
 					{t("play.sheet.dying", { s: c.deathSaves.successes, f: c.deathSaves.failures })}
 				</div>
 			)}
+			{rulesetOf(state.settings) === "zombie" && <SurvivalBlock state={state} />}
 			{sheet && (
 				<div className="grid grid-cols-4 gap-1.5">
 					<Stat label={t("play.stat.ac")} title={t("play.stat.acTitle")} value={sheet.ac} />
