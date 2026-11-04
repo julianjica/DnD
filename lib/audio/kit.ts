@@ -59,11 +59,16 @@ export function noiseSrc(c: Ctx, color: "white" | "pink" | "brown"): AudioBuffer
 	return s;
 }
 
+/** A layer's event generator failed: say so in development instead of going silent. */
+function devWarn(e: unknown) {
+	if (process.env.NODE_ENV !== "production") console.warn("audio layer event failed", e);
+}
+
 /** Repeatedly calls fn at random intervals until stopped. */
 export function every(minS: number, maxS: number, fn: () => void, startNow = false): Stop {
 	let alive = true;
 	let id: ReturnType<typeof setTimeout> | undefined;
-	const tick = () => { if (!alive) return; try { fn(); } catch { /* ignore */ } id = setTimeout(tick, rand(minS, maxS) * 1000); };
+	const tick = () => { if (!alive) return; try { fn(); } catch (e) { devWarn(e); } id = setTimeout(tick, rand(minS, maxS) * 1000); };
 	id = setTimeout(tick, startNow ? 0 : rand(minS, maxS) * 1000);
 	return () => { alive = false; if (id) clearTimeout(id); };
 }
@@ -81,7 +86,7 @@ export function sequence(c: Ctx, stepS: number | (() => number), fn: (step: numb
 	const tick = () => {
 		if (next < ac.currentTime - 0.05) next = ac.currentTime + 0.05;
 		while (next < ac.currentTime + 0.35) {
-			try { fn(step, next); } catch { /* ignore */ }
+			try { fn(step, next); } catch (e) { devWarn(e); }
 			step++;
 			next += len();
 		}
