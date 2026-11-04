@@ -3,6 +3,7 @@
 import { rulesetOf } from "@/lib/rules/ruleset";
 import { powerOn as gridPowered } from "@/lib/rules/survival";
 import { infectionVisual, SickVignette } from "./Survival";
+import { moraleNote } from "./Group";
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import { Footprints, Map as MapIcon, Globe2, Image as ImageIcon, Swords, Wand2, Wind, ShieldHalf, HandHelping, EyeOff, FlaskConical, Zap, Hourglass, Skull, X } from "lucide-react";
@@ -282,12 +283,14 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 				out[e.id] = personLook(state.character.portrait, state.character.speciesId, gearFor(who), who);
 			} else if (e.npcId && state.npcs[e.npcId]) {
 				const n = state.npcs[e.npcId];
-				const who = { ruleset, text: `${n.role ?? ""} ${n.description ?? ""}` };
+				// The Quiet: a survivor dresses by their profession, like the player.
+				const sv = state.group?.survivors[e.npcId];
+				const who = { ruleset, classes: sv ? [sv.profession] : undefined, text: `${n.role ?? ""} ${n.description ?? ""}` };
 				out[e.id] = personLook(n.portrait, n.speciesId, gearFor(who), who);
 			}
 		}
 		return out;
-	}, [pixelMap, state.character, state.npcs, ruleset]);
+	}, [pixelMap, state.character, state.npcs, state.group, ruleset]);
 	const pixel = useMemo(() => (pixelMap ? { looks } : undefined), [pixelMap, looks]);
 	const deadIds = useMemo(() => new Set(Object.values(state.encounter?.combatants ?? {}).filter((c) => c.dead).map((c) => c.entityId)), [state.encounter]);
 
@@ -327,6 +330,17 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 		const ids = state.character.features.map((f) => f.id);
 		return ids.includes("superior-darkvision") ? 24 : ids.some((id) => id === "darkvision" || id.endsWith("-darkvision")) ? 12 : 0;
 	}, [state.character.features]);
+	// The Quiet: hovering a survivor's token shows their HP and morale.
+	const notes = useMemo(() => {
+		const out: Record<string, string> = {};
+		const sv = state.group?.survivors;
+		if (!sv || !map) return out;
+		for (const e of map.entities) {
+			const s = e.npcId ? sv[e.npcId] : undefined;
+			if (s && s.status !== "dead" && s.status !== "turned") out[e.id] = `${Math.max(0, s.hp)}/${s.maxHp}   ${moraleNote(s, t)}`;
+		}
+		return out;
+	}, [state.group, map, t]);
 	const status = useMemo(() => {
 		const s: Record<string, TokenStatus> = {};
 		if (!enc) return s;
@@ -421,6 +435,7 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 						pixel={pixel}
 						powerOn={powerOn}
 						status={status}
+						notes={notes}
 						highlights={reach}
 						highlightColor={0x5b8fb9}
 						pathPreview={preview?.path}

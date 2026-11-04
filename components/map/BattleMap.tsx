@@ -55,6 +55,8 @@ export interface BattleMapProps {
 	pixel?: { looks: Record<string, Look> };
 	/** The Quiet: false once the grid has failed (outbreak day 5+); street lamps stand dark. Default true. */
 	powerOn?: boolean;
+	/** Extra hover text per entity id (outside combat). */
+	notes?: Record<string, string>;
 }
 
 /**
@@ -148,8 +150,9 @@ export default function BattleMap(props: BattleMapProps) {
 			pixel: props.pixel,
 			powerOn: props.powerOn,
 			barricadeLabel,
+			notes: props.notes,
 		});
-	}, [ready, map, entities, status, visibleSquares, fog, showHidden, highlights, highlightColor, pathPreview, pathLabel, aoe, selectedId, gridOn, darkvision, props.pixel, props.powerOn, barricadeLabel]);
+	}, [ready, map, entities, status, visibleSquares, fog, showHidden, highlights, highlightColor, pathPreview, pathLabel, aoe, selectedId, gridOn, darkvision, props.pixel, props.powerOn, barricadeLabel, props.notes]);
 
 	const focusKey = props.focus == null ? "" : typeof props.focus === "string" ? props.focus : `${props.focus.x},${props.focus.y}`;
 	useEffect(() => {

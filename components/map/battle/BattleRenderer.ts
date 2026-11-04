@@ -54,6 +54,8 @@ export interface RenderInput {
 	powerOn?: boolean;
 	/** Hover label for barricade squares (translated), e.g. "Barricade". */
 	barricadeLabel?: string;
+	/** Extra hover text per entity id, shown after the name outside combat (The Quiet: a survivor's HP and morale). */
+	notes?: Record<string, string>;
 }
 
 /** Light radius an entity actually casts (street lamps are dark without power). */
@@ -948,7 +950,8 @@ export class BattleRenderer {
 		if (tok && tok.kind !== "light") {
 			const v = this.tokens.get(tok.id)!;
 			const st = this.input?.status[tok.id];
-			this.label.text = st?.hp !== undefined && st.maxHp ? `${tok.name}  ${Math.max(0, st.hp)}/${st.maxHp}` : tok.name;
+			const note = this.input?.notes?.[tok.id];
+			this.label.text = st?.hp !== undefined && st.maxHp ? `${tok.name}  ${Math.max(0, st.hp)}/${st.maxHp}` : note ? `${tok.name}  ${note}` : tok.name;
 			this.label.style.fontSize = Math.round(T * 0.26);
 			this.label.position.set(v.root.position.x, v.root.position.y - (tok.size * T) / 2 - 4);
 			this.label.visible = true;
