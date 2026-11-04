@@ -210,7 +210,7 @@ class P {
 
 	wall(x: number, y: number) {
 		const X = x * C, Y = y * C, k = this.m.kind;
-		const isW = (t: Tile) => ["wall", "secret_door", "door", "door_open", "door_locked"].includes(t);
+		const isW = (t: Tile) => ["wall", "secret_door", "door", "door_open", "door_locked", "barricade"].includes(t);
 		if (ROCK_WALLS.has(k)) {
 			this.rockMass(x, y);
 			return;
@@ -329,6 +329,10 @@ class P {
 				for (let r = 0; r < 4; r++) this.px(X, Y + r * 4 + 3, C, 1, this.snow ? "#bfcad4" : "#5a2a1e");
 				return;
 			}
+			case "barricade":
+				// the boards are drawn as an object; underneath, the doorway's floor or the ground
+				this.ground(x, y, this.groundOf(x, y));
+				return;
 			case "rubble":
 			case "difficult": {
 				this.ground(x, y, this.groundOf(x, y));
@@ -348,9 +352,19 @@ class P {
 		}
 	}
 
+	/** The Quiet: a barricade square (GridMap.barricades); under half HP it has planks missing. */
+	barricade(x: number, y: number) {
+		const b = this.m.barricades?.[`${x},${y}`];
+		this.draw(b && b.hp < b.max / 2 ? damagedBarricade() : MODERN_SPRITES.barricade, x * C, y * C);
+	}
+
 	/** Things standing on a tile: trees, boulders, furniture. Drawn after all ground. */
 	object(x: number, y: number) {
 		const t = this.t(x, y), X = x * C, Y = y * C;
+		if (t === "barricade") {
+			if (x >= 0 && y >= 0 && x < this.m.width && y < this.m.height) this.barricade(x, y);
+			return;
+		}
 		if (this.modern && modernObject(this, x, y)) return;
 		if (t === "tree") {
 			const pine = this.snow || this.m.kind === "mountain_pass" || rnd(x, y, 50) < 0.15;
@@ -379,6 +393,22 @@ class P {
 			if (rnd(x, y, 22) < 0.3) { this.px(X + 10, Y + 6, 2, 3, "#8a6a3a"); this.px(X + 10, Y + 6, 2, 1, "#c9a227"); }
 		}
 	}
+}
+
+let brokenBarricade: Sprite | undefined;
+/** The barricade prop with gaps knocked through its planks. */
+function damagedBarricade(): Sprite {
+	if (brokenBarricade) return brokenBarricade;
+	const s = MODERN_SPRITES.barricade;
+	const gap = (row: string, from: number, to: number) => [...row].map((ch, i) => (i >= from && i <= to && "PpN".includes(ch) ? "." : ch)).join("");
+	const rows = s.rows.map((row, y) => {
+		const planks = (row.match(/[PpN]/g) ?? []).length >= 10;
+		if (!planks) return row;
+		// upper plank pair broken in the middle, lower pair splintered at the right end
+		return y < 8 ? gap(row, 5, 8) : gap(row, 11, 13);
+	});
+	brokenBarricade = { ...s, rows };
+	return brokenBarricade;
 }
 
 function featureSprite(e: MapEntity, modern = false): string {

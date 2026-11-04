@@ -193,6 +193,7 @@ class Painter {
 		each((x, y, t) => this.paintObject(ctx, x, y, t));
 		for (const b of this.buildings) if (b.x + b.w >= xa && b.x <= xb && b.y + b.h >= ya && b.y <= yb) this.paintRoof(ctx, b);
 		each((x, y, t) => { if (t === "door" || t === "door_open" || t === "door_locked") this.paintDoor(ctx, x, y, t); });
+		each((x, y, t) => { if (t === "barricade") this.paintBarricade(ctx, x, y); });
 		each((x, y, t) => { if (t === "tree") this.paintTree(ctx, x, y); });
 		// 7. subtle vignette-ish large-scale tonal variation
 		this.paintTone(ctx, xa, xb, ya, yb);
@@ -1088,6 +1089,56 @@ class Painter {
 			case "secret_door":
 				break;
 		}
+	}
+
+	/** The Quiet: a boarded-up square (planks nailed across); under half HP some boards are gone. */
+	paintBarricade(ctx: Ctx, x: number, y: number) {
+		const T = this.T, px = x * T, py = y * T;
+		const b = this.map.barricades?.[`${x},${y}`];
+		const broken = !!b && b.hp < b.max / 2;
+		const solid = (tt: Tile) => this.isWall(tt) || tt === "building";
+		const vertical = solid(this.t(x, y - 1)) && solid(this.t(x, y + 1)) && !(solid(this.t(x - 1, y)) && solid(this.t(x + 1, y)));
+		ctx.save();
+		ctx.translate(px + T / 2, py + T / 2);
+		if (vertical) ctx.rotate(Math.PI / 2);
+		// dark gap behind the boards
+		ctx.fillStyle = "rgba(10,8,6,0.55)";
+		ctx.fillRect(-T / 2, -T * 0.32, T, T * 0.64);
+		const boards = [-0.22, 0, 0.22];
+		boards.forEach((o, k) => {
+			if (broken && k === 1) return;
+			const tilt = (this.r(x, y, 70 + k) - 0.5) * 0.18 + (k === 1 ? 0.35 : 0);
+			const len = broken && k === 2 ? 0.55 : 1.05;
+			ctx.save();
+			ctx.translate(broken && k === 2 ? -T * 0.22 : 0, o * T);
+			ctx.rotate(tilt);
+			const wood = shade("#8a6238", (this.r(x, y, 80 + k) - 0.5) * 0.25);
+			ctx.fillStyle = "#1c140c";
+			ctx.fillRect((-T * len) / 2 - 1, -T * 0.085 - 1, T * len + 2, T * 0.17 + 2);
+			ctx.fillStyle = wood;
+			ctx.fillRect((-T * len) / 2, -T * 0.085, T * len, T * 0.17);
+			ctx.fillStyle = shade(wood, 0.2);
+			ctx.fillRect((-T * len) / 2, -T * 0.085, T * len, Math.max(1, T * 0.03));
+			// nail heads
+			ctx.fillStyle = "#c9ccd1";
+			const n = Math.max(1, T * 0.04);
+			ctx.fillRect((-T * len) / 2 + T * 0.08, -n / 2, n, n);
+			if (!(broken && k === 2)) ctx.fillRect((T * len) / 2 - T * 0.08 - n, -n / 2, n, n);
+			ctx.restore();
+		});
+		if (broken) {
+			// splinters where a board was torn off
+			ctx.strokeStyle = "#b08a58";
+			ctx.lineWidth = Math.max(1, T * 0.03);
+			ctx.beginPath();
+			for (let i = 0; i < 4; i++) {
+				const sx = (this.r(x, y, 90 + i) - 0.5) * T * 0.8;
+				ctx.moveTo(sx, -T * 0.04);
+				ctx.lineTo(sx + T * 0.05, T * 0.06);
+			}
+			ctx.stroke();
+		}
+		ctx.restore();
 	}
 
 	paintDoor(ctx: Ctx, x: number, y: number, t: Tile) {
