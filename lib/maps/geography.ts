@@ -21,6 +21,32 @@ export function daysForDistance(d: number, kind: RouteKind = "trail"): number {
 	return Math.max(0.1, Math.round(((d * 14) / SPEED[kind]) * 10) / 10);
 }
 
+/**
+ * Town maps (The Quiet) are drawn at walking scale: the map is ~22 km tall and
+ * people walk ~5 km/h, so one map-height unit is ~4.4 hours. Fantasy worlds
+ * use the day-based scale above.
+ */
+const TOWN_HOURS_PER_UNIT = 4.4;
+export const isTownWorld = (w: Pick<WorldMap, "terrain">) => w.terrain.style === "town";
+
+/** Travel time (days, fractional for towns) across a map distance in this world. */
+export function travelDaysIn(world: Pick<WorldMap, "terrain">, d: number, kind: RouteKind = "trail"): number {
+	if (!isTownWorld(world)) return daysForDistance(d, kind);
+	const hours = (d * TOWN_HOURS_PER_UNIT) / (kind === "road" ? 1.15 : 1);
+	return Math.max(0.005, Math.round((hours / 24) * 1000) / 1000);
+}
+/** Map distance covered in `days` of travel in this world. */
+export function distanceInDays(world: Pick<WorldMap, "terrain">, days: number, kind: RouteKind = "trail"): number {
+	if (!isTownWorld(world)) return distanceForDays(days, kind);
+	return Math.max(0.01, (days * 24 * (kind === "road" ? 1.15 : 1)) / TOWN_HOURS_PER_UNIT);
+}
+/** "25 min" / "2 h" / "3 days" for the DM. */
+export function travelText(days: number): string {
+	if (days >= 1) return `${Math.round(days * 10) / 10} days`;
+	const min = Math.round(days * 24 * 60);
+	return min < 60 ? `${Math.max(5, Math.round(min / 5) * 5)} min` : `${Math.round((min / 60) * 10) / 10} h`;
+}
+
 export function mapDistance(a: { x: number; y: number }, b: { x: number; y: number }): number {
 	return Math.hypot((b.x - a.x) * WORLD_ASPECT, b.y - a.y);
 }
@@ -142,7 +168,7 @@ export function placeFor(world: WorldMap, rng: Rng, spec: PlaceSpec, avoid: { x:
 		return landNear(world, mid, rng, { kind: spec.kind, minDist: 0, maxDist: Math.max(0.02, mapDistance(a, b) * 0.12), avoid });
 	}
 	const anchor = spec.anchor ?? { x: 0.5, y: 0.5 };
-	const d = distanceForDays(spec.days ?? 1, spec.routeKind ?? "trail");
+	const d = distanceInDays(world, spec.days ?? (isTownWorld(world) ? 1 / 24 : 1), spec.routeKind ?? "trail");
 	return landNear(world, anchor, rng, {
 		kind: spec.kind,
 		minDist: d * 0.8,
@@ -153,7 +179,7 @@ export function placeFor(world: WorldMap, rng: Rng, spec: PlaceSpec, avoid: { x:
 }
 
 /** Does a location's position honor its constraints (±45° bearing, distance within ×1.6)? */
-export function fits(loc: { x: number; y: number }, spec: PlaceSpec): boolean {
+export function fits(loc: { x: number; y: number }, spec: PlaceSpec, world?: Pick<WorldMap, "terrain">): boolean {
 	if (spec.between) {
 		const [a, b] = spec.between;
 		const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
@@ -162,7 +188,7 @@ export function fits(loc: { x: number; y: number }, spec: PlaceSpec): boolean {
 	if (!spec.anchor) return true;
 	const d = mapDistance(spec.anchor, loc);
 	if (spec.days !== undefined) {
-		const want = distanceForDays(spec.days, spec.routeKind ?? "trail");
+		const want = world ? distanceInDays(world, spec.days, spec.routeKind ?? "trail") : distanceForDays(spec.days, spec.routeKind ?? "trail");
 		if (d > want * 1.6 + 0.01 || d < want / 1.6 - 0.01) return false;
 	}
 	if (spec.direction && angleDiff(bearingOf(spec.anchor, loc), BEARING[spec.direction]) > Math.PI / 8) return false;
@@ -175,7 +201,7 @@ export function retimeRoutes(world: WorldMap, locId: string): void {
 	for (const r of world.routes) {
 		if (r.discovered || (r.from !== locId && r.to !== locId)) continue;
 		const a = byId.get(r.from), b = byId.get(r.to);
-		if (a && b) r.travelDays = Math.max(1, Math.round(daysForDistance(mapDistance(a, b), r.kind)));
+		if (a && b) r.travelDays = isTownWorld(world) ? travelDaysIn(world, mapDistance(a, b), r.kind) : Math.max(1, Math.round(daysForDistance(mapDistance(a, b), r.kind)));
 	}
 }
 
@@ -189,6 +215,11 @@ const RECONCILE_VERSION = 2;
 
 export function reconcileWorld(world: WorldMap): boolean {
 	if ((world.reconciled ?? 0) >= RECONCILE_VERSION) return false;
+	// The fixed town of The Quiet is laid out by hand; never move its places.
+	if (isTownWorld(world)) {
+		world.reconciled = RECONCILE_VERSION;
+		return false;
+	}
 	const rng = new Rng((world.seed ^ hashString("reconcile")) >>> 0 || 1);
 	// v1 painted terrain at positions that v2 may move; drop those (unnamed) patches and repaint below.
 	if (world.reconciled === 1 && world.terrain.features) world.terrain.features = world.terrain.features.filter((f) => f.name);

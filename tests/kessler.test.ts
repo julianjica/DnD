@@ -32,3 +32,14 @@ test("a zombie campaign starts in Kessler Falls on the outbreak night", () => {
 	assert.deepEqual(st.time, { day: 1, hour: 21, minute: 0 });
 	assert.equal(st.scene.timeOfDay, "night");
 });
+
+test("town worlds: never reconciled, and new places are minutes away", async () => {
+	const { reconcileWorld, travelDaysIn, distanceInDays } = await import("../lib/maps/geography");
+	const w = m.kesslerFalls(3, "en");
+	const before = JSON.stringify(w.locations);
+	reconcileWorld(w);
+	assert.equal(JSON.stringify(w.locations), before);
+	const d = distanceInDays(w, 1 / 24); // an hour's walk
+	const days = travelDaysIn(w, d);
+	assert.ok(days > 0.03 && days < 0.06, `about an hour, got ${days * 24} h`);
+});

@@ -1,9 +1,9 @@
 import { doorSummary, roomOf } from "./mapsync";
 import type { GameState, LogEntry } from "../game/types";
-import { rulesetOf } from "../rules/ruleset";
+import { outbreakDay, rulesetOf } from "../rules/ruleset";
 import { rulesetLabelEn } from "../i18n/ruleset-labels";
 import { getClass, getSpecies, getSubclass } from "../srd/index";
-import { compassOf, daysForDistance, mapDistance } from "../maps/geography";
+import { compassOf, mapDistance, travelDaysIn, travelText } from "../maps/geography";
 
 /**
  * A compact, authoritative summary of the game state injected into every DM
@@ -17,6 +17,7 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 	const lines: string[] = [];
 	const t = s.time;
 	lines.push(`Day ${t.day}, ${String(t.hour).padStart(2, "0")}:${String(t.minute).padStart(2, "0")} · mode: ${s.mode} · view: ${s.view}`);
+	if (rulesetOf(s.settings) === "zombie") lines.push(`Outbreak day ${outbreakDay(s)} (Day 0 = the outbreak night). Only dead variants that exist by now may appear.`);
 	lines.push(`Scene: ${s.scene.title} (${s.scene.kind}, ${s.scene.timeOfDay}, ${s.scene.weather}, ${s.scene.mood})`);
 	const loc = s.world.locations.find((l) => l.id === s.world.currentLocationId);
 	if (loc) {
@@ -24,7 +25,7 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 		// Geography as the player SEES it on the world map — narrate directions and distances consistently with this.
 		const known = s.world.locations.filter((l) => l.discovered && l.id !== loc.id);
 		if (known.length)
-			lines.push(`Map geography from ${loc.name}: ${known.map((l) => `${l.name} [${l.id}] ${compassOf(loc, l)} ~${daysForDistance(mapDistance(loc, l))}d`).join("; ")}`);
+			lines.push(`Map geography from ${loc.name}: ${known.map((l) => `${l.name} [${l.id}] ${compassOf(loc, l)} ~${travelText(travelDaysIn(s.world, mapDistance(loc, l)))}`).join("; ")}`);
 		const regions = (s.world.terrain.features ?? []).filter((f) => f.name);
 		if (regions.length) lines.push(`Named regions: ${regions.map((f) => `${f.name} (${f.terrain}) ${compassOf(loc, f)} of here`).join("; ")}`);
 	}

@@ -2,6 +2,7 @@ import { rulesetOf } from "../../rules/ruleset";
 import type { EntityKind, GameState, GridMap, LocationKind, MapKind, TerrainKind, Tile, WorldLocation } from "../../game/types";
 import { MODERN_FEATURE_SPRITES } from "../../maps/draw";
 import { climateForPreset, drawMap, FEATURE_SPRITES, generateMap, LEGEND_TEXT, MAP_KINDS, placeEntity, revealAround, WORLD_ASPECT, type Climate, type DrawKey } from "../../maps";
+import { distanceInDays, isTownWorld, travelDaysIn, travelText } from "../../maps/geography";
 import { addTerrainFeature, BEARING, betweenFromText, compassOf, daysForDistance, directionFromText, distanceForDays, fits, mapDistance, placeFor, REGION_SIZE, retimeRoutes, terrainFor, type Compass, type PlaceSpec } from "../../maps/geography";
 import { S, newId, tool, withState, type ToolFactory } from "../context";
 
@@ -313,11 +314,11 @@ export const revealLocation = tool<RevealArgs>(
 			let loc: WorldLocation;
 			if (existing) {
 				// A known-but-unvisited generated place may still be moved to match what was just said.
-				if (!existing.discovered && !existing.visited && !fits(existing, spec)) {
+				if (!existing.discovered && !existing.visited && !fits(existing, spec, w)) {
 					Object.assign(existing, placeFor(w, rng, spec, avoid(existing)));
 					retimeRoutes(w, existing.id);
-				} else if (existing.discovered && !fits(existing, spec)) {
-					notes.push(`Note: ${existing.name} is already on the map ${anchor ? `${compassOf(anchor, existing)} of ${anchor.name}, ~${daysForDistance(mapDistance(anchor, existing), routeKind)} days away` : ""} — narrate consistently with that.`);
+				} else if (existing.discovered && !fits(existing, spec, w)) {
+					notes.push(`Note: ${existing.name} is already on the map ${anchor ? `${compassOf(anchor, existing)} of ${anchor.name}, ~${travelText(travelDaysIn(w, mapDistance(anchor, existing), routeKind))} away` : ""} — narrate consistently with that.`);
 				}
 				existing.discovered = true;
 				if (description) existing.description = description;
@@ -325,12 +326,12 @@ export const revealLocation = tool<RevealArgs>(
 				loc = existing;
 			} else {
 				// Re-skin an undiscovered generated location only if it already sits where the story puts it.
-				const spare = w.locations.find((l) => !l.discovered && l.kind === a.kind && fits(l, { ...spec, days: spec.days ?? (between ? undefined : 2) }));
+				const spare = w.locations.find((l) => !l.discovered && l.kind === a.kind && fits(l, { ...spec, days: spec.days ?? (between ? undefined : isTownWorld(w) ? 1 / 24 : 2) }, w));
 				if (spare) {
 					Object.assign(spare, { name: a.name, description, discovered: true });
 					loc = spare;
 				} else {
-					const p = placeFor(w, rng, { ...spec, days: spec.days ?? 1 }, avoid());
+					const p = placeFor(w, rng, { ...spec, days: spec.days ?? (isTownWorld(w) ? 1 / 24 : 1) }, avoid());
 					loc = { id: newId("loc"), name: a.name, kind: a.kind, x: p.x, y: p.y, discovered: true, visited: false, description, mapIds: [] };
 					w.locations.push(loc);
 				}
@@ -341,11 +342,11 @@ export const revealLocation = tool<RevealArgs>(
 			for (const from of links) {
 				if (from.id === loc.id) continue;
 				const route = w.routes.find((r) => (r.from === from.id && r.to === loc.id) || (r.to === from.id && r.from === loc.id));
-				const days = !between && a.travelDays !== undefined ? a.travelDays : daysForDistance(mapDistance(from, loc), routeKind);
+				const days = !between && a.travelDays !== undefined ? a.travelDays : travelDaysIn(w, mapDistance(from, loc), routeKind);
 				if (route) route.discovered = true;
 				else w.routes.push({ id: newId("rt"), from: from.id, to: loc.id, kind: routeKind, travelDays: days, discovered: true });
 			}
-			const where = anchor && anchor.id !== loc.id ? ` — ${compassOf(anchor, loc)} of ${anchor.name}, ~${daysForDistance(mapDistance(anchor, loc), routeKind)} days by ${routeKind}` : "";
+			const where = anchor && anchor.id !== loc.id ? ` — ${compassOf(anchor, loc)} of ${anchor.name}, ~${travelText(travelDaysIn(w, mapDistance(anchor, loc), routeKind))} by ${routeKind}` : "";
 			return [`Location ${loc.name} [${loc.id}] is on the world map${where}.`, ...notes].join(" ");
 		}),
 );
@@ -372,7 +373,7 @@ export const markRegionTool = tool<{ terrain: TerrainKind; name?: string; nearLo
 			const r = REGION_SIZE[a.size ?? "medium"];
 			let x = anchor.x, y = anchor.y;
 			if (a.direction) {
-				const d = a.travelDays !== undefined ? distanceForDays(a.travelDays) : r * 1.1;
+				const d = a.travelDays !== undefined ? distanceInDays(w, a.travelDays) : r * 1.1;
 				const ang = BEARING[a.direction];
 				x = Math.min(0.97, Math.max(0.03, anchor.x + (Math.cos(ang) * d) / WORLD_ASPECT));
 				y = Math.min(0.97, Math.max(0.03, anchor.y + Math.sin(ang) * d));
@@ -394,7 +395,7 @@ export const travelTool = tool<{ locationId: string; days?: number; hours?: numb
 			if (!loc) throw new Error(`Unknown location ${a.locationId}`);
 			const route = w.routes.find((r) => (r.from === w.currentLocationId && r.to === loc.id) || (r.to === w.currentLocationId && r.from === loc.id));
 			const here = w.locations.find((l) => l.id === w.currentLocationId);
-			const hours = Math.max(0, a.hours ?? (a.days ?? route?.travelDays ?? (here ? daysForDistance(mapDistance(here, loc)) : 1)) * 24);
+			const hours = Math.max(0, a.hours ?? (a.days ?? route?.travelDays ?? (here ? travelDaysIn(w, mapDistance(here, loc)) : 1)) * 24);
 			const days = Math.round((hours / 24) * 100) / 100;
 			const totalHours = state.time.hour + Math.round(hours);
 			state.time.day += Math.floor(totalHours / 24);
