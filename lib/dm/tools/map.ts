@@ -241,6 +241,8 @@ export const setTileTool = tool<{ x: number; y: number; tile: Tile; width?: numb
 			for (let y = a.y; y < a.y + (a.height ?? 1); y++)
 				for (let x = a.x; x < a.x + (a.width ?? 1); x++) {
 					if (x < 0 || y < 0 || x >= map.width || y >= map.height) continue;
+					// Overwriting a barricade drops its hit points (build them with build_barricade).
+					if (map.barricades?.[`${x},${y}`]) delete map.barricades[`${x},${y}`];
 					map.tiles[y * map.width + x] = a.tile;
 					n++;
 				}

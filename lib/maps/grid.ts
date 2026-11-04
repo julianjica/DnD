@@ -26,11 +26,11 @@ export function tileAt(map: GridLike, x: number, y: number): Tile {
 
 /** Tiles a creature cannot enter. Doors (even locked/secret) count as passable for connectivity. */
 const BLOCKS_MOVE = new Set<Tile>([
-	"void", "wall", "building", "pillar", "tree", "deep_water", "lava", "pit", "rock", "table", "bar_counter",
+	"void", "wall", "building", "pillar", "tree", "deep_water", "lava", "pit", "rock", "table", "bar_counter", "barricade",
 ]);
 /** Tiles that block line of sight. */
 const BLOCKS_SIGHT = new Set<Tile>([
-	"void", "wall", "building", "pillar", "tree", "rock", "door", "door_locked", "secret_door",
+	"void", "wall", "building", "pillar", "tree", "rock", "door", "door_locked", "secret_door", "barricade",
 ]);
 /** Passable tiles that cost double movement (5e difficult terrain). */
 const DIFFICULT = new Set<Tile>(["difficult", "water", "mud", "rubble", "tall_grass", "sand"]);

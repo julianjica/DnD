@@ -36,11 +36,12 @@ export const DRAW_LEGEND: Record<string, Tile> = {
 	">": "stairs_down",
 	b: "bridge",
 	l: "lava",
+	H: "barricade",
 	" ": "void",
 };
 
 export const LEGEND_TEXT =
-	"`,` ground (grass; snow when climate=snow; sand when desert) · `;` brush/tall grass · `.` stone floor · `=` wooden floor · `-` road/path · `:` sand/gravel · `%` mud · `i` ice · `~` shallow water · `w` deep water · `#` built wall · `X` natural rock/cliff/boulder · `+` closed door · `/` open door · `L` locked door · `S` secret door · `T` tree · `O` pillar · `t` table · `B` counter · `r` rubble · `p` pit · `<` `>` stairs up/down · `b` bridge · `l` lava · space = nothing (outside the map) · `@` the player";
+	"`,` ground (grass; snow when climate=snow; sand when desert) · `;` brush/tall grass · `.` stone floor · `=` wooden floor · `-` road/path · `:` sand/gravel · `%` mud · `i` ice · `~` shallow water · `w` deep water · `#` built wall · `X` natural rock/cliff/boulder · `+` closed door · `/` open door · `L` locked door · `S` secret door · `T` tree · `O` pillar · `t` table · `B` counter · `r` rubble · `p` pit · `<` `>` stairs up/down · `b` bridge · `l` lava · `H` barricade (The Quiet: boarded-up door/window, blocks movement and sight; 25 HP) · space = nothing (outside the map) · `@` the player";
 
 /** Things a key character can stand for. */
 export interface DrawKey {
@@ -179,9 +180,19 @@ export function drawMap(input: DrawInput): DrawResult {
 		lighting: input.lighting ?? "bright",
 		entry,
 		drawn: true,
+		...(tiles.includes("barricade") ? { barricades: drawnBarricades(tiles, width) } : {}),
 		...(input.climate && input.climate !== "temperate" ? { climate: input.climate } : {}),
 	};
 	return { map, entities, pc, warnings };
+}
+
+/** Barricades drawn with `H` start as fresh planks (25 HP). */
+function drawnBarricades(tiles: Tile[], width: number): NonNullable<GridMap["barricades"]> {
+	const out: NonNullable<GridMap["barricades"]> = {};
+	tiles.forEach((t, i) => {
+		if (t === "barricade") out[`${i % width},${Math.floor(i / width)}`] = { hp: 25, max: 25 };
+	});
+	return out;
 }
 
 /** Default climate from the campaign's world preset. */
