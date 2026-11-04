@@ -78,6 +78,8 @@ export function applyCombatResult(tx: StateTxn, res: CombatResult): string {
  * techniques and a screamer's shriek raise the noise level; a zombie's bite
  * that wounds the player forces the infection save.
  */
+const GUNFIRE = /\b(pistol|revolver|shotgun|rifle|carbine|gun)\b/i;
+
 function survivalEvents(tx: StateTxn, res: CombatResult, before: GameState["character"]): string[] {
 	const { state, rng } = tx;
 	const out: string[] = [];
@@ -97,7 +99,12 @@ function survivalEvents(tx: StateTxn, res: CombatResult, before: GameState["char
 		} else if (ev.type === "action_used" && /shriek/i.test(ev.action)) {
 			const c = res.encounter.combatants[ev.combatantId];
 			if (c?.stats?.ruleset === "zombie") out.push(addNoise(state, rng, 10, `${c.name}'s shriek`));
-		} else if (ev.type === "attack") lastAttack = ev;
+		} else if (ev.type === "attack") {
+			lastAttack = ev;
+			// The living shoot too: raiders' and soldiers' guns are as loud as the player's.
+			const c = res.encounter.combatants[ev.attackerId];
+			if (ev.attackerId !== pcId && c?.stats?.ruleset === "zombie" && GUNFIRE.test(ev.name)) out.push(addNoise(state, rng, 3, `${c.name}'s ${ev.name}`));
+		}
 		else if (ev.type === "damage" && ev.targetId === pcId && ev.amount > 0 && !bitten && lastAttack?.hit && lastAttack.targetId === pcId && /\bbites?\b/i.test(lastAttack.name)) {
 			const attacker = res.encounter.combatants[lastAttack.attackerId];
 			if (attacker?.stats?.ruleset === "zombie" && /undead/i.test(attacker.stats.type)) {

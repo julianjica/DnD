@@ -35,17 +35,19 @@ export function advanceClock(state: GameState, minutes: number): void {
 
 /** The survival state, created on first use (the clock starts now). */
 export function survivalOf(state: GameState): SurvivalState {
-	if (!state.survival) {
-		const now = gameMinutes(state.time);
-		state.survival = {
-			lastTick: now,
-			noise: { level: 0, locationId: state.world.currentLocationId, mapId: state.activeMapId },
-			amputations: [],
-			needs: { lastMeal: now, lastDrink: now, missedMeals: 0, missedDrinks: 0 },
-			looted: {},
-		};
-	}
+	if (!state.survival) state.survival = freshSurvival(state);
 	return state.survival;
+}
+
+function freshSurvival(state: GameState): SurvivalState {
+	const now = gameMinutes(state.time);
+	return {
+		lastTick: now,
+		noise: { level: 0, locationId: state.world.currentLocationId, mapId: state.activeMapId },
+		amputations: [],
+		needs: { lastMeal: now, lastDrink: now, missedMeals: 0, missedDrinks: 0 },
+		looted: {},
+	};
 }
 
 /** Street lights and mains power: the grid fails on outbreak Day 5 (for the art). */
@@ -359,7 +361,9 @@ export function addNoise(state: GameState, rng: Rng, amount: number, reason: str
 
 function resetIfMoved(state: GameState): string | undefined {
 	const n = survivalOf(state).noise;
-	const moved = n.locationId !== state.world.currentLocationId || n.mapId !== state.activeMapId;
+	// A first map drawn where the noise was made (none before) is not a move.
+	const moved = n.locationId !== state.world.currentLocationId || (n.mapId !== undefined && n.mapId !== state.activeMapId);
+	n.mapId ??= state.activeMapId;
 	if (!moved) return;
 	const was = n.level;
 	n.level = 0;
@@ -377,13 +381,12 @@ export function fed(state: GameState): boolean {
 	return now - s.needs.lastMeal <= 1440 && now - s.needs.lastDrink <= 1440;
 }
 
-export function restInterruption(state: GameState, rng: Rng, record: RecordRoll, secured: boolean): { interrupted: boolean; chance: number; text?: string; afterMinutes?: number } {
+export function restInterruption(state: GameState, rng: Rng, secured: boolean): { interrupted: boolean; chance: number; text?: string; afterMinutes?: number } {
 	const s = survivalOf(state);
 	resetIfMoved(state);
 	const chance = Math.min(95, (secured ? 5 : 30) + 5 * s.noise.level + (isNight(state) && !secured ? 10 : 0));
-	const r = roll(rng, "1d100", { label: `Rest interrupted? (${chance}% chance)`, actor: "dm" });
-	record(r);
-	if (r.total > chance) return { interrupted: false, chance };
+	// Secret roll (not in the dice log): the player shouldn't see the odds before the DM narrates.
+	if (rng.int(1, 100) > chance) return { interrupted: false, chance };
 	const afterMinutes = rng.int(1, 7) * 60;
 	const who = rollWanderers(state, rng, rng.int(1, 3));
 	return {
@@ -436,8 +439,8 @@ const ago = (min: number) => (min < 60 ? `${min} min ago` : `${Math.round(min / 
 
 /** One "Survival:" line for the DM digest (hours left on the infection: DM only, never the player). */
 export function survivalDigest(state: GameState): string | undefined {
-	if (!isZombie(state) || !state.survival) return undefined;
-	const s = state.survival;
+	if (!isZombie(state)) return undefined;
+	const s = state.survival ?? freshSurvival(state);
 	const now = gameMinutes(state.time);
 	const c = state.character;
 	const count = (pick: (i: InventoryItem) => boolean) => c.inventory.filter(pick).reduce((n, i) => n + i.quantity, 0);

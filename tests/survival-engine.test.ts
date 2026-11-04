@@ -85,6 +85,7 @@ test("fantasy campaigns: no survival state, no daily needs, rests and tools as b
 	assert.equal((await call(f, "make_noise", { amount: 3, reason: "shout" })).isError, true);
 	assert.equal((await call(f, "amputate", { part: "left arm", reason: "x" })).isError, true);
 	assert.equal(m.survival.survivalDigest(s), undefined);
+	assert.match(m.survival.survivalDigest(m.loadState(newGame(true))) ?? "", /^Survival: noise 0\/10; not infected/, "a new zombie game shows it from turn one");
 	assert.doesNotMatch(m.digest.stateDigest(s), /Survival:/);
 	assert.doesNotMatch(m.prompt.buildSystemPrompt(s.settings), /make_noise/);
 });
@@ -173,6 +174,11 @@ test("noise decays 1 per 10 minutes (not in combat) and resets when the party mo
 	m.survival.tick(s, new Rng(1));
 	assert.equal(s.survival!.noise.level, 5, "no decay mid-combat");
 	delete s.encounter;
+	// The DM drawing the first map of the street where the noise was made is not a move.
+	s.survival!.noise.mapId = undefined;
+	s.activeMapId = "map_street";
+	assert.equal(m.survival.tick(s, new Rng(1)), undefined);
+	assert.equal(s.survival!.noise.level, 5);
 	s.world.currentLocationId = "somewhere-else";
 	assert.match(m.survival.tick(s, new Rng(1)) ?? "", /Left the noise behind/);
 	assert.equal(s.survival!.noise.level, 0);
@@ -348,6 +354,34 @@ test("use_item: medkit, bandage, painkillers, antibiotics and the antiviral", as
 	assert.ok(m.loadState(z).survival!.infection);
 	assert.match((await call(z, "use_item", { item: "LAZARUS Antiviral" })).text, /antiviral works/);
 	assert.equal(m.loadState(z).survival!.infection, undefined);
+});
+
+test("in combat: a medkit heals through the engine, the living's gunshots make noise", async () => {
+	const z = newGame(true);
+	edit(z, (s) => (s.time.day = 3));
+	await call(z, "draw_map", { name: "Lot", kind: "town", rows: ROWS });
+	assert.notEqual((await call(z, "start_combat", { monsters: [{ monster: "z-desperate-survivor", x: 10, y: 3 }] })).isError, true);
+	const st = m.loadState(z);
+	m.survival.survivalOf(st);
+	const enc = st.encounter!;
+	enc.turnIndex = enc.order.indexOf(st.character.id);
+	Object.assign(enc.combatants[st.character.id].turn, { action: true, bonusAction: true });
+	enc.combatants[st.character.id].hp = 1;
+	st.character.hp = 1;
+	const kit = item("z-medkit", "Medkit", 1);
+	st.character.inventory.push(kit);
+	const t = tx(st, 5);
+	const log = m.combat.playerCombatAction(t, { type: "use_item", itemId: kit.id }, t.rng);
+	assert.match(log, /uses Medkit/);
+	assert.ok(st.encounter!.combatants[st.character.id].hp > 1);
+	assert.equal(count(st, "z-medkit"), 0);
+	const raider = Object.values(enc.combatants).find((c) => c.kind !== "pc")!;
+	const shot = {
+		ok: true, encounter: st.encounter!, map: st.maps[enc.mapId], character: st.character, rolls: [], log: [],
+		events: [{ type: "attack" as const, attackerId: raider.id, targetId: st.character.id, name: "9mm Pistol", hit: false, crit: false, rollId: "r" }],
+	};
+	assert.match(m.combat.applyCombatResult(tx(st, 1) as never, shot), /Noise \+3 \(Desperate Survivor's 9mm Pistol\)/);
+	assert.equal(st.survival!.noise.level, 3);
 });
 
 // ─── rest ───────────────────────────────────────────────────────────────

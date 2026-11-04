@@ -84,13 +84,13 @@ export const longRestTool = tool<{ interrupted?: boolean; secured?: boolean }>(
 	"The player takes an 8-hour long rest: full HP, half hit dice back, all slots and features, -1 exhaustion. Advances the clock 8 hours. The Quiet: pass secured (true only if barricaded/locked, dark and quiet); the engine rolls whether something interrupts the rest (noise, night and an unsecured spot make it likelier), and exhaustion only drops if the character ate and drank in the last 24 h.",
 	S.obj({ interrupted: S.bool(), secured: S.bool("The Quiet (required there): the spot is barricaded or locked, dark and quiet") }),
 	async (a, ctx) =>
-		withState(ctx, ({ state, rng, roll: record }) => {
+		withState(ctx, ({ state, rng }) => {
 			if (state.encounter?.status === "active") throw new Error("Cannot rest during combat.");
 			if (a.interrupted) return "Long rest interrupted; no benefits.";
 			const zombie = isZombie(state);
 			if (zombie && typeof a.secured !== "boolean") throw new Error("In The Quiet a long rest needs secured: true (barricaded or locked, dark and quiet) or false (anywhere else). Decide honestly from the scene and call again.");
 			if (zombie) {
-				const chance = restInterruption(state, rng, record, a.secured!);
+				const chance = restInterruption(state, rng, a.secured!);
 				if (chance.interrupted) {
 					advanceClock(state, chance.afterMinutes ?? 60);
 					return `Long rest INTERRUPTED (${chance.chance}% chance): ${chance.text} No long-rest benefits. DM: make it real now: describe it, place them on the map and start_combat (or let the player flee/hide).`;
