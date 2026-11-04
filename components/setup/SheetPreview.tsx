@@ -61,7 +61,7 @@ export function SheetPreview({ preview, draft, compact }: { preview: PreviewResu
 	return (
 		<div className="parchment relative overflow-hidden p-4 text-ink">
 			<div className="flex items-center gap-3">
-				{draft.portrait && <Portrait spec={draft.portrait} speciesId={draft.speciesId} size={compact ? 64 : 84} framed />}
+				{draft.portrait && <Portrait spec={draft.portrait} speciesId={draft.speciesId} size={compact ? 64 : 84} framed modern={ruleset === "zombie" ? { classes: [draft.classId] } : undefined} />}
 				<div className="min-w-0">
 					<div className="truncate font-display text-lg leading-tight text-[#3d2a12]">{draft.name || t("sheet.unnamed")}</div>
 					<div className="font-serif text-sm text-ink/80 italic">

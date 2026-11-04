@@ -92,7 +92,7 @@ function SheetTab({ state, onLevelUp, actions }: { state: GameState; onLevelUp: 
 		<div className="space-y-4">
 			<div className="flex items-center gap-3">
 				<button type="button" className="shrink-0 rounded-lg transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-gold" onClick={actions.editPortrait} title={t("play.portrait.edit")} aria-label={t("play.portrait.edit")}>
-					<Portrait spec={c.portrait} size={84} speciesId={c.speciesId} />
+					<Portrait spec={c.portrait} size={84} speciesId={c.speciesId} modern={rulesetOf(state.settings) === "zombie" ? { classes: c.classes.map((k) => k.classId) } : undefined} />
 				</button>
 				<div className="min-w-0">
 					<div className="heading truncate text-lg">{c.name}</div>
@@ -360,7 +360,7 @@ function CodexTab({ state }: { state: GameState }) {
 		<div className="space-y-2">
 			{npcs.map((n) => (
 				<div key={n.id} className={`flex gap-3 rounded-lg border border-line bg-bg-2/60 p-2 ${n.alive ? "" : "opacity-50 grayscale"}`}>
-					<Portrait spec={n.portrait} size={56} speciesId={n.speciesId} framed={false} />
+					<Portrait spec={n.portrait} size={56} speciesId={n.speciesId} framed={false} modern={rulesetOf(state.settings) === "zombie" ? { text: `${n.role ?? ""} ${n.description ?? ""}` } : undefined} />
 					<div className="min-w-0">
 						<div className="flex items-center gap-2">
 							<span className="font-display text-sm text-gold-2">{n.name}</span>

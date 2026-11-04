@@ -426,7 +426,7 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 			<div className="relative min-h-0 flex-1 overflow-hidden">
 				{view === "scene" && (
 					<div className="flex h-full items-center justify-center bg-bg p-3">
-						<SceneArt style={artStyle === "sprites" ? "paintings" : artStyle} backdrop={spriteMap ? <><SpriteScene map={spriteMap} looks={looks} dead={deadIds} time={state.scene.timeOfDay} weather={state.scene.weather} powerOn={powerOn} />{sick && <SickVignette stage={sick} />}</> : ruleset === "zombie" ? <><QuietBackdrop time={state.scene.timeOfDay} />{sick && <SickVignette stage={sick} />}</> : undefined} scene={state.scene} npcs={state.scene.npcIds.map((id) => state.npcs[id]).filter(Boolean).map((n) => ({ id: n.id, name: n.name, portrait: n.portrait, speciesId: n.speciesId, role: n.role }))} className="max-h-full w-full rounded-lg shadow-2xl" />
+						<SceneArt style={artStyle === "sprites" ? "paintings" : artStyle} backdrop={spriteMap ? <><SpriteScene map={spriteMap} looks={looks} dead={deadIds} time={state.scene.timeOfDay} weather={state.scene.weather} powerOn={powerOn} />{sick && <SickVignette stage={sick} />}</> : ruleset === "zombie" ? <><QuietBackdrop time={state.scene.timeOfDay} />{sick && <SickVignette stage={sick} />}</> : undefined} scene={state.scene} npcs={state.scene.npcIds.map((id) => state.npcs[id]).filter(Boolean).map((n) => ({ id: n.id, name: n.name, portrait: n.portrait, speciesId: n.speciesId, role: n.role, description: n.description }))} ruleset={ruleset} className="max-h-full w-full rounded-lg shadow-2xl" />
 					</div>
 				)}
 				{view === "map" && map && (

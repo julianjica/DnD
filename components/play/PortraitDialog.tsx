@@ -14,7 +14,7 @@ export function PortraitDialog({ id, state, onClose, onSaved }: { id: string; st
 	const [error, setError] = useState<string | null>(null);
 	return (
 		<Modal title={t("play.portrait.title")} onClose={onClose} wide>
-			<PortraitCustomizer spec={spec} speciesId={state.character.speciesId} name={state.character.name} onChange={setSpec} />
+			<PortraitCustomizer spec={spec} speciesId={state.character.speciesId} name={state.character.name} onChange={setSpec} who={{ classes: state.character.classes.map((k) => k.classId) }} />
 			{error && <p className="mt-3 text-sm text-crimson-2">{error}</p>}
 			<div className="mt-5 flex justify-end gap-2">
 				<button className="btn" onClick={onClose}>{t("common.cancel")}</button>

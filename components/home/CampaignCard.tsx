@@ -10,8 +10,9 @@ import { SceneArt } from "@/components/art/SceneArt";
 import { cn } from "@/components/ui/cn";
 import { useT } from "@/components/i18n/I18nProvider";
 import { displayTitle, type Lang } from "@/lib/i18n";
+import { rulesetOf } from "@/lib/rules/ruleset";
 
-type Detail = Pick<GameState, "scene"> & { character: Pick<GameState["character"], "portrait" | "speciesId"> };
+type Detail = Pick<GameState, "scene"> & { character: Pick<GameState["character"], "portrait" | "speciesId"> & { modern?: { classes: string[] } } };
 
 /** Lazily loads the campaign's state for its portrait and scene thumbnail. */
 function useDetail(id: string): Detail | null {
@@ -21,7 +22,7 @@ function useDetail(id: string): Detail | null {
 		fetch(`/api/campaigns/${encodeURIComponent(id)}`, { cache: "no-store" })
 			.then((r) => (r.ok ? (r.json() as Promise<{ state: GameState }>) : null))
 			.then((j) => {
-				if (alive && j?.state) setD({ scene: j.state.scene, character: { portrait: j.state.character.portrait, speciesId: j.state.character.speciesId } });
+				if (alive && j?.state) setD({ scene: j.state.scene, character: { portrait: j.state.character.portrait, speciesId: j.state.character.speciesId, modern: rulesetOf(j.state.settings) === "zombie" ? { classes: j.state.character.classes.map((k) => k.classId) } : undefined } });
 			})
 			.catch(() => {});
 		return () => {
@@ -68,7 +69,7 @@ export function CampaignCard({ c, now, onDelete }: { c: CampaignSummary; now: nu
 				<div className="absolute inset-0 bg-gradient-to-r from-transparent to-panel/90" />
 				<div className="absolute inset-0 grid place-items-center">
 					{detail ? (
-						<Portrait spec={detail.character.portrait} speciesId={detail.character.speciesId} size={92} />
+						<Portrait spec={detail.character.portrait} speciesId={detail.character.speciesId} size={92} modern={detail.character.modern} />
 					) : (
 						<span className="grid size-20 place-items-center rounded-full border-2 border-gold/50 bg-bg-2 font-display text-2xl text-gold-2">{initials || "?"}</span>
 					)}

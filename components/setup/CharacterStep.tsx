@@ -357,7 +357,7 @@ function PersonaPanel({ c, set }: { c: CharacterDraft; set: (p: Partial<Characte
 			</div>
 
 			<Section title={t("char.portrait")}>
-				{c.portrait && <PortraitCustomizer spec={c.portrait} speciesId={c.speciesId} name={c.name} onChange={(portrait) => set({ portrait })} />}
+				{c.portrait && <PortraitCustomizer spec={c.portrait} speciesId={c.speciesId} name={c.name} onChange={(portrait) => set({ portrait })} who={{ classes: [c.classId] }} />}
 			</Section>
 
 			<Section

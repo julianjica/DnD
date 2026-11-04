@@ -92,7 +92,7 @@ export function gearFor(opts: { classes?: string[]; text?: string; ruleset?: Rul
 }
 
 /** What a profession (class id) or a role description (EN/ES) wears and carries in The Quiet. */
-interface ModernRole { outfit: Outfit; hat: Hat; gear: Gear }
+export interface ModernRole { outfit: Outfit; hat: Hat; gear: Gear }
 
 const CLASS_ROLE: Record<string, ModernRole> = {
 	barbarian: { outfit: "turnout", hat: "fire_helmet", gear: "fire_axe" },
@@ -133,7 +133,7 @@ const TEXT_GEAR: [RegExp, Gear][] = [
 	[/medkit|first aid|botiqu[ií]n/, "medkit"], [/notebook|cuaderno|libreta|bible|biblia/, "notebook"],
 ];
 
-function modernRole(opts: { classes?: string[]; text?: string }): ModernRole {
+export function modernRole(opts: { classes?: string[]; text?: string }): ModernRole {
 	for (const c of opts.classes ?? []) if (CLASS_ROLE[c]) return CLASS_ROLE[c];
 	const t = (opts.text ?? "").toLowerCase();
 	const role = TEXT_ROLE.find(([re]) => re.test(t))?.[1] ?? { outfit: "denim" as Outfit, hat: "none" as Hat, gear: "none" as Gear };
@@ -169,8 +169,18 @@ export function personLook(spec: PortraitSpec, speciesId: string | undefined, ge
 		age,
 		species: normalizeSpecies(speciesId),
 		gear,
-		...(modern ? (({ outfit, hat }) => ({ outfit: outfit === "denim" && spec.seed % 3 === 0 ? ("hoodie" as Outfit) : outfit, hat }))(modernRole(opts ?? {})) : {}),
+		...(modern ? (({ outfit, hat }) => ({ outfit, hat }))(modernDress(spec.seed, opts ?? {})) : {}),
 	};
+}
+
+/**
+ * The Quiet: the outfit, headwear and gear a person wears, shared by the pixel
+ * sprite and the SVG portrait so both dress them the same. Plain civilians
+ * ("denim") wear a hoodie one time in three.
+ */
+export function modernDress(seed: number, who: { classes?: string[]; text?: string }): ModernRole {
+	const r = modernRole(who);
+	return r.outfit === "denim" && seed % 3 === 0 ? { ...r, outfit: "hoodie" } : r;
 }
 
 
@@ -204,7 +214,7 @@ type SetPx = (x: number, y: number, c: string | null) => void;
 type Rect = (x: number, y: number, w: number, h: number, c: string | null) => void;
 
 /** Colours of each modern outfit: top, sleeves, trousers, shoes. */
-const OUTFIT: Record<Outfit, { top: string; sleeve?: string; pants: string; shoe: string }> = {
+export const OUTFIT: Record<Outfit, { top: string; sleeve?: string; pants: string; shoe: string }> = {
 	scrubs: { top: "#4f9a9e", pants: "#43868a", shoe: "#d8d8d0" },
 	police: { top: "#2a3a5a", pants: "#1e2a40", shoe: "#16171a" },
 	turnout: { top: "#b89a4a", pants: "#a88a40", shoe: "#1e1e22" },

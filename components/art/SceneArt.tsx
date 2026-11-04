@@ -13,6 +13,7 @@ import { buildInterior } from "./scene/interior";
 import { buildOutdoor, type Layers, type OutCtx } from "./scene/outdoor";
 import { drawProp, type PropCtx } from "./scene/props";
 import { pickBackdrop, type Backdrop } from "@/lib/art/backdrops";
+import type { Ruleset } from "@/lib/rules/ruleset";
 
 export interface SceneNpc {
 	id: string;
@@ -20,6 +21,8 @@ export interface SceneNpc {
 	portrait: PortraitSpec;
 	speciesId?: string;
 	role?: string;
+	/** NPC description (The Quiet dresses people by role + description). */
+	description?: string;
 }
 
 export interface SceneArtProps {
@@ -40,6 +43,8 @@ export interface SceneArtProps {
 	backdrop?: ReactNode;
 	className?: string;
 	css?: CSSProperties;
+	/** "zombie": NPC portraits use The Quiet's modern clothes and photo frames. */
+	ruleset?: Ruleset;
 }
 
 const DEFAULT_PROPS: Partial<Record<SceneKind, SceneProp[]>> = {
@@ -61,7 +66,7 @@ function layerStyle(d: number): CSSProperties {
  * Procedural, layered, deterministic scene illustration (16:9, scales to fit).
  * Same SceneState → same picture (seeded from title + kind).
  */
-export function SceneArt({ scene, npcs, parallax = true, animate = true, showCaption = true, portraitSize = 76, className, css, style = "paintings", backdrop: custom }: SceneArtProps) {
+export function SceneArt({ scene, npcs, parallax = true, animate = true, showCaption = true, portraitSize = 76, className, css, style = "paintings", backdrop: custom, ruleset }: SceneArtProps) {
 	const rid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
 	const ref = useRef<HTMLDivElement>(null);
 	const frame = useRef(0);
@@ -129,7 +134,7 @@ export function SceneArt({ scene, npcs, parallax = true, animate = true, showCap
 				<div className="absolute top-3 right-3 flex max-w-[70%] flex-row-reverse flex-wrap items-start justify-start gap-2">
 					{present.map((n) => (
 						<div key={n.id} className="group relative drop-shadow-[0_6px_14px_rgba(0,0,0,0.7)] transition-transform hover:-translate-y-1" title={n.role ? `${n.name} — ${n.role}` : n.name}>
-							<Portrait spec={n.portrait} speciesId={n.speciesId} size={pSize} />
+							<Portrait spec={n.portrait} speciesId={n.speciesId} size={pSize} modern={ruleset === "zombie" ? { text: `${n.role ?? ""} ${n.description ?? ""}` } : undefined} />
 							<div className="mt-1 max-w-[--w] truncate text-center font-serif text-[11px] text-amber-50/90" style={{ maxWidth: pSize }}>
 								{n.name}
 							</div>
