@@ -968,6 +968,9 @@ export class BattleRenderer {
 function sameLayout(a: GridMap, b: GridMap): boolean {
 	if (a === b) return true;
 	if (a.id !== b.id || a.width !== b.width || a.height !== b.height || a.lighting !== b.lighting || a.kind !== b.kind) return false;
+	// Barricades are painted damaged below half HP: repaint when that changes.
+	const damaged = (m: GridMap) => Object.entries(m.barricades ?? {}).filter(([, v]) => v.hp * 2 < v.max).map(([k]) => k).sort().join(";");
+	if (damaged(a) !== damaged(b)) return false;
 	if (a.tiles === b.tiles) return true;
 	for (let i = 0; i < a.tiles.length; i++) if (a.tiles[i] !== b.tiles[i]) return false;
 	return true;
