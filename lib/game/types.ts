@@ -628,8 +628,18 @@ export interface BaseState {
 	building?: { upgrade: BaseUpgrade; readyAt: number }[];
 	/** Game minute of the last daily base tick. */
 	lastTick: number;
-	/** Recent base events for the log ("Day 6: the rain catcher filled 4 water"). */
-	log: { at: number; text: string }[];
+	/** Recent base events for the log ("Day 6: the rain catcher filled 4 water"). `kind`/`params` let the UI translate (i18n key base.log.<kind>). */
+	log: { at: number; text: string; kind?: string; params?: Record<string, string | number> }[];
+	/** Game minute each upgrade was finished (the garden bears after 7 days). */
+	completedAt?: Partial<Record<BaseUpgrade, number>>;
+	/** The generator had fuel at the last daily tick (lights, fridge, +1 fortification). */
+	generatorOn?: boolean;
+	/** How sturdy the building is on its own (steel doors, a fence), 0..3; adds to fortification. */
+	structure?: number;
+	/** What the stock is made of, by equipment ref and item count (e.g. ammo: { "z-ammo-9mm": 12 }), so taking returns real items. */
+	items?: Partial<Record<"food" | "water" | "meds" | "ammo" | "fuel" | "materials", Record<string, number>>>;
+	/** Game minute the base was claimed. */
+	claimedAt?: number;
 }
 
 /** The player's group in The Quiet (absent until someone joins or a base is claimed). */

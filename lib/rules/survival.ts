@@ -4,6 +4,7 @@ import { checkBreakdown } from "./character/derived";
 import { addExhaustion, applyDamage, grantTempHp, isDead } from "./character/resources";
 import { roll, signed, type Rng } from "./dice";
 import { outbreakDay, rulesetOf } from "./ruleset";
+import { baseDailyTick, refreshBase } from "./base";
 
 /**
  * The Quiet, Phase 2: the survival engine (docs/zombie.md §5). Noise and the
@@ -402,9 +403,9 @@ export function restInterruption(state: GameState, rng: Rng, secured: boolean): 
 /**
  * Advances the survival clock from lastTick to now: noise decays (1 per 10
  * minutes, not during combat) and resets when the party moves, the infection
- * advances, and each 08:00 passed takes the day's food and water.
+ * advances, and each 08:00 passed takes the day's food and water and runs the
+ * base's day (production, event roll: lib/rules/base.ts).
  */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- reserved for random survival events
 export function tick(state: GameState, rng?: Rng): string | undefined {
 	if (!isZombie(state)) return undefined;
 	const s = survivalOf(state);
@@ -424,11 +425,13 @@ export function tick(state: GameState, rng?: Rng): string | undefined {
 		for (let d = first; d <= lastCrossing && !isDead(state.character); d++) {
 			const at = d * 1440 + 480;
 			out.push(...advanceInfection(state, at));
+			out.push(...baseDailyTick(state, rng, at));
 			if (!isDead(state.character)) out.push(...dailyNeeds(state, at));
 		}
 		if (!isDead(state.character)) out.push(...advanceInfection(state, now));
 		syncPcCombatant(state);
 	}
+	if (state.group?.base) out.push(...refreshBase(state, now));
 	s.lastTick = Math.max(last, now);
 	return out.join("\n") || undefined;
 }
