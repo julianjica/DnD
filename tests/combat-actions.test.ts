@@ -433,3 +433,16 @@ test("damage at 0 HP keeps prior successes; a stable PC starts dying again", () 
 	stable.encounter.combatants.pc1.deathSaves = { successes: 3, failures: 0 };
 	assert.deepEqual(applyDamageTo(stable, new ScriptedRng([]), "pc1", 3).encounter.combatants.pc1.deathSaves, { successes: 0, failures: 1 });
 });
+
+test("a prone player can stand up for half their speed", () => {
+	const r = fight({ monsters: [{ id: "m1", at: { x: 10, y: 1 } }] });
+	const pc = r.encounter.combatants.pc1;
+	pc.conditions.push({ id: "prone" } as (typeof pc.conditions)[number]);
+	const before = pc.turn.movementLeft;
+	const res = act(r, new ScriptedRng([]), { type: "stand_up" });
+	assert.ok(res.ok, res.error);
+	const after = res.encounter.combatants.pc1;
+	assert.ok(!after.conditions.some((k) => k.id === "prone"));
+	assert.equal(after.turn.movementLeft, before - Math.floor(pc.speed / 2));
+	assert.equal(act(res, new ScriptedRng([]), { type: "stand_up" }).ok, false, "can't stand when not prone");
+});

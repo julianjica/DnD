@@ -462,3 +462,4 @@ test("brutal balance: crits on the dead are headshots; kits carry two days of fo
 		assert.ok((kit.find((i) => i.ref === "z-bottled-water")?.qty ?? 0) >= 2, `${cls} water`);
 	}
 });
+

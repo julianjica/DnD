@@ -508,7 +508,9 @@ export type PlayerCombatAction =
 	| { type: "use_item"; itemId: string; targetId?: string }
 	| { type: "use_feature"; featureId: string; targetId?: string }
 	| { type: "end_turn" }
-	| { type: "death_save" };
+	| { type: "death_save" }
+	/** Get up from prone: costs half your speed. */
+	| { type: "stand_up" };
 
 // ─── Settings / engines ────────────────────────────────────────────────────
 

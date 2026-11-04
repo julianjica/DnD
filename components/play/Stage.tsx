@@ -6,7 +6,7 @@ import { infectionVisual, SickVignette } from "./Survival";
 import { moraleNote } from "./Group";
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
-import { Footprints, Map as MapIcon, Globe2, Image as ImageIcon, Swords, Wand2, Wind, ShieldHalf, HandHelping, EyeOff, FlaskConical, Zap, Hourglass, Skull, X } from "lucide-react";
+import { ArrowUpFromLine, Footprints, Map as MapIcon, Globe2, Image as ImageIcon, Swords, Wand2, Wind, ShieldHalf, HandHelping, EyeOff, FlaskConical, Zap, Hourglass, Skull, X } from "lucide-react";
 import type { Combatant, GameState, GridMap, MapEntity, PlayerCombatAction, SpellInfo } from "@/lib/game/types";
 import { SceneArt } from "@/components/art/SceneArt";
 import { SpriteScene } from "@/components/art/sprite/SpriteScene";
@@ -232,6 +232,11 @@ function ActionBar(props: { state: GameState; pc: Combatant; mode: Mode; setMode
 				</div>
 			)}
 			<span className="mx-1 h-6 w-px bg-line" />
+			{pc.conditions.some((k) => k.id === "prone") && (
+				<button className="btn btn-gold" disabled={busy || t.movementLeft < Math.floor(pc.speed / 2)} onClick={() => act({ type: "stand_up" })} title={tr("play.combat.standUpInfo", { ft: Math.floor(pc.speed / 2) })}>
+					<ArrowUpFromLine size={15} /> {tr("play.combat.standUp")}
+				</button>
+			)}
 			<button className="btn" disabled={busy || !t.action} onClick={() => act({ type: "dash" })} title={tr("play.combat.dash")}><Wind size={15} /></button>
 			<button className="btn" disabled={busy || !t.action} onClick={() => act({ type: "disengage" })} title={tr("play.combat.disengage")}><ShieldHalf size={15} /></button>
 			<button className="btn" disabled={busy || !t.action} onClick={() => act({ type: "dodge" })} title={tr("play.combat.dodge")}><Zap size={15} /></button>

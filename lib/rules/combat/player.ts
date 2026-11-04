@@ -123,6 +123,16 @@ function doAction(ctx: Ctx, action: PlayerCombatAction): void {
 	const profile = pcProfile(ctx);
 
 	switch (action.type) {
+		case "stand_up": {
+			if (!pc.conditions.some((k) => k.id === "prone")) fail(`${pc.name} is not prone.`);
+			const cost = Math.floor(pc.speed / 2);
+			if (pc.turn.movementLeft < cost) fail(`Not enough movement to stand up (needs ${cost} ft).`);
+			pc.turn.movementLeft -= cost;
+			removeCondition(ctx, pc.id, "prone");
+			emit(ctx, { type: "stand_up", combatantId: pc.id });
+			say(ctx, `${pc.name} gets up (${cost} ft of movement).`);
+			return;
+		}
 		case "end_turn":
 			// A dying PC always makes its death save; it cannot be skipped.
 			if (pc.hp <= 0 && !pc.dead && (pc.deathSaves?.successes ?? 0) < 3 && !pc.usage.__turn_deathSave) {
