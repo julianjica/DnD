@@ -112,7 +112,7 @@ export interface ScavengeResult {
 	text: string;
 }
 
-function pickWeighted<T>(rng: Rng, list: { w: number; v: T }[]): T {
+export function pickWeighted<T>(rng: Rng, list: { w: number; v: T }[]): T {
 	const total = list.reduce((n, x) => n + x.w, 0);
 	let r = rng.next() * total;
 	for (const x of list) {

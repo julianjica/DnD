@@ -603,7 +603,7 @@ export interface Survivor {
 	traits: string[];
 	/** Game minute they joined; for "away": when they're due back and why. */
 	joinedAt: number;
-	away?: { until: number; task: string };
+	away?: { until: number; task: string; /** When they left, and where they return to. */ startedAt?: number; from?: "with_party" | "at_base" };
 	/** Their own small inventory (weapon, a few rounds…), as equipment refs. */
 	gear: { ref: string; qty: number }[];
 	/** Same LAZARUS rules as the player; turnsAt is secret. */
@@ -646,6 +646,8 @@ export interface BaseState {
 export interface GroupState {
 	survivors: Record<string, Survivor>;
 	base?: BaseState;
+	/** Game minute of the last group tick (errands, survivors' daily needs and infections). */
+	lastTick?: number;
 }
 
 export interface GameState {

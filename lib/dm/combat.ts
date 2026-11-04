@@ -5,6 +5,7 @@ import { getEquipment, getSpell } from "../srd";
 import { pcCombatProfile } from "./derived";
 import { addNoise, DEFAULT_LOUDNESS, infectionSave, isZombie, survivalItem, survivalItemEffect } from "../rules/survival";
 import type { StateTxn } from "./context";
+import { survivorBitten, survivorForCombatant, syncSurvivorsFromCombat } from "../rules/group";
 
 /** Combat options bound to the current character and the SRD. */
 export function combatOpts(state: GameState): CombatOptions {
@@ -67,7 +68,7 @@ export function applyCombatResult(tx: StateTxn, res: CombatResult): string {
 		else if (ev.type === "death") tx.fx({ kind: "sfx", sound: "death" });
 		else if (ev.type === "noise") recordNoise(state, ev.source, ev.loudness);
 	}
-	const survival = isZombie(state) ? survivalEvents(tx, res, before) : [];
+	const survival = isZombie(state) ? [...survivalEvents(tx, res, before), ...syncSurvivorsFromCombat(state, tx.rng, tx.roll, res.events)] : [];
 	if (res.encounter.status !== "active") {
 		state.mode = "explore";
 		if (state.ambience === "combat" || state.ambience === "boss") state.ambience = res.encounter.status === "victory" ? "victory" : "tension";
@@ -88,7 +89,7 @@ function survivalEvents(tx: StateTxn, res: CombatResult, before: GameState["char
 	const out: string[] = [];
 	const pcId = state.character.id;
 	let lastAttack: Extract<CombatResult["events"][number], { type: "attack" }> | undefined;
-	let bitten = false;
+	const bitten = new Set<string>();
 	for (const ev of res.events) {
 		if (ev.type === "noise") out.push(addNoise(state, rng, ev.loudness, ev.source));
 		else if (ev.type === "item_used" && ev.combatantId === pcId) {
@@ -108,12 +109,22 @@ function survivalEvents(tx: StateTxn, res: CombatResult, before: GameState["char
 			const c = res.encounter.combatants[ev.attackerId];
 			if (ev.attackerId !== pcId && c?.stats?.ruleset === "zombie" && GUNFIRE.test(ev.name)) out.push(addNoise(state, rng, 3, `${c.name}'s ${ev.name}`));
 		}
-		else if (ev.type === "damage" && ev.targetId === pcId && ev.amount > 0 && !bitten && lastAttack?.hit && lastAttack.targetId === pcId && /\bbites?\b/i.test(lastAttack.name)) {
+		else if (ev.type === "damage" && ev.amount > 0 && !bitten.has(ev.targetId) && lastAttack?.hit && lastAttack.targetId === ev.targetId && /\bbites?\b/i.test(lastAttack.name)) {
 			const attacker = res.encounter.combatants[lastAttack.attackerId];
-			if (attacker?.stats?.ruleset === "zombie" && /undead/i.test(attacker.stats.type)) {
-				bitten = true;
-				const note = infectionSave(state, rng, tx.roll, { monster: attacker.stats, attack: lastAttack.name });
+			if (!(attacker?.stats?.ruleset === "zombie" && /undead/i.test(attacker.stats.type))) continue;
+			const bite = { monster: attacker.stats, attack: lastAttack.name };
+			if (ev.targetId === pcId) {
+				bitten.add(ev.targetId);
+				const note = infectionSave(state, rng, tx.roll, bite);
 				if (note) out.push(`ENGINE (infection): ${note}`);
+				continue;
+			}
+			// A companion survivor: same save and secret clock (lib/rules/group.ts).
+			const target = res.encounter.combatants[ev.targetId];
+			const sv = target && survivorForCombatant(state, target);
+			if (sv?.status === "with_party") {
+				bitten.add(ev.targetId);
+				out.push(`ENGINE (infection): ${survivorBitten(state, rng, tx.roll, sv, { ...bite, lethal: ev.hpAfter <= 0 })}`);
 			}
 		}
 	}

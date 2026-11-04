@@ -85,7 +85,7 @@ export function isWater(i: Pick<InventoryItem, "ref" | "name">): boolean {
 	return (!!i.ref && (WATER_ITEMS as readonly string[]).includes(i.ref)) || (!i.ref?.startsWith("z-") && WATER_NAME.test(i.name));
 }
 
-function takeOne(c: Character, pick: (i: InventoryItem) => boolean): InventoryItem | undefined {
+export function takeOne(c: Character, pick: (i: InventoryItem) => boolean): InventoryItem | undefined {
 	const item = c.inventory.find((i) => i.quantity > 0 && pick(i));
 	if (!item) return undefined;
 	item.quantity -= 1;
@@ -170,7 +170,29 @@ export function survivalItemEffect(state: GameState, rng: Rng, record: RecordRol
 
 // ─── infection ────────────────────────────────────────────────────────────
 
-const INFECTION_HOUR = 60;
+export const INFECTION_HOUR = 60;
+
+/** The CON save DC against a bite: 12, +1 for runners and brutes. */
+export function infectionDc(monster?: MonsterStats): number {
+	const idx = monster?.index ?? "";
+	return 12 + (idx === "z-runner" || idx === "z-brute" ? 1 : 0);
+}
+
+/** A failed save: where the bite landed and when (secretly) the victim turns, 24–72 h from now. */
+export function rollInfection(rng: Rng, now: number, attack: string): { bittenAt: number; turnsAt: number; part: BodyPart; hours: number } {
+	const hours = rng.int(24, 72);
+	const part = /ankle|leg/i.test(attack) ? rng.pick<BodyPart>(["left leg", "right leg"]) : pickPart(rng);
+	return { bittenAt: now, turnsAt: now + hours * 60, part, hours };
+}
+
+/** The stage an infection has reached at `now`: fever after 1/3 of the span, delirium after 2/3, turned at the end. */
+export function infectionStageAt(inf: { bittenAt: number; turnsAt: number }, now: number): "incubating" | "fever" | "delirium" | "turned" {
+	const span = inf.turnsAt - inf.bittenAt;
+	if (now >= inf.turnsAt) return "turned";
+	if (now >= inf.bittenAt + (2 * span) / 3) return "delirium";
+	if (now >= inf.bittenAt + span / 3) return "fever";
+	return "incubating";
+}
 
 /** Bite → CON save. DC 12 (+1 for runners and brutes). Returns the DM note, or undefined if nothing happened. */
 export function infectionSave(state: GameState, rng: Rng, record: RecordRoll, bite: { monster?: MonsterStats; attack: string }): string | undefined {
@@ -178,8 +200,7 @@ export function infectionSave(state: GameState, rng: Rng, record: RecordRoll, bi
 	const c = state.character;
 	if (s.infection && s.infection.stage !== "turned") return `${c.name} is already infected; no new save.`;
 	if (isDead(c)) return undefined;
-	const idx = bite.monster?.index ?? "";
-	const dc = 12 + (idx === "z-runner" || idx === "z-brute" ? 1 : 0);
+	const dc = infectionDc(bite.monster);
 	const { mod, check } = checkBreakdown(c, { kind: "save", ability: "con" });
 	const r = roll(rng, `1d20${signed(mod)}`, {
 		label: `CON save vs infection (${bite.monster?.name ?? "bite"})`,
@@ -190,10 +211,8 @@ export function infectionSave(state: GameState, rng: Rng, record: RecordRoll, bi
 	r.check = check;
 	record(r);
 	if (r.success) return `Bitten (${bite.attack}): CON save ${r.total} vs DC ${dc} SUCCESS. Not infected; just a wound.`;
-	const now = gameMinutes(state.time);
-	const hours = rng.int(24, 72);
-	const part = /ankle|leg/i.test(bite.attack) ? rng.pick<BodyPart>(["left leg", "right leg"]) : pickPart(rng);
-	s.infection = { bittenAt: now, turnsAt: now + hours * 60, part, stage: "incubating", ...(bite.monster ? { source: bite.monster.index } : {}) };
+	const { bittenAt, turnsAt, part, hours } = rollInfection(rng, gameMinutes(state.time), bite.attack);
+	s.infection = { bittenAt, turnsAt, part, stage: "incubating", ...(bite.monster ? { source: bite.monster.index } : {}) };
 	const limb = part.endsWith("arm") || part.endsWith("leg");
 	return `Bitten on the ${part} (${bite.attack}): CON save ${r.total} vs DC ${dc} FAILURE. ${c.name} is INFECTED with LAZARUS (secret: the player doesn't know yet; let the symptoms tell them). ${limb ? `Amputating the ${part} within ${INFECTION_HOUR} minutes (amputate tool) can stop it.` : `A bite on the ${part} can't be cut away.`} Fever, then delirium, then death and turning in about ${hours} h (DM only).`;
 }
