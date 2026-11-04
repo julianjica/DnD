@@ -3,6 +3,11 @@ import type { PortraitSpec } from "@/lib/game/types";
 import { BACKGROUND_COLORS, portraitTraits, type PortraitTraits } from "@/lib/art/portrait";
 import { mix, shade } from "@/lib/art/color";
 import { ArtRng, mirrorLoop, r1, smoothPath } from "@/lib/art/rand";
+import {
+	fullHat, MODERN_FRAME_DEFAULT, modernBackdrop, modernBackdropColors, modernBehindNeck, modernClothes, modernEarbuds, modernFrameBack, modernFrameFront,
+	modernGlasses, modernGrit, modernHat, modernHatDefs, modernHoodBack, modernHoodFront, modernLook, modernPhotoOverlay, modernWindow,
+	type ModernCtx, type ModernFrame, type ModernWho,
+} from "./PortraitModern";
 
 /**
  * Layered procedural SVG bust portrait. Deterministic for a given spec, SSR-safe
@@ -21,12 +26,26 @@ export interface PortraitProps {
 	framed?: boolean;
 	className?: string;
 	title?: string;
+	/**
+	 * The Quiet (zombie ruleset): present-day clothes by profession/role, modern
+	 * headwear and extras, photo frame and background; everyone human. Pass the
+	 * PC's class ids or the NPC's role text so the outfit matches the sprite.
+	 */
+	modern?: boolean | ModernWho;
+	/** Modern frame: worn staff ID badge or polaroid (default MODERN_FRAME_DEFAULT). */
+	frameStyle?: ModernFrame;
 }
 
 const CX = 100;
 type P = [number, number];
 
-export function Portrait({ spec, size = 160, speciesId, name, framed = true, className, title }: PortraitProps) {
+const MODERN_KEEP_ACC = new Set(["scar", "eyepatch", "earrings"]);
+
+export function Portrait({ spec: specIn, size = 160, speciesId: speciesIn, name, framed = true, className, title, modern, frameStyle }: PortraitProps) {
+	const who: ModernWho | null = modern ? (modern === true ? {} : modern) : null;
+	// The Quiet: everyone is human; only freckles survive of the species features.
+	const spec = who ? { ...specIn, features: (specIn.features ?? []).filter((x) => x === "freckles") } : specIn;
+	const speciesId = who ? "human" : speciesIn;
 	const uid = useId().replace(/[^a-zA-Z0-9_-]/g, "");
 	const id = (s: string) => `pt${uid}-${s}`;
 	const url = (s: string) => `url(#${id(s)})`;
@@ -42,8 +61,11 @@ export function Portrait({ spec, size = 160, speciesId, name, framed = true, cla
 	const hairLo = shade(hair, -0.14);
 	const hairHi = shade(hair, 0.16);
 	const hairLine = shade(hair, -0.3);
-	const [bgA, bgB] = BACKGROUND_COLORS[spec.background] ?? BACKGROUND_COLORS.slate;
-	const acc = spec.accessory ?? "none";
+	const ml = who ? modernLook(spec, who, t.clothing, t.age) : null;
+	const frame = frameStyle ?? MODERN_FRAME_DEFAULT;
+	const [bgA, bgB] = ml ? modernBackdropColors(frame, spec.background) : BACKGROUND_COLORS[spec.background] ?? BACKGROUND_COLORS.slate;
+	const rawAcc = spec.accessory ?? "none";
+	const acc = ml && !MODERN_KEEP_ACC.has(rawAcc) ? "none" : rawAcc;
 	const fh = spec.facialHair ?? "none";
 	const style = draconic ? "bald" : spec.hairStyle;
 
@@ -127,7 +149,7 @@ export function Portrait({ spec, size = 160, speciesId, name, framed = true, cla
 		<g>
 			<path d={`M${CX - nw} 132 C${CX - nw} 158 ${CX - nw - 1} 166 ${CX - nw - 8} 178 L${CX + nw + 8} 178 C${CX + nw + 1} 166 ${CX + nw} 158 ${CX + nw} 132 Z`} fill={skinLo} stroke={skinLine} strokeWidth={1.2} />
 			<path d={`M${CX - nw} 140 Q${CX} ${t.chin + 14} ${CX + nw} 140 L${CX + nw} 160 Q${CX} ${t.chin + 22} ${CX - nw} 160 Z`} fill={shade(skin, -0.3)} opacity={0.55} filter={url("soft2")} />
-			{t.clothingStyle !== "armor" && <path d={`M${CX - nw - 8} 177 Q${CX} 186 ${CX + nw + 8} 177`} stroke={shade(cloth, -0.3)} strokeWidth={2} fill="none" />}
+			{!ml && t.clothingStyle !== "armor" && <path d={`M${CX - nw - 8} 177 Q${CX} 186 ${CX + nw + 8} 177`} stroke={shade(cloth, -0.3)} strokeWidth={2} fill="none" />}
 			{draconic && <path d={`M${CX - 6} 150 L${CX - 6} 182 M${CX} 152 L${CX} 184 M${CX + 6} 150 L${CX + 6} 182`} stroke={skinHi} strokeOpacity={0.35} strokeWidth={1.4} />}
 		</g>
 	);
@@ -150,14 +172,17 @@ export function Portrait({ spec, size = 160, speciesId, name, framed = true, cla
 			<g key={`ear${s}`}>
 				<path d={d} fill={s < 0 ? skin : skinLo} stroke={skinLine} strokeWidth={1.2} />
 				<path d={inner} fill="none" stroke={skinLine} strokeWidth={1.1} opacity={0.65} />
-				{acc === "earrings" && <circle cx={x0 + s * 5} cy={131} r={3.2} fill="none" stroke={url("gold")} strokeWidth={1.6} />}
+				{acc === "earrings" && (ml ? <circle cx={x0 + s * 5} cy={130} r={2.2} fill="none" stroke="#c8ccd2" strokeWidth={1.3} /> : <circle cx={x0 + s * 5} cy={131} r={3.2} fill="none" stroke={url("gold")} strokeWidth={1.6} />)}
 			</g>
 		);
 	};
 
 	// ── Hair ─────────────────────────────────────────────────────────────
 	const hw = w + 5;
-	const vol = style === "cropped" || style === "shaved_sides" ? 4 : style === "wild" ? 14 : style === "curly" ? 12 : 8;
+	const hatted = !!ml && fullHat(ml);
+	const vol0 = style === "cropped" || style === "shaved_sides" ? 4 : style === "wild" ? 14 : style === "curly" ? 12 : 8;
+	// under a modern hat the hair is flattened
+	const vol = hatted ? Math.min(vol0, 4) : vol0;
 	const sideBottom = style === "cropped" ? 98 : 112;
 	const hairline = (dip: number, part: number): P[] => [
 		[CX + w - 2, 98], [CX + w * 0.7 + part * 0.3, 86 + dip * 0.5], [CX + part + 6, 79 + dip], [CX + part, 75 + dip], [CX + part - 6, 79 + dip], [CX - w * 0.7 + part * 0.3, 86 + dip * 0.5], [CX - w + 2, 98],
@@ -295,7 +320,9 @@ export function Portrait({ spec, size = 160, speciesId, name, framed = true, cla
 		default: // short
 			capD = smoothPath(capPts(2, -3));
 	}
-	const hidesHairTop = acc === "helmet" || acc === "hood";
+	if (hatted && (style === "topknot" || style === "mohawk")) hairFront = null;
+	if (hatted && style === "bun") hairBack = null;
+	const hidesHairTop = acc === "helmet" || acc === "hood" || ml?.hat === "hood";
 
 	// ── Eyes ─────────────────────────────────────────────────────────────
 	const eye = (s: 1 | -1): ReactNode => {
@@ -635,6 +662,162 @@ export function Portrait({ spec, size = 160, speciesId, name, framed = true, cla
 	) : null;
 
 	const height = size * 1.2;
+	const defs = (
+		<defs>
+			<radialGradient id={id("bg")} cx="42%" cy="34%" r="80%">
+				<stop offset="0" stopColor={shade(bgA, 0.12)} />
+				<stop offset="0.55" stopColor={bgA} />
+				<stop offset="1" stopColor={bgB} />
+			</radialGradient>
+			<radialGradient id={id("skin")} cx="38%" cy="34%" r="72%">
+				<stop offset="0" stopColor={skinHi} />
+				<stop offset="0.55" stopColor={skin} />
+				<stop offset="1" stopColor={skinLo} />
+			</radialGradient>
+			<linearGradient id={id("hair")} x1="0.2" y1="0" x2="0.8" y2="1">
+				<stop offset="0" stopColor={hairHi} />
+				<stop offset="0.45" stopColor={hair} />
+				<stop offset="1" stopColor={hairLo} />
+			</linearGradient>
+			<linearGradient id={id("cloth")} x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0" stopColor={clothHi} />
+				<stop offset="0.6" stopColor={cloth} />
+				<stop offset="1" stopColor={clothLo} />
+			</linearGradient>
+			<linearGradient id={id("hood")} x1="0" y1="0" x2="1" y2="0">
+				<stop offset="0" stopColor={shade(t.clothing, 0.06)} />
+				<stop offset="0.5" stopColor={t.clothing} />
+				<stop offset="1" stopColor={shade(t.clothing, -0.16)} />
+			</linearGradient>
+			<linearGradient id={id("metal")} x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0" stopColor="#c8ccd2" />
+				<stop offset="0.35" stopColor="#7c828a" />
+				<stop offset="0.6" stopColor="#a8aeb6" />
+				<stop offset="1" stopColor="#3a3e44" />
+			</linearGradient>
+			<linearGradient id={id("gold")} x1="0" y1="0" x2="1" y2="1">
+				<stop offset="0" stopColor="#f6dc8a" />
+				<stop offset="0.5" stopColor="#c99a3a" />
+				<stop offset="1" stopColor="#7a5418" />
+			</linearGradient>
+			<radialGradient id={id("iris")} cx="50%" cy="40%" r="60%">
+				<stop offset="0" stopColor="#fff" stopOpacity={0.25} />
+				<stop offset="0.7" stopColor="#000" stopOpacity={0} />
+				<stop offset="1" stopColor="#000" stopOpacity={0.55} />
+			</radialGradient>
+			<radialGradient id={id("vig")} cx="50%" cy="45%" r="70%">
+				<stop offset="0.6" stopColor="#000" stopOpacity={0} />
+				<stop offset="1" stopColor="#000" stopOpacity={0.55} />
+			</radialGradient>
+			<radialGradient id={id("glow")} cx="50%" cy="50%" r="50%">
+				<stop offset="0" stopColor={shade(bgA, 0.25)} stopOpacity={0.8} />
+				<stop offset="1" stopColor={shade(bgA, 0.25)} stopOpacity={0} />
+			</radialGradient>
+			<filter id={id("soft1")} x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.4" /></filter>
+			<filter id={id("soft2")} x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="3" /></filter>
+			<filter id={id("grain")}>
+				<feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="1" seed={spec.seed % 97} result="n" />
+				<feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 1.4" result="a" />
+				<feComposite in="SourceGraphic" in2="a" operator="in" />
+			</filter>
+			<filter id={id("canvas")} x="0" y="0" width="100%" height="100%">
+				<feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed={spec.seed % 89} />
+				<feColorMatrix type="matrix" values="0 0 0 0 0.5  0 0 0 0 0.45  0 0 0 0 0.4  0 0 0 0.09 0" />
+			</filter>
+			<clipPath id={id("headclip")}><path d={headD} /></clipPath>
+			<clipPath id={id("frame")}><rect x="0" y="0" width="200" height="240" rx="10" /></clipPath>
+		</defs>
+	);
+	const face = (
+		<>
+		{/* Head */}
+		<path d={headD} fill={url("skin")} />
+		<g clipPath={url("headclip")}>
+			{/* form shadow on the right side, under the brow and below cheekbones */}
+			<path d={`M${CX + w * 0.45} ${top} C${CX + w * 1.1} ${top + 30} ${CX + w * 0.9} 130 ${CX + t.jaw * 0.4} ${t.chin + 4} L${CX + w + 10} ${t.chin + 10} L${CX + w + 10} ${top} Z`} fill={shade(skin, -0.28)} opacity={0.5} filter={url("soft2")} />
+			<ellipse cx={CX - w * 0.55} cy={eyeY + 14} rx={8} ry={5} fill="#e05a5a" opacity={0.12} filter={url("soft2")} />
+			<ellipse cx={CX + w * 0.55} cy={eyeY + 14} rx={8} ry={5} fill="#e05a5a" opacity={0.1} filter={url("soft2")} />
+			<ellipse cx={CX - w * 0.35} cy={top + 18} rx={14} ry={9} fill={skinHi} opacity={0.5} filter={url("soft2")} />
+			{!draconic && <path d={`M${CX - w} 132 Q${CX} ${t.chin + 10} ${CX + w} 132`} fill="none" stroke={shade(skin, -0.2)} strokeWidth={6} opacity={0.25} filter={url("soft2")} />}
+			{style !== "bald" && !hidesHairTop && <path d={`M${CX - w} 92 Q${CX} 72 ${CX + w} 92`} fill="none" stroke={shade(skin, -0.35)} strokeWidth={8} opacity={0.35} filter={url("soft2")} />}
+			{scales}
+			{markings}
+			{freckles}
+		</g>
+		{cheekSpikes}
+		<path d={headD} fill="none" stroke={skinLine} strokeWidth={1.4} />
+		{/* rim light */}
+		<path d={headD} fill="none" stroke={shade(bgA, 0.35)} strokeWidth={1.6} opacity={0.5} clipPath={url("rimclip")} />
+		<clipPath id={id("rimclip")}><rect x={0} y={0} width={CX - w * 0.55} height={240} /></clipPath>
+
+		{age}
+		{brow(-1)}
+		{brow(1)}
+		{eye(-1)}
+		{eye(1)}
+		{nose}
+		{facial}
+		{mouth}
+		{tusks}
+		</>
+	);
+	const hairTop = (
+		<>
+		{/* Hair cap & front */}
+		{capD && !hidesHairTop && capWithTexture(capD)}
+		{!hidesHairTop && hairFront}
+		{hairExtra}
+		{!draconic && horns}
+		</>
+	);
+	if (ml) {
+		const mc: ModernCtx = { id, url, look: ml, w, nw, top, eyeY, chin: t.chin, eyeSpacing: t.eyeSpacing, skin, seed: spec.seed };
+		const clothes = modernClothes(mc);
+		const win = modernWindow(frame, framed);
+		const shown = name && name.length > 22 ? name.slice(0, 21) + "…" : name;
+		return (
+			<svg viewBox="0 0 200 240" width={size} height={height} className={className} role="img" aria-label={title ?? name ?? "Portrait"} style={{ display: "block" }}>
+				{defs}
+				<defs>
+					{modernHatDefs(mc)}
+					<clipPath id={id("mwin")}><rect x={win.x} y={win.y} width={win.w} height={win.h} rx={win.rx} /></clipPath>
+				</defs>
+				{framed && modernFrameBack({ id, url }, frame, ml)}
+				<g clipPath={url("mwin")}>
+					<g transform={win.k === 1 ? undefined : `translate(${win.tx} ${r1(win.ty)}) scale(${win.k})`}>
+						<rect width="200" height="240" fill={url("bg")} />
+						{modernBackdrop(frame, spec.background, spec.seed)}
+						{modernHoodBack(mc)}
+						{hairBack}
+						{clothes.under}
+						{modernBehindNeck(mc)}
+						{neck}
+						{clothes.collar}
+						{ear(-1)}
+						{ear(1)}
+						{modernEarbuds(mc)}
+						{face}
+						{modernGlasses(mc)}
+						{hairTop}
+						{modernGrit(mc)}
+						{modernHoodFront(mc)}
+						{modernHat(mc)}
+						{accFront}
+						<rect width="200" height="240" fill={url("vig")} opacity={frame === "badge" ? 0.55 : 1} />
+						<rect width="200" height="240" filter={url("canvas")} opacity={0.4} />
+						{modernPhotoOverlay(frame)}
+					</g>
+				</g>
+				{framed && modernFrameFront({ id, url }, frame, ml, spec.seed, name)}
+				{!framed && shown && (
+					<g>
+						<rect x="30" y="214" width="140" height="18" rx="3" fill="#14171c" fillOpacity={0.8} />
+						<text x="100" y="227" textAnchor="middle" fontSize="11" fontFamily="Inter, 'Helvetica Neue', Arial, sans-serif" fill="#e8ecf0" letterSpacing="0.5">{shown}</text>
+					</g>
+				)}
+			</svg>
+		);
+	}
 	return (
 		<svg
 			viewBox="0 0 200 240"
@@ -645,70 +828,7 @@ export function Portrait({ spec, size = 160, speciesId, name, framed = true, cla
 			aria-label={title ?? name ?? "Portrait"}
 			style={{ display: "block" }}
 		>
-			<defs>
-				<radialGradient id={id("bg")} cx="42%" cy="34%" r="80%">
-					<stop offset="0" stopColor={shade(bgA, 0.12)} />
-					<stop offset="0.55" stopColor={bgA} />
-					<stop offset="1" stopColor={bgB} />
-				</radialGradient>
-				<radialGradient id={id("skin")} cx="38%" cy="34%" r="72%">
-					<stop offset="0" stopColor={skinHi} />
-					<stop offset="0.55" stopColor={skin} />
-					<stop offset="1" stopColor={skinLo} />
-				</radialGradient>
-				<linearGradient id={id("hair")} x1="0.2" y1="0" x2="0.8" y2="1">
-					<stop offset="0" stopColor={hairHi} />
-					<stop offset="0.45" stopColor={hair} />
-					<stop offset="1" stopColor={hairLo} />
-				</linearGradient>
-				<linearGradient id={id("cloth")} x1="0" y1="0" x2="1" y2="1">
-					<stop offset="0" stopColor={clothHi} />
-					<stop offset="0.6" stopColor={cloth} />
-					<stop offset="1" stopColor={clothLo} />
-				</linearGradient>
-				<linearGradient id={id("hood")} x1="0" y1="0" x2="1" y2="0">
-					<stop offset="0" stopColor={shade(t.clothing, 0.06)} />
-					<stop offset="0.5" stopColor={t.clothing} />
-					<stop offset="1" stopColor={shade(t.clothing, -0.16)} />
-				</linearGradient>
-				<linearGradient id={id("metal")} x1="0" y1="0" x2="1" y2="1">
-					<stop offset="0" stopColor="#c8ccd2" />
-					<stop offset="0.35" stopColor="#7c828a" />
-					<stop offset="0.6" stopColor="#a8aeb6" />
-					<stop offset="1" stopColor="#3a3e44" />
-				</linearGradient>
-				<linearGradient id={id("gold")} x1="0" y1="0" x2="1" y2="1">
-					<stop offset="0" stopColor="#f6dc8a" />
-					<stop offset="0.5" stopColor="#c99a3a" />
-					<stop offset="1" stopColor="#7a5418" />
-				</linearGradient>
-				<radialGradient id={id("iris")} cx="50%" cy="40%" r="60%">
-					<stop offset="0" stopColor="#fff" stopOpacity={0.25} />
-					<stop offset="0.7" stopColor="#000" stopOpacity={0} />
-					<stop offset="1" stopColor="#000" stopOpacity={0.55} />
-				</radialGradient>
-				<radialGradient id={id("vig")} cx="50%" cy="45%" r="70%">
-					<stop offset="0.6" stopColor="#000" stopOpacity={0} />
-					<stop offset="1" stopColor="#000" stopOpacity={0.55} />
-				</radialGradient>
-				<radialGradient id={id("glow")} cx="50%" cy="50%" r="50%">
-					<stop offset="0" stopColor={shade(bgA, 0.25)} stopOpacity={0.8} />
-					<stop offset="1" stopColor={shade(bgA, 0.25)} stopOpacity={0} />
-				</radialGradient>
-				<filter id={id("soft1")} x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.4" /></filter>
-				<filter id={id("soft2")} x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="3" /></filter>
-				<filter id={id("grain")}>
-					<feTurbulence type="fractalNoise" baseFrequency="1.4" numOctaves="1" seed={spec.seed % 97} result="n" />
-					<feColorMatrix in="n" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 1.4" result="a" />
-					<feComposite in="SourceGraphic" in2="a" operator="in" />
-				</filter>
-				<filter id={id("canvas")} x="0" y="0" width="100%" height="100%">
-					<feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed={spec.seed % 89} />
-					<feColorMatrix type="matrix" values="0 0 0 0 0.5  0 0 0 0 0.45  0 0 0 0 0.4  0 0 0 0.09 0" />
-				</filter>
-				<clipPath id={id("headclip")}><path d={headD} /></clipPath>
-				<clipPath id={id("frame")}><rect x="0" y="0" width="200" height="240" rx="10" /></clipPath>
-			</defs>
+			{defs}
 
 			<g clipPath={url("frame")}>
 				{/* Background */}
@@ -724,41 +844,9 @@ export function Portrait({ spec, size = 160, speciesId, name, framed = true, cla
 				{ear(-1)}
 				{ear(1)}
 
-				{/* Head */}
-				<path d={headD} fill={url("skin")} />
-				<g clipPath={url("headclip")}>
-					{/* form shadow on the right side, under the brow and below cheekbones */}
-					<path d={`M${CX + w * 0.45} ${top} C${CX + w * 1.1} ${top + 30} ${CX + w * 0.9} 130 ${CX + t.jaw * 0.4} ${t.chin + 4} L${CX + w + 10} ${t.chin + 10} L${CX + w + 10} ${top} Z`} fill={shade(skin, -0.28)} opacity={0.5} filter={url("soft2")} />
-					<ellipse cx={CX - w * 0.55} cy={eyeY + 14} rx={8} ry={5} fill="#e05a5a" opacity={0.12} filter={url("soft2")} />
-					<ellipse cx={CX + w * 0.55} cy={eyeY + 14} rx={8} ry={5} fill="#e05a5a" opacity={0.1} filter={url("soft2")} />
-					<ellipse cx={CX - w * 0.35} cy={top + 18} rx={14} ry={9} fill={skinHi} opacity={0.5} filter={url("soft2")} />
-					{!draconic && <path d={`M${CX - w} 132 Q${CX} ${t.chin + 10} ${CX + w} 132`} fill="none" stroke={shade(skin, -0.2)} strokeWidth={6} opacity={0.25} filter={url("soft2")} />}
-					{style !== "bald" && !hidesHairTop && <path d={`M${CX - w} 92 Q${CX} 72 ${CX + w} 92`} fill="none" stroke={shade(skin, -0.35)} strokeWidth={8} opacity={0.35} filter={url("soft2")} />}
-					{scales}
-					{markings}
-					{freckles}
-				</g>
-				{cheekSpikes}
-				<path d={headD} fill="none" stroke={skinLine} strokeWidth={1.4} />
-				{/* rim light */}
-				<path d={headD} fill="none" stroke={shade(bgA, 0.35)} strokeWidth={1.6} opacity={0.5} clipPath={url("rimclip")} />
-				<clipPath id={id("rimclip")}><rect x={0} y={0} width={CX - w * 0.55} height={240} /></clipPath>
+				{face}
 
-				{age}
-				{brow(-1)}
-				{brow(1)}
-				{eye(-1)}
-				{eye(1)}
-				{nose}
-				{facial}
-				{mouth}
-				{tusks}
-
-				{/* Hair cap & front */}
-				{capD && !hidesHairTop && capWithTexture(capD)}
-				{!hidesHairTop && hairFront}
-				{hairExtra}
-				{!draconic && horns}
+				{hairTop}
 				{accFront}
 
 				{/* Vignette + paper grain */}
