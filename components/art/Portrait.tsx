@@ -180,6 +180,9 @@ export function Portrait({ spec: specIn, size = 160, speciesId: speciesIn, name,
 	// ── Hair ─────────────────────────────────────────────────────────────
 	const hw = w + 5;
 	const hatted = !!ml && fullHat(ml);
+	// The Quiet: hair ties and beard clasps are plain elastic/metal, not trim or gold
+	const tieColor = ml ? "#2a2a2e" : t.clothingTrim;
+	const claspFill = ml ? "#5a5e66" : url("gold");
 	const vol0 = style === "cropped" || style === "shaved_sides" ? 4 : style === "wild" ? 14 : style === "curly" ? 12 : 8;
 	// under a modern hat the hair is flattened
 	const vol = hatted ? Math.min(vol0, 4) : vol0;
@@ -238,7 +241,7 @@ export function Portrait({ spec: specIn, size = 160, speciesId: speciesIn, name,
 			capD = smoothPath(capPts(-4, 0, 4));
 			break;
 		case "topknot":
-			hairFront = <g><ellipse cx={CX} cy={top - 18} rx={9} ry={11} fill={url("hair")} {...hairStroke} /><rect x={CX - 6} y={top - 9} width={12} height={4} rx={1.5} fill={t.clothingTrim} stroke="#2a1a0a" strokeWidth={0.8} /></g>;
+			hairFront = <g><ellipse cx={CX} cy={top - 18} rx={9} ry={11} fill={url("hair")} {...hairStroke} /><rect x={CX - 6} y={top - 9} width={12} height={4} rx={1.5} fill={tieColor} stroke="#2a1a0a" strokeWidth={0.8} /></g>;
 			capD = smoothPath(capPts(-6, 0, 3));
 			break;
 		case "mohawk": {
@@ -269,7 +272,7 @@ export function Portrait({ spec: specIn, size = 160, speciesId: speciesIn, name,
 					{Array.from({ length: 8 }, (_, i) => (
 						<ellipse key={i} cx={CX + s * (hw + 2 - i * 0.6)} cy={112 + i * 11} rx={6.5 - i * 0.25} ry={7} fill={i % 2 ? hairLo : url("hair")} stroke={hairLine} strokeWidth={1} />
 					))}
-					<rect x={CX + s * (hw - 2) - 4} y={198} width={8} height={4} rx={1} fill={t.clothingTrim} />
+					<rect x={CX + s * (hw - 2) - 4} y={198} width={8} height={4} rx={1} fill={tieColor} />
 				</g>
 			));
 			break;
@@ -478,8 +481,8 @@ export function Portrait({ spec: specIn, size = 160, speciesId: speciesIn, name,
 								{Array.from({ length: 4 }, (_, i) => (
 									<ellipse key={i} cx={CX} cy={t.chin + drop + 4 + i * 8} rx={6 - i * 0.6} ry={5.5} fill={i % 2 ? hairLo : hair} stroke={hairLine} strokeWidth={0.9} />
 								))}
-								<rect x={CX - 5} y={t.chin + drop - 2} width={10} height={4} rx={1} fill={url("gold")} stroke="#3a2a10" strokeWidth={0.6} />
-								<rect x={CX - 4} y={t.chin + drop + 30} width={8} height={4} rx={1} fill={url("gold")} stroke="#3a2a10" strokeWidth={0.6} />
+								<rect x={CX - 5} y={t.chin + drop - 2} width={10} height={4} rx={1} fill={claspFill} stroke="#3a2a10" strokeWidth={0.6} />
+								<rect x={CX - 4} y={t.chin + drop + 30} width={8} height={4} rx={1} fill={claspFill} stroke="#3a2a10" strokeWidth={0.6} />
 							</g>
 						)}
 						{mustache}
