@@ -15,6 +15,7 @@ import {
 import type { ClassData, FeatureData, OptionChoice, Ref } from "../../srd/types";
 import { alwaysPreparedSpells, characterRuleset, classLevelOf, preparedLimit, totalLevel } from "./derived";
 import { offeredIn } from "../ruleset";
+import { SPIRIT_ASPECT_FEATURE, SPIRIT_ASPECTS, SPIRIT_BEAST } from "./spiritAspects";
 import { refreshFeatureUses, RulesError } from "./resources";
 import { computeSlots, maxSpellLevelFor } from "./slots";
 import { featureGroup, levelForXp, SKILL_IDS } from "./tables";
@@ -187,6 +188,11 @@ function hpForLevel(c: Character, die: number, method: HpMethod, conMod: number,
 	return { hp, ...(rolled !== undefined ? { rolled } : {}) };
 }
 
+/** The character's current spirit beast / brigade role, if chosen. */
+export function spiritAspectOf(c: Character): string | undefined {
+	return c.features.find((f) => f.id.startsWith(`${SPIRIT_ASPECT_FEATURE}:`))?.id.slice(SPIRIT_ASPECT_FEATURE.length + 1);
+}
+
 export function levelUpOptions(c: Character, classId: string, choicesSoFar: Choices = {}): LevelUpOptions {
 	/** Techniques (The Quiet) or spells: follows the character's origin/species. */
 	const ruleset = characterRuleset(c);
@@ -236,6 +242,13 @@ export function levelUpOptions(c: Character, classId: string, choicesSoFar: Choi
 		if (fc.kind === "feature" || fc.kind === "invocation") options = options.filter((o) => !c.features.some((x) => x.id === o.index));
 		if (fc.kind === "expertise") options = options.filter((o) => !c.expertise.includes(o.index));
 		if (count > 0) choices.push({ id: `feature:${f.index}`, label: f.name, choose: count, options });
+	}
+	// Path of the Spirit Beast: pick the beast at 3rd level, optionally switch at each later barbarian level.
+	if (classId === "barbarian" && subclassId === SPIRIT_BEAST && newClassLevel >= 3) {
+		const current = spiritAspectOf(c);
+		const opts = SPIRIT_ASPECTS.map((a) => ({ index: a.id, name: a.name }));
+		if (current) opts.sort((a, b) => Number(b.index === current) - Number(a.index === current));
+		choices.push({ id: "spirit-aspect", label: "Spirit Aspect", choose: 1, options: opts });
 	}
 	// Invocations gained at levels without the feature itself (5, 7, 9…).
 	if (classId === "warlock" && !features.some((f) => f.index === "eldritch-invocations")) {
@@ -455,6 +468,15 @@ export function applyClassLevel(c0: Character, classId: string, choices: Choices
 				c.features = addFeature(c, f);
 				newFeatures.push(f);
 			}
+		}
+	}
+	if (options.choices.some((x) => x.id === "spirit-aspect")) {
+		const a = SPIRIT_ASPECTS.find((x) => x.id === pick("spirit-aspect")[0]);
+		if (a && spiritAspectOf(c) !== a.id) {
+			c.features = c.features.filter((f) => !f.id.startsWith(`${SPIRIT_ASPECT_FEATURE}:`));
+			const f: Feature = { id: `${SPIRIT_ASPECT_FEATURE}:${a.id}`, name: `Spirit Aspect: ${a.name}`, source: `subclass:${SPIRIT_BEAST}`, description: a.description };
+			c.features.push(f);
+			newFeatures.push(f);
 		}
 	}
 	if (options.choices.some((x) => x.id === "lore:skills")) c.skills = [...new Set([...c.skills, ...pick("lore:skills")])];

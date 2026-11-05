@@ -9,11 +9,14 @@ import { useEngineText } from "@/components/i18n/useEngineText";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { describeOption } from "@/components/setup/ChoicePicker";
 import { choiceLabel } from "@/components/setup/i18n";
+import { SPIRIT_ASPECTS } from "@/lib/rules/character/spiritAspects";
 import { getFeature, getSubclass } from "@/lib/srd";
 
 /** Hover details for a level-up option: a subclass shows its flavor and every feature by level; spells/features/skills use the wizard's descriptions. */
 function OptionTip({ index }: { index: string }) {
 	const { lang, ts, t, ruleset } = useT();
+	const aspect = SPIRIT_ASPECTS.find((a) => a.id === index);
+	if (aspect) return <span>{ts(aspect.description)}</span>;
 	const sub = getSubclass(index);
 	if (!sub) return <>{describeOption(index, lang, ruleset) ?? null}</>;
 	return (
@@ -134,7 +137,7 @@ export function LevelUpDialog({ id, state, onClose, onDone }: { id: string; stat
 										{c.options.map((op) => (
 											<Tooltip key={op.index} content={<OptionTip index={op.index} />} widthClass="max-w-md" side="bottom">
 												<button className="chip" data-active={(picks[c.id] ?? []).includes(op.index)} onClick={() => toggle(c, op.index)}>
-													{le(op.name)}
+													{c.id === "spirit-aspect" ? ts(op.name) : le(op.name)}
 												</button>
 											</Tooltip>
 										))}

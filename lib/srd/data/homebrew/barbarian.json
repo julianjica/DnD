@@ -78,5 +78,27 @@
 			"level": 14,
 			"description": "Your spirit beast's power peaks while you rage: • Stag: when you knock a creature prone with your Stag charge, you can make one melee weapon attack against it as part of the same action (no bonus action needed). • Raven: when an ally you can see within 30 feet is hit by an attack, you can use your reaction to vanish in a burst of spectral feathers and reappear in an unoccupied space within 5 feet of the attacker, then make one melee weapon attack against it. • Tortoise: once per rage, when you take damage, you can use your reaction to reduce it by an amount equal to your barbarian level + your Constitution modifier. • Serpent: at the start of each of your turns, one creature grappled by you takes bludgeoning damage equal to 1d8 + your Strength modifier, and creatures grappled by you are also restrained."
 		}
+	],
+	"spiritAspects": [
+		{
+			"id": "stag",
+			"name": "Stag",
+			"description": "While raging: +10 ft speed; charge 20 ft straight and hit in melee → Strength save or prone."
+		},
+		{
+			"id": "raven",
+			"name": "Raven",
+			"description": "While raging: bonus action cry, one creature within 30 ft makes a Wisdom save or is frightened of you until the end of its next turn."
+		},
+		{
+			"id": "tortoise",
+			"name": "Tortoise",
+			"description": "While raging: +1 AC, and you can't be pushed, pulled or knocked prone against your will."
+		},
+		{
+			"id": "serpent",
+			"name": "Serpent",
+			"description": "While raging: after a melee hit, grapple as a bonus action with advantage; a creature you grapple has disadvantage on attacks against anyone but you."
+		}
 	]
 }

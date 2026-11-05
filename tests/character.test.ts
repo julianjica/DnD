@@ -417,3 +417,22 @@ test("rogue L20 / barbarian L20 sanity", () => {
 	const after = levelUp(boon, "fighter").character.features.find((f) => f.id === "dm-boon")!;
 	assert.deepEqual(after.uses, { max: 3, used: 1, recharge: "long" });
 });
+
+test("spirit beast: aspect chosen at 3rd level, switchable later", () => {
+	const b = createCharacter({ name: "H", speciesId: "human", classId: "barbarian", backgroundId: "soldier", abilities: { method: "standard_array", scores: arr(15, 14, 13, 8, 12, 10) } });
+	const b2 = levelUp({ ...b, xp: 300 }, "barbarian").character;
+	const o3 = levelUpOptions(b2, "barbarian", { subclass: ["hb-path-of-the-spirit-beast"] });
+	assert.deepEqual(o3.choices.find((x) => x.id === "spirit-aspect")!.options.map((o) => o.index), ["stag", "raven", "tortoise", "serpent"]);
+	const b3 = levelUp({ ...b2, xp: 900 }, "barbarian", { subclass: ["hb-path-of-the-spirit-beast"], "spirit-aspect": ["tortoise"] }).character;
+	assert.ok(b3.features.some((f) => f.id === "hb-path-of-the-spirit-beast-spirit-aspect:tortoise" && f.name === "Spirit Aspect: Tortoise"));
+	// Later levels offer it again with the current beast first (auto-fill keeps it).
+	const o4 = levelUpOptions(b3, "barbarian");
+	assert.equal(o4.choices.find((x) => x.id === "spirit-aspect")!.options[0].index, "tortoise");
+	const kept = levelUp({ ...b3, xp: 2700 }, "barbarian").character;
+	assert.equal(kept.features.filter((f) => f.id.startsWith("hb-path-of-the-spirit-beast-spirit-aspect:")).length, 1);
+	const switched = levelUp({ ...b3, xp: 2700 }, "barbarian", { "spirit-aspect": ["serpent"] }).character;
+	const aspects = switched.features.filter((f) => f.id.startsWith("hb-path-of-the-spirit-beast-spirit-aspect:"));
+	assert.deepEqual(aspects.map((f) => f.id), ["hb-path-of-the-spirit-beast-spirit-aspect:serpent"]);
+	// Other subclasses never see it.
+	assert.ok(!levelUpOptions(b2, "barbarian").choices.some((x) => x.id === "spirit-aspect"));
+});

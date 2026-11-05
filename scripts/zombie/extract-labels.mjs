@@ -62,6 +62,11 @@ export function labelSources() {
 		add(f.description, "feature.description", groupOf(f.description, f.classId));
 		if (f.choice?.kind === "string") for (const o of f.choice.options) add(o.name, "feature.option", f.classId);
 	}
+	for (const h of hb) for (const a of h.spiritAspects ?? []) {
+		add(a.name, "feature.option", "barbarian");
+		add(`Spirit Aspect: ${a.name}`, "feature.option", "barbarian");
+		add(a.description, "feature.description", "barbarian");
+	}
 	return [...out.values()];
 }
 
