@@ -3,6 +3,7 @@ import { BASE_UPGRADES, STOCK_KINDS, UPGRADES, buildUpgrade, claimBase, stash, t
 import { isZombie } from "../../rules/survival";
 import { S, newId, tool, withState, type ToolFactory } from "../context";
 import { addInventoryItem } from "../items";
+import { updateResidents, type ResidentAdd, type ResidentRemove } from "../../rules/residents";
 
 /** The Quiet only: the base (docs/zombie.md §7). */
 function requireZombie(state: GameState) {
@@ -72,4 +73,36 @@ export const buildUpgradeTool = tool<{ upgrade: BaseUpgrade }>(
 		}),
 );
 
-export const BASE_TOOLS: ToolFactory[] = [claimBaseTool, stashTool, takeFromStashTool, buildUpgradeTool];
+export const updateResidentsTool = tool<{ add?: ResidentAdd[]; remove?: ResidentRemove[]; edit?: (ResidentAdd & { who: string })[] }>(
+	"update_residents",
+	"The Quiet: keep the base's RESIDENTS list current: everyone sheltering there who is NOT a companion (the cook, the old neighbour, a mother and her kids). They show on the player's Group tab and eat 1 food + 1 water each from the base stock at 08:00, after the player and companions. Add people the moment they move in (link npcId when they have one; one entry can stand for several people with headcount, e.g. 'Teresa Holm and her two kids' = 3), remove them when they leave, die or turn, edit to change notes/headcount. Recruiting a resident as a companion (recruit_survivor) takes them off the list on its own.",
+	S.obj(
+		{
+			add: S.arr(
+				S.obj(
+					{
+						name: S.str("Name as the player knows them"),
+						npcId: S.str("NPC id, if they have one"),
+						headcount: S.int("People this entry stands for (default 1)", 1),
+						note: S.str("Short: who they are / what they do here ('cooks', 'diabetic, 8', 'keeps the stock ledger')"),
+					},
+					["name"],
+				),
+				"People moving in",
+			),
+			remove: S.arr(S.obj({ who: S.str("Resident id, NPC id or name"), reason: S.str(undefined, ["left", "died", "turned", "recruited", "moved"]) }, ["who"]), "People no longer living here"),
+			edit: S.arr(
+				S.obj({ who: S.str("Resident id, NPC id or name"), name: S.str("New name"), npcId: S.str("Link an NPC"), headcount: S.int("People", 1), note: S.str("New note ('' clears it)") }, ["who"]),
+				"Changes to existing residents",
+			),
+		},
+		[],
+	),
+	async (a, ctx) =>
+		withState(ctx, ({ state }) => {
+			requireZombie(state);
+			return updateResidents(state, a, () => newId("res"));
+		}),
+);
+
+export const BASE_TOOLS: ToolFactory[] = [claimBaseTool, stashTool, takeFromStashTool, buildUpgradeTool, updateResidentsTool];

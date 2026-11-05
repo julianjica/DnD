@@ -438,3 +438,37 @@ test("i18n: every upgrade, stock kind and event has EN and ES strings", () => {
 		assert.ok((m.es as Record<string, string>)[k], `es ${k}`);
 	}
 });
+
+// ─── residents ──────────────────────────────────────────────────────────
+
+test("residents: listed at the base, eat the stock at 08:00, go short, leave when recruited", async () => {
+	const z = await atBase({ day: 3, hour: 12 });
+	assert.equal((await call(newGame(true), "update_residents", { add: [{ name: "x" }] })).isError, true, "no base yet");
+	const npc = await call(z, "add_npc", { name: "Rosie Delgado", description: "cook", disposition: "friendly" });
+	assert.notEqual(npc.isError, true, npc.text);
+	const rosieId = Object.keys(m.loadState(z).npcs)[0];
+	const r = await call(z, "update_residents", { add: [{ name: "Rosie Delgado", npcId: rosieId, note: "cooks" }, { name: "Teresa Holm and her kids", headcount: 3 }] });
+	assert.notEqual(r.isError, true, r.text);
+	assert.match(r.text, /Residents: 4 people; with the group, 5 mouths/);
+	assert.match((await call(z, "update_residents", { add: [{ name: "rosie delgado" }] })).text, /already lives here/);
+	assert.match(m.digest.stateDigest(m.loadState(z)), /residents \(4 people/);
+	edit(z, (s) => (s.group!.base!.stock = { ...s.group!.base!.stock, food: 6, water: 3 }));
+	await call(z, "make_noise", { amount: 0, reason: "tick" });
+	// Next morning: 4 eat (food 6 → 2), water runs out (3 → 0, one goes without).
+	edit(z, (s) => (s.time = { day: 4, hour: 9, minute: 0 }));
+	const t = await call(z, "make_noise", { amount: 0, reason: "tick" });
+	let b = m.loadState(z).group!.base!;
+	assert.equal(b.stock.food, 2);
+	assert.equal(b.stock.water, 0);
+	assert.equal(b.residentsShortDays, 1);
+	assert.match(t.text, /can't feed its 4 residents \(1 without water/);
+	assert.equal(b.log.at(-1)!.kind, "residentsShort");
+	// Recruiting a resident takes them off the list; removing by name works.
+	const rec = await call(z, "recruit_survivor", { npcId: rosieId, profession: "fighter", specialty: "cook", traits: ["calm"] });
+	assert.notEqual(rec.isError, true, rec.text);
+	b = m.loadState(z).group!.base!;
+	assert.deepEqual(b.residents!.map((x) => x.name), ["Teresa Holm and her kids"]);
+	await call(z, "update_residents", { remove: [{ who: "Teresa Holm and her kids", reason: "left" }] });
+	assert.equal(m.loadState(z).group!.base!.residents!.length, 0);
+	assert.ok(m.en["group.residents"] && m.es["group.residents"] && m.es["base.log.residentsShort"]);
+});

@@ -11,7 +11,7 @@ import { useEffect, useMemo, useRef } from "react";
 import {
 	BellRing, CloudRain, Crosshair, Droplet, Fuel, Hammer, Hospital, House, MapPin, Pill, Radio, ScrollText, Shield, Sprout, TowerControl, Users, Utensils, Wrench, Zap, type LucideIcon,
 } from "lucide-react";
-import type { BaseState, BaseUpgrade, GameState, Survivor } from "@/lib/game/types";
+import type { BaseState, BaseUpgrade, GameState, Resident, Survivor } from "@/lib/game/types";
 import type { MessageKey } from "@/lib/i18n";
 import { getEquipment } from "@/lib/srd";
 import Portrait from "@/components/art/Portrait";
@@ -21,6 +21,7 @@ import { useT } from "@/components/i18n/I18nProvider";
 import { useEngineText } from "@/components/i18n/useEngineText";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { InfectionChip } from "./Survival";
+import { residentHeadcount } from "@/lib/rules/residents";
 
 // ─── pure helpers ───────────────────────────────────────────────────────────
 
@@ -350,12 +351,51 @@ function BaseSection({ base, state, mouths }: { base: BaseState; state: GameStat
 						{log.map((e, i) => (
 							<li key={`${e.at}-${i}`} className="text-xs leading-snug">
 								<span className="mr-1 whitespace-nowrap text-[10px] tabular-nums text-faint">{when(e.at, state, t)}</span>
-								<span className={i === 0 ? "text-text" : "text-dim"}>{le(e.text)}</span>
+								<span className={i === 0 ? "text-text" : "text-dim"}>{e.kind === "residentsShort" ? t("base.log.residentsShort", { food: e.params?.food ?? 0, water: e.params?.water ?? 0 }) : le(e.text)}</span>
 							</li>
 						))}
 					</ol>
 				)}
 			</div>
+		</section>
+	);
+}
+
+// ─── residents ──────────────────────────────────────────────────────────────
+
+function ResidentsSection({ base, state }: { base: BaseState; state: GameState }) {
+	const { t } = useT();
+	const list: Resident[] = base.residents ?? [];
+	const total = residentHeadcount(state);
+	return (
+		<section className="space-y-1.5" data-testid="residents">
+			<div className="flex items-center justify-between">
+				<Tooltip content={t("group.residentsHint")}>
+					<h4 tabIndex={0} className="heading flex items-center gap-1.5 text-sm"><Users size={14} /> {t("group.residents")}</h4>
+				</Tooltip>
+				{total > 0 && <span className="text-xs tabular-nums text-dim">{total}</span>}
+			</div>
+			{(base.residentsShortDays ?? 0) > 0 && (
+				<p className="flex items-center gap-1 text-[11px] text-[#e7b25a]"><Utensils size={11} /> {t("group.residentsShort", { n: base.residentsShortDays! })}</p>
+			)}
+			{list.length === 0 ? (
+				<p className="text-xs italic text-faint">{t("group.noResidents")}</p>
+			) : (
+				<ul className="divide-y divide-line/60 rounded-lg border border-line/70 px-2.5">
+					{list.map((r) => {
+						const npc = r.npcId ? state.npcs[r.npcId] : undefined;
+						return (
+							<li key={r.id} className="py-1.5 text-xs leading-snug">
+								<div className="flex items-baseline justify-between gap-2">
+									<span className="text-text">{r.name}</span>
+									{r.headcount > 1 && <span className="shrink-0 text-[11px] tabular-nums text-dim">{t("group.residentPeople", { n: r.headcount })}</span>}
+								</div>
+								{(r.note || npc?.description) && <div className="mt-0.5 line-clamp-2 text-[11px] text-dim">{r.note ?? npc?.description}</div>}
+							</li>
+						);
+					})}
+				</ul>
+			)}
 		</section>
 	);
 }
@@ -397,9 +437,11 @@ export function GroupTab({ state }: { state: GameState }) {
 				</details>
 			)}
 
+			{base && <ResidentsSection base={base} state={state} />}
+
 			<section className="space-y-2">
 				<h4 className="heading flex items-center gap-1.5 text-sm"><House size={14} /> {t("group.base")}</h4>
-				{base ? <BaseSection base={base} state={state} mouths={living.length + 1} /> : <p className="rounded-lg border border-dashed border-line px-3 py-3 text-center text-xs text-faint">{t("group.noBase")}</p>}
+				{base ? <BaseSection base={base} state={state} mouths={living.length + 1 + residentHeadcount(state)} /> : <p className="rounded-lg border border-dashed border-line px-3 py-3 text-center text-xs text-faint">{t("group.noBase")}</p>}
 			</section>
 		</div>
 	);

@@ -15,6 +15,7 @@ import { getEquipment, MONSTERS } from "../srd";
 import type { Rng } from "./dice";
 import { outbreakDay } from "./ruleset";
 import { gameMinutes, isFood, isWater } from "./survival";
+import { residentsDigest } from "./residents";
 
 export const STOCK_KINDS = ["food", "water", "meds", "ammo", "fuel", "materials"] as const;
 export type StockKind = (typeof STOCK_KINDS)[number];
@@ -651,6 +652,7 @@ export function baseDigest(state: GameState): string | undefined {
 		`${b.name} at ${locationName(state, b.locationId)}${b.mapId ? ` [map ${b.mapId}]` : ""}${atBase(state) ? " (party HERE)" : " (party away)"}`,
 		`fortification ${b.fortification}/10${b.fortification >= 3 ? " (long rest here is secured)" : " (below 3: rest here is not automatically secured)"}`,
 		`stock: ${stockText(b.stock)}`,
+		residentsDigest(state),
 		`upgrades: ${b.upgrades.length ? b.upgrades.join(", ") : "none"}${b.upgrades.includes("generator") ? (b.generatorOn ? " (generator running)" : " (generator out of fuel)") : ""}${b.upgrades.includes("radio") ? " (radio: 101.7 FM and faction contact possible)" : ""}`,
 		building.length ? `building: ${building.join(", ")}` : "",
 		events.length ? `last: ${events.join(" | ")}` : "",

@@ -20,6 +20,7 @@ import { abilityMod, roll, signed, type Rng } from "./dice";
 import { allyCap } from "./encounter-budget";
 import { outbreakDay } from "./ruleset";
 import { foodFactor, isNight as isNightTime, lootTable, pickWeighted, type LootEntry, type PlaceType } from "./scavenge";
+import { residentRecruited, residentsDailyNeeds } from "./residents";
 import { gameMinutes, infectionDc, infectionStageAt, INFECTION_HOUR, isFood, isWater, rollInfection, takeOne, type RecordRoll } from "./survival";
 
 // ─── the group ──────────────────────────────────────────────────────────────
@@ -266,6 +267,7 @@ export function recruitSurvivor(state: GameState, rng: Rng, a: RecruitArgs): Sur
 	if (!npc) throw new Error(`Unknown NPC ${a.npcId}. Only someone already met (add_npc) can join.`);
 	if (!npc.alive) throw new Error(`${npc.name} is dead.`);
 	const g = groupOf(state);
+	residentRecruited(state, a.npcId);
 	const prev = g.survivors[a.npcId];
 	if (prev && isActive(prev)) throw new Error(`${npc.name} is already in the group (${prev.status}).`);
 	if (prev?.status === "turned" || prev?.status === "dead") throw new Error(`${npc.name} is ${prev.status}.`);
@@ -637,7 +639,7 @@ export function restSurvivors(state: GameState): string | undefined {
  */
 export function groupTick(state: GameState, rng: Rng, addItem: AddItem): string | undefined {
 	const g = state.group;
-	if (!g || !Object.keys(g.survivors).length) return undefined;
+	if (!g || (!Object.keys(g.survivors).length && !g.base?.residents?.length)) return undefined;
 	const now = gameMinutes(state.time);
 	const last = g.lastTick ?? now;
 	const out: string[] = [];
@@ -656,6 +658,7 @@ export function groupTick(state: GameState, rng: Rng, addItem: AddItem): string 
 			errandsUntil(at);
 			infections(at);
 			out.push(...dailyNeeds(state, rng, at));
+			out.push(...residentsDailyNeeds(state, at));
 		}
 	}
 	errandsUntil(now);
