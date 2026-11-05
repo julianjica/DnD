@@ -75,7 +75,7 @@ export const buildUpgradeTool = tool<{ upgrade: BaseUpgrade }>(
 
 export const updateResidentsTool = tool<{ add?: ResidentAdd[]; remove?: ResidentRemove[]; edit?: (ResidentAdd & { who: string })[] }>(
 	"update_residents",
-	"The Quiet: keep the base's RESIDENTS list current: everyone sheltering there who is NOT a companion (the cook, the old neighbour, a mother and her kids). They show on the player's Group tab and eat 1 food + 1 water each from the base stock at 08:00, after the player and companions. Add people the moment they move in (link npcId when they have one; one entry can stand for several people with headcount, e.g. 'Teresa Holm and her two kids' = 3), remove them when they leave, die or turn, edit to change notes/headcount. Recruiting a resident as a companion (recruit_survivor) takes them off the list on its own.",
+	"The Quiet: keep the base's RESIDENTS list current: everyone sheltering there who is NOT a companion (no errands; if one fights, add them to the combat as an ally with side='party') (the cook, the old neighbour, a mother and her kids). They show on the player's Group tab and eat 1 food + 1 water each from the base stock at 08:00, after the player and companions. Add people the moment they move in (link npcId when they have one; one entry can stand for several people with headcount, e.g. 'Teresa Holm and her two kids' = 3), remove them when they leave, die or turn, edit to change notes/headcount. Recruiting a resident as a companion (recruit_survivor) takes them off the list on its own.",
 	S.obj(
 		{
 			add: S.arr(

@@ -50,11 +50,17 @@ export function band(level: number, adjustedXp: number): Band {
 }
 
 /**
- * Allies may add at most this much XP worth of creatures: half the PC's
- * medium threshold (level 2 → 50 XP: a guard or two commoners, not a veteran).
+ * Most XP the player's allies may add up to: the PC's medium threshold, so
+ * NPCs can really help (a couple of guards, a veteran-ish captain at higher
+ * levels) while the player stays the strongest on their side.
  */
 export function allyCap(level: number): number {
-	return Math.floor(XP_THRESHOLDS_BY_LEVEL[Math.max(1, Math.min(20, level))][1] / 2);
+	return XP_THRESHOLDS_BY_LEVEL[Math.max(1, Math.min(20, level))][1];
+}
+
+/** Allies let the fight be bigger: the enemy cap grows by 1.5× their XP. */
+export function allyBonus(allyXp: number): number {
+	return Math.round(allyXp * 1.5);
 }
 
 export interface BudgetCheck {
@@ -73,12 +79,12 @@ export interface BudgetCheck {
 export function checkBudget(level: number, difficulty: Difficulty, enemyXps: number[], allyXps: number[] = []): BudgetCheck {
 	const enemyXp = enemyXps.reduce((a, b) => a + b, 0);
 	const adjustedXp = Math.round(enemyXp * soloMultiplier(enemyXps.length));
-	const cap = budgetCap(level, difficulty);
 	const allyXp = allyXps.reduce((a, b) => a + b, 0);
+	const cap = budgetCap(level, difficulty) + allyBonus(Math.min(allyXp, allyCap(level)));
 	const aCap = allyCap(level);
 	const b = band(level, adjustedXp);
 	const ok = adjustedXp <= cap;
 	const allyOk = allyXp <= aCap;
-	const summary = `Encounter budget (level ${level}, ${difficulty}): ${enemyXps.length} enemies, ${enemyXp} XP × ${soloMultiplier(enemyXps.length)} = ${adjustedXp} adjusted (${b}); cap ${cap}.${allyXps.length ? ` Allies ${allyXp} XP (cap ${aCap}).` : ""}`;
+	const summary = `Encounter budget (level ${level}, ${difficulty}): ${enemyXps.length} enemies, ${enemyXp} XP × ${soloMultiplier(enemyXps.length)} = ${adjustedXp} adjusted (${b}); cap ${cap}${allyXp ? ` (incl. +${allyBonus(Math.min(allyXp, aCap))} for allies)` : ""}.${allyXps.length ? ` Allies ${allyXp} XP (cap ${aCap}).` : ""}`;
 	return { ok, enemyXp, adjustedXp, cap, band: b, allyXp, allyCap: aCap, allyOk, summary };
 }

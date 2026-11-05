@@ -178,9 +178,12 @@ test("start_combat: companions join on side party (cap respected), sync HP and a
 	await ok(z, "recruit_survivor", { npcId: a, profession: "cop", specialty: "shoots straight", traits: ["steady"], gear: [{ ref: "z-pistol-9mm", qty: 1 }, { ref: "z-ammo-9mm", qty: 3 }] });
 	await ok(z, "recruit_survivor", { npcId: b, profession: "firefighter", specialty: "strong", traits: ["loud"] });
 	await ok(z, "recruit_survivor", { npcId: c, profession: "athlete", specialty: "fast", traits: ["young"] });
+	// The ally cap (level 1: 50 XP, 10 per companion) leaves the sixth one out.
+	for (const n of ["Dee", "Eve", "Fay"]) await ok(z, "recruit_survivor", { npcId: await npc(z, n), profession: "athlete", specialty: "fast", traits: ["young"] });
 	const start = await ok(z, "start_combat", { monsters: [{ monster: "z-shambler", x: 10, y: 3 }] });
 	assert.match(start, /Companions fighting beside the player \(side party\): Ana \[sv-ana-\w+\], Ben \[sv-ben-\w+\]/);
-	assert.match(start, /Not fighting: Cy \(hangs back/);
+	assert.match(start, /Cy \[sv-cy-\w+\]/);
+	assert.match(start, /Not fighting: Fay \(hangs back/);
 	let s = m.loadState(z);
 	const enc = s.encounter!;
 	const ana = Object.values(enc.combatants).find((x) => x.refId === a)!;

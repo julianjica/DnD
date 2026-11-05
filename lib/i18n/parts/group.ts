@@ -35,7 +35,7 @@ export const en = {
 	"group.memory": "In memory",
 
 	"group.residents": "Residents",
-	"group.residentsHint": "People sheltering at the base who aren't in your group. They don't fight or run errands, but each eats 1 food and drinks 1 water every morning.",
+	"group.residentsHint": "People sheltering at the base who aren't in your group. They don't run errands, though the ones who can will fight beside you at home. Each eats 1 food and drinks 1 water every morning.",
 	"group.noResidents": "Nobody else lives here.",
 	"group.residentPeople": "{n} people",
 	"group.residentsShort": "Short of food or water {n} morning(s) in a row",
@@ -122,7 +122,7 @@ export const es: { [K in keyof typeof en]: string } = {
 	"group.memory": "Ya no están",
 
 	"group.residents": "Residentes",
-	"group.residentsHint": "Gente que se refugia en la base sin formar parte de tu grupo. No pelean ni hacen recados, pero cada uno come 1 de comida y bebe 1 de agua cada mañana.",
+	"group.residentsHint": "Gente que se refugia en la base sin formar parte de tu grupo. No hacen recados, aunque los que pueden pelearán a tu lado en casa. Cada uno come 1 de comida y bebe 1 de agua cada mañana.",
 	"group.noResidents": "Nadie más vive aquí.",
 	"group.residentPeople": "{n} personas",
 	"group.residentsShort": "Sin comida o agua suficiente {n} mañana(s) seguidas",

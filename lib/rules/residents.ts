@@ -4,8 +4,8 @@ import { gameMinutes } from "./survival";
 
 /**
  * The Quiet: residents of the base, the people sheltering there who aren't
- * companions (docs/zombie.md §7). They have no stat block and never fight or
- * run errands; they matter because they eat. Companions are tracked apart
+ * companions (docs/zombie.md §7). They have no stat block of their own and don't
+ * run errands; when one fights, the DM adds them as an ally. They eat. Companions are tracked apart
  * (group.ts) and leave this list when recruited.
  */
 

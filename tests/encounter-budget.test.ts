@@ -23,5 +23,7 @@ test("a single zombie is fine at level 2 normal", () => {
 test("a veteran ally (700 XP) is too strong for level 2; a guard is fine", () => {
 	assert.equal(checkBudget(2, "normal", [50], [700]).allyOk, false);
 	assert.equal(checkBudget(2, "normal", [50], [25]).allyOk, true);
-	assert.equal(allyCap(2), 50);
+	assert.equal(allyCap(2), 100);
+	// Allies make room for a bigger fight.
+	assert.equal(checkBudget(2, "normal", [50], [25]).cap, budgetCap(2, "normal") + 38);
 });

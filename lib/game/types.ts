@@ -662,8 +662,8 @@ export interface BaseState {
 	/** Game minute the base was claimed. */
 	claimedAt?: number;
 	/**
-	 * People sheltering at the base who aren't companions (no stat block; they
-	 * don't fight or run errands): they eat from the stock at 08:00.
+	 * People sheltering at the base who aren't companions (no stat block of their own,
+	 * no errands; the DM adds them as allies when they fight): they eat from the stock at 08:00.
 	 */
 	residents?: Resident[];
 	/** Mornings in a row the residents were short of food or water. */
