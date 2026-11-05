@@ -151,7 +151,7 @@ export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 				</aside>
 			</main>
 
-			<DiceTray queue={game.rollQueue.filter((r) => r.actor === state.character.id || r.label.startsWith(state.character.name))} autoDismissMs={1800} onSettled={() => state.settings.audio.enabled && playSfx("dice", { volume: 0.6 })} />
+			<DiceTray queue={game.rollQueue.filter((r) => r.actor === state.character.id || r.label.startsWith(state.character.name))} compact autoDismissMs={1100} onSettled={() => state.settings.audio.enabled && playSfx("dice", { volume: 0.6 })} />
 
 			{dialog === "saves" && <SavesDialog id={id} onClose={() => setDialog(null)} onLoaded={() => void game.refresh()} />}
 			{dialog === "settings" && <SettingsDrawer state={state} onClose={() => setDialog(null)} onSave={game.patchSettings} />}

@@ -415,6 +415,8 @@ export interface DiceEngineOptions {
 	theme?: DiceTheme;
 	/** Called during playback when dice hit something (0..1 strength). */
 	onImpact?: (strength: number) => void;
+	/** Playback speed of the pre-simulated throw (1 = real time). */
+	speed?: number;
 }
 
 export class DiceEngine {
@@ -435,10 +437,12 @@ export class DiceEngine {
 	private haloTex: THREE.CanvasTexture;
 	private theme: DiceTheme;
 	private onImpact?: (s: number) => void;
+	private speed = 1;
 
 	constructor(private container: HTMLElement, opts: DiceEngineOptions = {}) {
 		this.theme = opts.theme ?? "mixed";
 		this.onImpact = opts.onImpact;
+		this.speed = opts.speed ?? 1;
 		this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: "high-performance" });
 		const r = this.renderer;
 		r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -766,7 +770,7 @@ export class DiceEngine {
 	private tick(now: number) {
 		const pb = this.playback;
 		if (pb) {
-			const f = ((now - pb.start) / 1000) / STEP;
+			const f = (((now - pb.start) / 1000) * this.speed) / STEP;
 			this.applyFrame(f);
 			while (pb.nextImpact < pb.impacts.length && pb.impacts[pb.nextImpact].frame <= f) {
 				this.onImpact?.(pb.impacts[pb.nextImpact].strength);

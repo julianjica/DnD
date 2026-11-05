@@ -33,6 +33,8 @@ export interface DiceTrayProps {
 	/** "auto": 3D unless reduced motion / no WebGL. "2d": always the flat result chip. */
 	mode?: "auto" | "2d";
 	theme?: DiceTheme;
+	/** Small panel at the bottom centre instead of a full-screen overlay, with a faster throw. */
+	compact?: boolean;
 	className?: string;
 }
 
@@ -55,6 +57,7 @@ export function DiceTray({
 	autoDismissMs,
 	mode = "auto",
 	theme = "mixed",
+	compact = false,
 	className,
 }: DiceTrayProps) {
 	const [current, setCurrent] = useState<{ rec: RollRecord; phase: Phase; flat: boolean } | null>(null);
@@ -66,9 +69,9 @@ export function DiceTray({
 	const dismissRef = useRef<(() => void) | null>(null);
 	const seen = useRef<Set<string> | null>(null);
 	const alive = useRef(true);
-	const cb = useRef({ onDismiss, onSettled, onImpact, autoDismissMs, mode, theme });
+	const cb = useRef({ onDismiss, onSettled, onImpact, autoDismissMs, mode, theme, compact });
 	useEffect(() => {
-		cb.current = { onDismiss, onSettled, onImpact, autoDismissMs, mode, theme };
+		cb.current = { onDismiss, onSettled, onImpact, autoDismissMs, mode, theme, compact };
 	});
 
 	if (seen.current === null) seen.current = new Set(skipInitial ? (queue ?? []).map((r) => r.id) : []);
@@ -88,6 +91,7 @@ export function DiceTray({
 			if (!mod.webglAvailable()) throw new Error("WebGL unavailable");
 			engineRef.current = new mod.DiceEngine(containerRef.current, {
 				theme: cb.current.theme,
+				speed: cb.current.compact ? 1.8 : 1,
 				onImpact: (s) => cb.current.onImpact?.(s),
 			});
 			return engineRef.current;
@@ -210,7 +214,13 @@ export function DiceTray({
 
 	return (
 		<div
-			className={clsx("fixed inset-0 z-[60] select-none", settled ? "pointer-events-auto cursor-pointer" : "pointer-events-none", className)}
+			className={clsx(
+				"fixed z-[60] select-none",
+				compact ? "bottom-4 left-1/2 h-[260px] w-[min(340px,calc(100vw-32px))] -translate-x-1/2 overflow-hidden rounded-2xl transition-opacity duration-200" : "inset-0",
+				settled ? "pointer-events-auto cursor-pointer" : "pointer-events-none",
+				className,
+			)}
+			style={compact ? { opacity: visible ? 1 : 0, boxShadow: visible ? "0 12px 40px rgba(0,0,0,0.55)" : undefined } : undefined}
 			aria-hidden={!visible}
 			onClick={() => settled && dismissRef.current?.()}
 		>
@@ -219,16 +229,18 @@ export function DiceTray({
 				className="absolute inset-0 transition-opacity duration-300"
 				style={{
 					opacity: visible ? 1 : 0,
-					background: "radial-gradient(ellipse at 50% 42%, rgba(8,6,4,0.18) 0%, rgba(8,6,4,0.55) 70%, rgba(8,6,4,0.7) 100%)",
+					background: compact
+						? "linear-gradient(180deg, rgba(30,23,16,0.88), rgba(14,10,8,0.92))"
+						: "radial-gradient(ellipse at 50% 42%, rgba(8,6,4,0.18) 0%, rgba(8,6,4,0.55) 70%, rgba(8,6,4,0.7) 100%)",
 				}}
 			/>
 			<div ref={containerRef} className="absolute inset-0 transition-opacity duration-300" style={{ opacity: show3d ? 1 : 0 }} />
-			{current && settled && <ResultCard rec={current.rec} flat={current.flat} />}
+			{current && settled && <ResultCard rec={current.rec} flat={current.flat} compact={compact} />}
 		</div>
 	);
 }
 
-function ResultCard({ rec, flat }: { rec: RollRecord; flat: boolean }) {
+function ResultCard({ rec, flat, compact = false }: { rec: RollRecord; flat: boolean; compact?: boolean }) {
 	const { t } = useT();
 	const { le } = useEngineText();
 	const crit = critKind(rec);
@@ -244,15 +256,17 @@ function ResultCard({ rec, flat }: { rec: RollRecord; flat: boolean }) {
 	return (
 		<div
 			className={clsx(
-				"absolute inset-x-0 flex justify-center px-4",
-				flat ? "top-1/2 -translate-y-1/2" : "bottom-[5%]",
+				"absolute inset-x-0 flex justify-center",
+				compact ? "bottom-2 px-2" : "px-4",
+				flat ? "top-1/2 -translate-y-1/2" : compact ? "" : "bottom-[5%]",
 			)}
 			role="status"
 			aria-live="polite"
 		>
 			<div
 				className={clsx(
-					"dh-dice-pop relative w-full max-w-md overflow-hidden rounded-2xl border px-6 pb-4 pt-3 text-center shadow-2xl backdrop-blur-md",
+					"dh-dice-pop relative w-full overflow-hidden rounded-2xl border text-center shadow-2xl backdrop-blur-md",
+					compact ? "max-w-full px-3 pb-2 pt-2" : "max-w-md px-6 pb-4 pt-3",
 					crit === "gold" ? "border-amber-400/70" : crit === "red" ? "border-red-500/70" : "border-amber-100/15",
 				)}
 				style={{
@@ -266,7 +280,7 @@ function ResultCard({ rec, flat }: { rec: RollRecord; flat: boolean }) {
 				<div className="relative mt-1 flex items-center justify-center gap-3">
 					<span
 						className={clsx(
-							"font-serif text-6xl font-bold tabular-nums leading-none",
+							compact ? "font-serif text-4xl font-bold tabular-nums leading-none" : "font-serif text-6xl font-bold tabular-nums leading-none",
 							crit === "gold" ? "text-amber-300" : crit === "red" ? "text-red-400" : "text-stone-50",
 						)}
 						style={{ textShadow: glow }}
@@ -279,9 +293,9 @@ function ResultCard({ rec, flat }: { rec: RollRecord; flat: boolean }) {
 						{t(crit === "gold" ? (rec.critical === "hit" ? "play.dice.critHitBang" : "play.dice.nat20") : rec.critical === "miss" ? "play.dice.critMiss" : "play.dice.nat1")}
 					</div>
 				)}
-				<div className="relative mt-3 flex flex-wrap items-center justify-center gap-1.5">
+				<div className={clsx("relative flex flex-wrap items-center justify-center gap-1.5", compact ? "mt-1.5" : "mt-3")}>
 					{chips.map((c, i) => (
-						<DieGlyph key={i} sides={c.sides} value={c.value} dropped={c.dropped} nat={c.nat} size={chips.length > 10 ? 26 : 32} />
+						<DieGlyph key={i} sides={c.sides} value={c.value} dropped={c.dropped} nat={c.nat} size={compact ? (chips.length > 8 ? 18 : 22) : chips.length > 10 ? 26 : 32} />
 					))}
 					{rec.check?.parts.length ? (
 						<ModBreakdown rec={rec} className="ml-1 text-lg text-stone-300" />
@@ -289,7 +303,7 @@ function ResultCard({ rec, flat }: { rec: RollRecord; flat: boolean }) {
 						rec.modifier !== 0 && <span className="ml-1 font-serif text-lg text-stone-300">{signedMod(rec.modifier)}</span>
 					)}
 				</div>
-				<div className="relative mt-2 flex items-center justify-center gap-2 text-xs text-stone-400">
+				<div className={clsx("relative flex items-center justify-center gap-2 text-xs text-stone-400", compact ? "mt-1" : "mt-2")}>
 					<span className="font-mono">{rec.notation}</span>
 					{rec.advantage && (
 						<span className={clsx("rounded px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider", rec.advantage === "advantage" ? "bg-emerald-900/60 text-emerald-300" : "bg-rose-900/60 text-rose-300")}>
@@ -301,7 +315,7 @@ function ResultCard({ rec, flat }: { rec: RollRecord; flat: boolean }) {
 						<span className={clsx("font-semibold uppercase tracking-wider", rec.success ? "text-emerald-400" : "text-rose-400")}>{outcome}</span>
 					)}
 				</div>
-				<div className="relative mt-2 text-[10px] uppercase tracking-widest text-stone-500">{t("play.dice.clickToContinue")}</div>
+				{!compact && <div className="relative mt-2 text-[10px] uppercase tracking-widest text-stone-500">{t("play.dice.clickToContinue")}</div>}
 			</div>
 		</div>
 	);

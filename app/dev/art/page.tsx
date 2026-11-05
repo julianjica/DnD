@@ -46,6 +46,7 @@ export default function ArtDevPage() {
 	const [sfx, setSfx] = useState(0.8);
 	const [muted, setMuted] = useState(false);
 	const tray = useRef<DiceTrayHandle>(null);
+	const [compactDice, setCompactDice] = useState(true);
 	const rng = useRef<Rng | null>(null);
 
 	const portraits = useMemo(() => {
@@ -159,6 +160,7 @@ export default function ArtDevPage() {
 				<div>
 					<h2 className="font-serif text-xl text-amber-100">Dice</h2>
 					<div className="mt-3 flex flex-wrap gap-2">
+						<label className="flex items-center gap-1 text-sm"><input type="checkbox" checked={compactDice} onChange={(e) => setCompactDice(e.target.checked)} /> compact (play screen)</label>
 						<button className="rounded bg-stone-800 px-3 py-1.5 text-sm hover:bg-stone-700" onClick={() => doRoll("1d20+5", "Attack with advantage vs AC 15", "advantage", 15)}>
 							1d20+5 adv
 						</button>
@@ -211,7 +213,7 @@ export default function ArtDevPage() {
 				</div>
 			</section>
 
-			<DiceTray ref={tray} />
+			<DiceTray ref={tray} compact={compactDice} key={compactDice ? "compact" : "full"} />
 		</main>
 	);
 }
