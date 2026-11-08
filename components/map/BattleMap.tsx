@@ -57,6 +57,8 @@ export interface BattleMapProps {
 	powerOn?: boolean;
 	/** Extra hover text per entity id (outside combat). */
 	notes?: Record<string, string>;
+	/** Exits to other maps, keyed "x,y" → destination name. */
+	exits?: Record<string, string>;
 }
 
 /**
@@ -151,8 +153,9 @@ export default function BattleMap(props: BattleMapProps) {
 			powerOn: props.powerOn,
 			barricadeLabel,
 			notes: props.notes,
+			exits: props.exits,
 		});
-	}, [ready, map, entities, status, visibleSquares, fog, showHidden, highlights, highlightColor, pathPreview, pathLabel, aoe, selectedId, gridOn, darkvision, props.pixel, props.powerOn, barricadeLabel, props.notes]);
+	}, [ready, map, entities, status, visibleSquares, fog, showHidden, highlights, highlightColor, pathPreview, pathLabel, aoe, selectedId, gridOn, darkvision, props.pixel, props.powerOn, barricadeLabel, props.notes, props.exits]);
 
 	const focusKey = props.focus == null ? "" : typeof props.focus === "string" ? props.focus : `${props.focus.x},${props.focus.y}`;
 	useEffect(() => {

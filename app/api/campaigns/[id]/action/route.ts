@@ -1,6 +1,7 @@
 import type { NextRequest } from "next/server";
 import type { PlayerCombatAction } from "@/lib/game/types";
-import { campaignExists } from "@/lib/store/campaigns";
+import { appendLog, campaignExists } from "@/lib/store/campaigns";
+import { newId } from "@/lib/dm/context";
 import { isTurnRunning, runTurn } from "@/lib/dm/turn";
 import { withState, type ClientEvent } from "@/lib/dm/context";
 import { isPcTurn, playerCombatAction } from "@/lib/dm/combat";
@@ -28,10 +29,11 @@ export async function POST(req: NextRequest, ctx: RouteContext<"/api/campaigns/[
 		let notes: string[] = [];
 		try {
 			let used: string | undefined;
+			let crossedTo: string | undefined;
 			const exploring = await withState(tctx, (tx) => {
 				if (tx.state.encounter?.status !== "active") {
 					// Out of combat: free movement, or spending a resource from the sheet.
-					if (action.type === "move") exploreMove(tx.state, action.path);
+					if (action.type === "move") crossedTo = exploreMove(tx.state, action.path).crossedTo;
 					else if (action.type === "use_item") used = consumeItem(tx, { item: action.itemId });
 					else if (action.type === "use_feature") used = spendFeatureUse(tx, { feature: action.featureId });
 					else if (action.type === "cast") used = castSpell(tx, { spell: action.spell, slotLevel: action.slotLevel || undefined });
@@ -63,6 +65,8 @@ export async function POST(req: NextRequest, ctx: RouteContext<"/api/campaigns/[
 				return;
 			}
 			if (exploring) {
+				// Walked through a connected door: a marker in the chat (and the DM's history).
+				if (crossedTo) appendLog(id, { id: newId("l"), role: "system", text: `→ ${crossedTo}`, ts: Date.now() });
 				emit({ type: "done" });
 				return;
 			}

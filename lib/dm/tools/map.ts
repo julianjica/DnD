@@ -1,6 +1,8 @@
 import { rulesetOf } from "../../rules/ruleset";
 import type { EntityKind, GameState, GridMap, LocationKind, MapKind, TerrainKind, Tile, WorldLocation } from "../../game/types";
 import { MODERN_FEATURE_SPRITES, mapToRows } from "../../maps/draw";
+import { autoLink, linkBoth, linkSummary } from "../../maps/links";
+import { assertNotFallen } from "../../rules/fallen";
 import { climateForPreset, drawMap, FEATURE_SPRITES, generateMap, LEGEND_TEXT, MAP_KINDS, placeEntity, revealAround, WORLD_ASPECT, type Climate, type DrawKey } from "../../maps";
 import { distanceInDays, isTownWorld, travelDaysIn, travelText } from "../../maps/geography";
 import { addTerrainFeature, BEARING, betweenFromText, compassOf, daysForDistance, directionFromText, distanceForDays, fits, mapDistance, placeFor, REGION_SIZE, retimeRoutes, terrainFor, type Compass, type PlaceSpec } from "../../maps/geography";
@@ -23,9 +25,10 @@ export function ensurePc(map: GridMap, state: GameState): void {
 	revealAround(map, pc.x, pc.y, SIGHT_RADIUS);
 }
 
-function mapSummary(map: GridMap): string {
+function mapSummary(map: GridMap, state?: GameState): string {
 	const rooms = map.rooms.map((r) => `${r.id}${r.tag ? `(${r.tag})` : ""} x${r.x}-${r.x + r.w - 1} y${r.y}-${r.y + r.h - 1}${r.name ? ` "${r.name}"` : ""}`);
-	return `Map ${map.name} [${map.id}] ${map.kind} ${map.width}x${map.height}, lighting ${map.lighting}, entry ${map.entry.x},${map.entry.y}.\nRooms/areas: ${rooms.join("; ") || "none"}.\nEntities: ${map.entities.map((e) => `${e.name}[${e.id}] ${e.kind}@${e.x},${e.y}`).join("; ")}`;
+	const links = state ? linkSummary(state, map) : "";
+	return `Map ${map.name} [${map.id}] ${map.kind} ${map.width}x${map.height}, lighting ${map.lighting}, entry ${map.entry.x},${map.entry.y}.\nRooms/areas: ${rooms.join("; ") || "none"}.\nEntities: ${map.entities.map((e) => `${e.name}[${e.id}] ${e.kind}@${e.x},${e.y}${e.dead ? " DEAD (a corpse; it stays dead)" : ""}`).join("; ")}${links ? `\nExits to other maps (the player walks through them): ${links}` : ""}`;
 }
 
 function activeMap(state: GameState): GridMap {
@@ -90,7 +93,7 @@ Draw each place once; return later with use_map. Another part of a place already
 			if (here && existing.length && here.drawShown !== existing.length) {
 				here.drawShown = existing.length;
 				return (
-					`NOTHING WAS DRAWN. ${here.name} already has ${existing.length} map(s). Going back to one of them? use_map. Drawing another part of the same place? Make it consistent with these (same building outline and size, walls, doors and features where they overlap: a door in one map's wall is a door in the other's) and call draw_map again.\n` +
+					`NOTHING WAS DRAWN. ${here.name} already has ${existing.length} map(s). Going back to one of them? use_map. Drawing another part of the same place? Make it consistent with these (same building outline and size, walls, doors and features where they overlap: a door in one map's wall is a door in the other's) and call draw_map again. Doors drawn in the same places on touching edge walls (same length) link the two maps automatically, so the player can walk between them; other connections (stairs, a gap) need link_maps.\n` +
 					existing
 						.map((mp) => {
 							const dead = mp.entities.filter((e) => e.dead).map((e) => e.name);
@@ -115,8 +118,9 @@ Draw each place once; return later with use_map. Another part of a place already
 			if (res.pc) placeEntity(map, { id: `ent_${state.character.id}`, kind: "pc", name: state.character.name, sprite: "pc", disposition: "friendly", x: res.pc.x, y: res.pc.y }, res.pc);
 			ensurePc(map, state);
 			addMap(state, map);
+			const linked = autoLink(map, existing);
 			state.view = a.show ? "map" : "scene";
-			return [mapSummary(map), ...res.warnings].join("\n");
+			return [mapSummary(map, state), ...linked, ...res.warnings].join("\n");
 		}),
 );
 
@@ -146,7 +150,7 @@ export const generateMapTool = tool<{ kind: MapKind; name?: string; features?: s
 			ensurePc(map, state);
 			addMap(state, map);
 			if (a.show !== false) state.view = "map";
-			return mapSummary(map);
+			return mapSummary(map, state);
 		}),
 );
 
@@ -161,7 +165,26 @@ export const useMapTool = tool<{ mapId: string; show?: boolean }>(
 			state.activeMapId = map.id;
 			ensurePc(map, state);
 			if (a.show !== false) state.view = "map";
-			return mapSummary(map);
+			return mapSummary(map, state);
+		}),
+);
+
+export const linkMapsTool = tool<{ mapId: string; x: number; y: number; toMapId: string; toX: number; toY: number }>(
+	"link_maps",
+	"Connect two maps of the same place both ways: walking onto (x,y) on mapId takes the party to (toX,toY) on toMapId and back (stairs, a doorway, a gap in a fence). Use the door/stairs square on each side. Doors drawn in matching places on touching edge walls are linked automatically by draw_map.",
+	S.obj({ mapId: S.str(), x: S.int(undefined, 0), y: S.int(undefined, 0), toMapId: S.str(), toX: S.int(undefined, 0), toY: S.int(undefined, 0) }, ["mapId", "x", "y", "toMapId", "toX", "toY"]),
+	async (a, ctx) =>
+		withState(ctx, ({ state }) => {
+			const m = state.maps[a.mapId], t = state.maps[a.toMapId];
+			if (!m || !t) throw new Error(`Unknown map ${!m ? a.mapId : a.toMapId}. Known: ${Object.values(state.maps).map((x) => `${x.name}[${x.id}]`).join(", ")}`);
+			if (m === t) throw new Error("Link two different maps.");
+			for (const [mp, x, y] of [[m, a.x, a.y], [t, a.toX, a.toY]] as const) {
+				if (x >= mp.width || y >= mp.height) throw new Error(`(${x},${y}) is outside ${mp.name} (${mp.width}x${mp.height}).`);
+				const tile = mp.tiles[y * mp.width + x];
+				if (["wall", "void", "rock", "building"].includes(tile)) throw new Error(`(${x},${y}) on ${mp.name} is ${tile}: put the link on a door, stairs or open square.`);
+			}
+			linkBoth(m, { x: a.x, y: a.y }, t, { x: a.toX, y: a.toY });
+			return `Linked ${m.name} (${a.x},${a.y}) ↔ ${t.name} (${a.toX},${a.toY}).`;
 		}),
 );
 
@@ -187,6 +210,7 @@ export const placeEntityTool = tool<{ kind: EntityKind; name: string; sprite?: s
 	),
 	async (a, ctx) =>
 		withState(ctx, ({ state }) => {
+			if (a.kind === "monster" || a.disposition === "hostile") assertNotFallen(state, a.name);
 			const map = activeMap(state);
 			let near: { x: number; y: number } | undefined;
 			if (a.room) {
@@ -437,4 +461,4 @@ export const travelTool = tool<{ locationId: string; days?: number; hours?: numb
 		}),
 );
 
-export const MAP_TOOLS: ToolFactory[] = [drawMapTool, generateMapTool, useMapTool, placeEntityTool, updateEntityTool, setTileTool, nameRoomTool, revealLocation, markRegionTool, travelTool];
+export const MAP_TOOLS: ToolFactory[] = [drawMapTool, generateMapTool, useMapTool, linkMapsTool, placeEntityTool, updateEntityTool, setTileTool, nameRoomTool, revealLocation, markRegionTool, travelTool];

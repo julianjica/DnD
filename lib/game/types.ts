@@ -335,6 +335,17 @@ export interface GridMap {
 	theme?: "modern";
 	/** The Quiet: hit points of each barricade square, keyed "x,y". At 0 the square becomes rubble. */
 	barricades?: Record<string, { hp: number; max: number }>;
+	/** Squares (doors, stairs) that lead to another map of the same place. */
+	links?: MapLink[];
+}
+
+/** Walking onto (x,y) out of combat takes the party to (toX,toY) on map toMapId. */
+export interface MapLink {
+	x: number;
+	y: number;
+	toMapId: string;
+	toX: number;
+	toY: number;
 }
 
 export type LocationKind = "town" | "city" | "village" | "dungeon" | "cave" | "forest" | "mountain" | "ruins" | "castle" | "temple" | "swamp" | "coast" | "camp" | "tower" | "landmark";
@@ -702,6 +713,8 @@ export interface GameState {
 	journal: JournalEntry[];
 	/** In-game clock. */
 	time: { day: number; hour: number; minute: number };
+	/** Named enemies killed so far (they stay dead). */
+	fallen?: { name: string; day: number; where?: string }[];
 	/** Clickable suggestions offered by the DM for the next player action. */
 	suggestions: string[];
 	/** Pending roll the DM asked the player to make (when autoRollPlayer = false). */

@@ -1,4 +1,6 @@
 import { doorSummary, roomOf } from "./mapsync";
+import { linkSummary } from "../maps/links";
+import { fallenSummary } from "../rules/fallen";
 import type { GameState, LogEntry } from "../game/types";
 import { barricadeSummary } from "../rules/barricade";
 import { outbreakDay, rulesetOf } from "../rules/ruleset";
@@ -81,16 +83,21 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 	if (here.length) lines.push(`NPCs present: ${here.map((n) => `${n.name} [${n.id}] (${n.role}, ${n.disposition}${n.alive ? "" : ", dead"})${n.secret ? ` secret: ${n.secret}` : ""}`).join("; ")}`);
 	if (npcs.length > here.length) lines.push(`Other known NPCs: ${npcs.filter((n) => !here.includes(n)).map((n) => `${n.name} [${n.id}] (${n.role})`).join(", ")}`);
 
+	const fallen = fallenSummary(s);
+	if (fallen) lines.push(fallen);
+
 	if (s.activeMapId && s.maps[s.activeMapId]) {
 		const m = s.maps[s.activeMapId];
 		const ents = m.entities.map((e) => {
 			const room = e.kind === "pc" || e.kind === "monster" || e.kind === "npc" ? roomOf(m, e) : undefined;
-			return `${e.name}[${e.id}]@${e.x},${e.y}${room ? ` in ${room}` : ""}${e.hidden ? " hidden" : ""}`;
+			return `${e.name}[${e.id}]@${e.x},${e.y}${room ? ` in ${room}` : ""}${e.hidden ? " hidden" : ""}${e.dead ? " DEAD" : ""}`;
 		});
 		lines.push(`Active map: ${m.name} [${m.id}] ${m.kind} ${m.width}x${m.height}, ${m.lighting}. Rooms: ${m.rooms.map((r) => `${r.id}${r.tag ? `(${r.tag})` : ""}${r.name ? ` "${r.name}"` : ""}`).join(", ")}`);
 		lines.push(`Entities: ${ents.join(", ")}`);
 		const doors = doorSummary(m);
 		if (doors) lines.push(`Doors (closed ones open when walked through; locked ones need set_tile): ${doors}`);
+		const links = linkSummary(s, m);
+		if (links) lines.push(`Exits to other maps of this place (walking onto them takes the party there): ${links}`);
 		const barricades = barricadeSummary(m);
 		if (barricades) lines.push(`Barricades (block movement and sight; damage_barricade when the dead pound on them, build_barricade repairs): ${barricades}`);
 	}

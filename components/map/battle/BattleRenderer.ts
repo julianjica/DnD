@@ -56,6 +56,8 @@ export interface RenderInput {
 	barricadeLabel?: string;
 	/** Extra hover text per entity id, shown after the name outside combat (The Quiet: a survivor's HP and morale). */
 	notes?: Record<string, string>;
+	/** Exits to other maps, keyed "x,y": the destination's name (hover label). */
+	exits?: Record<string, string>;
 }
 
 /** Light radius an entity actually casts (street lamps are dark without power). */
@@ -544,6 +546,14 @@ export class BattleRenderer {
 			g.stroke({ width: 2, color, alpha: lineA });
 		};
 		if (inp.highlights?.size) region(inp.highlights, inp.highlightColor, 0.2, 0.75);
+		// Exits to connected maps: a gold frame with a chevron.
+		for (const k of Object.keys(inp.exits ?? {})) {
+			const p = parseKey(k);
+			if (this.map && !this.map.explored[p.y * this.map.width + p.x]) continue;
+			g.rect(p.x * T + 3, p.y * T + 3, T - 6, T - 6).stroke({ width: 2, color: 0xd4a64a, alpha: 0.95 });
+			const cx = (p.x + 0.5) * T, cy = (p.y + 0.5) * T, r = T * 0.16;
+			g.moveTo(cx - r, cy - r).lineTo(cx + r * 0.6, cy).lineTo(cx - r, cy + r).stroke({ width: 3, color: 0xfff3c4, alpha: 0.95 });
+		}
 		if (inp.aoe) {
 			const color = inp.aoe.color ?? 0xff7a2f;
 			const sq = aoeSquares(inp.aoe, this.map);
@@ -954,6 +964,11 @@ export class BattleRenderer {
 			this.label.text = st?.hp !== undefined && st.maxHp ? `${tok.name}  ${Math.max(0, st.hp)}/${st.maxHp}` : note ? `${tok.name}  ${note}` : tok.name;
 			this.label.style.fontSize = Math.round(T * 0.26);
 			this.label.position.set(v.root.position.x, v.root.position.y - (tok.size * T) / 2 - 4);
+			this.label.visible = true;
+		} else if (!tok && this.input?.exits?.[sqKey(sq.x, sq.y)]) {
+			this.label.text = `→ ${this.input.exits[sqKey(sq.x, sq.y)]}`;
+			this.label.style.fontSize = Math.round(T * 0.26);
+			this.label.position.set((sq.x + 0.5) * T, sq.y * T - 4);
 			this.label.visible = true;
 		} else if (!tok) {
 			// The Quiet: a barricade's remaining strength

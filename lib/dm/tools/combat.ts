@@ -1,4 +1,5 @@
 import type { ConditionId, DamageType, GameState } from "../../game/types";
+import { assertNotFallen, isNamedFoe, recordFallen } from "../../rules/fallen";
 import type { Rng } from "../../rules/dice";
 import {
 	addMonsters,
@@ -66,6 +67,11 @@ function toSpawns(state: GameState, args: SpawnArg[]): MonsterSpawn[] {
 	for (const a of args) {
 		// Only this campaign's ruleset; in The Quiet only the variants of the dead that exist by now.
 		const stats = monsterForCampaign(state, a.monster);
+		if ((a.count ?? 1) === 1 && (a.side ?? "enemy") === "enemy") {
+			assertNotFallen(state, a.name);
+			const ent = a.entityId && state.activeMapId ? state.maps[state.activeMapId]?.entities.find((e) => e.id === a.entityId) : undefined;
+			if (ent && !ent.dead) assertNotFallen(state, ent.name);
+		}
 		for (let i = 0; i < (a.count ?? 1); i++) {
 			out.push({
 				stats,
@@ -305,6 +311,8 @@ export const endCombatTool = tool<{ status?: "victory" | "defeat" | "fled" | "en
 					if (c?.dead && e.kind !== "pc") e.dead = true;
 					delete e.combatantId;
 				}
+			// Named enemies who died stay dead (the DM can't bring "Kyle" back on another map).
+			for (const c of Object.values((state.encounter ?? enc).combatants)) if (c.dead && isNamedFoe(c)) recordFallen(state, c.name, map?.name);
 			// The Quiet: companions who went down but lived get up (their tokens aren't corpses).
 			const up = survivorsAfterCombat(state, state.encounter ?? enc);
 			if (up) log += `\n${up}`;

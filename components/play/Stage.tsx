@@ -39,7 +39,7 @@ type Mode = { kind: "move" } | { kind: "attack"; itemId?: string; label: string 
 /** BFS over passable tiles for free (out-of-combat) movement. */
 function explorePath(map: GridMap, from: Point, to: Point): Point[] | null {
 	const W = map.width;
-	const ok = (x: number, y: number) => x >= 0 && y >= 0 && x < W && y < map.height && map.explored[y * W + x] && isPassable(map.tiles[y * W + x]) && map.tiles[y * W + x] !== "deep_water";
+	const ok = (x: number, y: number) => x >= 0 && y >= 0 && x < W && y < map.height && map.explored[y * W + x] && isPassable(map.tiles[y * W + x]) && map.tiles[y * W + x] !== "deep_water" && map.tiles[y * W + x] !== "door_locked" && map.tiles[y * W + x] !== "secret_door";
 	if (!ok(to.x, to.y)) return null;
 	const prev = new Int32Array(W * map.height).fill(-1);
 	const start = from.y * W + from.x;
@@ -346,6 +346,14 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 		}
 		return out;
 	}, [state.group, map, t]);
+	const exits = useMemo(() => {
+		const out: Record<string, string> = {};
+		for (const l of map?.links ?? []) {
+			const to = state.maps[l.toMapId];
+			if (to) out[`${l.x},${l.y}`] = to.name;
+		}
+		return out;
+	}, [map, state.maps]);
 	const status = useMemo(() => {
 		const s: Record<string, TokenStatus> = {};
 		if (!enc) return s;
@@ -441,6 +449,7 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 						powerOn={powerOn}
 						status={status}
 						notes={notes}
+						exits={exits}
 						highlights={reach}
 						highlightColor={0x5b8fb9}
 						pathPreview={preview?.path}

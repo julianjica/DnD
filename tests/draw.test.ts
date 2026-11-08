@@ -213,3 +213,79 @@ test("drawing another map of a place first shows its existing maps", async () =>
 	assert.notEqual(ok.isError, true, ok.text);
 	assert.equal(m.loadState(id).maps[m.loadState(id).activeMapId!].name, "Back");
 });
+
+test("maps drawn with matching doors link up; walking through switches maps with companions", async () => {
+	const id = newGame();
+	const inside = ["##########", "#........#", "#..@.....#", "#........#", "#........#", "####+##L##"];
+	const yard = ["####+##L##", "#,,,,,,,,#", "#,,,,,,,,#", "#,,,,,,,,#", "#,,,,,,,,#", "##########"];
+	await call(id, "draw_map", { name: "Shop", kind: "town", rows: inside });
+	await call(id, "draw_map", { name: "Yard", kind: "town", rows: yard }); // shows the shop first
+	const r = await call(id, "draw_map", { name: "Yard", kind: "town", rows: yard });
+	assert.match(r.text, /Linked 2 door\(s\) to Shop/);
+	let st = m.loadState(id);
+	const yardMap = st.maps[st.activeMapId!];
+	const shop = Object.values(st.maps).find((x) => x.name === "Shop")!;
+	assert.deepEqual(yardMap.links?.find((l) => l.x === 4 && l.y === 0), { x: 4, y: 0, toMapId: shop.id, toX: 4, toY: 5 });
+	assert.ok(shop.links?.some((l) => l.x === 4 && l.y === 5 && l.toMapId === yardMap.id));
+	const { exploreMove } = await import("../lib/dm/explore");
+	// Back in the shop, walk to its south door: you come out in the yard, just inside.
+	st.activeMapId = shop.id;
+	const pc = shop.entities.find((e) => e.kind === "pc")!;
+	pc.x = 4; pc.y = 3;
+	const res = exploreMove(st, [{ x: 4, y: 4 }, { x: 4, y: 5 }]);
+	assert.equal(res.crossedTo, "Yard");
+	assert.equal(st.activeMapId, yardMap.id);
+	const arrived = st.maps[yardMap.id].entities.find((e) => e.kind === "pc")!;
+	assert.deepEqual({ x: arrived.x, y: arrived.y }, { x: 4, y: 1 });
+	assert.ok(!shop.entities.some((e) => e.kind === "pc"), "the PC token left the shop");
+	// The locked bay door doesn't let you through.
+	st = m.loadState(id);
+	st.activeMapId = shop.id;
+	const pc2 = st.maps[shop.id].entities.find((e) => e.kind === "pc")!;
+	pc2.x = 7; pc2.y = 4;
+	assert.equal(exploreMove(st, [{ x: 7, y: 5 }]).crossedTo, undefined);
+	assert.equal(st.activeMapId, shop.id);
+});
+
+test("link_maps connects stairs both ways; the digest lists exits", async () => {
+	const id = newGame();
+	const rows = ["##########", "#........#", "#..@...<.#", "#........#", "#........#", "##########"];
+	await call(id, "draw_map", { name: "Ground", kind: "town", rows });
+	await call(id, "draw_map", { name: "Roof", kind: "town", rows: rows.map((r) => r.replace("<", ">")) });
+	await call(id, "draw_map", { name: "Roof", kind: "town", rows: rows.map((r) => r.replace("<", ">")) });
+	const st = m.loadState(id);
+	const ground = Object.values(st.maps).find((x) => x.name === "Ground")!;
+	const roof = Object.values(st.maps).find((x) => x.name === "Roof")!;
+	const bad = await call(id, "link_maps", { mapId: ground.id, x: 0, y: 0, toMapId: roof.id, toX: 7, toY: 2 });
+	assert.equal(bad.isError, true);
+	const ok = await call(id, "link_maps", { mapId: ground.id, x: 7, y: 2, toMapId: roof.id, toX: 7, toY: 2 });
+	assert.notEqual(ok.isError, true, ok.text);
+	const after = m.loadState(id);
+	assert.equal(after.maps[ground.id].links?.length, 1);
+	assert.equal(after.maps[roof.id].links?.[0].toMapId, ground.id);
+	const { stateDigest } = await import("../lib/dm/digest");
+	assert.match(stateDigest(after), /Exits to other maps.*Ground/);
+});
+
+test("named enemies who die stay dead; numbered ones don't count", async () => {
+	const { isNamedFoe, recordFallen, fallenSummary } = await import("../lib/rules/fallen");
+	const { saveState } = await import("../lib/store/campaigns");
+	const foe = (name: string, statName = "Shambler") => ({ name, side: "enemy", kind: "monster", stats: { name: statName } }) as never;
+	assert.equal(isNamedFoe(foe("Kyle (reponedor)")), true);
+	assert.equal(isNamedFoe(foe("Shambler 2")), false);
+	assert.equal(isNamedFoe(foe("Shambler")), false);
+	assert.equal(isNamedFoe({ ...(foe("Priya") as object), side: "party" } as never), false);
+	const id = newGame();
+	await call(id, "draw_map", { name: "Lot", kind: "town", rows: ["##########", "#,,,,,,,,#", "#,,@,,,,,#", "#,,,,,,,,#", "#,,,,,,,,#", "##########"] });
+	const st = m.loadState(id);
+	recordFallen(st, "Kyle (reponedor)", "Halvorsen's");
+	recordFallen(st, "kyle (reponedor)", "elsewhere");
+	assert.equal(st.fallen?.length, 1);
+	assert.match(fallenSummary(st), /Kyle \(reponedor\) \(day \d+, Halvorsen's\)/);
+	saveState(st);
+	const back = await call(id, "place_entity", { kind: "monster", name: "Kyle (Reponedor)", sprite: "zombie", x: 5, y: 3 });
+	assert.equal(back.isError, true);
+	assert.match(back.text, /was killed on day/);
+	const other = await call(id, "place_entity", { kind: "monster", name: "Otro reponedor", sprite: "zombie", x: 5, y: 3 });
+	assert.notEqual(other.isError, true, other.text);
+});
