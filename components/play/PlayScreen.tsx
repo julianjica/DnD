@@ -147,7 +147,7 @@ export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 					)}
 				</section>
 				<aside className="min-h-0 border-l border-line bg-panel/60">
-					<Sidebar state={state} onLevelUp={() => setDialog("levelup")} actions={{ act: (a) => void game.act(a), busy: game.busy, editPortrait: () => setDialog("portrait") }} />
+					<Sidebar state={state} onLevelUp={() => setDialog("levelup")} actions={{ act: (a) => void game.act(a), busy: game.busy, editPortrait: () => setDialog("portrait"), listen: (st, label) => void game.listen(st, label) }} />
 				</aside>
 			</main>
 

@@ -129,3 +129,57 @@ test("fantasy campaigns have no town", () => {
 	assert.equal(m.town.townTick(st, new Rng(1)), undefined);
 	assert.equal(st.town, undefined);
 });
+
+// ---- radio ----
+
+test("radio: needs a radio; 101.7 reads names only around 3 a.m. and reveals a place", async () => {
+	const radio = await import("../lib/rules/radio");
+	const id = newGame();
+	const st = m.loadState(id);
+	assert.throws(() => radio.tune(st, new Rng(1), "fm1017"), /No radio/);
+	st.character.inventory.push({ id: "it_r", ref: "z-radio", name: "Portable Radio", quantity: 1, category: "gear" } as never);
+	assert.equal(radio.radioAccess(st), "radio");
+	st.time.hour = 14;
+	st.time.minute = 0;
+	const day = radio.tune(st, new Rng(1), "fm1017");
+	assert.match(day.facts, /carrier tone/);
+	assert.equal(st.time.minute, 10, "listening takes ten minutes");
+	const hidden = st.world.locations.filter((l) => !l.discovered).length;
+	st.time.hour = 2;
+	st.time.minute = 55;
+	const night = radio.tune(st, new Rng(2), "fm1017");
+	assert.match(night.facts, /THE NAMES/);
+	assert.ok(night.revealed, "coordinates point at a hidden place");
+	assert.equal(st.world.locations.filter((l) => !l.discovered).length, hidden - 1);
+});
+
+test("radio: the emergency loop goes silent on outbreak day 9; CB reports loud town events and the player learns them", async () => {
+	const radio = await import("../lib/rules/radio");
+	const id = newGame();
+	const st = m.loadState(id);
+	st.character.inventory.push({ id: "it_r", ref: "z-radio", name: "Portable Radio", quantity: 1, category: "gear" } as never);
+	st.time.day = 4;
+	assert.match(radio.tune(st, new Rng(1), "emergency").facts, /Tollgate/);
+	st.time.day = 11;
+	assert.match(radio.tune(st, new Rng(1), "emergency").facts, /stopped/);
+	const now = st.time.day * 1440 + st.time.hour * 60 + st.time.minute;
+	st.town!.events.push({ id: "te900", at: now - 60, kind: "overrun", locId: "loc-kf-mall", text: "A horde overran the mall.", public: true });
+	st.town!.events.push({ id: "te901", at: now - 30, kind: "looted", locId: "loc-kf-pinecrest", text: "Quietly looted.", public: false });
+	const cb = radio.tune(st, new Rng(3), "cb");
+	assert.deepEqual(cb.eventIds, ["te900"]);
+	assert.match(cb.facts, /overran the mall/);
+	assert.ok(!cb.facts.includes("Quietly looted"), "quiet events stay off the air");
+	assert.equal(st.town!.events.find((e) => e.id === "te900")!.known, true);
+	assert.equal(st.town!.places["loc-kf-mall"].knownStatus, st.town!.places["loc-kf-mall"].status);
+});
+
+test("broadcast tool keeps the transmission for the radio panel", async () => {
+	const id = newGame();
+	const r = await call(id, "broadcast", { station: "fm1017", text: "…Ruth Abernathy, cuarenta y dos treinta y uno… [static]" });
+	assert.notEqual(r.isError, true, r.text);
+	const st = m.loadState(id);
+	assert.equal(st.radio?.log.length, 1);
+	assert.equal(st.radio!.log[0].station, "fm1017");
+	const bad = await call(id, "broadcast", { station: "am", text: "x" });
+	assert.equal(bad.isError, true);
+});

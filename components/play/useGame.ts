@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { CampaignSettings, GameState, LogEntry, PlayerCombatAction, RollRecord } from "@/lib/game/types";
+import type { CampaignSettings, GameState, LogEntry, PlayerCombatAction, RadioStation, RollRecord } from "@/lib/game/types";
 import type { ClientEvent, FxEvent } from "@/lib/dm/context";
 import { useT } from "@/components/i18n/I18nProvider";
 
@@ -158,6 +158,7 @@ export function useGame(id: string) {
 	const send = useCallback((text: string) => stream(`/api/campaigns/${id}/turn`, { text }, { showPlayer: text }), [id, stream]);
 	const act = useCallback((action: PlayerCombatAction) => stream(`/api/campaigns/${id}/action`, { action }), [id, stream]);
 	const rollPending = useCallback(() => stream(`/api/campaigns/${id}/roll`, {}), [id, stream]);
+	const listen = useCallback((station: RadioStation, label: string) => stream(`/api/campaigns/${id}/radio`, { station, label }, { showPlayer: label }), [id, stream]);
 	const abort = useCallback(() => fetch(`/api/campaigns/${id}/turn`, { method: "DELETE" }), [id]);
 
 	const patchSettings = useCallback(
@@ -170,7 +171,7 @@ export function useGame(id: string) {
 		[id, t],
 	);
 
-	return { state, setState, log, live, busy, error, setError, rollQueue, fx, loaded, refresh, send, act, rollPending, abort, patchSettings };
+	return { state, setState, log, live, busy, error, setError, rollQueue, fx, loaded, refresh, send, act, rollPending, listen, abort, patchSettings };
 }
 
 export type Game = ReturnType<typeof useGame>;

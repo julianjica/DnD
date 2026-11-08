@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Backpack, BookOpen, BookUser, Feather, Scroll, Shield, Sparkles, Users, Heart, Swords, ArrowUpCircle, Coins } from "lucide-react";
-import type { Ability, GameState, InventoryItem, PlayerCombatAction } from "@/lib/game/types";
+import { Backpack, BookOpen, BookUser, Feather, Scroll, Shield, Sparkles, Users, Heart, Swords, ArrowUpCircle, Coins, Radio as RadioIcon } from "lucide-react";
+import type { Ability, GameState, InventoryItem, PlayerCombatAction, RadioStation } from "@/lib/game/types";
 import { canLevelUp, deriveSheet, XP_THRESHOLDS } from "@/lib/rules/character";
 import { getSpell } from "@/lib/srd";
 import { signed } from "@/lib/rules/dice";
@@ -13,6 +13,7 @@ import { Tooltip } from "@/components/ui/Tooltip";
 import { SpellAdvChips, SpellCard } from "./SpellCard";
 import { SurvivalBlock } from "./Survival";
 import { GroupTab, livingSurvivors } from "./Group";
+import { RadioTab } from "./Radio";
 import { rulesetOf } from "@/lib/rules/ruleset";
 
 const ABIL: Ability[] = ["str", "dex", "con", "int", "wis", "cha"];
@@ -23,6 +24,8 @@ export interface SheetActions {
 	busy: boolean;
 	/** Opens the appearance editor for the player's portrait. */
 	editPortrait?: () => void;
+	/** The Quiet: tune the radio (starts a DM turn). */
+	listen?: (station: RadioStation, label: string) => void;
 }
 
 const CONSUMABLE = /potion|elixir|ration|torch|oil|scroll|antitoxin|candle|holy water|acid|alchemist|healer|caltrop|ball bearing|chalk|food|wine|ale\b/i;
@@ -48,7 +51,7 @@ function UseBtn({ label, onClick, disabled, title }: { label: string; onClick: (
 	);
 }
 
-type Tab = "sheet" | "inventory" | "spells" | "quests" | "journal" | "codex" | "group";
+type Tab = "sheet" | "inventory" | "spells" | "quests" | "journal" | "codex" | "group" | "radio";
 
 function Bar({ value, max, color, label }: { value: number; max: number; color: string; label: string }) {
 	const pct = max > 0 ? Math.max(0, Math.min(100, (value / max) * 100)) : 0;
@@ -388,6 +391,7 @@ const TABS: { id: Tab; label: MessageKey; icon: typeof Heart }[] = [
 const ZOMBIE_TABS: typeof TABS = [
 	...TABS.filter((tb) => tb.id !== "codex"),
 	{ id: "group", label: "play.tab.group", icon: Users },
+	{ id: "radio", label: "play.radio.tab", icon: RadioIcon },
 	{ id: "codex", label: "play.tab.codex", icon: BookUser },
 ];
 
@@ -400,7 +404,7 @@ export function Sidebar({ state, onLevelUp, actions }: { state: GameState; onLev
 	const groupSize = zombie ? livingSurvivors(state).length : 0;
 	return (
 		<div className="@container flex h-full min-h-0 flex-col">
-			<div className={`grid border-b border-line ${zombie ? "grid-cols-7" : "grid-cols-6"}`}>
+			<div className={`grid border-b border-line ${zombie ? "grid-cols-8" : "grid-cols-6"}`}>
 				{tabs.map((tb) => (
 					<button
 						key={tb.id}
@@ -425,6 +429,7 @@ export function Sidebar({ state, onLevelUp, actions }: { state: GameState; onLev
 				{tab === "journal" && <JournalTab state={state} />}
 				{tab === "codex" && <CodexTab state={state} />}
 				{tab === "group" && zombie && <GroupTab state={state} />}
+				{tab === "radio" && zombie && <RadioTab state={state} busy={actions.busy} listen={actions.listen} />}
 			</div>
 		</div>
 	);
