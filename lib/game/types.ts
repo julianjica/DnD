@@ -351,6 +351,8 @@ export interface WorldLocation {
 	description?: string;
 	/** Grid map ids generated for this location. */
 	mapIds: string[];
+	/** draw_map showed this many existing maps of the place (the next draw goes through). */
+	drawShown?: number;
 }
 
 export type TerrainKind = "marsh" | "forest" | "hills" | "mountains" | "plains" | "desert";

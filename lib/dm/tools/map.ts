@@ -47,13 +47,13 @@ function addMap(state: GameState, map: GridMap) {
 
 type DrawKeyArg = DrawKey & { char: string };
 
-export const drawMapTool = tool<{ name: string; kind: MapKind; rows: string[]; key?: DrawKeyArg[]; climate?: Climate; lighting?: GridMap["lighting"]; show?: boolean; continues?: boolean }>(
+export const drawMapTool = tool<{ name: string; kind: MapKind; rows: string[]; key?: DrawKeyArg[]; climate?: Climate; lighting?: GridMap["lighting"]; show?: boolean }>(
 	"draw_map",
 	`Draw the place the player is in, square by square (5 ft each), as rows of characters. It becomes the picture in the scene panel AND the battle map, so draw what you narrate: walls, doors, furniture, terrain, who stands where. Typical size 24-40 wide x 14-22 tall; all rows the same length.
 Legend: ${LEGEND_TEXT}.
 Anything else (features, NPCs) goes in key: one character each (letters/digits not in the legend, e.g. R, 1, 2). Feature sprites: ${FEATURE_SPRITES.filter((f) => !(MODERN_FEATURE_SPRITES as readonly string[]).includes(f)).join(", ")}. Modern props (The Quiet only): ${MODERN_FEATURE_SPRITES.join(", ")}. NPCs: {char, npcId}. Light sources: add lightRadius.
 Example (a hall): rows ["########+########", "#.....=====.....#", "#.R.==hhhh==..1.#", "#....==@===.....#", "#################"] with key [{char:"R", sprite:"runestone"}, {char:"h", sprite:"hearth", lightRadius:6}, {char:"1", npcId:"npc_…"}].
-Draw each place once; return later with use_map. Another part of a place already drawn (the back yard of the same building) must match the maps there: same building outline, walls, doors and features where they overlap; the tool shows you those maps first. Monsters for a fight are added by start_combat as usual.`,
+Draw each place once; return later with use_map. Another part of a place already drawn (the back yard of the same building) must match the maps there: same building outline, walls, doors and features where they overlap; the first draw_map there shows you those maps and draws nothing; draw again after. Monsters for a fight are added by start_combat as usual.`,
 	S.obj(
 		{
 			name: S.str("The place's name"),
@@ -76,7 +76,6 @@ Draw each place once; return later with use_map. Another part of a place already
 			climate: S.str("Default from the campaign setting", ["temperate", "snow", "desert"]),
 			lighting: S.str(undefined, ["bright", "dim", "dark"]),
 			show: S.bool("Switch to the Map tab (default false: the scene panel shows it)"),
-			continues: S.bool("Set after seeing this place's existing maps: you are drawing another part of it, consistent with them"),
 		},
 		["name", "kind", "rows"],
 	),
@@ -86,11 +85,20 @@ Draw each place once; return later with use_map. Another part of a place already
 			if (!MAP_KINDS.includes(a.kind)) throw new Error(`Unknown kind "${a.kind}". Use one of: ${MAP_KINDS.join(", ")}.`);
 			const here = state.world.locations.find((l) => l.id === state.world.currentLocationId);
 			const existing = (here?.mapIds ?? []).map((id) => state.maps[id]).filter(Boolean);
-			if (existing.length && !a.continues)
-				throw new Error(
-					`${here!.name} already has ${existing.length} map(s). Going back to one of them? use_map. Drawing another part of the same place? Keep it consistent with these (same building outline and size, walls, doors and features where they overlap; what the front shows of the building must match the back) and call draw_map again with continues=true. Nothing was drawn.\n` +
-						existing.map((mp) => `${mp.name} [${mp.id}] ${mp.width}x${mp.height} (@ you, * tokens):\n${mapToRows(mp).join("\n")}`).join("\n\n"),
+			// Another part of a place already drawn: the first call only shows the existing
+			// maps (nothing is drawn); the next call draws, now consistent with them.
+			if (here && existing.length && here.drawShown !== existing.length) {
+				here.drawShown = existing.length;
+				return (
+					`NOTHING WAS DRAWN. ${here.name} already has ${existing.length} map(s). Going back to one of them? use_map. Drawing another part of the same place? Make it consistent with these (same building outline and size, walls, doors and features where they overlap: a door in one map's wall is a door in the other's) and call draw_map again.\n` +
+					existing
+						.map((mp) => {
+							const dead = mp.entities.filter((e) => e.dead).map((e) => e.name);
+							return `${mp.name} [${mp.id}] ${mp.width}x${mp.height} (@ you, * tokens):\n${mapToRows(mp).join("\n")}\nTokens: ${mp.entities.filter((e) => e.kind !== "pc").map((e) => `${e.name}@${e.x},${e.y}${e.dead ? " (dead)" : ""}`).join("; ") || "none"}${dead.length ? `\nDead here (don't bring them back): ${dead.join(", ")}` : ""}`;
+						})
+						.join("\n\n")
 				);
+			}
 			const key: Record<string, DrawKey> = {};
 			for (const k of a.key ?? []) {
 				if (k.npcId && !state.npcs[k.npcId]) throw new Error(`Unknown npcId ${k.npcId} for key "${k.char}".`);

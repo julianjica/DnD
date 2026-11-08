@@ -205,11 +205,11 @@ test("drawing another map of a place first shows its existing maps", async () =>
 	const rows = ["##########", "#,,,,,,,,#", "#,,@,,,,,#", "#,,,,,,,,#", "#,,,,,,,,#", "####+#####"];
 	await call(id, "draw_map", { name: "Front", kind: "town", rows });
 	const gated = await call(id, "draw_map", { name: "Back", kind: "town", rows });
-	assert.equal(gated.isError, true);
-	assert.match(gated.text, /already has 1 map/);
+	assert.notEqual(gated.isError, true);
+	assert.match(gated.text, /NOTHING WAS DRAWN.*already has 1 map/);
 	assert.ok(gated.text.includes("####+#####") && gated.text.includes("#,,@,,,,,#"), gated.text);
 	assert.equal(Object.keys(m.loadState(id).maps).length, 1, "nothing drawn");
-	const ok = await call(id, "draw_map", { name: "Back", kind: "town", rows, continues: true });
+	const ok = await call(id, "draw_map", { name: "Back", kind: "town", rows });
 	assert.notEqual(ok.isError, true, ok.text);
 	assert.equal(m.loadState(id).maps[m.loadState(id).activeMapId!].name, "Back");
 });
