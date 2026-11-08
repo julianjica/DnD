@@ -87,6 +87,22 @@ export const en = {
 	"group.upgradeInfo.watchtower": "See trouble coming before it reaches the door.",
 	"group.upgradeInfo.generator": "Light and power, for the fuel it drinks, and the noise.",
 	"group.upgradeInfo.alarm_cans": "Strings of cans: nothing gets close quietly.",
+
+	"group.facet.want": "Wants",
+	"group.facet.fear": "Fears",
+	"group.facet.secret": "Secret",
+	"group.bonds": "Feelings",
+	"group.bondTitle": "How {name} and {other} get on ({n} on a scale from −3 to +3). Camp scenes and your choices change it.",
+	"group.bond.-3": "hate each other",
+	"group.bond.-2": "at odds",
+	"group.bond.-1": "tense",
+	"group.bond.0": "neutral",
+	"group.bond.1": "friendly",
+	"group.bond.2": "close",
+	"group.bond.3": "inseparable",
+	"group.campLog": "Around the fire",
+	"group.log.camp": "{names}: {note}",
+	"group.log.campNoNote": "A quiet word with {names}.",
 };
 
 export const es: { [K in keyof typeof en]: string } = {
@@ -174,4 +190,20 @@ export const es: { [K in keyof typeof en]: string } = {
 	"group.upgradeInfo.watchtower": "Ve venir los problemas antes de que lleguen a la puerta.",
 	"group.upgradeInfo.generator": "Luz y corriente, a cambio del combustible que bebe, y del ruido.",
 	"group.upgradeInfo.alarm_cans": "Ristras de latas: nada se acerca en silencio.",
+
+	"group.facet.want": "Quiere",
+	"group.facet.fear": "Teme",
+	"group.facet.secret": "Secreto",
+	"group.bonds": "Relaciones",
+	"group.bondTitle": "Cómo se llevan {name} y {other} ({n} en una escala de −3 a +3). Las escenas de campamento y tus decisiones lo cambian.",
+	"group.bond.-3": "se odian",
+	"group.bond.-2": "enfrentados",
+	"group.bond.-1": "tensión",
+	"group.bond.0": "neutral",
+	"group.bond.1": "buena relación",
+	"group.bond.2": "unidos",
+	"group.bond.3": "inseparables",
+	"group.campLog": "Junto al fuego",
+	"group.log.camp": "{names}: {note}",
+	"group.log.campNoNote": "Unas palabras con {names}.",
 };

@@ -1,11 +1,30 @@
-import type { GameState, GroupState, TownState } from "./types";
+import type { GameState, GroupState, Survivor, TownState } from "./types";
 
 /**
  * The state as the browser may see it: engine secrets stripped (the hour a
  * bitten character or companion turns is rolled in secret and known only to the DM).
  */
 export function clientState(state: GameState): GameState {
-	return state.town ? { ...hideInfection(state), town: clientTown(state.town) } : hideInfection(state);
+	const out = hideProfiles(hideInfection(state));
+	return state.town ? { ...out, town: clientTown(state.town) } : out;
+}
+
+/** A companion's want / fear / secret reach the browser only once the player has learnt them. */
+function hideProfiles(state: GameState): GameState {
+	const g = state.group;
+	const hidden = (sv: Survivor) => (["want", "fear", "secret"] as const).some((f) => sv[f] !== undefined && !sv.revealed?.includes(f));
+	if (!g || !Object.values(g.survivors).some(hidden)) return state;
+	const survivors: GroupState["survivors"] = {};
+	for (const [id, sv] of Object.entries(g.survivors)) {
+		if (!hidden(sv)) {
+			survivors[id] = sv;
+			continue;
+		}
+		const { want, fear, secret, ...rest } = sv;
+		const known = sv.revealed ?? [];
+		survivors[id] = { ...rest, ...(known.includes("want") && want !== undefined ? { want } : {}), ...(known.includes("fear") && fear !== undefined ? { fear } : {}), ...(known.includes("secret") && secret !== undefined ? { secret } : {}) };
+	}
+	return { ...state, group: { ...g, survivors } };
 }
 
 /** The town as the player knows it: no secret goals, unknown hordes or unseen changes. */

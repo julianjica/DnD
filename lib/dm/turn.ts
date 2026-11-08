@@ -89,7 +89,8 @@ export async function runTurn(input: TurnInput): Promise<void> {
 						emit({ type: "tool", id: ev.id, name: ev.name, status: "start" });
 						break;
 					case "tool_end": {
-						const summary = ev.result.text.slice(0, 200);
+						// The player can read summaries: stop before the engine's DM-only notices (camp scenes, town and base events).
+						const summary = ev.result.text.split(/\n(?=[A-Z][A-Z' ]{3,}[ —:(])/)[0].slice(0, 200);
 						toolLog.push({ name: ev.name, summary, isError: ev.result.isError });
 						if (ev.name === "suggest_actions" && !ev.result.isError && narration.trim().length > 150) closed = true;
 						emit({ type: "tool", id: ev.id, name: ev.name, status: "end", summary, isError: ev.result.isError });

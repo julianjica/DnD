@@ -14,8 +14,9 @@ import {
 	treatSurvivor,
 	type ErrandTask,
 } from "../../rules/group";
+import { FACETS, logBeat, reveal, shiftBond, type Facet } from "../../rules/companions";
 import { outbreakDay } from "../../rules/ruleset";
-import { isZombie } from "../../rules/survival";
+import { gameMinutes, isZombie } from "../../rules/survival";
 import { S, newId, tool, withState, type ToolFactory } from "../context";
 import { addInventoryItem } from "../items";
 
@@ -152,4 +153,88 @@ export const dismissSurvivorTool = tool<{ npcId: string; reason: string }>(
 		}),
 );
 
-export const GROUP_TOOLS: ToolFactory[] = [recruitSurvivorTool, updateSurvivorTool, sendSurvivorTool, dismissSurvivorTool];
+export const setCompanionProfileTool = tool<{ npcId: string; want?: string; fear?: string; secret?: string }>(
+	"set_companion_profile",
+	"The Quiet: define what a companion WANTS most, what they FEAR and a SECRET they keep (one short English line each, grounded in what the story has already shown about them: \"to find her brother in Millbrook\", \"being left behind\", \"he ran when his wife was bitten\"). Hidden from the player until revealed in a camp scene (companion_beat reveal). Pass only the parts you are setting; a part the player already knows can't be rewritten.",
+	S.obj({ npcId: S.str(), want: S.str("What they want most"), fear: S.str("What they're afraid of"), secret: S.str("Something they hide") }, ["npcId"]),
+	async (a, ctx) =>
+		withState(ctx, ({ state }) => {
+			requireZombie(state);
+			const sv = survivorOf(state, a.npcId);
+			const name = nameOf(state, sv);
+			const set = FACETS.filter((f) => typeof a[f] === "string" && a[f]!.trim());
+			if (!set.length) throw new Error("Give at least one of want, fear, secret.");
+			for (const f of set) {
+				if (sv.revealed?.includes(f) && sv[f] && sv[f] !== a[f]!.trim()) throw new Error(`The player already knows ${name}'s ${f} ("${sv[f]}"); it can't be rewritten.`);
+				sv[f] = a[f]!.trim();
+			}
+			const missing = FACETS.filter((f) => !sv[f]);
+			// Don't echo the text: tool summaries show in the player's log (the digest has it for you).
+			return `${name}: ${set.join(", ")} set (hidden from the player until revealed).${missing.length ? ` Still undefined: ${missing.join(", ")}.` : ""}`;
+		}),
+);
+
+export const companionBeatTool = tool<{ npcIds: string[]; morale?: { npcId: string; delta: number }[]; bonds?: { a: string; b: string; delta: number }[]; reveal?: { npcId: string; what: Facet }; note?: string }>(
+	"companion_beat",
+	"The Quiet: the outcome of a CAMP SCENE (or any small moment between companions) once the player has responded. npcIds: who was in it. morale: per-companion deltas (±1 usually, ±2 at most) earned by how the player handled it. bonds: how two companions now feel about each other (delta ±1, at most ±2; symmetric; −3 … +3). reveal: the want / fear / secret the player just learnt. note: ONE short line for the player's log, in the campaign's language, from the player's side (\"Priya y Wade discutieron por el agua; tú le diste la razón a Priya\"). Not for the player's own choices or spotlight: this is about the companions.",
+	S.obj(
+		{
+			npcIds: S.arr(S.str(), "The companions in the scene"),
+			morale: S.arr(S.obj({ npcId: S.str(), delta: S.int("±1 usually, ±2 at most", -2, 2) }, ["npcId", "delta"])),
+			bonds: S.arr(S.obj({ a: S.str("npcId"), b: S.str("npcId"), delta: S.int("±1 usually, ±2 at most", -2, 2) }, ["a", "b", "delta"])),
+			reveal: S.obj({ npcId: S.str(), what: S.str(undefined, FACETS) }, ["npcId", "what"]),
+			note: S.str("One short line for the player's log, in the campaign's language"),
+		},
+		["npcIds"],
+	),
+	async (a, ctx) =>
+		withState(ctx, ({ state }) => {
+			requireZombie(state);
+			const ids = [...new Set(a.npcIds ?? [])];
+			if (!ids.length) throw new Error("npcIds: who was in the scene?");
+			const member = (id: string) => {
+				const sv = survivorOf(state, id);
+				if (!isActive(sv)) throw new Error(`${nameOf(state, sv)} is no longer in the group (${sv.status}).`);
+				return sv;
+			};
+			const people = ids.map(member);
+			// Validate everything before changing anything.
+			for (const m of a.morale ?? []) member(m.npcId);
+			for (const b of a.bonds ?? []) {
+				if (b.a === b.b) throw new Error("A bond needs two different companions.");
+				member(b.a);
+				member(b.b);
+			}
+			if (a.reveal) {
+				if (!FACETS.includes(a.reveal.what)) throw new Error(`reveal.what must be one of ${FACETS.join(", ")}.`);
+				const sv = member(a.reveal.npcId);
+				if (!sv[a.reveal.what]) throw new Error(`${nameOf(state, sv)} has no ${a.reveal.what} defined yet: set_companion_profile first.`);
+			}
+			const out: string[] = [];
+			const clamp2 = (n: number) => Math.max(-2, Math.min(2, Math.round(n || 0)));
+			for (const m of a.morale ?? []) {
+				const sv = member(m.npcId);
+				const before = sv.morale;
+				adjustMorale(sv, clamp2(m.delta));
+				out.push(`${nameOf(state, sv)} morale ${before} → ${sv.morale}/10${sv.morale <= 0 ? " (AT ZERO: they leave at the next 08:00 unless something changes)" : ""}`);
+			}
+			for (const b of a.bonds ?? []) {
+				const x = member(b.a);
+				const y = member(b.b);
+				out.push(`${nameOf(state, x)} ↔ ${nameOf(state, y)} bond ${shiftBond(x, y, clamp2(b.delta))}`);
+			}
+			if (a.reveal) {
+				const sv = member(a.reveal.npcId);
+				reveal(sv, a.reveal.what);
+				out.push(`the player now knows ${nameOf(state, sv)}'s ${a.reveal.what}: "${sv[a.reveal.what]}"`);
+			}
+			const now = gameMinutes(state.time);
+			for (const sv of people) sv.lastBeatAt = now;
+			const names = people.map((sv) => nameOf(state, sv)).join(", ");
+			const note = (a.note ?? "").trim().slice(0, 200);
+			logBeat(state, now, names, note);
+			return `Camp scene (${names}): ${out.join("; ") || "no change"}.`;
+		}),
+);
+
+export const GROUP_TOOLS: ToolFactory[] = [recruitSurvivorTool, updateSurvivorTool, sendSurvivorTool, dismissSurvivorTool, setCompanionProfileTool, companionBeatTool];

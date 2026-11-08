@@ -192,11 +192,78 @@ function SurvivorCard({ s, state }: { s: Survivor; state: GameState }) {
 					))}
 				</div>
 			)}
+			<Profile s={s} state={state} />
 			<p className="mt-1.5 text-[11px] leading-snug text-dim">
 				<span className="text-[10px] uppercase tracking-wider text-faint">{t("group.gear")} · </span>
 				{s.gear.length ? s.gear.map((g) => `${ts(getEquipment(g.ref)?.name ?? g.ref)}${g.qty > 1 ? ` ×${g.qty}` : ""}`).join(", ") : <span className="italic">{t("group.noGear")}</span>}
 			</p>
 		</article>
+	);
+}
+
+const FACETS = ["want", "fear", "secret"] as const;
+
+function bondColor(n: number): string {
+	return n <= -2 ? "#e0574b" : n === -1 ? "#d99a2b" : n === 0 ? "var(--faint)" : n === 1 ? "#c9b26a" : "#5fb07a";
+}
+
+/** What the player has learnt about them (want / fear / secret), and how they get on with the others. */
+function Profile({ s, state }: { s: Survivor; state: GameState }) {
+	const { t } = useT();
+	const name = state.npcs[s.npcId]?.name ?? s.npcId;
+	// clientState strips the parts not yet revealed; check `revealed` too in case it didn't.
+	const known = FACETS.filter((f) => s[f] && s.revealed?.includes(f));
+	const bonds = Object.entries(s.bonds ?? {})
+		.filter(([id, v]) => v !== 0 && state.group?.survivors[id] && !GONE.has(state.group.survivors[id].status))
+		.sort((a, b) => b[1] - a[1]);
+	if (!known.length && !bonds.length) return null;
+	return (
+		<div className="mt-1.5 space-y-1" data-testid="survivor-profile">
+			{known.map((f) => (
+				<p key={f} className="text-[11px] leading-snug text-text/85">
+					<span className="text-[10px] uppercase tracking-wider text-faint">{t(`group.facet.${f}` as MessageKey)} · </span>
+					{s[f]}
+				</p>
+			))}
+			{bonds.length > 0 && (
+				<div className="flex flex-wrap items-center gap-1">
+					<span className="text-[10px] uppercase tracking-wider text-faint">{t("group.bonds")} ·</span>
+					{bonds.map(([id, raw]) => {
+						const v = Math.max(-3, Math.min(3, Math.round(raw)));
+						const other = state.npcs[id]?.name ?? id;
+						return (
+							<Tooltip key={id} content={t("group.bondTitle", { name, other, n: v > 0 ? `+${v}` : v })}>
+								<span tabIndex={0} className="inline-flex items-center gap-1 rounded-full border px-1.5 py-px text-[10px]" style={{ borderColor: bondColor(v), color: bondColor(v) }}>
+									<span className="text-text/90">{other}</span> {t(`group.bond.${v}` as MessageKey)}
+								</span>
+							</Tooltip>
+						);
+					})}
+				</div>
+			)}
+		</div>
+	);
+}
+
+/** One base / camp log line, translated when the engine gave it a kind. */
+function logText(e: BaseState["log"][number], t: T, le: (s: string) => string): string {
+	if (e.kind === "residentsShort") return t("base.log.residentsShort", { food: e.params?.food ?? 0, water: e.params?.water ?? 0 });
+	if (e.kind === "camp") return e.params?.note ? t("group.log.camp", { names: e.params.names ?? "", note: e.params.note }) : t("group.log.campNoNote", { names: e.params?.names ?? "" });
+	return le(e.text);
+}
+
+function LogList({ log, state }: { log: BaseState["log"]; state: GameState }) {
+	const { t } = useT();
+	const { le } = useEngineText();
+	return (
+		<ol className="space-y-1 border-l border-line pl-2">
+			{log.map((e, i) => (
+				<li key={`${e.at}-${i}`} className="text-xs leading-snug">
+					<span className="mr-1 whitespace-nowrap text-[10px] tabular-nums text-faint">{when(e.at, state, t)}</span>
+					<span className={i === 0 ? "text-text" : "text-dim"}>{logText(e, t, le)}</span>
+				</li>
+			))}
+		</ol>
 	);
 }
 
@@ -250,10 +317,10 @@ function fortWord(f: number): MessageKey {
 
 function BaseSection({ base, state, mouths }: { base: BaseState; state: GameState; mouths: number }) {
 	const { t } = useT();
-	const { le } = useEngineText();
 	const place = state.world.locations.find((l) => l.id === base.locationId)?.name;
 	const fort = clamp10(base.fortification);
-	const log = [...base.log].sort((a, b) => b.at - a.at).slice(0, 8);
+	// Camp scenes from before the base was claimed live in the group's own log.
+	const log = [...base.log, ...(state.group?.log ?? [])].sort((a, b) => b.at - a.at).slice(0, 8);
 	const building = [...(base.building ?? [])].sort((a, b) => a.readyAt - b.readyAt);
 	const foodDays = Math.floor(base.stock.food / Math.max(1, mouths));
 	const waterDays = Math.floor(base.stock.water / Math.max(1, mouths));
@@ -347,14 +414,7 @@ function BaseSection({ base, state, mouths }: { base: BaseState; state: GameStat
 				{log.length === 0 ? (
 					<p className="text-xs italic text-faint">{t("group.noLog")}</p>
 				) : (
-					<ol className="space-y-1 border-l border-line pl-2">
-						{log.map((e, i) => (
-							<li key={`${e.at}-${i}`} className="text-xs leading-snug">
-								<span className="mr-1 whitespace-nowrap text-[10px] tabular-nums text-faint">{when(e.at, state, t)}</span>
-								<span className={i === 0 ? "text-text" : "text-dim"}>{e.kind === "residentsShort" ? t("base.log.residentsShort", { food: e.params?.food ?? 0, water: e.params?.water ?? 0 }) : le(e.text)}</span>
-							</li>
-						))}
-					</ol>
+					<LogList log={log} state={state} />
 				)}
 			</div>
 		</section>
@@ -408,6 +468,7 @@ export function GroupTab({ state }: { state: GameState }) {
 	const living = livingSurvivors(state);
 	const gone = Object.values(state.group?.survivors ?? {}).filter((s) => GONE.has(s.status));
 	const base = state.group?.base;
+	const campLog = [...(state.group?.log ?? [])].sort((a, b) => b.at - a.at).slice(0, 6);
 	return (
 		<div className="space-y-4" data-testid="group-tab">
 			<section className="space-y-2">
@@ -422,6 +483,12 @@ export function GroupTab({ state }: { state: GameState }) {
 					</div>
 				) : (
 					living.map((s) => <SurvivorCard key={s.npcId} s={s} state={state} />)
+				)}
+				{!base && campLog.length > 0 && (
+					<div data-testid="camp-log">
+						<h5 className="mb-1 flex items-center gap-1 text-[10px] uppercase tracking-widest text-faint"><ScrollText size={11} /> {t("group.campLog")}</h5>
+						<LogList log={campLog} state={state} />
+					</div>
 				)}
 			</section>
 

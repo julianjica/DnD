@@ -21,6 +21,7 @@ import { allyCap } from "./encounter-budget";
 import { outbreakDay } from "./ruleset";
 import { foodFactor, isNight as isNightTime, lootTable, pickWeighted, type LootEntry, type PlaceType } from "./scavenge";
 import { residentRecruited, residentsDailyNeeds } from "./residents";
+import { campBeat, missingProfiles, profileDigest } from "./companions";
 import { gameMinutes, infectionDc, infectionStageAt, INFECTION_HOUR, isFood, isWater, rollInfection, takeOne, type RecordRoll } from "./survival";
 
 // ─── the group ──────────────────────────────────────────────────────────────
@@ -663,6 +664,9 @@ export function groupTick(state: GameState, rng: Rng, addItem: AddItem): string 
 	}
 	errandsUntil(now);
 	infections(now);
+	// An evening around the fire: maybe a camp scene (at most one per evening, never a backlog).
+	const beat = campBeat(state, rng, now);
+	if (beat) out.push(beat);
 	g.lastTick = Math.max(last, now);
 	return out.join("\n") || undefined;
 }
@@ -827,8 +831,9 @@ export function groupDigest(state: GameState): string | undefined {
 		const inf = sv.infection && sv.infection.stage !== "turned" ? `; INFECTED (${sv.infection.stage}, ${sv.infection.part}, ≈${Math.max(0, Math.round((sv.infection.turnsAt - now) / 60))} h left, DM only)` : "";
 		const status = sv.status === "away" && sv.away ? `away (${sv.away.task.replace("_", " ")} until ${clock(sv.away.until)})` : sv.status;
 		const gear = sv.gear.map((x) => `${getEquipment(x.ref)?.name ?? x.ref}${x.qty > 1 ? ` x${x.qty}` : ""}`).join(", ");
-		return `- ${nameOf(state, sv)} [${sv.npcId}] ${professionLabel(sv.profession)} ${sv.level} [${sv.profession}], HP ${sv.hp}/${sv.maxHp}, morale ${sv.morale}/10${sv.missedDays ? ` (${sv.missedDays} day(s) short of food/water)` : ""}, ${status}${inf}; specialty: ${sv.specialty}; traits: ${sv.traits.join(", ") || "—"}; gear: ${gear || "nothing"}`;
+		return `- ${nameOf(state, sv)} [${sv.npcId}] ${professionLabel(sv.profession)} ${sv.level} [${sv.profession}], HP ${sv.hp}/${sv.maxHp}, morale ${sv.morale}/10${sv.missedDays ? ` (${sv.missedDays} day(s) short of food/water)` : ""}, ${status}${inf}; specialty: ${sv.specialty}; traits: ${sv.traits.join(", ") || "—"}; gear: ${gear || "nothing"}${profileDigest(state, sv)}`;
 	});
-	return `Group (companions; their food/water is taken at 08:00 after the player's; send_survivor errands resolve on the clock):\n${lines.join("\n")}`;
+	const define = missingProfiles(state);
+	return `Group (companions; their food/water is taken at 08:00 after the player's; send_survivor errands resolve on the clock):\n${lines.join("\n")}${define ? `\n${define}` : ""}`;
 }
 
