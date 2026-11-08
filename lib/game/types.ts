@@ -701,6 +701,10 @@ export interface GroupState {
 	base?: BaseState;
 	/** Game minute of the last group tick (errands, survivors' daily needs and infections). */
 	lastTick?: number;
+	/** The last evening (game day it began) a camp scene was rolled for (lib/rules/companions.ts). */
+	lastBeatDay?: number;
+	/** Camp-scene log while there is no base (with a base they go to base.log). */
+	log?: BaseState["log"];
 }
 
 export interface GameState {
