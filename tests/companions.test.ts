@@ -152,13 +152,16 @@ test("camp scene: the featured companions are marked; nobody carries two evening
 	// With Wade back, the scene goes to him (a pair would need both fresh).
 	sv(s, w).status = "with_party";
 	delete sv(s, w).away;
+	let fired = 0;
 	for (let k = 1; k < 30; k++) {
 		const c = structuredClone(s);
 		const t = m.companions.campBeat(c, new Rng(seed(true, k)), at(4, 20));
 		if (!t) continue;
+		fired++;
 		assert.match(t, new RegExp(`\\[${w}\\]`));
 		assert.doesNotMatch(t, new RegExp(`\\[${p}\\]`));
 	}
+	assert.ok(fired > 0, "Wade gets scenes");
 });
 
 test("camp scene: never in combat, never with nobody around", async () => {
@@ -244,6 +247,7 @@ test("set_companion_profile: sets the parts given; revealed parts can't be rewri
 	assert.equal((await call(id, "set_companion_profile", { npcId: "npc_nobody", want: "x" })).isError, true);
 	const text = await ok(id, "set_companion_profile", { npcId: p, want: "to find her brother in Millbrook", fear: "being left behind" });
 	assert.match(text, /Still undefined: secret/);
+	assert.doesNotMatch(text, /Millbrook|left behind/, "the result (shown in the tool log) doesn't echo the hidden text");
 	await ok(id, "set_companion_profile", { npcId: p, secret: "she left a patient to die" });
 	let s = m.loadState(id);
 	assert.equal(sv(s, p).want, "to find her brother in Millbrook");

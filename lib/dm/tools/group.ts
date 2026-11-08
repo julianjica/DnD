@@ -169,7 +169,8 @@ export const setCompanionProfileTool = tool<{ npcId: string; want?: string; fear
 				sv[f] = a[f]!.trim();
 			}
 			const missing = FACETS.filter((f) => !sv[f]);
-			return `${name}: ${set.map((f) => `${f} "${sv[f]}"`).join(", ")} (hidden until revealed).${missing.length ? ` Still undefined: ${missing.join(", ")}.` : ""}`;
+			// Don't echo the text: tool summaries show in the player's log (the digest has it for you).
+			return `${name}: ${set.join(", ")} set (hidden from the player until revealed).${missing.length ? ` Still undefined: ${missing.join(", ")}.` : ""}`;
 		}),
 );
 
