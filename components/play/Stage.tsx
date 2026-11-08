@@ -17,7 +17,8 @@ import { isPassable } from "@/lib/maps/grid";
 import { deriveSheet } from "@/lib/rules/character";
 import { getSpell } from "@/lib/srd";
 import type { AoeTemplate } from "@/lib/maps/aoe";
-import type { FxItem } from "./useGame";
+import type { FxItem, SiegeOp } from "./useGame";
+import { SiegePanel, siegeMarks, siegePostSquares } from "./SiegePanel";
 import type { MapFxEvent, TokenStatus } from "@/components/map/BattleMap";
 import { useT } from "@/components/i18n/I18nProvider";
 import { Tooltip } from "@/components/ui/Tooltip";
@@ -258,7 +259,7 @@ function ActionBar(props: { state: GameState; pc: Combatant; mode: Mode; setMode
 	);
 }
 
-export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; act: (a: PlayerCombatAction) => void; setView: (v: GameState["view"]) => void }) {
+export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; act: (a: PlayerCombatAction) => void; siege?: (op: SiegeOp) => void; setView: (v: GameState["view"]) => void }) {
 	const { state, busy, act } = props;
 	const { t, te, ts } = useT();
 	const view = state.view;
@@ -268,6 +269,9 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 	const myTurn = !!enc && enc.order[enc.turnIndex] === state.character.id;
 	const [mode, setMode] = useState<Mode>({ kind: "move" });
 	const [hover, setHover] = useState<Point | null>(null);
+	// The Quiet: a night siege. Click a defender in the panel, then a highlighted way in on the base map.
+	const [picking, setPicking] = useState<string | null>(null);
+	const [siegeMove, setSiegeMove] = useState<Point | null>(null);
 
 	const pcEntity = map?.entities.find((e) => e.kind === "pc");
 	const artStyle = state.settings.art?.scenes ?? "paintings";
@@ -384,8 +388,21 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 		return { r, name: typeof r === "string" ? undefined : ts(enc.combatants[r.targetId]?.name ?? "") };
 	}, [mode, enc, map, hover, state.character, ts]);
 
+	const siegeOnMap = !!state.siege && !!map && state.group?.base?.mapId === map.id;
+	const postSquares = useMemo(() => (picking && siegeOnMap ? siegePostSquares(state) : undefined), [picking, siegeOnMap, state]);
+	const marks = useMemo(() => (siegeOnMap ? siegeMarks(state, state.character.name) : undefined), [siegeOnMap, state]);
+
 	const onSquareClick = (p: Point) => {
 		if (busy || !map) return;
+		if (picking && postSquares) {
+			if (postSquares.has(`${p.x},${p.y}`)) {
+				// Mid-siege the player's own move goes with the next wave (it costs an attack).
+				if (picking === "pc" && state.siege?.phase === "active" && state.siege.posts.pc) setSiegeMove(p);
+				else props.siege?.({ op: "assign", who: picking, x: p.x, y: p.y });
+			}
+			setPicking(null);
+			return;
+		}
 		if (!enc) {
 			const path = explorePath(map, pcEntity!, p);
 			if (path?.length) act({ type: "move", path });
@@ -450,8 +467,9 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 						status={status}
 						notes={notes}
 						exits={exits}
-						highlights={reach}
-						highlightColor={0x5b8fb9}
+						marks={marks}
+						highlights={reach ?? postSquares}
+						highlightColor={postSquares && !reach ? 0xd9503f : 0x5b8fb9}
 						pathPreview={preview?.path}
 						pathLabel={preview ? `${preview.cost} ${t("play.unit.ft")}` : undefined}
 						aoe={aoe}
@@ -465,6 +483,7 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 					/>
 				)}
 				{sick && view === "map" && <SickVignette stage={sick} />}
+				{view === "map" && state.siege && !enc && props.siege && <SiegePanel state={state} busy={busy} send={props.siege} picking={picking} setPicking={setPicking} move={siegeMove} setMove={setSiegeMove} />}
 				{view === "world" && (
 					<div className="h-full w-full bg-bg">
 						<WorldMap world={state.world} town={state.town} selectedLocationId={state.world.currentLocationId} className="h-full w-full" />

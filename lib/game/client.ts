@@ -6,7 +6,9 @@ import type { GameState, GroupState, Survivor, TownState } from "./types";
  */
 export function clientState(state: GameState): GameState {
 	const out = hideProfiles(hideInfection(state));
-	return state.town ? { ...out, town: clientTown(state.town) } : out;
+	const shown = state.town ? { ...out, town: clientTown(state.town) } : out;
+	// The siege's end-of-night summary is the DM's instruction (it may name a secret infection).
+	return shown.siege?.summary ? { ...shown, siege: { ...shown.siege, summary: undefined } } : shown;
 }
 
 /** A companion's want / fear / secret reach the browser only once the player has learnt them. */

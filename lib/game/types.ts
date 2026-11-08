@@ -872,6 +872,28 @@ export interface SiegeState {
 	/** Short engine log lines (EN), newest last. */
 	log: string[];
 	outcome?: "held" | "breached" | "fled";
+	// ─── engine bookkeeping (lib/rules/siege.ts) ───
+	/** Game minute the siege was announced. */
+	startedAt?: number;
+	source?: "town" | "probe" | "dm";
+	/** Siege HP of the outer doors (doors have no HP on the map), keyed "x,y". */
+	doors?: Record<string, { hp: number; max: number }>;
+	/** The dead broke through here: a fight is on (or the DM must start it). */
+	breach?: { x: number; y: number; at: number; dead: number; combat?: boolean; /** Other squares that fell in the same wave. */ more?: { x: number; y: number }[] };
+	/** Every breach so far and whether it was contained. */
+	breaches?: { x: number; y: number; contained: boolean }[];
+	/** Companions at the base who stood with the party tonight (status flipped to with_party; restored at the end). */
+	joined?: string[];
+	/** The generator's fuel for the lights was paid tonight. */
+	lightsFueled?: boolean;
+	/** Tallies for the end-of-night summary. */
+	stats?: { pcKills: number; allyKills: number; pcSaved: number; allySaved: number; ammo: number; materials: number; drawn: number; residentsLost: number; hurt: string[]; bitten: string[] };
+	/** Who did what in the last wave (UI). */
+	last?: { wave: number; pcKills: number; allyKills: number; damage: Record<string, number> };
+	/** Game minute it ended. */
+	endedAt?: number;
+	/** What the DM narrates at the end. */
+	summary?: string;
 }
 
 /** One line in the play log (data/campaigns/<id>/log.jsonl). */

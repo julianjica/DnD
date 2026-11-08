@@ -6,6 +6,7 @@ import * as enums from "./parts/enums";
 import * as survival from "./parts/survival";
 import * as base from "./parts/base";
 import * as group from "./parts/group";
+import * as siege from "./parts/siege";
 
 /** Spanish UI strings, merged from ./parts (each part is type-checked against its English twin). */
-export const es: Messages = { ...common.es, ...setup.es, ...play.es, ...enums.es, ...survival.es, ...base.es, ...group.es };
+export const es: Messages = { ...common.es, ...setup.es, ...play.es, ...enums.es, ...survival.es, ...base.es, ...group.es, ...siege.es };

@@ -6,6 +6,7 @@ import { mutate } from "../store/campaigns";
 import { Rng } from "../rules/dice";
 import { groupTick } from "../rules/group";
 import { townTick } from "../rules/town";
+import { siegeTick } from "../rules/siege";
 import { addInventoryItem } from "./items";
 
 /** Events streamed to the browser during a turn (SSE). */
@@ -65,6 +66,8 @@ export async function withState<T>(ctx: ToolContext, fn: (tx: StateTxn) => T | P
 			zombie ? groupTick(state, rng, (s, item) => void addInventoryItem(s, item, () => newId("it"))) : undefined,
 			// The town moves on: factions at night, hordes drifting between places.
 			zombie ? townTick(state, rng) : undefined,
+			// A night siege at the base: the dead arrive, breaches settle (lib/rules/siege.ts).
+			zombie ? siegeTick(state, rng, (r) => rolls.push(r)) : undefined,
 		]
 			.filter(Boolean)
 			.join("\n");

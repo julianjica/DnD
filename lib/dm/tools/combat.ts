@@ -31,7 +31,7 @@ import { linkSurvivorCombatants, survivorForCombatant, survivorsAfterCombat, sur
 const CONDITIONS: ConditionId[] = ["blinded", "charmed", "deafened", "frightened", "grappled", "incapacitated", "invisible", "paralyzed", "petrified", "poisoned", "prone", "restrained", "stunned", "unconscious"];
 const DAMAGE: DamageType[] = ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"];
 
-interface SpawnArg {
+export interface SpawnArg {
 	monster: string;
 	count?: number;
 	name?: string;
@@ -179,31 +179,33 @@ export const startCombatTool = tool<{ monsters: SpawnArg[]; pcSurprised?: boolea
 	"start_combat",
 	"Start a combat encounter on the active map with SRD monsters. The engine enforces a solo-character XP budget for the campaign difficulty and caps allies (side='party') so the player stays the protagonist; it refuses over-budget encounters. Rolls initiative; returns the order. Switches the view to the map and the ambience to combat.",
 	S.obj({ monsters: spawnSchema, pcSurprised: S.bool(), override: S.str("Story reason to exceed the budget for a deliberate set-piece (still capped at 1.5×)") }, ["monsters"]),
-	async (a, ctx) =>
-		withState(ctx, (tx) => {
-			const { state, rng } = tx;
-			if (state.encounter?.status === "active") throw new Error("Combat already active; use add_monsters.");
-			const map = state.activeMapId ? state.maps[state.activeMapId] : undefined;
-			const spawns = toSpawns(state, a.monsters);
-			if (!map) throw new Error("No active map. Call generate_map first.");
-			// The Quiet: companions with the party fight beside the player (as many as the ally cap allows).
-			const group = withSurvivors(state, map, spawns);
-			const budgetNote = budgetGate(state, group.spawns, a.override);
-			const res = startCombat({ encounterId: newId("enc"), map, character: state.character, monsters: group.spawns, pcSurprised: a.pcSurprised }, rng, combatOpts(state));
-			const syncNote = res.ok ? mapSyncGate(res.encounter, res.map, state.character.id, a.override) : "";
-			const log = applyCombatResult(tx, res) + syncNote + group.note;
-			linkSurvivorCombatants(state);
-			state.mode = "combat";
-			state.view = "map";
-			// The Quiet fights to its own synth score; a horde keeps its bed.
-			if (isZombie(state)) {
-				if (state.ambience !== "q_horde") state.ambience = "q_combat";
-			} else if (state.ambience !== "boss") state.ambience = "combat";
-			state.scene.mood = "combat";
-			const ids = Object.values(state.encounter!.combatants).map((c) => `${c.name} [${c.id}] @${map.entities.find((e) => e.id === c.entityId)?.x},${map.entities.find((e) => e.id === c.entityId)?.y}`);
-			return `${budgetNote}\n${log}\nCombatants: ${ids.join("; ")}${turnStatus(state)}${autoUntilPc(tx, false)}`;
-		}),
+	async (a, ctx) => withState(ctx, (tx) => beginCombat(tx, a)),
 );
+
+/** start_combat's engine: also used by the siege when the dead break in (lib/dm/tools/siege.ts). */
+export function beginCombat(tx: StateTxn, a: { monsters: SpawnArg[]; pcSurprised?: boolean; override?: string }): string {
+	const { state, rng } = tx;
+	if (state.encounter?.status === "active") throw new Error("Combat already active; use add_monsters.");
+	const map = state.activeMapId ? state.maps[state.activeMapId] : undefined;
+	const spawns = toSpawns(state, a.monsters);
+	if (!map) throw new Error("No active map. Call generate_map first.");
+	// The Quiet: companions with the party fight beside the player (as many as the ally cap allows).
+	const group = withSurvivors(state, map, spawns);
+	const budgetNote = budgetGate(state, group.spawns, a.override);
+	const res = startCombat({ encounterId: newId("enc"), map, character: state.character, monsters: group.spawns, pcSurprised: a.pcSurprised }, rng, combatOpts(state));
+	const syncNote = res.ok ? mapSyncGate(res.encounter, res.map, state.character.id, a.override) : "";
+	const log = applyCombatResult(tx, res) + syncNote + group.note;
+	linkSurvivorCombatants(state);
+	state.mode = "combat";
+	state.view = "map";
+	// The Quiet fights to its own synth score; a horde keeps its bed.
+	if (isZombie(state)) {
+		if (state.ambience !== "q_horde") state.ambience = "q_combat";
+	} else if (state.ambience !== "boss") state.ambience = "combat";
+	state.scene.mood = "combat";
+	const ids = Object.values(state.encounter!.combatants).map((c) => `${c.name} [${c.id}] @${map.entities.find((e) => e.id === c.entityId)?.x},${map.entities.find((e) => e.id === c.entityId)?.y}`);
+	return `${budgetNote}\n${log}\nCombatants: ${ids.join("; ")}${turnStatus(state)}${autoUntilPc(tx, false)}`;
+}
 
 /** Runs the fallback AI for consecutive non-PC turns (used when DM opts in). */
 function autoUntilPc(tx: StateTxn, enabled: boolean): string {

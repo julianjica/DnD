@@ -58,6 +58,8 @@ export interface RenderInput {
 	notes?: Record<string, string>;
 	/** Exits to other maps, keyed "x,y": the destination's name (hover label). */
 	exits?: Record<string, string>;
+	/** The Quiet: siege posts, keyed "x,y": who holds them (hover label). */
+	marks?: Record<string, string>;
 }
 
 /** Light radius an entity actually casts (street lamps are dark without power). */
@@ -554,6 +556,12 @@ export class BattleRenderer {
 			const cx = (p.x + 0.5) * T, cy = (p.y + 0.5) * T, r = T * 0.16;
 			g.moveTo(cx - r, cy - r).lineTo(cx + r * 0.6, cy).lineTo(cx - r, cy + r).stroke({ width: 3, color: 0xfff3c4, alpha: 0.95 });
 		}
+		// Siege posts: a crimson frame with a dot.
+		for (const k of Object.keys(inp.marks ?? {})) {
+			const p = parseKey(k);
+			g.rect(p.x * T + 2, p.y * T + 2, T - 4, T - 4).stroke({ width: 3, color: 0xd9503f, alpha: 0.95 });
+			g.circle((p.x + 0.5) * T, (p.y + 0.18) * T, T * 0.09).fill({ color: 0xffd2c4, alpha: 0.95 });
+		}
 		if (inp.aoe) {
 			const color = inp.aoe.color ?? 0xff7a2f;
 			const sq = aoeSquares(inp.aoe, this.map);
@@ -971,10 +979,16 @@ export class BattleRenderer {
 			this.label.position.set((sq.x + 0.5) * T, sq.y * T - 4);
 			this.label.visible = true;
 		} else if (!tok) {
-			// The Quiet: a barricade's remaining strength
+			// The Quiet: a barricade's remaining strength (and who holds it in a siege)
 			const b = this.map?.barricades?.[sqKey(sq.x, sq.y)];
+			const mark = this.input?.marks?.[sqKey(sq.x, sq.y)];
 			if (b && this.map?.tiles[sq.y * this.map.width + sq.x] === "barricade") {
-				this.label.text = `${this.input?.barricadeLabel ?? "Barricade"}  ${Math.max(0, b.hp)}/${b.max}`;
+				this.label.text = `${this.input?.barricadeLabel ?? "Barricade"}  ${Math.max(0, b.hp)}/${b.max}${mark ? `  ·  ${mark}` : ""}`;
+				this.label.style.fontSize = Math.round(T * 0.26);
+				this.label.position.set((sq.x + 0.5) * T, sq.y * T - 4);
+				this.label.visible = true;
+			} else if (mark) {
+				this.label.text = mark;
 				this.label.style.fontSize = Math.round(T * 0.26);
 				this.label.position.set((sq.x + 0.5) * T, sq.y * T - 4);
 				this.label.visible = true;

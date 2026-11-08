@@ -98,7 +98,11 @@ export interface DamageResult {
 }
 
 export function damageBarricade(state: GameState, a: { x: number; y: number; amount: number }): DamageResult {
-	const map = activeMap(state);
+	return damageBarricadeOn(activeMap(state), a);
+}
+
+/** damage_barricade on a given map (the siege batters the base map even when another map is active). */
+export function damageBarricadeOn(map: GridMap, a: { x: number; y: number; amount: number }): DamageResult {
 	const { x, y } = a;
 	const key = barricadeKey(x, y);
 	const i = y * map.width + x;
