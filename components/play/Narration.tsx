@@ -154,6 +154,7 @@ export function Narration(props: {
 	const [text, setText] = useState("");
 	const scroller = useRef<HTMLDivElement>(null);
 	const stick = useRef(true);
+	const userScroll = useRef(0);
 
 	const content = useRef<HTMLDivElement>(null);
 	useEffect(() => {
@@ -187,9 +188,17 @@ export function Narration(props: {
 			<div
 				ref={scroller}
 				className="min-h-0 flex-1 overflow-y-auto px-5 py-5 [overflow-anchor:none]"
+				// Only the reader's own scrolling unsticks the view; scrolls caused by the
+				// content shrinking (the live turn swapped for the saved log) must not.
+				onWheel={() => (userScroll.current = Date.now())}
+				onTouchMove={() => (userScroll.current = Date.now())}
+				onPointerDown={() => (userScroll.current = Date.now())}
+				onKeyDown={() => (userScroll.current = Date.now())}
 				onScroll={(e) => {
 					const el = e.currentTarget;
-					stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+					const atBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+					if (atBottom) stick.current = true;
+					else if (Date.now() - userScroll.current < 1000) stick.current = false;
 				}}
 			>
 				<div ref={content} className="flex min-h-full flex-col gap-5">
