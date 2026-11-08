@@ -19,9 +19,9 @@ function hideDmNotes(state: GameState): GameState {
 		void _s, void _v, void _w, void _o;
 		npcs[id] = rest;
 	}
-	const { threads: _t, pacing: _p, ...rest } = state;
-	void _t, void _p;
-	return { ...rest, npcs };
+	const { threads: _t, pacing: _p, canon: _c, canonMark: _m, ...rest } = state;
+	void _t, void _p, void _c, void _m;
+	return { ...rest, npcs, dmNotes: [] };
 }
 
 /** Expeditions as the player knows them: what they heard, not what happened out there. */

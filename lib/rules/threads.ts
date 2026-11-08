@@ -100,7 +100,7 @@ export function storyDigest(state: GameState): string | undefined {
 	const p = pacingOf(state);
 	const open = openThreads(state);
 	const lines: string[] = [];
-	if (open.length) lines.push(`Open threads (you owe each a payoff; story_thread touch when one comes up, resolve when it pays off): ${open.map((t) => `${t.title} [${t.id}]${p.turn - t.touchedTurn >= OVERDUE ? " OVERDUE" : ""}: ${t.planted}`).join(" | ")}`);
+	if (open.length) lines.push(`Open threads (you owe each a payoff; story_thread touch/resolve): ${open.map((t) => (p.turn - t.touchedTurn >= OVERDUE ? `${t.title} [${t.id}] OVERDUE: ${t.planted}` : `${t.title} [${t.id}]`)).join(" | ")}`);
 	else if (state.journal.length >= 5) lines.push("Open threads: none recorded. Record the story's open threads now with story_thread op=plant (mysteries, promises, debts, names you planted), up to 8.");
 	const nudge = pacingNudge(state);
 	if (nudge) lines.push(`PACING (director, turn ${p.turn}): ${nudge}`);

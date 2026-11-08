@@ -394,13 +394,13 @@ export function townDigest(state: GameState): string | undefined {
 	const changed = Object.entries(t.places)
 		.filter(([, p]) => p.status !== "intact")
 		.map(([id, p]) => `${nameOfLoc(state, id)}: ${p.status}${p.heldBy ? ` by ${t.factions[p.heldBy]?.name ?? p.heldBy}` : ""}`);
-	const recent = t.events.filter((e) => now - e.at <= 2 * DAY).map((e) => `day ${Math.floor(e.at / DAY)}: ${e.text}${e.known ? "" : " (player doesn't know)"}`);
+	const recent = t.events.filter((e) => now - e.at <= DAY).slice(-6).map((e) => `day ${Math.floor(e.at / DAY)}: ${e.text}${e.known ? "" : " (player doesn't know)"}`);
 	return [
 		`TOWN (the truth; the player knows only what they saw, were told or heard on the radio)${t.reviewed ? "" : " — NOT REVIEWED YET: fix factions with update_town and set reviewed=true"}:`,
 		`Factions: ${fs.map((f) => `${f.name} [${f.id}] ${f.status}${f.homeId ? ` at ${nameOfLoc(state, f.homeId)}` : ""}, str ${f.strength}, attitude ${f.attitude >= 0 ? "+" : ""}${f.attitude}, aggression ${f.aggression}, goal: ${f.goal}`).join("; ")}`,
 		`Hordes: ${hordes.join("; ") || "none"}`,
 		changed.length ? `Places: ${changed.join("; ")}` : "",
-		recent.length ? `Last two days: ${recent.join(" ")}` : "",
+		recent.length ? `Last 24 h: ${recent.join(" ")}` : "",
 	]
 		.filter(Boolean)
 		.join("\n");

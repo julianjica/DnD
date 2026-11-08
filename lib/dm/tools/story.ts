@@ -174,8 +174,29 @@ export const dmNote = tool<{ text: string }>(
 	async (a, ctx) =>
 		withState(ctx, ({ state }) => {
 			state.dmNotes.push(a.text);
-			if (state.dmNotes.length > 60) state.dmNotes = state.dmNotes.slice(-60);
+			if (state.dmNotes.length > 60) {
+				const cut = state.dmNotes.length - 60;
+				state.dmNotes = state.dmNotes.slice(-60);
+				if (state.canonMark !== undefined) state.canonMark = Math.max(0, state.canonMark - cut);
+			}
 			return "Noted.";
+		}),
+);
+
+export const setCanon = tool<{ facts: string[] }>(
+	"set_canon",
+	"Rewrite your STANDING FACTS: the short list of things that stay true and must never be contradicted (who's dead or where, what the player owns that isn't in the inventory, deals made, places and their quirks — e.g. 'diesel tank under Station 2, ~200 L left'). Replaces the whole list: keep what still matters from the old list and your recent notes, drop what's resolved. At most 25 short lines. You always see this list; only your last few dm_notes are shown besides it.",
+	S.obj({ facts: S.arr(S.str(), "One fact per line, short") }, ["facts"]),
+	async (a, ctx) =>
+		withState(ctx, ({ state }) => {
+			const facts = (a.facts ?? []).map((f) => f.trim()).filter(Boolean);
+			if (!facts.length) throw new Error("facts: at least one.");
+			if (facts.length > 25) throw new Error(`At most 25 facts (got ${facts.length}): merge or drop some.`);
+			const len = facts.join(" ").length;
+			if (len > 3500) throw new Error(`Too long (${len} chars, max 3500): shorten the lines.`);
+			state.canon = facts;
+			state.canonMark = state.dmNotes.length;
+			return `Standing facts updated (${facts.length}).`;
 		}),
 );
 
@@ -473,7 +494,7 @@ export function setItemEnricher(fn: (item: InventoryItem, rs: Ruleset) => void) 
 	enrichItem = fn;
 }
 
-export const STORY_TOOLS: ToolFactory[] = [
+export const STORY_TOOLS: ToolFactory[] = [setCanon, 
 	rollTool,
 	setScene,
 	setAmbience,

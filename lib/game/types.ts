@@ -827,6 +827,10 @@ export interface GameState {
 	threads?: StoryThread[];
 	/** The pacing director's memory. */
 	pacing?: PacingState;
+	/** The DM's standing facts (set_canon): what stays true and must not be contradicted. */
+	canon?: string[];
+	/** dmNotes.length when the canon was last rewritten (notes after it are "recent"). */
+	canonMark?: number;
 }
 
 // ─── The Quiet: the living town ────────────────────────────────────────────

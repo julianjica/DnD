@@ -54,9 +54,9 @@ export const recruitSurvivorTool = tool<{ npcId: string; profession: string; lev
 		}),
 );
 
-export const updateSurvivorTool = tool<{ npcId: string; morale?: number; status?: "with_party" | "at_base" | "dead"; hp?: number; note?: string; give?: { ref: string; qty: number }; take?: { ref: string; qty: number }; treat?: "antiviral" | "amputation" }>(
+export const updateSurvivorTool = tool<{ npcId: string; morale?: number; status?: "with_party" | "at_base" | "dead"; hp?: number; note?: string; give?: { ref: string; qty: number }; take?: { ref: string; qty: number }; treat?: "antiviral" | "amputation"; forget?: boolean }>(
 	"update_survivor",
-	"The Quiet: change a companion survivor after something happens in the story. morale is a DELTA (0–10 scale): the player saves them or someone they love +2; a promise kept, a good meal shared, a win +1; ignoring their needs or their advice −1; being put in needless danger, a broken promise, the player hurting someone innocent −2; cruelty to them −3. (The engine already applies −1 per day without food/water and −2 to everyone when a member dies or turns: don't repeat those.) At morale 0 they leave (or, if volatile, steal supplies and leave) at the next 08:00, so play the tension first. status: with_party / at_base (needs a base) / dead (killed in the story). hp: a delta outside combat (a nurse's care +, a fall −). give / take: move an item between the player's inventory and the survivor's gear (e.g. give them rounds for their gun). treat: 'antiviral' uses the player's LAZARUS antiviral to cure their infection; 'amputation' cuts off a bitten limb (stops it only within an hour of the bite). note: a short DM note.",
+	"The Quiet: change a companion survivor after something happens in the story. morale is a DELTA (0–10 scale): the player saves them or someone they love +2; a promise kept, a good meal shared, a win +1; ignoring their needs or their advice −1; being put in needless danger, a broken promise, the player hurting someone innocent −2; cruelty to them −3. (The engine already applies −1 per day without food/water and −2 to everyone when a member dies or turns: don't repeat those.) At morale 0 they leave (or, if volatile, steal supplies and leave) at the next 08:00, so play the tension first. status: with_party / at_base (needs a base) / dead (killed in the story). hp: a delta outside combat (a nurse's care +, a fall −). give / take: move an item between the player's inventory and the survivor's gear (e.g. give them rounds for their gun). treat: 'antiviral' uses the player's LAZARUS antiviral to cure their infection; 'amputation' cuts off a bitten limb (stops it only within an hour of the bite). note: a short DM note. forget=true ERASES the record entirely — only for a retcon (a duplicate or a record the story undid), never for a death.",
 	S.obj(
 		{
 			npcId: S.str(),
@@ -67,6 +67,7 @@ export const updateSurvivorTool = tool<{ npcId: string; morale?: number; status?
 			give: S.obj({ ref: S.str(), qty: S.int(undefined, 1) }, ["ref", "qty"]),
 			take: S.obj({ ref: S.str(), qty: S.int(undefined, 1) }, ["ref", "qty"]),
 			treat: S.str(undefined, ["antiviral", "amputation"]),
+			forget: S.bool("Retcon only: erase this companion record (duplicates, undone story)"),
 		},
 		["npcId"],
 	),
@@ -75,6 +76,11 @@ export const updateSurvivorTool = tool<{ npcId: string; morale?: number; status?
 			requireZombie(state);
 			const sv = survivorOf(state, a.npcId);
 			const name = nameOf(state, sv);
+			if (a.forget) {
+				delete state.group!.survivors[sv.npcId];
+				for (const ex of state.group!.expeditions ?? []) ex.members = ex.members.filter((m) => m !== sv.npcId);
+				return `${name}'s companion record [${sv.npcId}] is erased (retcon).${a.note ? ` (${a.note})` : ""}`;
+			}
 			if (!isActive(sv)) throw new Error(`${name} is no longer in the group (${sv.status}).`);
 			const out: string[] = [];
 			if (a.treat) out.push(treatSurvivor(state, sv, a.treat, rng));

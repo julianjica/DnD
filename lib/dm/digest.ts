@@ -96,7 +96,14 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 	if (here.length) lines.push(`NPCs present: ${here.map((n) => `${n.name} [${n.id}] (${n.role}, ${n.disposition}${n.alive ? "" : ", dead"})${n.secret ? ` secret: ${n.secret}` : ""}`).join("; ")}`);
 	const voices = voiceDigest(s);
 	if (voices) lines.push(voices);
-	if (npcs.length > here.length) lines.push(`Other known NPCs: ${npcs.filter((n) => !here.includes(n)).map((n) => `${n.name} [${n.id}] (${n.role})`).join(", ")}`);
+	if (npcs.length > here.length) {
+		const away = npcs.filter((n) => !here.includes(n) && !/retcon/i.test(n.role ?? ""));
+		const short = (r?: string) => (!r ? "?" : r.length > 40 ? `${r.slice(0, 38)}…` : r);
+		const living = away.filter((n) => n.alive).map((n) => `${n.name} [${n.id}] (${short(n.role)})`);
+		const dead = away.filter((n) => !n.alive).map((n) => n.name);
+		if (living.length) lines.push(`Other known NPCs: ${living.join(", ")}`);
+		if (dead.length) lines.push(`Dead NPCs: ${dead.join(", ")}`);
+	}
 
 	const fallen = fallenSummary(s);
 	if (fallen) lines.push(fallen);
@@ -128,7 +135,12 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 	}
 
 	if (s.pendingRoll) lines.push(`Waiting for player roll: ${s.pendingRoll.label} (${s.pendingRoll.notation}${s.pendingRoll.dc ? ` vs DC ${s.pendingRoll.dc}` : ""})`);
-	if (s.dmNotes.length) lines.push(`DM notes: ${s.dmNotes.slice(-15).join(" | ")}`);
+	// Standing facts always; besides them only the last few notes (old ones fold into the facts).
+	if (s.canon?.length) lines.push(`Standing facts (never contradict; set_canon rewrites the list): ${s.canon.join(" | ")}`);
+	const fresh = s.dmNotes.slice(s.canonMark ?? 0);
+	if (s.dmNotes.length) lines.push(`Recent DM notes: ${s.dmNotes.slice(-6).join(" | ")}`);
+	if (fresh.length >= 10 || (!s.canon?.length && s.dmNotes.length >= 8))
+		lines.push(`NOTES PILING UP (${fresh.length} since the last set_canon): fold what still matters into set_canon now (≤25 short facts); older notes are dropping out of your view.${s.canon?.length ? "" : ` Your older notes, to fold in: ${s.dmNotes.slice(-30, -6).join(" | ")}`}`);
 	const recentJournal = s.journal.slice(-5);
 	if (recentJournal.length) lines.push(`Recent journal: ${recentJournal.map((j) => `(day ${j.day}) ${j.text}`).join(" | ")}`);
 

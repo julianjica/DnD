@@ -107,3 +107,20 @@ test("mark_beat validates; a new player turn advances the counter", async () => 
 	assert.equal(st.pacing!.turn, 1);
 	assert.equal(st.pacing!.last.human, 0);
 });
+
+test("standing facts: set_canon replaces the list, limits it, only recent notes show beside it; none of it reaches the client", async () => {
+	const id = newGame();
+	for (let i = 0; i < 12; i++) await call(id, "dm_note", { text: `note ${i}` });
+	let d = m.digest.stateDigest(m.loadState(id));
+	assert.match(d, /NOTES PILING UP/);
+	assert.match(d, /Recent DM notes: note 6 \| note 7 \| note 8 \| note 9 \| note 10 \| note 11$/m);
+	assert.equal((await call(id, "set_canon", { facts: Array.from({ length: 26 }, (_, i) => `f${i}`) })).isError, true);
+	const r = await call(id, "set_canon", { facts: ["Diesel tank under Station 2, ~200 L left.", "Kyle the stock boy is dead."] });
+	assert.notEqual(r.isError, true, r.text);
+	d = m.digest.stateDigest(m.loadState(id));
+	assert.match(d, /Standing facts \(never contradict.*Diesel tank under Station 2/);
+	assert.ok(!/NOTES PILING UP/.test(d), "folded in");
+	const seen = m.client.clientState(m.loadState(id));
+	assert.equal(seen.canon, undefined, "standing facts stay with the DM");
+	assert.deepEqual(seen.dmNotes, [], "and so do the notes");
+});

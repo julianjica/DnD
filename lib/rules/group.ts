@@ -592,6 +592,9 @@ function moraleBreak(state: GameState, rng: Rng, sv: Survivor): string {
 	return `MORALE BROKEN: ${name} (${sv.traits.join(", ")}) LEAVES and STEALS supplies: ${taken.join(", ") || "nothing left worth taking"}. DM: the player finds out in the morning; ${name} is now a hostile NPC out there.`;
 }
 
+/** The party is at its base (same test as base.ts atBase, kept local to avoid an import cycle). */
+const atBaseNow = (state: GameState) => !!state.group?.base && state.world.currentLocationId === state.group.base.locationId;
+
 function dailyNeeds(state: GameState, rng: Rng, at: number): string[] {
 	const out: string[] = [];
 	const day = Math.floor(at / 1440);
@@ -604,6 +607,11 @@ function dailyNeeds(state: GameState, rng: Rng, at: number): string[] {
 		if (sv.status === "with_party") {
 			ate = !!takeOne(state.character, isFood);
 			drank = !!takeOne(state.character, isWater);
+			// At the base, what the packs lack comes from the stock.
+			if (base && atBaseNow(state)) {
+				if (!ate && base.stock.food > 0) (base.stock.food -= 1), (ate = true);
+				if (!drank && base.stock.water > 0) (base.stock.water -= 1), (drank = true);
+			}
 		} else if (base) {
 			ate = base.stock.food > 0;
 			drank = base.stock.water > 0;
