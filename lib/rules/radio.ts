@@ -23,7 +23,8 @@ const LISTEN_MIN = 10;
 const MAX_LOG = 60;
 
 export function radioAccess(state: GameState): "radio" | "base" | undefined {
-	if (state.character.inventory.some((i) => i.ref === "z-radio" && i.quantity > 0)) return "radio";
+	// A portable radio, or any radio the story handed over ("Radio de la Guardia").
+	if (state.character.inventory.some((i) => i.quantity > 0 && (i.ref === "z-radio" || i.ref === "z-walkie-talkie" || /\bradio\b/i.test(i.name)))) return "radio";
 	if (state.group?.base?.upgrades.includes("radio") && atBase(state)) return "base";
 	return undefined;
 }

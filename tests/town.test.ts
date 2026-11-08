@@ -139,6 +139,8 @@ test("radio: needs a radio; 101.7 reads names only around 3 a.m. and reveals a p
 	assert.throws(() => radio.tune(st, new Rng(1), "fm1017"), /No radio/);
 	st.character.inventory.push({ id: "it_r", ref: "z-radio", name: "Portable Radio", quantity: 1, category: "gear" } as never);
 	assert.equal(radio.radioAccess(st), "radio");
+	st.character.inventory = [{ id: "it_g", name: "Radio de la Guardia", quantity: 1, category: "gear" } as never];
+	assert.equal(radio.radioAccess(st), "radio", "story radios count");
 	st.time.hour = 14;
 	st.time.minute = 0;
 	const day = radio.tune(st, new Rng(1), "fm1017");
