@@ -155,10 +155,23 @@ export function Narration(props: {
 	const scroller = useRef<HTMLDivElement>(null);
 	const stick = useRef(true);
 
+	const content = useRef<HTMLDivElement>(null);
 	useEffect(() => {
 		const el = scroller.current;
 		if (el && stick.current) el.scrollTop = el.scrollHeight;
 	}, [log, live]);
+	// Stay anchored to the bottom when anything resizes after a render: the input
+	// area growing (suggestions, roll button), fonts or late layout in the log.
+	useEffect(() => {
+		const el = scroller.current;
+		if (!el || typeof ResizeObserver === "undefined") return;
+		const ro = new ResizeObserver(() => {
+			if (stick.current) el.scrollTop = el.scrollHeight;
+		});
+		ro.observe(el);
+		if (content.current) ro.observe(content.current);
+		return () => ro.disconnect();
+	}, []);
 
 	const submit = (t: string) => {
 		const v = t.trim();
@@ -173,14 +186,15 @@ export function Narration(props: {
 		<div className="flex h-full min-h-0 flex-col">
 			<div
 				ref={scroller}
-				className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 py-5"
+				className="min-h-0 flex-1 overflow-y-auto px-5 py-5 [overflow-anchor:none]"
 				onScroll={(e) => {
 					const el = e.currentTarget;
 					stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
 				}}
 			>
+				<div ref={content} className="flex min-h-full flex-col gap-5">
 				{log.length === 0 && !live && (
-					<div className="flex h-full flex-col items-center justify-center gap-3 text-center text-dim">
+					<div className="flex flex-1 flex-col items-center justify-center gap-3 text-center text-dim">
 						<ScrollText className="text-gold" />
 						<p className="font-fell text-lg italic">{t("play.narr.empty")}</p>
 					</div>
@@ -189,6 +203,7 @@ export function Narration(props: {
 					<Entry key={e.id ?? i} e={e} />
 				))}
 				{live && <LiveView live={live} />}
+				</div>
 			</div>
 
 			<div className="border-t border-line bg-bg-2/60 px-4 py-3">
