@@ -7,6 +7,7 @@
  * A survivor's infection `turnsAt` is the DM's secret: nothing here reads it,
  * and no time since the bite is shown (that would let the player count it down).
  */
+import { ExpeditionsSection, type ExpeditionActions } from "./Expeditions";
 import { useEffect, useMemo, useRef } from "react";
 import {
 	BellRing, CloudRain, Crosshair, Droplet, Fuel, Hammer, Hospital, House, MapPin, Pill, Radio, ScrollText, Shield, Sprout, TowerControl, Users, Utensils, Wrench, Zap, type LucideIcon,
@@ -463,7 +464,7 @@ function ResidentsSection({ base, state }: { base: BaseState; state: GameState }
 // ─── sidebar tab ────────────────────────────────────────────────────────────
 
 /** Sidebar "Group" tab (zombie campaigns only): survivors, then the base. */
-export function GroupTab({ state }: { state: GameState }) {
+export function GroupTab({ state, expeditions }: { state: GameState; expeditions?: ExpeditionActions }) {
 	const { t } = useT();
 	const living = livingSurvivors(state);
 	const gone = Object.values(state.group?.survivors ?? {}).filter((s) => GONE.has(s.status));
@@ -491,6 +492,8 @@ export function GroupTab({ state }: { state: GameState }) {
 					</div>
 				)}
 			</section>
+
+			<ExpeditionsSection state={state} actions={expeditions ?? { busy: true }} />
 
 			{gone.length > 0 && (
 				<details className="rounded-lg border border-line/70 px-2.5 py-1.5">

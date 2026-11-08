@@ -8,6 +8,7 @@ import { survivalDigest } from "../rules/survival";
 import { baseDigest } from "../rules/base";
 import { groupDigest } from "../rules/group";
 import { townDigest } from "../rules/town";
+import { expeditionDigest } from "../rules/expeditions";
 import { radioDigest } from "../rules/radio";
 import { siegeDigest } from "../rules/siege";
 import { rulesetLabelEn } from "../i18n/ruleset-labels";
@@ -61,6 +62,8 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 	if (group) lines.push(group);
 	const town = rs === "zombie" ? townDigest(s) : undefined;
 	if (town) lines.push(town);
+	const expeditions = rs === "zombie" ? expeditionDigest(s) : undefined;
+	if (expeditions) lines.push(expeditions);
 	const radio = rs === "zombie" ? radioDigest(s) : undefined;
 	if (radio) lines.push(radio);
 	const siege = rs === "zombie" ? siegeDigest(s) : undefined;

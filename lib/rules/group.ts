@@ -445,7 +445,7 @@ const MEDS = ["z-medkit", "z-bandage", "z-antibiotics", "z-painkillers", "z-rubb
 const MATERIALS = ["z-planks", "z-nails", "z-pipe", "z-duct-tape", "z-rope", "z-snare-wire"];
 
 /** Finds go into the base stock when there is a base (as units), else (and anything that isn't stock) into the player's inventory. */
-function deposit(state: GameState, items: Map<string, number>, addItem: AddItem): string {
+export function deposit(state: GameState, items: Map<string, number>, addItem: AddItem): string {
 	const base = state.group?.base;
 	const toStock: string[] = [];
 	const toInv: string[] = [];
@@ -465,7 +465,7 @@ function deposit(state: GameState, items: Map<string, number>, addItem: AddItem)
 	return [toStock.length ? `into the base stock: ${toStock.join(", ")}` : "", toInv.length ? `into the inventory: ${toInv.join(", ")}` : ""].filter(Boolean).join("; ");
 }
 
-function errandFinds(state: GameState, rng: Rng, task: ErrandTask, finds: number): { items: Map<string, number>; place?: string } {
+export function errandFinds(state: GameState, rng: Rng, task: ErrandTask, finds: number): { items: Map<string, number>; place?: string } {
 	const items = new Map<string, number>();
 	const add = (ref: string, n: number) => n > 0 && items.set(ref, (items.get(ref) ?? 0) + n);
 	if (task === "fetch_water") for (let i = 0; i < finds; i++) add("z-bottled-water", rng.int(1, 2));
@@ -645,7 +645,7 @@ export function groupTick(state: GameState, rng: Rng, addItem: AddItem): string 
 	const last = g.lastTick ?? now;
 	const out: string[] = [];
 	const errandsUntil = (t: number) => {
-		const due = Object.values(g.survivors).filter((sv) => sv.status === "away" && sv.away && sv.away.until <= t).sort((a, b) => a.away!.until - b.away!.until);
+		const due = Object.values(g.survivors).filter((sv) => sv.status === "away" && sv.away && sv.away.until <= t && sv.away.task !== "expedition" && sv.away.task !== "captured").sort((a, b) => a.away!.until - b.away!.until);
 		for (const sv of due) out.push(resolveErrand(state, rng, sv, addItem));
 	};
 	const infections = (t: number) => {

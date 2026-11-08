@@ -26,6 +26,8 @@ export interface SheetActions {
 	editPortrait?: () => void;
 	/** The Quiet: tune the radio (starts a DM turn). */
 	listen?: (station: RadioStation, label: string) => void;
+	/** The Quiet: send or recall an expedition (starts a DM turn). */
+	expedition?: (body: Record<string, unknown> & { label: string }) => void;
 }
 
 const CONSUMABLE = /potion|elixir|ration|torch|oil|scroll|antitoxin|candle|holy water|acid|alchemist|healer|caltrop|ball bearing|chalk|food|wine|ale\b/i;
@@ -428,7 +430,7 @@ export function Sidebar({ state, onLevelUp, actions }: { state: GameState; onLev
 				{tab === "quests" && <QuestsTab state={state} />}
 				{tab === "journal" && <JournalTab state={state} />}
 				{tab === "codex" && <CodexTab state={state} />}
-				{tab === "group" && zombie && <GroupTab state={state} />}
+				{tab === "group" && zombie && <GroupTab state={state} expeditions={{ busy: actions.busy, send: actions.expedition, recall: actions.expedition }} />}
 				{tab === "radio" && zombie && <RadioTab state={state} busy={actions.busy} listen={actions.listen} />}
 			</div>
 		</div>

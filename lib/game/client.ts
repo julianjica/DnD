@@ -5,10 +5,52 @@ import type { GameState, GroupState, Survivor, TownState } from "./types";
  * bitten character or companion turns is rolled in secret and known only to the DM).
  */
 export function clientState(state: GameState): GameState {
-	const out = hideProfiles(hideInfection(state));
+	const out = hideExpeditions(hideProfiles(hideInfection(state)));
 	const shown = state.town ? { ...out, town: clientTown(state.town) } : out;
 	// The siege's end-of-night summary is the DM's instruction (it may name a secret infection).
 	return shown.siege?.summary ? { ...shown, siege: { ...shown.siege, summary: undefined } } : shown;
+}
+
+/** Expeditions as the player knows them: what they heard, not what happened out there. */
+function hideExpeditions(state: GameState): GameState {
+	const list = state.group?.expeditions;
+	if (!list?.length) return state;
+	const expeditions = list.map((ex) => ({
+		id: ex.id,
+		members: ex.members,
+		from: ex.from,
+		originId: ex.originId,
+		targetId: ex.targetId,
+		goal: ex.goal,
+		...(ex.note ? { note: ex.note } : {}),
+		startedAt: ex.startedAt,
+		eta: ex.eta,
+		path: [],
+		nextAt: 0,
+		at: ex.lastKnownAt ?? ex.originId,
+		stage: ex.knownStage ?? "outbound",
+		comms: ex.comms,
+		events: [],
+		...(ex.heard ? { heard: ex.heard } : {}),
+		...(ex.lastKnownAt ? { lastKnownAt: ex.lastKnownAt } : {}),
+		...(ex.lastHeardAt !== undefined ? { lastHeardAt: ex.lastHeardAt } : {}),
+		haul: [],
+		...(ex.recalled ? { recalled: true } : {}),
+	}));
+	// Out there, everyone is just "away on the run" until the player hears otherwise.
+	const survivors = { ...state.group!.survivors };
+	for (const ex of list) {
+		// Even after silence they're missing, not dead, until someone finds out.
+		if (ex.knownStage === "back") continue;
+		for (const id of ex.members) {
+			const sv = survivors[id];
+			if (!sv) continue;
+			const { infection: _i, ...rest } = sv;
+			void _i;
+			survivors[id] = { ...rest, status: "away", away: { until: ex.eta, task: "expedition", startedAt: ex.startedAt, from: ex.from } };
+		}
+	}
+	return { ...state, group: { ...state.group!, survivors, expeditions } };
 }
 
 /** A companion's want / fear / secret reach the browser only once the player has learnt them. */

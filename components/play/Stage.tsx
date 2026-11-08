@@ -486,7 +486,7 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 				{view === "map" && state.siege && !enc && props.siege && <SiegePanel state={state} busy={busy} send={props.siege} picking={picking} setPicking={setPicking} move={siegeMove} setMove={setSiegeMove} />}
 				{view === "world" && (
 					<div className="h-full w-full bg-bg">
-						<WorldMap world={state.world} town={state.town} selectedLocationId={state.world.currentLocationId} className="h-full w-full" />
+						<WorldMap world={state.world} town={state.town} expeditions={(state.group?.expeditions ?? []).filter((e) => e.stage !== "back").map((ex) => ({ ex, names: ex.members.map((id) => state.npcs[id]?.name ?? id).join(", ") }))} selectedLocationId={state.world.currentLocationId} className="h-full w-full" />
 					</div>
 				)}
 				{mode.kind !== "move" && enc && myTurn && (

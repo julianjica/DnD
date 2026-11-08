@@ -158,6 +158,7 @@ export function useGame(id: string) {
 	const send = useCallback((text: string) => stream(`/api/campaigns/${id}/turn`, { text }, { showPlayer: text }), [id, stream]);
 	const act = useCallback((action: PlayerCombatAction) => stream(`/api/campaigns/${id}/action`, { action }), [id, stream]);
 	const rollPending = useCallback(() => stream(`/api/campaigns/${id}/roll`, {}), [id, stream]);
+	const expedition = useCallback((body: Record<string, unknown> & { label: string }) => stream(`/api/campaigns/${id}/expedition`, body, { showPlayer: body.label }), [id, stream]);
 	const listen = useCallback((station: RadioStation, label: string) => stream(`/api/campaigns/${id}/radio`, { station, label }, { showPlayer: label }), [id, stream]);
 	/** The Quiet: siege controls (posts, lights, the next wave). */
 	const siege = useCallback((op: SiegeOp) => stream(`/api/campaigns/${id}/siege`, op), [id, stream]);
@@ -173,7 +174,7 @@ export function useGame(id: string) {
 		[id, t],
 	);
 
-	return { state, setState, log, live, busy, error, setError, rollQueue, fx, loaded, refresh, send, act, rollPending, listen, siege, abort, patchSettings };
+	return { state, setState, log, live, busy, error, setError, rollQueue, fx, loaded, refresh, send, act, rollPending, listen, siege, expedition, abort, patchSettings };
 }
 
 export type Game = ReturnType<typeof useGame>;

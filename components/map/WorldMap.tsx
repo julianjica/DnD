@@ -2,7 +2,7 @@
 
 import { displayPlace } from "@/lib/i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { PlaceStatus, TownState, WorldLocation, WorldMap as WorldMapState } from "@/lib/game/types";
+import type { Expedition, PlaceStatus, TownState, WorldLocation, WorldMap as WorldMapState } from "@/lib/game/types";
 import { paintWorldBase, paintWorldOverlay, sampleWorld } from "./art/worldPainter";
 import { paintTownBase, paintTownOverlay, townRegionView, travelMinutes } from "./art/townPainter";
 import { mapFont } from "./mapFont";
@@ -43,6 +43,8 @@ export interface WorldMapProps {
 	initialScope?: "region" | "world";
 	/** The Quiet: the town as the player knows it (place status, known hordes). */
 	town?: TownState;
+	/** The Quiet: teams out on expeditions, at the last place the player heard from them. */
+	expeditions?: { ex: Expedition; names: string }[];
 }
 
 const STATUS_DOT: Record<PlaceStatus, string> = {
@@ -58,7 +60,7 @@ const STATUS_DOT: Record<PlaceStatus, string> = {
  * (identical to lib/maps/world.ts sampling), painted once per size, and
  * overlaid with routes, location icons and labels. Locations are real buttons.
  */
-export default function WorldMap({ world: rawWorld, onLocationClick, selectedLocationId, showUndiscovered, className, initialScope = "region", town }: WorldMapProps) {
+export default function WorldMap({ world: rawWorld, onLocationClick, selectedLocationId, showUndiscovered, className, initialScope = "region", town, expeditions }: WorldMapProps) {
 	const { t, te, lang } = useT();
 	const isTown = rawWorld.terrain.style === "town";
 	const chrome = isTown ? CHROME.town : CHROME.fantasy;
@@ -246,6 +248,16 @@ export default function WorldMap({ world: rawWorld, onLocationClick, selectedLoc
 							</span>
 						</div>
 					))}
+					{(expeditions ?? []).map(({ ex, names }, i) => {
+						const l = visible.find((x) => x.id === (ex.lastKnownAt ?? ex.originId));
+						if (!l) return null;
+						return (
+							<div key={ex.id} className="group absolute z-[6] -translate-x-1/2 -translate-y-1/2" style={{ left: l.x * box.w + 22 + i * 26, top: l.y * box.h - 20 }} data-testid="expedition-marker">
+								<span className={`relative grid h-6 min-w-6 place-items-center rounded-full border-2 px-1 text-[11px] font-bold text-white shadow ${ex.stage === "lost" ? "border-zinc-900 bg-zinc-600" : "border-sky-950 bg-sky-700"}`}>{names.split(",").length}</span>
+								<span className={`pointer-events-none absolute left-1/2 top-7 hidden -translate-x-1/2 whitespace-nowrap rounded border px-2 py-0.5 text-xs shadow group-hover:block ${chrome.tip}`}>{names}</span>
+							</div>
+						);
+					})}
 					{visible.map((l) => (
 						<button
 							key={l.id}

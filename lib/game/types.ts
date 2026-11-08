@@ -705,6 +705,50 @@ export interface GroupState {
 	lastBeatDay?: number;
 	/** Camp-scene log while there is no base (with a base they go to base.log). */
 	log?: BaseState["log"];
+	/** The Quiet: companions sent out on multi-day runs (lib/rules/expeditions.ts). */
+	expeditions?: Expedition[];
+}
+
+export type ExpeditionGoal = "scavenge" | "scout" | "contact" | "retrieve";
+
+/** A team of companions on a run to another place in town and back. */
+export interface Expedition {
+	id: string;
+	members: string[];
+	/** Where they come back to. */
+	from: "with_party" | "at_base";
+	/** World location they started from (the base, or where the party was). */
+	originId: string;
+	targetId: string;
+	goal: ExpeditionGoal;
+	/** What exactly (for retrieve/contact, or a scavenging focus), in the player's words. */
+	note?: string;
+	startedAt: number;
+	/** Expected return if nothing goes wrong. */
+	eta: number;
+	/** Locations still to reach, in order (the target, then the way back). */
+	path: string[];
+	/** Game minute they reach path[0]. */
+	nextAt: number;
+	/** Where they were last (the engine's truth). */
+	at: string;
+	stage: "outbound" | "at_target" | "returning" | "back" | "lost";
+	/** They carry a walkie-talkie: check-ins reach the player when the player has a radio too. */
+	comms: boolean;
+	/** Things the engine decided along the way (EN, DM facts), newest last. */
+	events: { at: number; text: string; delivered?: boolean }[];
+	/** What the player has heard on the walkie (the DM's words), newest last. */
+	heard?: { at: number; text: string }[];
+	/** Last place the player knows they were. */
+	lastKnownAt?: string;
+	lastHeardAt?: number;
+	haul: { ref: string; qty: number }[];
+	/** Members taken by a faction (story hook for a rescue). */
+	captured?: string[];
+	/** Turn back at the next stop. */
+	recalled?: boolean;
+	/** The stage as the player last heard it (the client shows this, not the truth). */
+	knownStage?: Expedition["stage"];
 }
 
 export interface GameState {
@@ -837,7 +881,7 @@ export interface TownState {
 
 // ─── The Quiet: radio ──────────────────────────────────────────────────────
 
-export type RadioStation = "fm1017" | "emergency" | "cb";
+export type RadioStation = "fm1017" | "emergency" | "cb" | "walkie";
 
 export interface Broadcast {
 	id: string;
@@ -847,6 +891,8 @@ export interface Broadcast {
 	text: string;
 	/** Town events it reported. */
 	eventIds?: string[];
+	/** Walkie check-ins: the expedition it came from. */
+	expeditionId?: string;
 }
 
 export interface RadioState {
