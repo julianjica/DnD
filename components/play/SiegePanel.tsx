@@ -174,10 +174,12 @@ export function SiegePanel(props: {
 					<div>
 						<div className="mb-1 text-[10px] uppercase tracking-wider text-faint">{t("siege.walls")}</div>
 						<div className="flex flex-wrap gap-1">
-							{entries.map((e) => {
+							{[...entries].sort((a, z) => +(s.focus?.includes(z.key) ?? 0) - +(s.focus?.includes(a.key) ?? 0)).map((e) => {
 								const pct = e.max ? e.hp / e.max : 0;
+								const massing = s.focus?.includes(e.key);
 								return (
-									<span key={e.key} className={`rounded border px-1.5 py-0.5 text-[11px] ${pct < 0.34 ? "border-crimson/60 text-crimson-2" : pct < 0.67 ? "border-[#d99a2b]/60 text-[#d99a2b]" : "border-line text-dim"}`}>
+									<span key={e.key} title={massing ? t("siege.massing") : undefined} className={`rounded border px-1.5 py-0.5 text-[11px] ${massing ? "bg-crimson/15 font-semibold" : ""} ${pct < 0.34 ? "border-crimson/60 text-crimson-2" : pct < 0.67 ? "border-[#d99a2b]/60 text-[#d99a2b]" : massing ? "border-crimson/60 text-text" : "border-line text-dim"}`}>
+										{massing && "⚠ "}
 										{t(e.kind === "door" ? "siege.door" : "siege.barricade")} {e.key} · {e.hp}/{e.max}
 									</span>
 								);

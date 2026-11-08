@@ -536,11 +536,28 @@ export function resolveWave(state: GameState, rng: Rng, record: RecordRoll, a: W
 	const attackers = Math.min(s.horde, Math.ceil((s.hordeStart + stats.drawn) / s.waves));
 	let entries = entryPoints(map, s);
 	const atEntry = new Map<string, number>();
-	if (entries.length) for (let i = 0; i < attackers; i++) {
-		const e = rng.pick(entries);
-		atEntry.set(e.key, (atEntry.get(e.key) ?? 0) + 1);
-	}
 	const posts = postsByKey(state, s);
+	// The dead mass at a few ways in (where they hear people, where light spills out), not
+	// evenly at every door; the spots hold from wave to wave and sometimes shift.
+	if (entries.length) {
+		const keys = new Set(entries.map((e) => e.key));
+		let focus = (s.focus ?? []).filter((k) => keys.has(k));
+		const want = Math.min(entries.length, Math.max(1, Math.min(3, 1 + Math.floor(attackers / 6))));
+		if (focus.length && rng.next() < 0.3) focus = focus.slice(1); // part of the crowd drifts elsewhere
+		const weight = (e: Entry) => (posts.has(e.key) ? 2 : 1) * (s.lights ? 1.5 : 1) * (e.kind === "door" ? 1.3 : 1);
+		while (focus.length < want) {
+			const pool = entries.filter((e) => !focus.includes(e.key));
+			let r = rng.next() * pool.reduce((n, e) => n + weight(e), 0);
+			const pick = pool.find((e) => (r -= weight(e)) < 0) ?? pool[pool.length - 1];
+			focus.push(pick.key);
+		}
+		s.focus = focus;
+		for (let i = 0; i < attackers; i++) {
+			const k = rng.next() < 0.85 ? rng.pick(focus) : rng.pick(entries).key;
+			atEntry.set(k, (atEntry.get(k) ?? 0) + 1);
+		}
+		out.push(`The dead mass at ${focus.map((k) => `(${k})`).join(", ")}.`);
+	}
 	const killsAt = new Map<string, number>();
 	const add = (m: Map<string, number>, k: string, n: number) => m.set(k, (m.get(k) ?? 0) + n);
 	let pcKills = 0;

@@ -256,7 +256,9 @@ test("waves are deterministic for a seed, spend stock, advance the clock and rec
 	assert.ok(shots.length >= 3, "a level-1 fighter gets 3 shots a wave");
 	assert.equal(a.c.group!.base!.stock.ammo, 20 - shots.length);
 	assert.equal(a.c.siege!.stats!.ammo, shots.length);
-	assert.equal(a.c.siege!.horde, 30 - a.c.siege!.last!.pcKills - a.c.siege!.last!.allyKills);
+	// Those put down leave the horde, and so do any who poured through a breach.
+	const poured = a.r.breach?.spawn.reduce((n, sp) => n + sp.count, 0) ?? 0;
+	assert.equal(a.c.siege!.horde, 30 - a.c.siege!.last!.pcKills - a.c.siege!.last!.allyKills - poured);
 });
 
 test("a guarded way in takes less than an unguarded one", async () => {

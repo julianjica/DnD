@@ -882,6 +882,8 @@ export interface SiegeState {
 	breach?: { x: number; y: number; at: number; dead: number; combat?: boolean; /** Other squares that fell in the same wave. */ more?: { x: number; y: number }[] };
 	/** Every breach so far and whether it was contained. */
 	breaches?: { x: number; y: number; contained: boolean }[];
+	/** Ways in ("x,y") the dead are massing at; they shift now and then between waves. */
+	focus?: string[];
 	/** Companions at the base who stood with the party tonight (status flipped to with_party; restored at the end). */
 	joined?: string[];
 	/** The generator's fuel for the lights was paid tonight. */
