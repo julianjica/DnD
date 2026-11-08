@@ -61,7 +61,8 @@ export async function runTurn(input: TurnInput): Promise<void> {
 		const notes = input.systemNotes?.length ? `\n\n# ENGINE NOTES\n${input.systemNotes.join("\n")}` : "";
 		const action = input.text ? `# PLAYER ACTION\n${input.text}` : "# OPENING\nBegin the adventure: set the opening scene (set_scene, set_ambience), introduce the hook, and end with suggest_actions.";
 		const langNote = state.settings.language === "es" ? "\n\n(Recuerda: escribe todo lo que ve el jugador en español.)" : "";
-		const message = `${action}${notes}\n\n# STATE DIGEST (authoritative)\n${digest}${langNote}`;
+		// The digest is long; end on the turn's shape so the last step isn't forgotten.
+		const message = `${action}${notes}\n\n# STATE DIGEST (authoritative)\n${digest}${langNote}\n\n(Turn: tools first, then your narration once, then suggest_actions as the very last step.)`;
 
 		const config: EngineConfig = state.settings.engine;
 		const engine = getEngine(config.provider);
@@ -105,6 +106,27 @@ export async function runTurn(input: TurnInput): Promise<void> {
 				}
 			},
 		});
+		// Safety net: a turn that ended without suggestions gets a short follow-up that can only add them.
+		if (!errored && !controller.signal.aborted && !toolLog.some((t) => t.name === "suggest_actions" && !t.isError)) {
+			const suggest = tools.filter((t) => t.name === "suggest_actions");
+			if (suggest.length)
+				await engine
+					.runTurn({
+						sessionKey: campaignId,
+						systemPrompt: buildSystemPrompt(state.settings),
+						input: `# ENGINE NOTE\nYou ended the turn without suggest_actions. Call suggest_actions now with 3–4 short, distinct options for what the player might do next, following from your last narration${state.settings.language === "es" ? " (in Spanish)" : ""}. Write nothing else.`,
+						tools: suggest,
+						config,
+						signal: controller.signal,
+						onEvent(ev) {
+							if (ev.type === "tool_end") {
+								toolLog.push({ name: ev.name, summary: ev.result.text.slice(0, 200), isError: ev.result.isError });
+								emit({ type: "tool", id: ev.id, name: ev.name, status: "end", summary: ev.result.text.slice(0, 200), isError: ev.result.isError });
+							}
+						},
+					})
+					.catch(() => undefined);
+		}
 		const entries: LogEntry[] = ctx.rolls.map((roll) => ({ id: newId("l"), role: "roll", text: `${roll.label}: ${roll.total}`, roll, ts: roll.ts }));
 		if (narration.trim() || toolLog.length) entries.push({ id: newId("l"), role: "dm", text: narration.trim(), tools: toolLog, ts: Date.now() });
 		if (errored) entries.push({ id: newId("l"), role: "system", text: `Engine error: ${errored}`, ts: Date.now() });
