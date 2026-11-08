@@ -5,6 +5,7 @@ import type { DmTool, GameState, JsonSchema, RollRecord, ToolResult } from "../g
 import { mutate } from "../store/campaigns";
 import { Rng } from "../rules/dice";
 import { groupTick } from "../rules/group";
+import { townTick } from "../rules/town";
 import { addInventoryItem } from "./items";
 
 /** Events streamed to the browser during a turn (SSE). */
@@ -62,6 +63,8 @@ export async function withState<T>(ctx: ToolContext, fn: (tx: StateTxn) => T | P
 			zombie ? survivalTick(state, rng) : undefined,
 			// After the player's tick: companions eat after the player; errands come back.
 			zombie ? groupTick(state, rng, (s, item) => void addInventoryItem(s, item, () => newId("it"))) : undefined,
+			// The town moves on: factions at night, hordes drifting between places.
+			zombie ? townTick(state, rng) : undefined,
 		]
 			.filter(Boolean)
 			.join("\n");

@@ -467,7 +467,7 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 				{sick && view === "map" && <SickVignette stage={sick} />}
 				{view === "world" && (
 					<div className="h-full w-full bg-bg">
-						<WorldMap world={state.world} selectedLocationId={state.world.currentLocationId} className="h-full w-full" />
+						<WorldMap world={state.world} town={state.town} selectedLocationId={state.world.currentLocationId} className="h-full w-full" />
 					</div>
 				)}
 				{mode.kind !== "move" && enc && myTurn && (

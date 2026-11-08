@@ -5,6 +5,7 @@ import { createCharacterDetailed, type CreateCharacterInput } from "../rules/cha
 import { Rng, newSeed } from "../rules/dice";
 import { generateWorld } from "../maps";
 import { saveState, campaignExists } from "../store/campaigns";
+import { initTown } from "../rules/town";
 import { randomPortrait } from "../art/portrait";
 import { newId } from "./context";
 
@@ -104,6 +105,12 @@ export function createGame(input: NewGameInput): GameState {
 		rng: rng.state,
 		dmNotes: [],
 	};
+	// The Quiet: the town is there from the first night (nothing to review yet).
+	if (zombie) {
+		const trng = new Rng(rng.int(1, 2 ** 31 - 1));
+		initTown(state, trng);
+		state.town!.reviewed = true;
+	}
 	saveState(state);
 	return state;
 }

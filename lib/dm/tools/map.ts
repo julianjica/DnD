@@ -3,6 +3,7 @@ import type { EntityKind, GameState, GridMap, LocationKind, MapKind, TerrainKind
 import { MODERN_FEATURE_SPRITES, mapToRows } from "../../maps/draw";
 import { autoLink, linkBoth, linkSummary } from "../../maps/links";
 import { assertNotFallen } from "../../rules/fallen";
+import { visitPlace } from "../../rules/town";
 import { climateForPreset, drawMap, FEATURE_SPRITES, generateMap, LEGEND_TEXT, MAP_KINDS, placeEntity, revealAround, WORLD_ASPECT, type Climate, type DrawKey } from "../../maps";
 import { distanceInDays, isTownWorld, travelDaysIn, travelText } from "../../maps/geography";
 import { addTerrainFeature, BEARING, betweenFromText, compassOf, daysForDistance, directionFromText, distanceForDays, fits, mapDistance, placeFor, REGION_SIZE, retimeRoutes, terrainFor, type Compass, type PlaceSpec } from "../../maps/geography";
@@ -457,7 +458,8 @@ export const travelTool = tool<{ locationId: string; days?: number; hours?: numb
 			const mapNote = known
 				? ` Reopened its map ${known.name} [${known.id}]${others.length ? `; other maps here: ${others.join(", ")} (use_map to switch)` : ""}. Draw a new map only for a part of the place not drawn yet.`
 				: " No map of this place yet: draw_map it so the scene panel shows it.";
-			return `Travelled to ${loc.name} in ${hours < 24 ? `${Math.round(hours)} hour(s)` : `${days} day(s)`}. Now day ${state.time.day}, ${String(state.time.hour).padStart(2, "0")}:00.${mapNote} Set the new scene with set_scene.`;
+			const news = visitPlace(state, loc.id);
+			return `${news ? `${news}\n` : ""}Travelled to ${loc.name} in ${hours < 24 ? `${Math.round(hours)} hour(s)` : `${days} day(s)`}. Now day ${state.time.day}, ${String(state.time.hour).padStart(2, "0")}:00.${mapNote} Set the new scene with set_scene.`;
 		}),
 );
 

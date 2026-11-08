@@ -630,6 +630,18 @@ export interface Survivor {
 	infection?: { bittenAt: number; turnsAt: number; part: BodyPart; stage: "incubating" | "fever" | "delirium" | "turned" };
 	/** Daily needs met from the party's inventory or the base stock; missed days lower morale. */
 	missedDays: number;
+	/** What they want most (EN, for the DM). */
+	want?: string;
+	/** What they're afraid of. */
+	fear?: string;
+	/** Something they hide. */
+	secret?: string;
+	/** Which of want/fear/secret the player has learnt. */
+	revealed?: ("want" | "fear" | "secret")[];
+	/** How they feel about other companions: npcId → -3 … +3. */
+	bonds?: Record<string, number>;
+	/** Game minute of their last camp scene. */
+	lastBeatAt?: number;
 }
 
 export type BaseUpgrade = "rain_catcher" | "garden" | "workshop" | "infirmary" | "radio" | "watchtower" | "generator" | "alarm_cans";
@@ -731,6 +743,131 @@ export interface GameState {
 	survival?: SurvivalState;
 	/** The Quiet only: survivors who joined and the base. */
 	group?: GroupState;
+	/** The Quiet: the town that moves without the player (factions, hordes, places). */
+	town?: TownState;
+	/** The Quiet: transmissions the player has heard. */
+	radio?: RadioState;
+	/** The Quiet: a night siege at the base, from warning to dawn. */
+	siege?: SiegeState;
+}
+
+// ─── The Quiet: the living town ────────────────────────────────────────────
+
+export type PlaceStatus = "intact" | "looted" | "overrun" | "burned" | "held";
+
+export interface TownFaction {
+	id: string;
+	name: string;
+	/** World location id of their stronghold (may be lost). */
+	homeId?: string;
+	/** 0 (wiped out) … 10 (strongest in town). */
+	strength: number;
+	/** Toward the player: -3 hostile … 0 wary … +3 allied. */
+	attitude: number;
+	/** What they're after right now (EN, for the DM). */
+	goal: string;
+	/** 0 keeps to itself … 3 raids and grabs. */
+	aggression: number;
+	/** The player knows they exist. */
+	known: boolean;
+	status: "active" | "broken" | "gone";
+	/** Their people in the codex. */
+	npcIds?: string[];
+}
+
+export interface Horde {
+	id: string;
+	/** Rough number of the dead. */
+	size: number;
+	/** World location id it is at. */
+	at: string;
+	/** Where it is drifting to. */
+	heading?: string;
+	/** Game minute of its next move. */
+	nextMoveAt: number;
+	/** Seen by or reported to the player (only known hordes reach the client). */
+	known: boolean;
+}
+
+export interface PlaceState {
+	status: PlaceStatus;
+	heldBy?: string;
+	/** Game minute of the last change. */
+	since: number;
+	/** What the player last saw or heard of it (the world map shows this, not the truth). */
+	knownStatus?: PlaceStatus;
+	knownHeldBy?: string;
+	/** Game minute the player was last here. */
+	lastVisit?: number;
+}
+
+export interface TownEvent {
+	id: string;
+	at: number;
+	kind: string;
+	locId?: string;
+	factionId?: string;
+	hordeId?: string;
+	/** What happened, for the DM (EN). */
+	text: string;
+	/** Loud enough to reach the radio or rumours. */
+	public: boolean;
+	/** The player has learnt of it (seen, heard on the radio, told). */
+	known?: boolean;
+}
+
+export interface TownState {
+	lastTick: number;
+	factions: Record<string, TownFaction>;
+	hordes: Horde[];
+	places: Record<string, PlaceState>;
+	/** Newest last; capped. */
+	events: TownEvent[];
+	/** The DM has reviewed the seeded factions (set once). */
+	reviewed?: boolean;
+	/** Game minute of the last raid on the player's base (they come every few days at most). */
+	lastBaseRaid?: number;
+	/** Game minute a horde last reached the base (the next one waits a few days). */
+	lastBaseHorde?: number;
+}
+
+// ─── The Quiet: radio ──────────────────────────────────────────────────────
+
+export type RadioStation = "fm1017" | "emergency" | "cb";
+
+export interface Broadcast {
+	id: string;
+	at: number;
+	station: RadioStation;
+	/** The words heard, as the DM wrote them (campaign language). */
+	text: string;
+	/** Town events it reported. */
+	eventIds?: string[];
+}
+
+export interface RadioState {
+	log: Broadcast[];
+}
+
+// ─── The Quiet: sieges ─────────────────────────────────────────────────────
+
+export interface SiegeState {
+	phase: "warning" | "prep" | "active" | "over";
+	/** Game minute the dead reach the walls. */
+	arrivesAt: number;
+	/** Rough number of the dead outside. */
+	horde: number;
+	hordeStart: number;
+	/** Town horde this came from, if any. */
+	hordeId?: string;
+	wave: number;
+	waves: number;
+	/** Defender (survivor npcId, or "pc") → square on the base map. */
+	posts: Record<string, { x: number; y: number }>;
+	lights: boolean;
+	/** Short engine log lines (EN), newest last. */
+	log: string[];
+	outcome?: "held" | "breached" | "fled";
 }
 
 /** One line in the play log (data/campaigns/<id>/log.jsonl). */

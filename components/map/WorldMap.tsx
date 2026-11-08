@@ -2,7 +2,7 @@
 
 import { displayPlace } from "@/lib/i18n";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { WorldLocation, WorldMap as WorldMapState } from "@/lib/game/types";
+import type { PlaceStatus, TownState, WorldLocation, WorldMap as WorldMapState } from "@/lib/game/types";
 import { paintWorldBase, paintWorldOverlay, sampleWorld } from "./art/worldPainter";
 import { paintTownBase, paintTownOverlay, townRegionView, travelMinutes } from "./art/townPainter";
 import { mapFont } from "./mapFont";
@@ -41,14 +41,24 @@ export interface WorldMapProps {
 	className?: string;
 	/** Start zoomed on the party's region (default) or on the whole world. */
 	initialScope?: "region" | "world";
+	/** The Quiet: the town as the player knows it (place status, known hordes). */
+	town?: TownState;
 }
+
+const STATUS_DOT: Record<PlaceStatus, string> = {
+	intact: "",
+	looted: "bg-zinc-400 border-zinc-700",
+	overrun: "bg-red-700 border-red-950",
+	burned: "bg-orange-500 border-orange-900",
+	held: "bg-sky-600 border-sky-950",
+};
 
 /**
  * Parchment overworld map. Terrain is generated from world.seed/terrain
  * (identical to lib/maps/world.ts sampling), painted once per size, and
  * overlaid with routes, location icons and labels. Locations are real buttons.
  */
-export default function WorldMap({ world: rawWorld, onLocationClick, selectedLocationId, showUndiscovered, className, initialScope = "region" }: WorldMapProps) {
+export default function WorldMap({ world: rawWorld, onLocationClick, selectedLocationId, showUndiscovered, className, initialScope = "region", town }: WorldMapProps) {
 	const { t, te, lang } = useT();
 	const isTown = rawWorld.terrain.style === "town";
 	const chrome = isTown ? CHROME.town : CHROME.fantasy;
@@ -163,6 +173,27 @@ export default function WorldMap({ world: rawWorld, onLocationClick, selectedLoc
 	const current = world.locations.find((l) => l.id === world.currentLocationId);
 	const visible = world.locations.filter((l) => (l.discovered || showUndiscovered) && (scope === "world" || inView(l, 0)));
 	const hovered = visible.find((l) => l.id === hover);
+	const factionName = (id?: string) => {
+		if (!id) return "";
+		const k = `play.map.town.faction.${id}` as MessageKey;
+		const s = t(k);
+		return s === k ? (town?.factions[id]?.name ?? id) : s;
+	};
+	const statusLine = (id: string) => {
+		const p = town?.places[id];
+		if (!p?.knownStatus || p.knownStatus === "intact") return "";
+		return t(`play.map.town.status.${p.knownStatus}` as MessageKey, { name: factionName(p.knownHeldBy) });
+	};
+	// Hordes at the same place fan out instead of stacking.
+	const seenAt = new Map<string, number>();
+	const hordes = (town?.hordes ?? [])
+		.map((h) => ({ h, l: visible.find((l) => l.id === h.at), i: 0 }))
+		.filter((x): x is { h: (typeof x)["h"]; l: WorldLocation; i: number } => !!x.l)
+		.map((x) => {
+			const i = seenAt.get(x.l.id) ?? 0;
+			seenAt.set(x.l.id, i + 1);
+			return { ...x, i };
+		});
 
 	return (
 		<div ref={wrapRef} className={`relative grid h-full w-full place-items-center overflow-hidden ${chrome.wrap} ${isTown ? townFont.className : mapFont.className} ${className ?? ""}`}>
@@ -195,6 +226,26 @@ export default function WorldMap({ world: rawWorld, onLocationClick, selectedLoc
 							</svg>
 						</div>
 					)}
+					{visible.map((l) => {
+						const st = town?.places[l.id]?.knownStatus;
+						return st && st !== "intact" ? (
+							<span key={`st-${l.id}`} className={`pointer-events-none absolute z-[5] h-3 w-3 rounded-full border-2 shadow ${STATUS_DOT[st]}`} style={{ left: l.x * box.w + 10, top: l.y * box.h + 4 }} data-testid={`place-status-${st}`} />
+						) : null;
+					})}
+					{hordes.map(({ h, l, i }) => (
+						<div
+							key={h.id}
+							className="group absolute z-[6] -translate-x-1/2 -translate-y-1/2"
+							style={{ left: l.x * box.w - 22 - i * 30, top: l.y * box.h - 20 }}
+							data-testid="horde-marker"
+						>
+							<span className="absolute -inset-2 animate-pulse rounded-full bg-red-700/30" />
+							<span className="relative grid h-6 min-w-6 place-items-center rounded-full border-2 border-red-950 bg-red-800 px-1 text-[11px] font-bold text-white shadow">~{h.size}</span>
+							<span className={`pointer-events-none absolute left-1/2 top-7 hidden -translate-x-1/2 whitespace-nowrap rounded border px-2 py-0.5 text-xs shadow group-hover:block ${chrome.tip}`}>
+								{t("play.map.town.horde", { n: h.size })} · {t("play.map.town.hordeHint")}
+							</span>
+						</div>
+					))}
 					{visible.map((l) => (
 						<button
 							key={l.id}
@@ -219,6 +270,7 @@ export default function WorldMap({ world: rawWorld, onLocationClick, selectedLoc
 								{te("location", hovered.kind)}
 								{hovered.id === world.currentLocationId ? ` · ${t("play.map.youAreHere")}` : hovered.visited ? ` · ${t("play.map.visited")}` : ""}
 							</div>
+							{statusLine(hovered.id) && <div className="mt-0.5 text-xs font-semibold text-red-800">{statusLine(hovered.id)}{town?.places[hovered.id]?.lastVisit !== undefined && hovered.id !== world.currentLocationId ? ` · ${t("play.map.town.lastSeen", { n: Math.floor(town!.places[hovered.id].lastVisit! / 1440) })}` : ""}</div>}
 							{hovered.description && <div className="mt-1 text-xs">{hovered.description}</div>}
 						</div>
 					)}

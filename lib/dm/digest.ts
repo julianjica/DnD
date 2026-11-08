@@ -7,6 +7,7 @@ import { outbreakDay, rulesetOf } from "../rules/ruleset";
 import { survivalDigest } from "../rules/survival";
 import { baseDigest } from "../rules/base";
 import { groupDigest } from "../rules/group";
+import { townDigest } from "../rules/town";
 import { rulesetLabelEn } from "../i18n/ruleset-labels";
 import { getClass, getSpecies, getSubclass } from "../srd/index";
 import { compassOf, mapDistance, travelDaysIn, travelText } from "../maps/geography";
@@ -56,6 +57,8 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 	if (base) lines.push(base);
 	const group = rs === "zombie" ? groupDigest(s) : undefined;
 	if (group) lines.push(group);
+	const town = rs === "zombie" ? townDigest(s) : undefined;
+	if (town) lines.push(town);
 	if (c.hp === 0) lines.push(`Death saves: ${c.deathSaves.successes} successes / ${c.deathSaves.failures} failures`);
 	if (c.spellcasting) {
 		const sl = c.spellcasting.slots
