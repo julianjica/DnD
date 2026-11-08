@@ -59,6 +59,8 @@ export interface BattleMapProps {
 	notes?: Record<string, string>;
 	/** Exits to other maps, keyed "x,y" → destination name. */
 	exits?: Record<string, string>;
+	/** The Quiet: siege posts, keyed "x,y" → who holds them. */
+	marks?: Record<string, string>;
 }
 
 /**
@@ -154,8 +156,9 @@ export default function BattleMap(props: BattleMapProps) {
 			barricadeLabel,
 			notes: props.notes,
 			exits: props.exits,
+			marks: props.marks,
 		});
-	}, [ready, map, entities, status, visibleSquares, fog, showHidden, highlights, highlightColor, pathPreview, pathLabel, aoe, selectedId, gridOn, darkvision, props.pixel, props.powerOn, barricadeLabel, props.notes, props.exits]);
+	}, [ready, map, entities, status, visibleSquares, fog, showHidden, highlights, highlightColor, pathPreview, pathLabel, aoe, selectedId, gridOn, darkvision, props.pixel, props.powerOn, barricadeLabel, props.notes, props.exits, props.marks]);
 
 	const focusKey = props.focus == null ? "" : typeof props.focus === "string" ? props.focus : `${props.focus.x},${props.focus.y}`;
 	useEffect(() => {

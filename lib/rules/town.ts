@@ -2,6 +2,7 @@ import type { GameState, Horde, PlaceState, PlaceStatus, TownEvent, TownFaction,
 import type { Rng } from "./dice";
 import { isZombie, gameMinutes } from "./survival";
 import { PLACE_TYPES } from "./scavenge";
+import { startSiege } from "./siege";
 
 /**
  * The Quiet: Kessler Falls moves on without the player (docs/zombie.md §1).
@@ -172,7 +173,14 @@ function arrive(state: GameState, t: TownState, rng: Rng, h: Horde, at: number, 
 		// It stays to batter the walls for a day before drifting on (the siege plays it out).
 		h.nextMoveAt = Math.max(h.nextMoveAt, at + DAY);
 		delete h.heading;
-		out.push(`TOWN — A HORDE REACHED THE BASE at ${where} (~${h.size} dead). ${state.world.currentLocationId === base ? "The party is there." : "The party is away: the people inside face it."} Treat it as a siege: the dead hit the barricades (damage_barricade), and if they give way it's start_combat.`);
+		// The siege engine plays it out (lib/rules/siege.ts); without a base map (or with a siege on) it's the DM's.
+		let siege: string | undefined;
+		try {
+			siege = startSiege(state, rng, { horde: h.size, hordeId: h.id, source: "town", from: at });
+		} catch {
+			siege = undefined;
+		}
+		out.push(`TOWN — A HORDE REACHED THE BASE at ${where} (~${h.size} dead). ${siege ?? `${state.world.currentLocationId === base ? "The party is there." : "The party is away: the people inside face it."} Treat it as a siege: the dead hit the barricades (damage_barricade), and if they give way it's start_combat.`}`);
 	}
 }
 

@@ -16,6 +16,7 @@ import type { Rng } from "./dice";
 import { outbreakDay } from "./ruleset";
 import { gameMinutes, isFood, isWater } from "./survival";
 import { residentsDigest } from "./residents";
+import { probeSiege } from "./siege";
 
 export const STOCK_KINDS = ["food", "water", "meds", "ammo", "fuel", "materials"] as const;
 export type StockKind = (typeof STOCK_KINDS)[number];
@@ -553,6 +554,12 @@ export function rollBaseEvent(state: GameState, rng: Rng, at = gameMinutes(state
 			const list = [...who].map(([id, k]) => `${k} × ${id}`).join(", ");
 			params.count = n;
 			logText = "the dead pounded on the walls.";
+			// A big probe is the vanguard: the rest come tonight (lib/rules/siege.ts).
+			const siege = probeSiege(state, rng, n, at);
+			if (siege) {
+				text = `${pre} THE DEAD PROBE THE WALLS AT DAWN: ${list} (the dead that exist on outbreak day ${day}) scratch at the base and drift off; they are only the vanguard. ${siege}`;
+				break;
+			}
 			text = `${pre} THE DEAD PROBE THE WALLS: ${list} (the dead that exist on outbreak day ${day}) come at the base.${warning(b)} ${where} ${walls.length ? `Use damage_barricade on the base barricades (${walls.map((k) => `(${k})`).join(", ")}; use_map ${b.mapId} first if it isn't the active map): about 1d6 per round for a handful, more for a crowd. If one gives way, start_combat with them.` : "There are no barricades on the base map: they find a way in unless someone stops them (start_combat)."} Fortification ${b.fortification}+ means they may just give up after a while (DM's call).`;
 			break;
 		}

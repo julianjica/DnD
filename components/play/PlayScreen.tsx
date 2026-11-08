@@ -139,7 +139,7 @@ export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 					<Narration state={state} log={game.log} live={game.live} busy={game.busy} onSend={game.send} onAbort={() => void game.abort()} onRollPending={() => void game.rollPending()} />
 				</section>
 				<section className="relative min-h-0">
-					<Stage state={state} busy={game.busy} fx={game.fx} act={(a) => void game.act(a)} setView={(v) => game.setState({ ...state, view: v })} />
+					<Stage state={state} busy={game.busy} fx={game.fx} act={(a) => void game.act(a)} siege={(op) => void game.siege(op)} setView={(v) => game.setState({ ...state, view: v })} />
 					{enemyTurnStalled && (
 						<button className="btn btn-gold absolute bottom-16 left-1/2 z-20 -translate-x-1/2" onClick={() => void game.send("(Continue the enemies' turns.)")}>
 							{t("play.letEnemiesAct")}

@@ -158,6 +158,8 @@ export function useGame(id: string) {
 	const send = useCallback((text: string) => stream(`/api/campaigns/${id}/turn`, { text }, { showPlayer: text }), [id, stream]);
 	const act = useCallback((action: PlayerCombatAction) => stream(`/api/campaigns/${id}/action`, { action }), [id, stream]);
 	const rollPending = useCallback(() => stream(`/api/campaigns/${id}/roll`, {}), [id, stream]);
+	/** The Quiet: siege controls (posts, lights, the next wave). */
+	const siege = useCallback((op: SiegeOp) => stream(`/api/campaigns/${id}/siege`, op), [id, stream]);
 	const abort = useCallback(() => fetch(`/api/campaigns/${id}/turn`, { method: "DELETE" }), [id]);
 
 	const patchSettings = useCallback(
@@ -170,7 +172,10 @@ export function useGame(id: string) {
 		[id, t],
 	);
 
-	return { state, setState, log, live, busy, error, setError, rollQueue, fx, loaded, refresh, send, act, rollPending, abort, patchSettings };
+	return { state, setState, log, live, busy, error, setError, rollQueue, fx, loaded, refresh, send, act, rollPending, siege, abort, patchSettings };
 }
 
 export type Game = ReturnType<typeof useGame>;
+
+/** A siege control sent to /api/campaigns/[id]/siege. */
+export type SiegeOp = { op: "assign"; who: string; x?: number; y?: number } | { op: "lights"; on: boolean } | { op: "wave"; action?: "shoot" | "hack" | "repair" | "hold"; moveTo?: { x: number; y: number } };

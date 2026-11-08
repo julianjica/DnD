@@ -5,7 +5,9 @@ import type { GameState, GroupState, TownState } from "./types";
  * bitten character or companion turns is rolled in secret and known only to the DM).
  */
 export function clientState(state: GameState): GameState {
-	return state.town ? { ...hideInfection(state), town: clientTown(state.town) } : hideInfection(state);
+	const out = state.town ? { ...hideInfection(state), town: clientTown(state.town) } : hideInfection(state);
+	// The siege's end-of-night summary is the DM's instruction (it may name a secret infection).
+	return out.siege?.summary ? { ...out, siege: { ...out.siege, summary: undefined } } : out;
 }
 
 /** The town as the player knows it: no secret goals, unknown hordes or unseen changes. */
