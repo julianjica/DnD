@@ -107,25 +107,27 @@ export async function runTurn(input: TurnInput): Promise<void> {
 			},
 		});
 		// Safety net: a turn that ended without suggestions gets a short follow-up that can only add them.
-		if (!errored && !controller.signal.aborted && !toolLog.some((t) => t.name === "suggest_actions" && !t.isError)) {
-			const suggest = tools.filter((t) => t.name === "suggest_actions");
-			if (suggest.length)
-				await engine
-					.runTurn({
-						sessionKey: campaignId,
-						systemPrompt: buildSystemPrompt(state.settings),
-						input: `# ENGINE NOTE\nYou ended the turn without suggest_actions. Call suggest_actions now with 3–4 short, distinct options for what the player might do next, following from your last narration${state.settings.language === "es" ? " (in Spanish)" : ""}. Write nothing else.`,
-						tools: suggest,
-						config,
-						signal: controller.signal,
-						onEvent(ev) {
-							if (ev.type === "tool_end") {
-								toolLog.push({ name: ev.name, summary: ev.result.text.slice(0, 200), isError: ev.result.isError });
-								emit({ type: "tool", id: ev.id, name: ev.name, status: "end", summary: ev.result.text.slice(0, 200), isError: ev.result.isError });
-							}
-						},
-					})
-					.catch(() => undefined);
+		// Same tool list (same fingerprint), so the engine resumes this conversation and knows the story;
+		// every tool but suggest_actions refuses for the follow-up.
+		if (!errored && !controller.signal.aborted && !toolLog.some((t) => t.name === "suggest_actions" && !t.isError) && tools.some((t) => t.name === "suggest_actions")) {
+			const onlySuggest = tools.map((t) => (t.name === "suggest_actions" ? t : { ...t, execute: async () => ({ text: "Only suggest_actions now.", isError: true }) }));
+			const tail = narration.trim().slice(-700);
+			await engine
+				.runTurn({
+					sessionKey: campaignId,
+					systemPrompt: buildSystemPrompt(state.settings),
+					input: `# ENGINE NOTE\nYou ended the turn without suggest_actions. Call suggest_actions now with 3–4 short, distinct options for what the player might do next, following directly from where your narration left off${state.settings.language === "es" ? " (in Spanish)" : ""}. Call no other tool and write nothing else.${tail ? `\n\nYour narration ended:\n${tail}` : ""}`,
+					tools: onlySuggest,
+					config,
+					signal: controller.signal,
+					onEvent(ev) {
+						if (ev.type === "tool_end" && ev.name === "suggest_actions") {
+							toolLog.push({ name: ev.name, summary: ev.result.text.slice(0, 200), isError: ev.result.isError });
+							emit({ type: "tool", id: ev.id, name: ev.name, status: "end", summary: ev.result.text.slice(0, 200), isError: ev.result.isError });
+						}
+					},
+				})
+				.catch(() => undefined);
 		}
 		const entries: LogEntry[] = ctx.rolls.map((roll) => ({ id: newId("l"), role: "roll", text: `${roll.label}: ${roll.total}`, roll, ts: roll.ts }));
 		if (narration.trim() || toolLog.length) entries.push({ id: newId("l"), role: "dm", text: narration.trim(), tools: toolLog, ts: Date.now() });
