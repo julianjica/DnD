@@ -1,4 +1,5 @@
 import type { EngineConfig, LogEntry } from "../game/types";
+import { nextTurn } from "../rules/threads";
 import { getEngine } from "../engines";
 import { appendLog, loadState, readLog, mutate } from "../store/campaigns";
 import { buildSystemPrompt } from "./prompt";
@@ -50,6 +51,7 @@ export async function runTurn(input: TurnInput): Promise<void> {
 		// Clear stale suggestions/pending roll the moment the player acts.
 		await mutate(campaignId, (s) => {
 			s.suggestions = [];
+			nextTurn(s);
 		});
 
 		const ctx: ToolContext = { campaignId, emit, rolls: [] };

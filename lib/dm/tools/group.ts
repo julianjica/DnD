@@ -1,4 +1,5 @@
 import type { GameState } from "../../game/types";
+import { markBeat } from "../../rules/threads";
 import { getEquipment } from "../../srd";
 import {
 	adjustMorale,
@@ -192,6 +193,7 @@ export const companionBeatTool = tool<{ npcIds: string[]; morale?: { npcId: stri
 			requireZombie(state);
 			const ids = [...new Set(a.npcIds ?? [])];
 			if (!ids.length) throw new Error("npcIds: who was in the scene?");
+			markBeat(state, "human");
 			const member = (id: string) => {
 				const sv = survivorOf(state, id);
 				if (!isActive(sv)) throw new Error(`${nameOf(state, sv)} is no longer in the group (${sv.status}).`);

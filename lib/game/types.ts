@@ -440,6 +440,32 @@ export interface Npc {
 	/** Monster stat block used if they fight. */
 	statBlock?: string;
 	firstMetDay?: number;
+	/** Voice card (DM only): how they talk — register, rhythm, tics, a sample line. */
+	voice?: string;
+	/** What they're after right now (DM only). */
+	wants?: string;
+	/** What they think of the player, as it stands (DM only; changes with the story). */
+	opinion?: string;
+}
+
+/** A story thread the DM planted and owes a payoff (lib/rules/threads.ts). */
+export interface StoryThread {
+	id: string;
+	title: string;
+	/** What was set up, and what it could pay off into (DM only). */
+	planted: string;
+	status: "open" | "resolved" | "dropped";
+	/** Player turn it was planted / last brought back. */
+	plantedTurn: number;
+	touchedTurn: number;
+	/** How it paid off. */
+	payoff?: string;
+}
+
+/** The pacing director's memory: the player turn of the last beat of each kind. */
+export interface PacingState {
+	turn: number;
+	last: { threat: number; action: number; human: number; twist: number };
 }
 
 export interface Quest {
@@ -797,6 +823,10 @@ export interface GameState {
 	radio?: RadioState;
 	/** The Quiet: a night siege at the base, from warning to dawn. */
 	siege?: SiegeState;
+	/** Threads the DM planted and owes a payoff. */
+	threads?: StoryThread[];
+	/** The pacing director's memory. */
+	pacing?: PacingState;
 }
 
 // ─── The Quiet: the living town ────────────────────────────────────────────

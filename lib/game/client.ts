@@ -5,10 +5,23 @@ import type { GameState, GroupState, Survivor, TownState } from "./types";
  * bitten character or companion turns is rolled in secret and known only to the DM).
  */
 export function clientState(state: GameState): GameState {
-	const out = hideExpeditions(hideProfiles(hideInfection(state)));
+	const out = hideDmNotes(hideExpeditions(hideProfiles(hideInfection(state))));
 	const shown = state.town ? { ...out, town: clientTown(state.town) } : out;
 	// The siege's end-of-night summary is the DM's instruction (it may name a secret infection).
 	return shown.siege?.summary ? { ...shown, siege: { ...shown.siege, summary: undefined } } : shown;
+}
+
+/** NPC secrets and voice cards, story threads and pacing are the DM's working notes. */
+function hideDmNotes(state: GameState): GameState {
+	const npcs: GameState["npcs"] = {};
+	for (const [id, n] of Object.entries(state.npcs)) {
+		const { secret: _s, voice: _v, wants: _w, opinion: _o, ...rest } = n;
+		void _s, void _v, void _w, void _o;
+		npcs[id] = rest;
+	}
+	const { threads: _t, pacing: _p, ...rest } = state;
+	void _t, void _p;
+	return { ...rest, npcs };
 }
 
 /** Expeditions as the player knows them: what they heard, not what happened out there. */

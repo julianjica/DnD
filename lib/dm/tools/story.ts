@@ -196,7 +196,14 @@ const appearanceSchema = S.obj(
 	[],
 );
 
-export const addNpc = tool<{ name: string; role: string; speciesId?: string; disposition?: "friendly" | "neutral" | "hostile" | "unknown"; description: string; secret?: string; statBlock?: string; present?: boolean; appearance?: Appearance }>(
+/** The voice card: what makes an NPC sound and act like themselves (DM only). */
+const VOICE_FIELDS = {
+	voice: S.str("How they talk: register, rhythm, verbal tics, what they never say, one sample line (e.g. 'clipped radio-speak, calls everyone \"son\", never swears: \"Copy. Move.\"')"),
+	wants: S.str("What they're after right now"),
+	opinion: S.str("What they think of the player right now, and why"),
+};
+
+export const addNpc = tool<{ name: string; role: string; speciesId?: string; disposition?: "friendly" | "neutral" | "hostile" | "unknown"; description: string; secret?: string; statBlock?: string; present?: boolean; appearance?: Appearance; voice?: string; wants?: string; opinion?: string }>(
 	"add_npc",
 	"Introduce a new NPC into the codex. Their portrait is drawn from `appearance` — ALWAYS fill it to match the description (gender, age, hair, beard, headwear, clothing…), so the picture shows who you describe. present=true adds them to the current scene.",
 	S.obj(
@@ -210,6 +217,7 @@ export const addNpc = tool<{ name: string; role: string; speciesId?: string; dis
 			statBlock: S.str("SRD monster index to use if they fight, e.g. 'bandit-captain'"),
 			present: S.bool(),
 			appearance: appearanceSchema,
+			...VOICE_FIELDS,
 		},
 		["name", "role", "description"],
 	),
@@ -230,15 +238,18 @@ export const addNpc = tool<{ name: string; role: string; speciesId?: string; dis
 				// Explicit appearance wins; anything unstated is read from the description.
 				portrait: portraitFromAppearance(rng, a.speciesId ?? "human", { age: "adult", ...appearanceFromText(`${a.role}. ${a.description}`), ...(a.appearance ?? {}) }),
 				firstMetDay: state.time.day,
+				...(a.voice ? { voice: a.voice } : {}),
+				...(a.wants ? { wants: a.wants } : {}),
+				...(a.opinion ? { opinion: a.opinion } : {}),
 			};
 			if (a.present) state.scene.npcIds = [...state.scene.npcIds, id];
 			return `NPC ${a.name} created with id ${id}.`;
 		}),
 );
 
-export const updateNpc = tool<{ id: string; disposition?: "friendly" | "neutral" | "hostile" | "unknown"; description?: string; secret?: string; alive?: boolean; present?: boolean; role?: string; appearance?: Appearance }>(
+export const updateNpc = tool<{ id: string; disposition?: "friendly" | "neutral" | "hostile" | "unknown"; description?: string; secret?: string; alive?: boolean; present?: boolean; role?: string; appearance?: Appearance; voice?: string; wants?: string; opinion?: string }>(
 	"update_npc",
-	"Update an NPC (disposition, description, secret, alive, present in scene). Pass `appearance` to fix or change how their portrait looks (e.g. they put on a helmet, or the portrait doesn't match).",
+	"Update an NPC (disposition, description, secret, alive, present in scene, and their voice card: voice / wants / opinion of the player — update opinion when the player changes how they see them). Pass `appearance` to fix or change how their portrait looks (e.g. they put on a helmet, or the portrait doesn't match).",
 	S.obj(
 		{
 			id: S.str(),
@@ -249,6 +260,7 @@ export const updateNpc = tool<{ id: string; disposition?: "friendly" | "neutral"
 			alive: S.bool(),
 			present: S.bool(),
 			appearance: appearanceSchema,
+			...VOICE_FIELDS,
 		},
 		["id"],
 	),
@@ -261,6 +273,9 @@ export const updateNpc = tool<{ id: string; disposition?: "friendly" | "neutral"
 			if (a.description) npc.description = a.description;
 			if (a.secret !== undefined) npc.secret = a.secret;
 			if (a.role) npc.role = a.role;
+			if (a.voice) npc.voice = a.voice;
+			if (a.wants) npc.wants = a.wants;
+			if (a.opinion) npc.opinion = a.opinion;
 			if (a.alive !== undefined) npc.alive = a.alive;
 			if (a.present === true && !state.scene.npcIds.includes(a.id)) state.scene.npcIds.push(a.id);
 			if (a.present === false) state.scene.npcIds = state.scene.npcIds.filter((x) => x !== a.id);

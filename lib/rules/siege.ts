@@ -16,6 +16,7 @@
  * future waves is precomputed: every wave is rolled when it is resolved, so the
  * client sees no secret schedule.
  */
+import { markBeat } from "./threads";
 import type { BaseState, Character, GameState, GridMap, InventoryItem, MonsterStats, SiegeState, Survivor, Tile } from "../game/types";
 import { getEquipment, getMonster } from "../srd";
 import { applyDamage, isDead } from "./character/resources";
@@ -190,6 +191,7 @@ export function startSiege(state: GameState, rng: Rng, a: StartArgs): string {
 	if (!isZombie(state)) throw new Error("Only in The Quiet.");
 	const b = baseOf(state);
 	if (!b) throw new Error("There is no base (claim_base first): a siege is the dead coming for the base.");
+	markBeat(state, "threat");
 	const map = baseMapOf(state);
 	if (!map) throw new Error(`The base has no map: draw it (draw_map) and claim_base with mapId first, so the defence can be set on it.`);
 	if (state.siege && state.siege.phase !== "over") throw new Error(`A siege is already on (${state.siege.phase}, ~${state.siege.horde} dead).`);

@@ -9,6 +9,7 @@ import { baseDigest } from "../rules/base";
 import { groupDigest } from "../rules/group";
 import { townDigest } from "../rules/town";
 import { expeditionDigest } from "../rules/expeditions";
+import { storyDigest, voiceDigest } from "../rules/threads";
 import { radioDigest } from "../rules/radio";
 import { siegeDigest } from "../rules/siege";
 import { rulesetLabelEn } from "../i18n/ruleset-labels";
@@ -93,6 +94,8 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 	const npcs = Object.values(s.npcs);
 	const here = npcs.filter((n) => s.scene.npcIds.includes(n.id));
 	if (here.length) lines.push(`NPCs present: ${here.map((n) => `${n.name} [${n.id}] (${n.role}, ${n.disposition}${n.alive ? "" : ", dead"})${n.secret ? ` secret: ${n.secret}` : ""}`).join("; ")}`);
+	const voices = voiceDigest(s);
+	if (voices) lines.push(voices);
 	if (npcs.length > here.length) lines.push(`Other known NPCs: ${npcs.filter((n) => !here.includes(n)).map((n) => `${n.name} [${n.id}] (${n.role})`).join(", ")}`);
 
 	const fallen = fallenSummary(s);
@@ -137,5 +140,7 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 			lines.push(`${e.role.toUpperCase()}: ${text}`);
 		}
 	}
+	const story = storyDigest(s);
+	if (story) lines.push(story);
 	return lines.join("\n");
 }

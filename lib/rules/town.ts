@@ -2,6 +2,7 @@ import type { GameState, Horde, PlaceState, PlaceStatus, TownEvent, TownFaction,
 import type { Rng } from "./dice";
 import { isZombie, gameMinutes } from "./survival";
 import { PLACE_TYPES } from "./scavenge";
+import { markBeat } from "./threads";
 import { startSiege } from "./siege";
 
 /**
@@ -165,6 +166,7 @@ function arrive(state: GameState, t: TownState, rng: Rng, h: Horde, at: number, 
 	}
 	if (h.at === here && state.encounter?.status !== "active") {
 		h.known = true;
+		markBeat(state, "threat");
 		out.push(`TOWN — A HORDE IS HERE: ~${h.size} dead are pouring into ${where} right now (it drifted in from the roads). Play it: the player hears it first (a groan rolling down the street), then sees it. Hiding, fleeing or barricading are the sane choices; a fight against a horde is suicide (start_combat with z-horde if they insist).`);
 	}
 	if (h.at === base) {

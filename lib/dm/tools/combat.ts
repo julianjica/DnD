@@ -1,4 +1,5 @@
 import type { ConditionId, DamageType, GameState } from "../../game/types";
+import { markBeat } from "../../rules/threads";
 import { assertNotFallen, isNamedFoe, recordFallen } from "../../rules/fallen";
 import type { Rng } from "../../rules/dice";
 import {
@@ -186,6 +187,7 @@ export const startCombatTool = tool<{ monsters: SpawnArg[]; pcSurprised?: boolea
 export function beginCombat(tx: StateTxn, a: { monsters: SpawnArg[]; pcSurprised?: boolean; override?: string }): string {
 	const { state, rng } = tx;
 	if (state.encounter?.status === "active") throw new Error("Combat already active; use add_monsters.");
+	markBeat(state, "action");
 	const map = state.activeMapId ? state.maps[state.activeMapId] : undefined;
 	const spawns = toSpawns(state, a.monsters);
 	if (!map) throw new Error("No active map. Call generate_map first.");
