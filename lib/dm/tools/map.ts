@@ -1,6 +1,6 @@
 import { rulesetOf } from "../../rules/ruleset";
 import type { EntityKind, GameState, GridMap, LocationKind, MapKind, TerrainKind, Tile, WorldLocation } from "../../game/types";
-import { MODERN_FEATURE_SPRITES } from "../../maps/draw";
+import { MODERN_FEATURE_SPRITES, mapToRows } from "../../maps/draw";
 import { climateForPreset, drawMap, FEATURE_SPRITES, generateMap, LEGEND_TEXT, MAP_KINDS, placeEntity, revealAround, WORLD_ASPECT, type Climate, type DrawKey } from "../../maps";
 import { distanceInDays, isTownWorld, travelDaysIn, travelText } from "../../maps/geography";
 import { addTerrainFeature, BEARING, betweenFromText, compassOf, daysForDistance, directionFromText, distanceForDays, fits, mapDistance, placeFor, REGION_SIZE, retimeRoutes, terrainFor, type Compass, type PlaceSpec } from "../../maps/geography";
@@ -47,13 +47,13 @@ function addMap(state: GameState, map: GridMap) {
 
 type DrawKeyArg = DrawKey & { char: string };
 
-export const drawMapTool = tool<{ name: string; kind: MapKind; rows: string[]; key?: DrawKeyArg[]; climate?: Climate; lighting?: GridMap["lighting"]; show?: boolean }>(
+export const drawMapTool = tool<{ name: string; kind: MapKind; rows: string[]; key?: DrawKeyArg[]; climate?: Climate; lighting?: GridMap["lighting"]; show?: boolean; continues?: boolean }>(
 	"draw_map",
 	`Draw the place the player is in, square by square (5 ft each), as rows of characters. It becomes the picture in the scene panel AND the battle map, so draw what you narrate: walls, doors, furniture, terrain, who stands where. Typical size 24-40 wide x 14-22 tall; all rows the same length.
 Legend: ${LEGEND_TEXT}.
 Anything else (features, NPCs) goes in key: one character each (letters/digits not in the legend, e.g. R, 1, 2). Feature sprites: ${FEATURE_SPRITES.filter((f) => !(MODERN_FEATURE_SPRITES as readonly string[]).includes(f)).join(", ")}. Modern props (The Quiet only): ${MODERN_FEATURE_SPRITES.join(", ")}. NPCs: {char, npcId}. Light sources: add lightRadius.
 Example (a hall): rows ["########+########", "#.....=====.....#", "#.R.==hhhh==..1.#", "#....==@===.....#", "#################"] with key [{char:"R", sprite:"runestone"}, {char:"h", sprite:"hearth", lightRadius:6}, {char:"1", npcId:"npc_…"}].
-Draw each place once; return later with use_map. Monsters for a fight are added by start_combat as usual.`,
+Draw each place once; return later with use_map. Another part of a place already drawn (the back yard of the same building) must match the maps there: same building outline, walls, doors and features where they overlap; the tool shows you those maps first. Monsters for a fight are added by start_combat as usual.`,
 	S.obj(
 		{
 			name: S.str("The place's name"),
@@ -76,6 +76,7 @@ Draw each place once; return later with use_map. Monsters for a fight are added 
 			climate: S.str("Default from the campaign setting", ["temperate", "snow", "desert"]),
 			lighting: S.str(undefined, ["bright", "dim", "dark"]),
 			show: S.bool("Switch to the Map tab (default false: the scene panel shows it)"),
+			continues: S.bool("Set after seeing this place's existing maps: you are drawing another part of it, consistent with them"),
 		},
 		["name", "kind", "rows"],
 	),
@@ -83,6 +84,13 @@ Draw each place once; return later with use_map. Monsters for a fight are added 
 		withState(ctx, ({ state, rng }) => {
 			if (state.encounter?.status === "active") throw new Error("Cannot change maps during combat.");
 			if (!MAP_KINDS.includes(a.kind)) throw new Error(`Unknown kind "${a.kind}". Use one of: ${MAP_KINDS.join(", ")}.`);
+			const here = state.world.locations.find((l) => l.id === state.world.currentLocationId);
+			const existing = (here?.mapIds ?? []).map((id) => state.maps[id]).filter(Boolean);
+			if (existing.length && !a.continues)
+				throw new Error(
+					`${here!.name} already has ${existing.length} map(s). Going back to one of them? use_map. Drawing another part of the same place? Keep it consistent with these (same building outline and size, walls, doors and features where they overlap; what the front shows of the building must match the back) and call draw_map again with continues=true. Nothing was drawn.\n` +
+						existing.map((mp) => `${mp.name} [${mp.id}] ${mp.width}x${mp.height} (@ you, * tokens):\n${mapToRows(mp).join("\n")}`).join("\n\n"),
+				);
 			const key: Record<string, DrawKey> = {};
 			for (const k of a.key ?? []) {
 				if (k.npcId && !state.npcs[k.npcId]) throw new Error(`Unknown npcId ${k.npcId} for key "${k.char}".`);
@@ -406,10 +414,18 @@ export const travelTool = tool<{ locationId: string; days?: number; hours?: numb
 			loc.discovered = true;
 			loc.visited = true;
 			if (route) route.discovered = true;
-			state.activeMapId = undefined;
+			// Returning to a place already drawn reopens its latest map, so the scene panel shows it.
+			loc.mapIds = loc.mapIds.filter((id) => state.maps[id]);
+			const known = loc.mapIds.length ? state.maps[loc.mapIds[loc.mapIds.length - 1]] : undefined;
+			state.activeMapId = known?.id;
+			if (known) ensurePc(known, state);
 			state.mode = "explore";
 			if (a.show !== false) state.view = "world";
-			return `Travelled to ${loc.name} in ${hours < 24 ? `${Math.round(hours)} hour(s)` : `${days} day(s)`}. Now day ${state.time.day}, ${String(state.time.hour).padStart(2, "0")}:00. Set the new scene with set_scene.`;
+			const others = loc.mapIds.filter((id) => id !== known?.id).map((id) => `${state.maps[id].name}[${id}]`);
+			const mapNote = known
+				? ` Reopened its map ${known.name} [${known.id}]${others.length ? `; other maps here: ${others.join(", ")} (use_map to switch)` : ""}. Draw a new map only for a part of the place not drawn yet.`
+				: " No map of this place yet: draw_map it so the scene panel shows it.";
+			return `Travelled to ${loc.name} in ${hours < 24 ? `${Math.round(hours)} hour(s)` : `${days} day(s)`}. Now day ${state.time.day}, ${String(state.time.hour).padStart(2, "0")}:00.${mapNote} Set the new scene with set_scene.`;
 		}),
 );
 

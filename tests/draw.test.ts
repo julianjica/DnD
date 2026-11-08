@@ -182,3 +182,34 @@ test("draw_map rejects an unknown npcId and takes climate from the preset", asyn
 	assert.equal(st.maps[st.activeMapId!].climate, "snow");
 	assert.equal(st.view, "map");
 });
+
+test("travelling back to a drawn place reopens its latest map", async () => {
+	const id = newGame();
+	const rows = ["##########", "#,,,,,,,,#", "#,,@,,,,,#", "#,,,,,,,,#", "#,,,,,,,,#", "##########"];
+	const home = m.loadState(id).world.currentLocationId!;
+	await call(id, "draw_map", { name: "Yard", kind: "town", rows });
+	const yard = m.loadState(id).activeMapId!;
+	const away = m.loadState(id).world.locations.find((l) => l.id !== home)!;
+	await call(id, "travel", { locationId: away.id, hours: 1 });
+	const gone = m.loadState(id);
+	assert.equal(gone.activeMapId, undefined, "a new place has no map yet");
+	const r = await call(id, "travel", { locationId: home, hours: 1 });
+	assert.match(r.text, /Reopened its map Yard/);
+	const st = m.loadState(id);
+	assert.equal(st.activeMapId, yard);
+	assert.ok(st.maps[yard].entities.some((e) => e.kind === "pc"));
+});
+
+test("drawing another map of a place first shows its existing maps", async () => {
+	const id = newGame();
+	const rows = ["##########", "#,,,,,,,,#", "#,,@,,,,,#", "#,,,,,,,,#", "#,,,,,,,,#", "####+#####"];
+	await call(id, "draw_map", { name: "Front", kind: "town", rows });
+	const gated = await call(id, "draw_map", { name: "Back", kind: "town", rows });
+	assert.equal(gated.isError, true);
+	assert.match(gated.text, /already has 1 map/);
+	assert.ok(gated.text.includes("####+#####") && gated.text.includes("#,,@,,,,,#"), gated.text);
+	assert.equal(Object.keys(m.loadState(id).maps).length, 1, "nothing drawn");
+	const ok = await call(id, "draw_map", { name: "Back", kind: "town", rows, continues: true });
+	assert.notEqual(ok.isError, true, ok.text);
+	assert.equal(m.loadState(id).maps[m.loadState(id).activeMapId!].name, "Back");
+});

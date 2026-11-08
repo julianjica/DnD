@@ -199,3 +199,21 @@ function drawnBarricades(tiles: Tile[], width: number): NonNullable<GridMap["bar
 export function climateForPreset(preset: string): Climate {
 	return preset === "arctic" ? "snow" : preset === "desert_kingdoms" ? "desert" : "temperate";
 }
+
+const TILE_CHAR: Partial<Record<Tile, string>> = {};
+for (const [ch, t] of Object.entries(DRAW_LEGEND)) TILE_CHAR[t] ??= ch;
+
+/**
+ * A map back as draw_map rows (legend characters; `@` the player, `*` other
+ * tokens), so the DM can draw adjoining parts of the same place consistently.
+ */
+export function mapToRows(map: GridMap): string[] {
+	const g: string[][] = [];
+	for (let y = 0; y < map.height; y++) {
+		const row: string[] = [];
+		for (let x = 0; x < map.width; x++) row.push(TILE_CHAR[map.tiles[y * map.width + x]] ?? ".");
+		g.push(row);
+	}
+	for (const e of map.entities) if (g[e.y]?.[e.x] !== undefined) g[e.y][e.x] = e.kind === "pc" ? "@" : "*";
+	return g.map((r) => r.join("").replace(/\s+$/, ""));
+}
