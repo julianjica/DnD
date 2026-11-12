@@ -296,6 +296,8 @@ export const en = {
 	"enum.provider.api": "API",
 	"enum.autoRoll.auto": "Automatic",
 	"enum.autoRoll.manual": "I roll",
+	"enum.fights.auto": "Automatic",
+	"enum.fights.turns": "Turn by turn",
 } as const satisfies Record<string, string>;
 
 export const es: { [K in keyof typeof en]: string } = {
@@ -571,4 +573,6 @@ export const es: { [K in keyof typeof en]: string } = {
 	"enum.provider.api": "API",
 	"enum.autoRoll.auto": "Automáticas",
 	"enum.autoRoll.manual": "Las tiro yo",
+	"enum.fights.auto": "Automáticos",
+	"enum.fights.turns": "Por turnos",
 };

@@ -60,7 +60,9 @@ function cryptMap(door: Tile): GridMap {
 }
 
 async function setup(door: Tile) {
-	const s = m.createGame({ settings: m.defaultSettings(), character: { name: "Halden", speciesId: "human", classId: "wizard", backgroundId: "sage", abilities: STD } });
+	const settings = m.defaultSettings();
+	settings.dm.fights = "turns"; // these tests play fights turn by turn (the default is automatic)
+	const s = m.createGame({ settings, character: { name: "Halden", speciesId: "human", classId: "wizard", backgroundId: "sage", abilities: STD } });
 	const st = m.loadState(s.id);
 	const map = cryptMap(door);
 	map.entities.push({ id: `ent_${st.character.id}`, kind: "pc", name: "Halden", sprite: "pc", size: 1, x: 13, y: 8 } as GridMap["entities"][number]);

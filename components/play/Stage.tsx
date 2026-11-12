@@ -21,6 +21,7 @@ import type { FxItem, SiegeOp } from "./useGame";
 import { SiegePanel, siegeMarks, siegePostSquares } from "./SiegePanel";
 import { NetRunHud } from "./NetRunHud";
 import type { MapFxEvent, TokenStatus } from "@/components/map/BattleMap";
+import { useFightReplay } from "./FightReplay";
 import { useT } from "@/components/i18n/I18nProvider";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { CreatureCard, CreatureTypeLine } from "./CreatureCard";
@@ -273,6 +274,8 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 	// The Quiet: a night siege. Click a defender in the panel, then a highlighted way in on the base map.
 	const [picking, setPicking] = useState<string | null>(null);
 	const [siegeMove, setSiegeMove] = useState<Point | null>(null);
+	// Automatic fights: the map replays the last fight (components/play/FightReplay.tsx).
+	const replay = useFightReplay(state);
 
 	const pcEntity = map?.entities.find((e) => e.kind === "pc");
 	const artStyle = state.settings.art?.scenes ?? "paintings";
@@ -465,30 +468,33 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 						<SceneArt style={artStyle === "sprites" ? "paintings" : artStyle} backdrop={spriteMap ? <><SpriteScene map={spriteMap} looks={looks} dead={deadIds} time={state.scene.timeOfDay} weather={state.scene.weather} powerOn={powerOn} net={net} />{sick && <SickVignette stage={sick} />}</> : isModern(ruleset) ? <><QuietBackdrop time={state.scene.timeOfDay} />{sick && <SickVignette stage={sick} />}</> : undefined} scene={state.scene} npcs={state.scene.npcIds.map((id) => state.npcs[id]).filter(Boolean).map((n) => ({ id: n.id, name: n.name, portrait: n.portrait, speciesId: n.speciesId, role: n.role, description: n.description }))} ruleset={ruleset} className="max-h-full w-full rounded-lg shadow-2xl" />
 					</div>
 				)}
-				{view === "map" && map && (
+				{view === "map" && (replay.active ? replay.map : map) && (
+					// One map instance for play and replay (no Pixi re-init when a fight starts or ends).
 					<BattleMap
-						map={map}
+						map={(replay.active ? replay.map : map)!}
+						entities={replay.active ? replay.entities : undefined}
 						pixel={pixel}
 						powerOn={powerOn}
-						net={net}
-						status={status}
-						notes={notes}
-						exits={exits}
-						marks={marks}
-						highlights={reach ?? postSquares}
+						net={replay.active && replay.map?.theme !== "net" ? undefined : net}
+						status={replay.active ? replay.status : status}
+						notes={replay.active ? undefined : notes}
+						exits={replay.active ? undefined : exits}
+						marks={replay.active ? undefined : marks}
+						highlights={replay.active ? undefined : (reach ?? postSquares)}
 						highlightColor={postSquares && !reach ? 0xd9503f : 0x5b8fb9}
-						pathPreview={preview?.path}
-						pathLabel={preview ? `${preview.cost} ${t("play.unit.ft")}` : undefined}
-						aoe={aoe}
+						pathPreview={replay.active ? undefined : preview?.path}
+						pathLabel={!replay.active && preview ? `${preview.cost} ${t("play.unit.ft")}` : undefined}
+						aoe={replay.active ? undefined : aoe}
 						darkvision={darkvision}
-						focus={enc ? (enc.combatants[enc.order[enc.turnIndex]]?.entityId ?? null) : (pcEntity?.id ?? null)}
-						events={mapFx}
-						onSquareClick={(p) => onSquareClick(p)}
-						onTokenClick={(e) => onTokenClick(e)}
+						focus={replay.active ? (replay.focus ?? pcEntity?.id ?? null) : enc ? (enc.combatants[enc.order[enc.turnIndex]]?.entityId ?? null) : (pcEntity?.id ?? null)}
+						events={replay.active ? replay.events : mapFx}
+						onSquareClick={(p) => !replay.active && onSquareClick(p)}
+						onTokenClick={(e) => !replay.active && onTokenClick(e)}
 						onSquareHover={setHover}
 						className="h-full w-full"
 					/>
 				)}
+				{view === "map" && (replay.active || (map && state.fight?.mapId === map.id)) && replay.panel}
 				{sick && view === "map" && <SickVignette stage={sick} />}
 				{view === "map" && state.siege && !enc && props.siege && <SiegePanel state={state} busy={busy} send={props.siege} picking={picking} setPicking={setPicking} move={siegeMove} setMove={setSiegeMove} />}
 				{view === "world" && (

@@ -5,6 +5,7 @@
  * and colour, plus the gear their class or role suggests.
  */
 import type { PortraitSpec } from "@/lib/game/types";
+import { paintNaturalHair } from "./naturalHair";
 import { normalizeSpecies, portraitTraits } from "@/lib/art/portrait";
 import { isModern, type Ruleset } from "@/lib/rules/ruleset";
 
@@ -562,6 +563,8 @@ export function paintPerson(px: Px, l: PersonLook) {
 		set(hx1, hy + 1, STEEL_D);
 		set(hx + 2, hy + 2, STEEL_D); // nose guard
 		if (l.species === "dwarf") { set(hx - 1, hy - 1, "#efe6cf"); set(hx1 + 1, hy - 1, "#efe6cf"); }
+	} else if (hs.startsWith("m_") && paintNaturalHair(hs, set, rect, hx, hy, H, HD, HL, skin)) {
+		// natural men's cuts (sprite/naturalHair.ts)
 	} else if (hs !== "bald") {
 		const crown = () => { rect(hx + 1, hy - 1, 4, 1, H); rect(hx, hy, 6, 1, H); set(hx1, hy, HD); set(hx + 4, hy - 1, HD); };
 		switch (hs) {

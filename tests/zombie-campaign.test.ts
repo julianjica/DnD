@@ -42,6 +42,7 @@ async function call(id: string, name: string, args: Record<string, unknown>) {
 
 function newGame(zombie: boolean, classId = "wizard") {
 	const settings = m.defaultSettings();
+	settings.dm.fights = "turns"; // these tests play fights turn by turn (the default is automatic)
 	if (zombie) settings.world.preset = "zombie_outbreak";
 	return m.createGame({ settings, character: { name: "Dana", speciesId: "human", classId, backgroundId: "sage", abilities: STD } }).id;
 }

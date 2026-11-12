@@ -28,3 +28,4 @@ export {
 } from "./grid";
 export { type AttackProfile, averageDamage, characterLevel, derivePcProfile, estimateAc, monsterAttackProfile, pcAttackProfile, proficiencyBonus } from "./profile";
 export { pickByKey, spellAttackProfile, spellDamageDice, spellRangeFeet } from "./spells";
+export { actionKey, healOptions, hitChance, isMindless, isWayOut, pcNextAction, shouldFlee, slotFor, threatOf, type DeckProgram, type PcPolicyInput } from "./auto";

@@ -37,6 +37,7 @@ const ROWS = ["##############", "#,,,,,,,,,,,,#", "#,@,,,,,,,,,,#", "#,,,,,,,,,,
 
 function newGame(preset: string, classId: string, speciesId: string, extra: Record<string, unknown> = {}): string {
 	const settings = m.defaultSettings();
+	settings.dm.fights = "turns"; // these tests play fights turn by turn (the default is automatic)
 	settings.world.preset = preset as never;
 	return m.createGame({ settings, seed: 7, character: { name: "Vale", speciesId, classId, backgroundId: "criminal", abilities: STD, ...extra } }).id;
 }

@@ -25,6 +25,24 @@ export const NEW_MALE_HAIR = [
 	"buzz", "undercut", "quiff", "slicked_back", "receding", "dreadlocks", "cornrows", "curtains", "spiky", "flat_top",
 ] as const;
 
+/**
+ * Natural everyday men's cuts (drawn by components/art/hairNaturalCuts.tsx).
+ * Held back behind NATURAL_HAIR_LIVE until the preview (/dev/hair-natural) is
+ * approved: they render if a spec uses them, but no picker or generator offers them.
+ */
+export const NATURAL_MALE_HAIR = [
+	"m_buzz", "m_crew", "m_caesar", "m_french_crop", "m_ivy", "m_short_back_sides", "m_side_part", "m_slick_back",
+	"m_brushed_back", "m_quiff", "m_pompadour", "m_undercut", "m_receding", "m_horseshoe", "m_mullet",
+	"m_curtains", "m_messy_fringe", "m_bedhead", "m_mod", "m_shag", "m_tucked", "m_shoulder", "m_long", "m_man_bun", "m_wavy",
+	"m_curly_top", "m_afro_short", "m_afro", "m_twists", "m_locs_short", "m_locs_long", "m_cornrows",
+] as const;
+
+/**
+ * Flip to true to go live: the character creator offers the natural cuts and
+ * stops offering NEW_MALE_HAIR (characters already wearing those still render).
+ */
+export const NATURAL_HAIR_LIVE = false;
+
 export const HAIR_STYLES = [
 	"bald", "short", "cropped", "sidepart", "long", "ponytail", "braids", "bun", "topknot", "mohawk", "wild", "curly", "shaved_sides",
 	...NEW_MALE_HAIR,
@@ -55,7 +73,7 @@ export type PortraitOptionKey = "skinTone" | "hairStyle" | "hairColor" | "eyeCol
 /** Allowed values for the setup wizard. */
 export const portraitOptions: Record<PortraitOptionKey, readonly string[]> = {
 	skinTone: [...SKIN_TONES.human, ...SKIN_TONES.tiefling, ...SKIN_TONES.orc, ...SKIN_TONES.goliath, ...SKIN_TONES.dragonborn],
-	hairStyle: HAIR_STYLES,
+	hairStyle: NATURAL_HAIR_LIVE ? [...HAIR_STYLES.filter((h) => !(NEW_MALE_HAIR as readonly string[]).includes(h)), ...NATURAL_MALE_HAIR] : HAIR_STYLES,
 	hairColor: HAIR_COLORS,
 	eyeColor: EYE_COLORS,
 	facialHair: FACIAL_HAIR,
@@ -63,6 +81,17 @@ export const portraitOptions: Record<PortraitOptionKey, readonly string[]> = {
 	features: FEATURES,
 	background: BACKGROUNDS,
 };
+
+/**
+ * Hair styles the character creator offers. The natural cuts (once live) are for
+ * men only; the current style is always listed, so a character wearing a
+ * style no longer offered still shows it.
+ */
+export function hairStyleChoices(current: string | undefined, male: boolean): readonly string[] {
+	const natural = new Set<string>(NATURAL_MALE_HAIR);
+	const list = portraitOptions.hairStyle.filter((h) => male || !natural.has(h));
+	return current && !list.includes(current) ? [...list, current] : list;
+}
 
 /** Skin tones appropriate for a species (wizard can show these first). */
 export function skinTonesFor(speciesId?: string): readonly string[] {

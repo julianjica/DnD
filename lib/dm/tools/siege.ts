@@ -3,6 +3,7 @@ import { isZombie } from "../../rules/survival";
 import { PC_SIEGE_ACTIONS, assignPost, breachSpawnCount, baseMapOf, closeSiege, endSiege, partyAtBase, resolveWave, setLights, settleBreach, startSiege, type PcSiegeAction, type WaveResult } from "../../rules/siege";
 import { S, tool, withState, type StateTxn, type ToolFactory } from "../context";
 import { beginCombat } from "./combat";
+import { fightsAuto } from "../autofight";
 
 /** The Quiet only: night sieges at the base (lib/rules/siege.ts). */
 function requireZombie(state: GameState) {
@@ -31,6 +32,8 @@ export function startBreachFight(tx: StateTxn, br: NonNullable<WaveResult["breac
 	try {
 		const text = beginCombat(tx, { monsters: br.spawn.map((x) => ({ monster: x.monster, count: x.count, x: x.x, y: x.y })), override: "siege breach: the dead pour through the gap" });
 		s.breach.combat = true;
+		if (fightsAuto(state))
+			return `BREACH FIGHT at (${br.x},${br.y}): ${spawnText} poured through the gap; companions with the party came running (as many as the ally cap allows), the rest held the other posts. The engine fought it out (summary below): narrate the wall giving way and how the fight at the gap went. The siege goes on by itself.\n${text}`;
 		return `BREACH FIGHT STARTED at (${br.x},${br.y}): ${spawnText} pour through the gap; companions with the party come running (as many as the ally cap allows), the rest hold the other posts. Narrate the wall giving way and the first of them coming through, then play the fight as usual (monster_turn). When it ends (end_combat), the siege goes on by itself.\n${text}`;
 	} catch (error) {
 		state.activeMapId = prevMap;

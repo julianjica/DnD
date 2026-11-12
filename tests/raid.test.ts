@@ -55,6 +55,7 @@ const STD = { method: "standard_array" as const, scores: { str: 8, con: 14, dex:
 
 function newGame(ruleset: "cyberpunk" | "fantasy" | "zombie" = "cyberpunk"): string {
 	const settings = m.defaultSettings();
+	settings.dm.fights = "turns"; // these tests play fights turn by turn (the default is automatic)
 	if (ruleset === "cyberpunk") settings.world.preset = "marea_burned" as never;
 	if (ruleset === "zombie") settings.world.preset = "zombie_outbreak" as never;
 	return m.createGame({ settings, character: { name: "Vera", speciesId: "human", classId: "sorcerer", backgroundId: "criminal", abilities: STD } }).id;

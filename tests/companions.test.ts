@@ -46,6 +46,7 @@ const ROWS = ["##############", "#,,,,,,,,,,,,#", "#,@,,,,,,,,,,#", "#,,,,,,,,,,
 
 function newGame(): string {
 	const settings = m.defaultSettings();
+	settings.dm.fights = "turns"; // these tests play fights turn by turn (the default is automatic)
 	settings.world.preset = "zombie_outbreak";
 	return m.createGame({ settings, seed: 11, character: { name: "Dana", speciesId: "z-origin-streetwise", classId: "fighter", backgroundId: "criminal", abilities: STD } }).id;
 }
@@ -311,6 +312,7 @@ test("companion_beat: clamped, symmetric bonds; morale; reveal; logged; marks la
 
 test("fantasy campaigns: the companion tools refuse", async () => {
 	const settings = m.defaultSettings();
+	settings.dm.fights = "turns"; // these tests play fights turn by turn (the default is automatic)
 	const f = m.createGame({ settings, character: { name: "Thorin", speciesId: "human", classId: "fighter", backgroundId: "soldier", abilities: STD } }).id;
 	assert.match((await call(f, "set_companion_profile", { npcId: "x", want: "y" })).text, /Only in The Quiet/);
 	assert.match((await call(f, "companion_beat", { npcIds: ["x"] })).text, /Only in The Quiet/);

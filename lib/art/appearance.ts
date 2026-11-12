@@ -1,6 +1,63 @@
 import type { PortraitSpec } from "../game/types";
 import { Rng } from "../rules/dice";
-import { CLOTH, normalizeSpecies, portraitTraits, randomPortrait, skinTonesFor } from "./portrait";
+import { CLOTH, NATURAL_HAIR_LIVE, NATURAL_MALE_HAIR, normalizeSpecies, portraitTraits, randomPortrait, skinTonesFor } from "./portrait";
+
+type NaturalHair = (typeof NATURAL_MALE_HAIR)[number];
+
+const BASE_HAIR_IDS = [
+	"bald", "short", "cropped", "sidepart", "long", "ponytail", "braids", "bun", "topknot", "mohawk", "wild", "curly", "shaved_sides",
+	"buzz", "undercut", "quiff", "slicked_back", "receding", "dreadlocks", "cornrows", "curtains", "spiky", "flat_top",
+] as const;
+
+/** Hair ids the DM may set (update_npc / add_npc). The natural men's cuts join once NATURAL_HAIR_LIVE. */
+export const DM_HAIR_IDS: string[] = NATURAL_HAIR_LIVE ? [...BASE_HAIR_IDS, ...NATURAL_MALE_HAIR] : [...BASE_HAIR_IDS];
+
+/**
+ * Once NATURAL_HAIR_LIVE: a man described with a cut gets the natural version of
+ * it (phrases are checked first, then the older id is translated).
+ */
+const NATURAL_PHRASES: [NaturalHair, string[]][] = [
+	["m_horseshoe", ["horseshoe", "bald crown", "balding on top", "bald on top", "coronilla calva", "calvo en la coronilla"]],
+	["m_receding", ["receding hairline", "receding", "balding", "thinning hair", "entradas pronunciadas", "entradas", "calvicie incipiente"]],
+	["m_locs_long", ["long dreadlocks", "long locs", "rastas largas"]],
+	["m_locs_short", ["dreadlocks", "dreadlocked", "locs", "rastas", "rastafari"]],
+	["m_cornrows", ["cornrows", "cornrowed", "trenzas pegadas", "trenzas africanas"]],
+	["m_twists", ["twists", "twisted hair"]],
+	["m_afro_short", ["short afro", "afro corto"]],
+	["m_afro", ["afro"]],
+	["m_curly_top", ["curly top", "rizos arriba"]],
+	["m_man_bun", ["man bun", "bun", "moño"]],
+	["m_mullet", ["mullet"]],
+	["m_pompadour", ["pompadour"]],
+	["m_quiff", ["quiff", "tupé"]],
+	["m_undercut", ["undercut"]],
+	["m_slick_back", ["slicked-back", "slicked back", "slicked", "engominado", "peinado hacia atrás"]],
+	["m_brushed_back", ["brushed back", "swept back", "hair swept back"]],
+	["m_side_part", ["side part", "side-parted", "raya al lado", "raya a un lado"]],
+	["m_ivy", ["ivy league"]],
+	["m_curtains", ["middle part", "center part", "centre part", "curtains", "raya al medio", "raya en medio"]],
+	["m_mod", ["bowl cut", "mod cut", "corte de tazón", "tazón"]],
+	["m_shag", ["shag"]],
+	["m_caesar", ["caesar cut", "corte césar"]],
+	["m_french_crop", ["french crop", "crop top haircut", "textured crop"]],
+	["m_crew", ["crew cut", "flat top", "flat-top", "corte militar", "corte de cepillo"]],
+	["m_buzz", ["buzz cut", "buzzcut", "shaved short", "rapado al cero", "pelo al rape", "rapado"]],
+	["m_messy_fringe", ["fringe", "bangs", "flequillo"]],
+	["m_bedhead", ["tousled", "messy hair", "bedhead", "unkempt", "despeinado", "greñas"]],
+	["m_wavy", ["wavy", "ondulado"]],
+	["m_long", ["long hair", "long-haired", "pelo largo", "cabello largo", "melena larga"]],
+	["m_shoulder", ["shoulder-length", "shoulder length", "melena", "hasta los hombros"]],
+	["m_tucked", ["tucked behind his ears", "behind his ears", "tras las orejas"]],
+];
+const OLD_TO_NATURAL: Record<string, NaturalHair> = {
+	short: "m_short_back_sides", cropped: "m_crew", sidepart: "m_side_part", long: "m_shoulder", curly: "m_curly_top", wild: "m_bedhead",
+	buzz: "m_buzz", undercut: "m_undercut", quiff: "m_quiff", slicked_back: "m_slick_back", receding: "m_receding", dreadlocks: "m_locs_short",
+	cornrows: "m_cornrows", curtains: "m_curtains", spiky: "m_french_crop", flat_top: "m_crew", bun: "m_man_bun",
+};
+function naturalHairFrom(t: string, old: Appearance["hair"], has: (t: string, ...w: string[]) => boolean): Appearance["hair"] {
+	for (const [id, ws] of NATURAL_PHRASES) if (has(t, ...ws)) return id;
+	return old && OLD_TO_NATURAL[old] ? OLD_TO_NATURAL[old] : old;
+}
 
 /**
  * Turns a described look into a portrait. The DM passes `Appearance` when it
@@ -11,7 +68,7 @@ export interface Appearance {
 	gender?: "female" | "male";
 	age?: "child" | "young" | "adult" | "middle-aged" | "old" | "ancient";
 	skin?: "pale" | "fair" | "olive" | "tan" | "brown" | "dark" | "red" | "purple" | "blue" | "green" | "grey" | "gold";
-	hair?: "bald" | "short" | "cropped" | "sidepart" | "long" | "ponytail" | "braids" | "bun" | "topknot" | "mohawk" | "wild" | "curly" | "shaved_sides" | "buzz" | "undercut" | "quiff" | "slicked_back" | "receding" | "dreadlocks" | "cornrows" | "curtains" | "spiky" | "flat_top";
+	hair?: (typeof BASE_HAIR_IDS)[number] | NaturalHair;
 	hairColor?: "black" | "dark-brown" | "brown" | "auburn" | "red" | "ginger" | "blonde" | "platinum" | "grey" | "white" | "blue" | "purple" | "green";
 	facialHair?: "none" | "stubble" | "mustache" | "goatee" | "short_beard" | "full_beard" | "braided_beard" | "sideburns";
 	eyes?: "brown" | "amber" | "green" | "blue" | "grey" | "gold" | "red" | "violet" | "white";
@@ -141,6 +198,8 @@ export function appearanceFromText(text: string): Appearance {
 	else if (has(t, "middle part", "center part", "centre part", "raya al medio", "raya en medio")) a.hair = "curtains";
 	else if (has(t, "spiky", "spiked hair", "pelo de punta", "pelo en punta")) a.hair = "spiky";
 	else if (has(t, "flat top", "flat-top", "flattop", "corte de cepillo")) a.hair = "flat_top";
+
+	if (NATURAL_HAIR_LIVE && a.gender !== "female" && a.hair !== "bald") a.hair = naturalHairFrom(t, a.hair, has);
 
 	const hc: [Appearance["hairColor"], string[]][] = [
 		["white", ["white hair", "white-haired", "snow-white", "pelo blanco", "cabello blanco", "canas blancas"]],

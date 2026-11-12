@@ -73,6 +73,7 @@ export function DmStep({ draft, update, engines }: StepProps & { engines: Return
 						/>
 					</Section>
 					<Toggle checked={dm.autoRollPlayer} onChange={(autoRollPlayer) => setDm({ autoRollPlayer })} label={t("dm.autoRoll")} description={t("dm.autoRollDesc")} />
+					<Toggle checked={dm.fights === "turns"} onChange={(turns) => setDm({ fights: turns ? "turns" : "auto" })} label={t("dm.fightsTurns")} description={t("dm.fightsTurnsDesc")} />
 				</div>
 
 				<Section title={t("dm.persona")} hint={t("dm.personaHint")}>

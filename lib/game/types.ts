@@ -601,6 +601,12 @@ export interface CampaignSettings {
 		persona?: string;
 		/** Roll for the player automatically or let them click dice. */
 		autoRollPlayer: boolean;
+		/**
+		 * How fights are played. "auto" (the default, also for older campaigns where this is missing):
+		 * the engine resolves the whole fight with real dice and the map replays it. "turns": the
+		 * classic turn-by-turn mode (the player clicks actions, the DM plays the monsters).
+		 */
+		fights?: "auto" | "turns";
 	};
 	engine: EngineConfig;
 	audio: { enabled: boolean; musicVolume: number; sfxVolume: number };
@@ -824,6 +830,8 @@ export interface GameState {
 	levelUpsGranted?: number;
 	/** What the player did on their combat turn, waiting to be narrated at end of turn. */
 	combatNotes?: string[];
+	/** The last automatic fight, recorded for the battle-map replay (lib/dm/autofight.ts). */
+	fight?: FightReplay;
 	/** The Quiet only: survival systems. */
 	survival?: SurvivalState;
 	/** Root Access (cyberpunk ruleset, docs/cyberpunk.md) only: the three meters and the den. */
@@ -844,6 +852,60 @@ export interface GameState {
 	canon?: string[];
 	/** dmNotes.length when the canon was last rewritten (notes after it are "recent"). */
 	canonMark?: number;
+}
+
+// ─── Automatic fights: the replay ──────────────────────────────────────────
+
+/** One combatant as the replay first shows it (its token, even if it later fled and left the map). */
+export interface FightReplayActor {
+	id: string;
+	name: string;
+	side: Combatant["side"];
+	kind: Combatant["kind"];
+	hp: number;
+	maxHp: number;
+	entity: MapEntity;
+}
+
+/**
+ * A step of an automatic fight, in order. Ids are combatant ids. Names of
+ * weapons/spells/items are the engine's (English SRD names; the UI translates).
+ */
+export type FightBeat =
+	| { k: "round"; n: number }
+	| { k: "turn"; a: string }
+	| { k: "move"; a: string; path: { x: number; y: number }[] }
+	| { k: "atk"; a: string; d: string; w: string; hit: boolean; crit: boolean; roll?: number; ac?: number }
+	| { k: "dmg"; d: string; n: number; hp: number }
+	| { k: "heal"; d: string; n: number; hp: number }
+	| { k: "spell"; a: string; s: string; t: string[]; sq?: { x: number; y: number }[] }
+	| { k: "item"; a: string; s: string }
+	| { k: "feat"; a: string; s: string }
+	| { k: "act"; a: string; s: "dash" | "disengage" | "dodge" | "hide" | "help" | "stand" }
+	| { k: "save"; d: string; ab: Ability; ok: boolean; s: string }
+	| { k: "cond"; d: string; c: ConditionId; on: boolean }
+	| { k: "down"; d: string }
+	| { k: "die"; d: string }
+	| { k: "ds"; d: string; nat: number; s: number; f: number }
+	| { k: "gone"; a: string; why: "fled" | "surrendered" | "removed" }
+	| { k: "trace"; n: number }
+	| { k: "noise"; n: number }
+	| { k: "end"; outcome: FightOutcome };
+
+export type FightOutcome = "victory" | "defeat" | "knocked_out" | "dead" | "escaped" | "dumped" | "stalemate";
+
+export interface FightReplay {
+	/** Unique per fight: the client plays each replay once. */
+	id: string;
+	mapId: string;
+	/** Player's choice the DM passed: fight it out or try to get away. */
+	choice: "fight" | "run";
+	outcome: FightOutcome;
+	rounds: number;
+	actors: FightReplayActor[];
+	beats: FightBeat[];
+	/** Dice the engine rolled for the fight. */
+	rolls: number;
 }
 
 // ─── The Quiet: the living town ────────────────────────────────────────────

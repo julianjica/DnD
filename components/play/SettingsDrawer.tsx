@@ -94,6 +94,9 @@ export function SettingsDrawer({ state, onClose, onSave }: { state: GameState; o
 				<Field label={t("play.set.combatFrequency")}>
 					<Seg group="frequency" value={s.dm.combatFrequency} options={["low", "medium", "high"] as const} onChange={(combatFrequency) => set("dm", { combatFrequency })} />
 				</Field>
+				<Field label={t("play.set.fights")} hint={t("play.set.fightsHint")}>
+					<Seg group="fights" value={s.dm.fights ?? "auto"} options={["auto", "turns"] as const} onChange={(fights) => set("dm", { fights })} />
+				</Field>
 				<Field label={t("play.set.playerRolls")}>
 					<Seg group="autoRoll" value={s.dm.autoRollPlayer ? "auto" : "manual"} options={["auto", "manual"] as const} onChange={(v) => set("dm", { autoRollPlayer: v === "auto" })} />
 				</Field>

@@ -3,7 +3,7 @@
 import { OUTFIT_CHOICES } from "@/components/art/sprite/person";
 import { Dices } from "lucide-react";
 import type { PortraitSpec } from "@/lib/game/types";
-import { BACKGROUND_COLORS, portraitOptions, portraitTraits, randomPortrait, skinTonesFor } from "@/lib/art/portrait";
+import { BACKGROUND_COLORS, hairStyleChoices, portraitOptions, portraitTraits, randomPortrait, skinTonesFor } from "@/lib/art/portrait";
 import { Rng, newSeed } from "@/lib/rules/dice";
 import { Portrait } from "@/components/art/Portrait";
 import type { ModernWho } from "@/components/art/PortraitModern";
@@ -79,7 +79,7 @@ export function PortraitCustomizer({ spec, speciesId, name, onChange, who }: { s
 				) : (
 					<SelectField label={t("portrait.outfit")} pretty={pretty} value={spec.clothingStyle ?? portraitTraits(spec, speciesId).clothingStyle} values={["tunic", "armor", "robe", "leather", "cloak"]} onPick={(v) => set({ clothingStyle: v as PortraitSpec["clothingStyle"] })} />
 				)}
-				<SelectField label={t("portrait.hairStyle")} pretty={pretty} value={spec.hairStyle} values={portraitOptions.hairStyle} onPick={(v) => set({ hairStyle: v })} />
+				<SelectField label={t("portrait.hairStyle")} pretty={pretty} value={spec.hairStyle} values={hairStyleChoices(spec.hairStyle, !(spec.gender ? spec.gender === "female" : portraitTraits(spec, speciesId).female))} onPick={(v) => set({ hairStyle: v })} />
 				<SelectField label={t("portrait.facialHair")} pretty={pretty} value={spec.facialHair ?? "none"} values={portraitOptions.facialHair} onPick={(v) => set({ facialHair: v })} />
 				<SelectField label={t("portrait.accessory")} pretty={pretty} value={spec.accessory ?? "none"} values={portraitOptions.accessory.filter(offered)} onPick={(v) => set({ accessory: v })} />
 				<div className="sm:col-span-2">

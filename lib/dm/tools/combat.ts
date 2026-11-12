@@ -1,13 +1,12 @@
 import type { ConditionId, DamageType, GameState } from "../../game/types";
 import { markBeat } from "../../rules/threads";
-import { assertNotFallen, isNamedFoe, recordFallen } from "../../rules/fallen";
+import { assertNotFallen } from "../../rules/fallen";
 import type { Rng } from "../../rules/dice";
 import {
 	addMonsters,
 	applyConditionTo,
 	applyDamageTo,
 	autoMonsterTurn,
-	endCombat,
 	endTurn,
 	healTo,
 	monsterAct,
@@ -21,14 +20,15 @@ import { placeEntity, revealAround } from "../../maps";
 import { SIGHT_RADIUS } from "./map";
 import { checkBudget } from "../../rules/encounter-budget";
 import { isZombie } from "../../rules/survival";
-import { applyCombatResult, combatOpts, combatState, isPcTurn, playerCombatAction } from "../combat";
+import { applyCombatResult, combatOpts, combatState, finishCombat, isPcTurn, playerCombatAction } from "../combat";
+import { autoFight, fightsAuto } from "../autofight";
 import { describeSeparation, separation, where } from "../mapsync";
 import { findPath, hasLineOfSight, reachable } from "../../rules/combat";
 import type { Encounter, GridMap } from "../../game/types";
 import { S, newId, tool, withState, type StateTxn, type ToolFactory } from "../context";
 import { applyDamageToCharacter, healCharacter } from "../derived";
-import { linkSurvivorCombatants, survivorForCombatant, survivorsAfterCombat, survivorsForCombat, survivorSpawn } from "../../rules/group";
-import { crewAfterCombat, crewAsThemselves, crewForCombatant, linkCrewCombatants, withCrew } from "../../rules/crew";
+import { linkSurvivorCombatants, survivorForCombatant, survivorsForCombat, survivorSpawn } from "../../rules/group";
+import { crewAsThemselves, crewForCombatant, linkCrewCombatants, withCrew } from "../../rules/crew";
 import { isCyber } from "../../rules/cyber";
 
 const CONDITIONS: ConditionId[] = ["blinded", "charmed", "deafened", "frightened", "grappled", "incapacitated", "invisible", "paralyzed", "petrified", "poisoned", "prone", "restrained", "stunned", "unconscious"];
@@ -178,17 +178,43 @@ function mapSyncGate(enc: Encounter, map: GridMap, pcId: string, override?: stri
 	);
 }
 
-export const startCombatTool = tool<{ monsters: SpawnArg[]; pcSurprised?: boolean; override?: string }>(
+export const startCombatTool = tool<{ monsters: SpawnArg[]; pcSurprised?: boolean; override?: string; choice?: "fight" | "run"; lethal?: boolean }>(
 	"start_combat",
-	"Start a combat encounter on the active map with SRD monsters. The engine enforces a solo-character XP budget for the campaign difficulty and caps allies (side='party') so the player stays the protagonist; it refuses over-budget encounters. Rolls initiative; returns the order. Switches the view to the map and the ambience to combat.",
-	S.obj({ monsters: spawnSchema, pcSurprised: S.bool(), override: S.str("Story reason to exceed the budget for a deliberate set-piece (still capped at 1.5×)") }, ["monsters"]),
+	"Start a fight on the active map with SRD monsters (allies with side='party'). The engine enforces a solo-character XP budget for the campaign difficulty and caps allies so the player stays the protagonist; it refuses over-budget encounters. AUTOMATIC FIGHTS (the default setting): the engine plays the WHOLE fight at once with real dice, ends it, awards XP and returns a summary to narrate; choice='run' makes it the player's escape attempt; lethal=true lets a downed player character die (otherwise they are knocked out, not killed). TURN-BY-TURN setting: rolls initiative and returns the order; monster_turn and the player's clicks play it out. Switches the view to the map and the ambience to combat.",
+	S.obj(
+		{
+			monsters: spawnSchema,
+			pcSurprised: S.bool(),
+			override: S.str("Story reason to exceed the budget for a deliberate set-piece (still capped at 1.5×)"),
+			choice: S.str("Automatic fights: what the player decided, 'fight' (default) or 'run' (try to get away)", ["fight", "run"]),
+			lethal: S.bool("Automatic fights: only for stakes made clear beforehand (a duel to the death); a downed player character then makes death saves and can die"),
+		},
+		["monsters"],
+	),
 	async (a, ctx) => withState(ctx, (tx) => beginCombat(tx, a)),
 );
 
-/** start_combat's engine: also used by the siege when the dead break in (lib/dm/tools/siege.ts). */
-export function beginCombat(tx: StateTxn, a: { monsters: SpawnArg[]; pcSurprised?: boolean; override?: string }): string {
+/**
+ * start_combat's engine: also used by the siege when the dead break in (lib/dm/tools/siege.ts)
+ * and by den raids. In automatic mode it then plays the whole fight (unless `deferAuto`: the
+ * caller sets things up first and calls autoFight itself).
+ */
+export function beginCombat(tx: StateTxn, a: { monsters: SpawnArg[]; pcSurprised?: boolean; override?: string; choice?: "fight" | "run"; lethal?: boolean }, o: { deferAuto?: boolean } = {}): string {
 	const { state, rng } = tx;
-	if (state.encounter?.status === "active") throw new Error("Combat already active; use add_monsters.");
+	const auto = fightsAuto(state);
+	if (state.encounter?.status === "active") {
+		if (!auto) throw new Error("Combat already active; use add_monsters.");
+		// Automatic mode with a fight left half-played turn by turn (or newcomers joining it): resolve the rest.
+		let note = "";
+		if (a.monsters.length) {
+			const spawns = crewAsThemselves(state, survivorsAsThemselves(state, toSpawns(state, a.monsters)));
+			note = budgetGate(state, spawns, a.override);
+			applyCombatResult(quietTx(tx), addMonsters(combatState(state), rng, spawns, combatOpts(state)));
+			linkSurvivorCombatants(state);
+			linkCrewCombatants(state);
+		}
+		return `${note ? `${note}\n` : ""}${autoFight(tx, { choice: a.choice, lethal: a.lethal })}`;
+	}
 	markBeat(state, "action");
 	const map = state.activeMapId ? state.maps[state.activeMapId] : undefined;
 	const spawns = toSpawns(state, a.monsters);
@@ -199,7 +225,8 @@ export function beginCombat(tx: StateTxn, a: { monsters: SpawnArg[]; pcSurprised
 	const budgetNote = budgetGate(state, group.spawns, a.override);
 	const res = startCombat({ encounterId: newId("enc"), map, character: state.character, monsters: group.spawns, pcSurprised: a.pcSurprised }, rng, combatOpts(state));
 	const syncNote = res.ok ? mapSyncGate(res.encounter, res.map, state.character.id, a.override) : "";
-	const log = applyCombatResult(tx, res) + syncNote + group.note;
+	// Automatic fights keep the engine's dice in the replay (initiative included), not in the dice tray.
+	const log = applyCombatResult(auto ? quietTx(tx) : tx, res) + syncNote + (auto ? "" : group.note);
 	linkSurvivorCombatants(state);
 	linkCrewCombatants(state);
 	state.mode = "combat";
@@ -209,8 +236,15 @@ export function beginCombat(tx: StateTxn, a: { monsters: SpawnArg[]; pcSurprised
 		if (state.ambience !== "q_horde") state.ambience = "q_combat";
 	} else if (state.ambience !== "boss") state.ambience = "combat";
 	state.scene.mood = "combat";
+	if (auto && o.deferAuto) return `${budgetNote}${syncNote}`;
+	if (auto) return `${budgetNote}${syncNote}\n${autoFight(tx, { choice: a.choice, lethal: a.lethal, startRolls: res.rolls.length })}`;
 	const ids = Object.values(state.encounter!.combatants).map((c) => `${c.name} [${c.id}] @${map.entities.find((e) => e.id === c.entityId)?.x},${map.entities.find((e) => e.id === c.entityId)?.y}`);
 	return `${budgetNote}\n${log}\nCombatants: ${ids.join("; ")}${turnStatus(state)}${autoUntilPc(tx, false)}`;
+}
+
+/** The same transaction without dice-tray rolls or map effects (automatic fights replay them instead). */
+function quietTx(tx: StateTxn): StateTxn {
+	return { state: tx.state, rng: tx.rng, roll: () => undefined, fx: () => undefined };
 }
 
 /** Runs the fallback AI for consecutive non-PC turns (used when DM opts in). */
@@ -297,40 +331,15 @@ export const endCombatTool = tool<{ status?: "victory" | "defeat" | "fled" | "en
 	S.obj({ status: S.str(undefined, ["victory", "defeat", "fled", "ended"]), awardXp: S.bool(), reason: S.str("Why the fight ends while enemies still stand (surrender, flight, parley)") }),
 	async (a, ctx) =>
 		withState(ctx, (tx) => {
-			const { state, rng } = tx;
+			const { state } = tx;
 			const enc = state.encounter;
-			if (!enc) throw new Error("No encounter.");
+			if (!enc) throw new Error(state.fight && fightsAuto(state) ? `No fight to end: the automatic fight already ended (${state.fight.outcome}) and was wrapped up. Just narrate it.` : "No encounter.");
 			const standing = Object.values(enc.combatants).filter((c) => c.side === "enemy" && !c.dead);
 			if (enc.status === "active" && standing.length && a.status !== "defeat" && a.status !== "fled" && !a.reason?.trim())
 				throw new Error(
 					`${standing.map((c) => `${c.name} [${c.id}] HP ${c.hp}/${c.maxHp}`).join(", ")} still standing. If the map or a rule is in the way, fix it instead of ending the fight: move_player moves the player's token on their turn, set_tile opens doors. If the fight truly ends (surrender, flight, parley), pass reason='…' and use remove_combatant for those who leave.`,
 				);
-			let log = "";
-			if (enc.status === "active") log = applyCombatResult(tx, endCombat(combatState(state), rng, a.status ?? "ended", combatOpts(state)));
-			const xp = state.encounter!.xpPool;
-			if (xp > 0 && a.awardXp !== false && state.settings.structure.leveling === "xp") {
-				state.character.xp += xp;
-				log += `\nAwarded ${xp} XP (total ${state.character.xp}).`;
-			}
-			// Remove dead monster tokens' combat links; keep corpses on the map.
-			const map = state.maps[enc.mapId];
-			if (map)
-				for (const e of map.entities) {
-					const c = Object.values((state.encounter ?? enc).combatants).find((x) => x.entityId === e.id);
-					if (c?.dead && e.kind !== "pc") e.dead = true;
-					delete e.combatantId;
-				}
-			// Named enemies who died stay dead (the DM can't bring "Kyle" back on another map).
-			for (const c of Object.values((state.encounter ?? enc).combatants)) if (c.dead && isNamedFoe(c)) recordFallen(state, c.name, map?.name);
-			// The Quiet: companions who went down but lived get up (their tokens aren't corpses).
-			const up = survivorsAfterCombat(state, state.encounter ?? enc);
-			if (up) log += `\n${up}`;
-			const crewUp = crewAfterCombat(state, state.encounter ?? enc);
-			if (crewUp) log += `\n${crewUp}`;
-			state.encounter = undefined;
-			state.mode = "explore";
-			state.scene.mood = a.status === "defeat" ? "somber" : "tense";
-			return `${log}\nCombat ended.`.trim();
+			return finishCombat(tx, { status: a.status, awardXp: a.awardXp });
 		}),
 );
 

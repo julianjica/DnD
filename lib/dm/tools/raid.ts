@@ -8,6 +8,7 @@ import { applyConditionTo } from "../../rules/combat";
 import { applyCombatResult, combatOpts, combatState } from "../combat";
 import { S, tool, withState, type StateTxn, type ToolFactory } from "../context";
 import { beginCombat, type SpawnArg } from "./combat";
+import { autoFight, fightsAuto } from "../autofight";
 
 /**
  * Root Access: raids on the den for the DM (lib/rules/raid.ts). Always listed
@@ -74,7 +75,7 @@ export function beginRaid(tx: StateTxn, a: { early?: boolean; useActiveMap?: boo
 	due.started = { at: now, force: force.list, mapId: map.id };
 	let text: string;
 	try {
-		text = beginCombat(tx, { monsters: [...enemies, ...allies], pcSurprised: def.pcSurprised, override: `den raid by ${RAIDERS[due.by]}` });
+		text = beginCombat(tx, { monsters: [...enemies, ...allies], pcSurprised: def.pcSurprised, override: `den raid by ${RAIDERS[due.by]}` }, { deferAuto: true });
 	} catch (error) {
 		delete due.started;
 		throw error;
@@ -87,11 +88,16 @@ export function beginRaid(tx: StateTxn, a: { early?: boolean; useActiveMap?: boo
 			if (res.ok) applyCombatResult(tx, res);
 		}
 	}
+	// Automatic fights: the defences are in place, now the engine plays the raid out.
+	const auto = fightsAuto(state);
+	if (auto) text += `\n${autoFight(tx, {})}`;
 	return [
 		`RAID ON ${den.name}: ${force.summary}. They come in at (${at.x},${at.y}).`,
 		`Defences: ${def.text.join("; ")}.`,
 		def.cameras ? "The PC saw them on the cameras: tell the player exactly who is coming." : "",
-		"Crew at the den fight beside the PC (pass them as allies). Play the fight as usual; when it ends (end_combat), close the raid with raid_end: won, lost (1–2 upgrades seized, the den moves) or fled (hidden exit only).",
+		auto
+			? "The engine fought the raid out (summary below; crew at the den fought beside the PC). Narrate it, then close the raid with raid_end now: won if the attackers were beaten, lost (1–2 upgrades seized, the den moves) if the PC was knocked out, fled (hidden exit only) if they got away."
+			: "Crew at the den fight beside the PC (pass them as allies). Play the fight as usual; when it ends (end_combat), close the raid with raid_end: won, lost (1–2 upgrades seized, the den moves) or fled (hidden exit only).",
 		text,
 	]
 		.filter(Boolean)

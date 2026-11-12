@@ -44,6 +44,7 @@ const ROWS = ["##############", "#,,,,,,,,,,,,#", "#,@,,,,,,,,,,#", "#,,,,,,,,,,
 
 function newGame(zombie: boolean, classId = "fighter"): string {
 	const settings = m.defaultSettings();
+	settings.dm.fights = "turns"; // these tests play fights turn by turn (the default is automatic)
 	if (zombie) settings.world.preset = "zombie_outbreak";
 	return m.createGame({
 		settings,

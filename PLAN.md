@@ -18,7 +18,7 @@ on Claude Code, Codex (both on your signed-in plans), or an API key, the same wa
 | Visuals | Tactical battle map, scene illustrations, world map, character sheet and 3D dice. |
 | Art source | Procedural generation plus bundled CC0 asset packs. No image API. |
 | Maps | Code generates the layout procedurally (dungeon, cave, forest, town, …). The DM places monsters, doors, traps and loot through tools. |
-| Combat | Full 5e: initiative, action, bonus action, reaction and movement on the grid. The AI picks monster tactics; code resolves them. |
+| Combat | Full 5e: initiative, action, bonus action, reaction and movement on the grid. Fights are AUTOMATIC by default: the player decides fight or run, the engine plays the whole fight with real dice (lib/dm/autofight.ts, PC policy in lib/rules/combat/auto.ts), the battle map replays it and the DM narrates it; a PC who drops is knocked out, not killed (unless massive damage or a lethal fight). Campaign setting "Fights: turn by turn" restores the classic mode: the AI picks monster tactics, code resolves them. |
 | Story | Pure improvisation, within the structure chosen at setup. |
 | Input | Free text plus 3–4 suggested actions. In combat, click actions on the map. |
 | Saves | Autosave, multiple campaigns and save slots, an auto-written journal, quest log and NPC codex. |

@@ -1,13 +1,14 @@
 import type { GameState, PlayerCombatAction } from "../game/types";
 import type { Rng } from "../rules/dice";
-import { applyPlayerAction, type CombatOptions, type CombatResult, type CombatState } from "../rules/combat";
+import { applyPlayerAction, endCombat, type CombatOptions, type CombatResult, type CombatState } from "../rules/combat";
 import { getEquipment, getSpell } from "../srd";
 import { pcCombatProfile } from "./derived";
 import { addNoise, DEFAULT_LOUDNESS, infectionSave, isZombie, survivalItem, survivalItemEffect } from "../rules/survival";
 import type { StateTxn } from "./context";
-import { survivorBitten, survivorForCombatant, syncSurvivorsFromCombat } from "../rules/group";
+import { survivorBitten, survivorForCombatant, survivorsAfterCombat, syncSurvivorsFromCombat } from "../rules/group";
+import { isNamedFoe, recordFallen } from "../rules/fallen";
 import { cyberCombatHook } from "../rules/netrun";
-import { syncCrewFromCombat } from "../rules/crew";
+import { crewAfterCombat, syncCrewFromCombat } from "../rules/crew";
 
 /** Combat options bound to the current character and the SRD. */
 export function combatOpts(state: GameState): CombatOptions {
@@ -50,6 +51,12 @@ export function combatState(state: GameState): CombatState {
  * Returns the human-readable log (plus DM hand-off notes) or throws on rejection.
  */
 export function applyCombatResult(tx: StateTxn, res: CombatResult): string {
+	const { log, notes } = applyCombatResultParts(tx, res);
+	return [...log, ...notes].join("\n");
+}
+
+/** applyCombatResult, keeping the engine's play-by-play (`log`) apart from the DM hand-off and ruleset notes. */
+export function applyCombatResultParts(tx: StateTxn, res: CombatResult): { log: string[]; notes: string[] } {
 	if (!res.ok) throw new Error(res.error ?? "Combat action rejected.");
 	const { state } = tx;
 	state.encounter = res.encounter;
@@ -83,7 +90,7 @@ export function applyCombatResult(tx: StateTxn, res: CombatResult): string {
 	const cyber = cyberCombatHook(state, res.events, tx.rng, tx.roll);
 	// Root Access: the crew's HP and deaths persist (lib/rules/crew.ts).
 	const crew = syncCrewFromCombat(state, tx.rng, tx.roll);
-	return [...res.log, ...needs, ...survival, ...cyber, ...crew].join("\n");
+	return { log: res.log, notes: [...needs, ...survival, ...cyber, ...crew] };
 }
 
 /**
@@ -150,4 +157,42 @@ export function isPcTurn(state: GameState): boolean {
 	const e = state.encounter;
 	if (!e || e.status !== "active") return false;
 	return e.order[e.turnIndex] === state.character.id;
+}
+
+/**
+ * Ends the encounter (if still active) and wraps it up: XP pool awarded (XP
+ * leveling, unless awardXp=false), corpses stay on the map, named dead are
+ * recorded, downed companions/crew get up, the tracker clears. Shared by
+ * end_combat and automatic fights.
+ */
+export function finishCombat(tx: StateTxn, a: { status?: "victory" | "defeat" | "fled" | "ended"; awardXp?: boolean }): string {
+	const { state, rng } = tx;
+	const enc = state.encounter;
+	if (!enc) throw new Error("No encounter.");
+	let log = "";
+	if (enc.status === "active") log = applyCombatResult(tx, endCombat(combatState(state), rng, a.status ?? "ended", combatOpts(state)));
+	const xp = state.encounter!.xpPool;
+	if (xp > 0 && a.awardXp !== false && state.settings.structure.leveling === "xp") {
+		state.character.xp += xp;
+		log += `\nAwarded ${xp} XP (total ${state.character.xp}).`;
+	}
+	// Remove dead monster tokens' combat links; keep corpses on the map.
+	const map = state.maps[enc.mapId];
+	if (map)
+		for (const e of map.entities) {
+			const c = Object.values((state.encounter ?? enc).combatants).find((x) => x.entityId === e.id);
+			if (c?.dead && e.kind !== "pc") e.dead = true;
+			delete e.combatantId;
+		}
+	// Named enemies who died stay dead (the DM can't bring "Kyle" back on another map).
+	for (const c of Object.values((state.encounter ?? enc).combatants)) if (c.dead && isNamedFoe(c)) recordFallen(state, c.name, map?.name);
+	// The Quiet: companions who went down but lived get up (their tokens aren't corpses).
+	const up = survivorsAfterCombat(state, state.encounter ?? enc);
+	if (up) log += `\n${up}`;
+	const crewUp = crewAfterCombat(state, state.encounter ?? enc);
+	if (crewUp) log += `\n${crewUp}`;
+	state.encounter = undefined;
+	state.mode = "explore";
+	state.scene.mood = a.status === "defeat" ? "somber" : "tense";
+	return `${log}\nCombat ended.`.trim();
 }
