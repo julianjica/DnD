@@ -9,6 +9,7 @@ import { S, tool, withState, type ToolFactory } from "../context";
 import { advanceClock, fed, isZombie, restInterruption } from "../../rules/survival";
 import { baseSecuresRest, infirmaryCare } from "../../rules/base";
 import { restSurvivors } from "../../rules/group";
+import { resetDeckUses } from "../../rules/deck";
 
 const ABILS = ["str", "dex", "con", "int", "wis", "cha"] as const;
 
@@ -104,6 +105,7 @@ export const longRestTool = tool<{ interrupted?: boolean; secured?: boolean }>(
 			const fedWell = zombie ? fed(state) : true;
 			const exhaustion = state.character.exhaustion;
 			state.character = longRest(state.character, { fed: fedWell });
+			resetDeckUses(state); // Root Access: built-in deck programs recharge
 			const total = state.time.hour + 8;
 			state.time.day += Math.floor(total / 24);
 			state.time.hour = total % 24;

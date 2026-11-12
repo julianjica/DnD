@@ -5,10 +5,27 @@ import type { GameState, GroupState, Survivor, TownState } from "./types";
  * bitten character or companion turns is rolled in secret and known only to the DM).
  */
 export function clientState(state: GameState): GameState {
-	const out = hideDmNotes(hideExpeditions(hideProfiles(hideInfection(state))));
+	const out = hideNetSecrets(hideDmNotes(hideExpeditions(hideProfiles(hideInfection(state)))));
 	const shown = state.town ? { ...out, town: clientTown(state.town) } : out;
 	// The siege's end-of-night summary is the DM's instruction (it may name a secret infection).
 	return shown.siege?.summary ? { ...shown, siege: { ...shown.siege, summary: undefined } } : shown;
+}
+
+/**
+ * Root Access net runs: what a data or vault node holds stays hidden until it
+ * is accessed, and an untouched honeypot looks like the data it pretends to be.
+ * The run log is the DM's.
+ */
+function hideNetSecrets(state: GameState): GameState {
+	const run = state.cyber?.run;
+	if (!run) return state;
+	const nodes = run.nodes.map((n) => {
+		if (n.open) return n;
+		const { holds: _h, disguise: _d, ...rest } = n;
+		void _h, void _d;
+		return n.kind === "honeypot" ? { ...rest, kind: "data" as const, name: n.disguise ?? n.name } : rest;
+	});
+	return { ...state, cyber: { ...state.cyber!, run: { ...run, nodes, log: [] } } };
 }
 
 /** NPC secrets and voice cards, story threads and pacing are the DM's working notes. */

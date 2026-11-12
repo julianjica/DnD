@@ -6,6 +6,7 @@ import { pcCombatProfile } from "./derived";
 import { addNoise, DEFAULT_LOUDNESS, infectionSave, isZombie, survivalItem, survivalItemEffect } from "../rules/survival";
 import type { StateTxn } from "./context";
 import { survivorBitten, survivorForCombatant, syncSurvivorsFromCombat } from "../rules/group";
+import { cyberCombatHook } from "../rules/netrun";
 
 /** Combat options bound to the current character and the SRD. */
 export function combatOpts(state: GameState): CombatOptions {
@@ -77,7 +78,9 @@ export function applyCombatResult(tx: StateTxn, res: CombatResult): string {
 		} else if (state.ambience === "combat" || state.ambience === "boss") state.ambience = res.encounter.status === "victory" ? "victory" : "tension";
 	} else state.mode = "combat";
 	const needs = res.events.filter((e) => e.type === "needs_dm").map((e) => `DM ADJUDICATE: ${(e as { text: string }).text}`);
-	return [...res.log, ...needs, ...survival].join("\n");
+	// Root Access: trace for PC turns, ICE turns and programs during a run; Heat for street hacks (lib/rules/netrun.ts).
+	const cyber = cyberCombatHook(state, res.events, tx.rng, tx.roll);
+	return [...res.log, ...needs, ...survival, ...cyber].join("\n");
 }
 
 /**

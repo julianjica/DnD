@@ -7,6 +7,7 @@ import type { Point } from "@/lib/maps/grid";
 import { useT } from "@/components/i18n/I18nProvider";
 import type { BattleRenderer, MapFxEvent, RendererCallbacks, TokenStatus } from "./battle/BattleRenderer";
 import type { Look } from "@/components/art/sprite/pixelScene";
+import type { NetOpts } from "@/components/art/sprite/netPaint";
 
 export type { MapFxEvent, TokenStatus };
 
@@ -61,6 +62,8 @@ export interface BattleMapProps {
 	exits?: Record<string, string>;
 	/** The Quiet: siege posts, keyed "x,y" → who holds them. */
 	marks?: Record<string, string>;
+	/** Root Access net maps: the run (node open state) and a style override. */
+	net?: NetOpts;
 }
 
 /**
@@ -157,8 +160,9 @@ export default function BattleMap(props: BattleMapProps) {
 			notes: props.notes,
 			exits: props.exits,
 			marks: props.marks,
+			net: props.net,
 		});
-	}, [ready, map, entities, status, visibleSquares, fog, showHidden, highlights, highlightColor, pathPreview, pathLabel, aoe, selectedId, gridOn, darkvision, props.pixel, props.powerOn, barricadeLabel, props.notes, props.exits, props.marks]);
+	}, [ready, map, entities, status, visibleSquares, fog, showHidden, highlights, highlightColor, pathPreview, pathLabel, aoe, selectedId, gridOn, darkvision, props.pixel, props.powerOn, barricadeLabel, props.notes, props.exits, props.marks, props.net]);
 
 	const focusKey = props.focus == null ? "" : typeof props.focus === "string" ? props.focus : `${props.focus.x},${props.focus.y}`;
 	useEffect(() => {

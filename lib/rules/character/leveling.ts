@@ -562,6 +562,7 @@ export function applyClassLevel(c0: Character, classId: string, choices: Choices
 	if (c.spellcasting) {
 		const slots = computeSlots(c.classes);
 		c.spellcasting.slots = slots.slots;
+		delete c.spellcasting.ramBonus; // Root Access RAM is re-added on top by syncRamSlots (lib/rules/deck.ts).
 		c.spellcasting.slotsUsed = slots.slots.map((max, i) => Math.min(max, c.spellcasting!.slotsUsed[i] ?? 0));
 		if (slots.pact) c.spellcasting.pact = { ...slots.pact, used: Math.min(slots.pact.max, c.spellcasting.pact?.used ?? 0) };
 	}

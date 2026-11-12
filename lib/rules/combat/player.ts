@@ -251,8 +251,9 @@ function doAction(ctx: Ctx, action: PlayerCombatAction): void {
 			if (cost === "reaction") fail(`${spell.name} is a reaction spell; it is cast in response to a trigger.`);
 			spend(pc, cost, spell.name);
 			const sc = ch.spellcasting;
-			const slotLevel = spell.level === 0 ? 0 : action.slotLevel;
-			if (spell.level > 0) {
+			// Root Access: a deck's built-in program runs as a charge (spent by the caller), at its own level, without a slot.
+			const slotLevel = spell.level === 0 ? 0 : action.deck ? spell.level : action.slotLevel;
+			if (spell.level > 0 && !action.deck) {
 				if (!sc) fail("You have no spell slots.");
 				if (slotLevel < spell.level || slotLevel > 9) fail(`${spell.name} needs a slot of level ${spell.level} or higher.`);
 				const i = slotLevel - 1;
@@ -281,8 +282,8 @@ function doAction(ctx: Ctx, action: PlayerCombatAction): void {
 				slotLevel,
 				targetIds: action.targetIds,
 				point: action.point,
-				attackBonus: profile.spellAttackBonus ?? profile.proficiencyBonus + mod,
-				saveDc: profile.spellSaveDc ?? 8 + profile.proficiencyBonus + mod,
+				attackBonus: action.deck?.attackBonus ?? profile.spellAttackBonus ?? profile.proficiencyBonus + mod,
+				saveDc: action.deck?.saveDc ?? profile.spellSaveDc ?? 8 + profile.proficiencyBonus + mod,
 				abilityMod: mod,
 				characterLevel: characterLevel(ch),
 			});

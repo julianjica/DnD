@@ -8,6 +8,7 @@ import { missingSupplies, suppliesText, spendSupplies } from "../rules/combat/su
 import type { StateTxn } from "./context";
 import { isPcTurn, playerCombatAction } from "./combat";
 import { addNoise, DEFAULT_LOUDNESS, survivalItem, survivalItemEffect } from "../rules/survival";
+import { programRan } from "../rules/netrun";
 
 /**
  * System-owned bookkeeping for the player's limited resources: spell slots,
@@ -203,7 +204,8 @@ export function castSpell(tx: StateTxn, a: CastSpellInput): string {
 		spendSupplies(ch, needs, nameOf);
 		lines.push(`Used up ${suppliesText(ch, needs, nameOf)}.`);
 	}
-	if (rs === "cyberpunk" && spell.heat) lines.push(`Street hack: if ${spell.name} ran in the physical world (not inside a network), call add_heat ${spell.heat} ("${spell.name}").`);
+	// Root Access: during a net run a program raises the trace; outside one its heat lands on Heat (lib/rules/netrun.ts).
+	if (rs === "cyberpunk") lines.push(...programRan(tx.state, spell, tx.rng, tx.roll));
 	if (rs === "zombie" && spell.loud) lines.push(addNoise(tx.state, tx.rng, typeof spell.loud === "number" ? spell.loud : DEFAULT_LOUDNESS, spell.name));
 	if (spell.concentration) {
 		if (ch.concentration) lines.push(`Concentration on ${getSpell(ch.concentration.spell)?.name ?? ch.concentration.spell} ends.`);

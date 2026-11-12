@@ -13,6 +13,7 @@ import { storyDigest, voiceDigest } from "../rules/threads";
 import { radioDigest } from "../rules/radio";
 import { siegeDigest } from "../rules/siege";
 import { cyberDigest } from "../rules/cyber";
+import { netrunDigest } from "../rules/netrun";
 import { rulesetLabelEn } from "../i18n/ruleset-labels";
 import { getClass, getSpecies, getSubclass } from "../srd/index";
 import { compassOf, mapDistance, travelDaysIn, travelText } from "../maps/geography";
@@ -72,6 +73,8 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 	if (siege) lines.push(siege);
 	const cyber = rs === "cyberpunk" ? cyberDigest(s) : undefined;
 	if (cyber) lines.push(cyber);
+	const netrun = rs === "cyberpunk" ? netrunDigest(s) : undefined;
+	if (netrun) lines.push(netrun);
 	if (c.hp === 0) lines.push(`Death saves: ${c.deathSaves.successes} successes / ${c.deathSaves.failures} failures`);
 	if (c.spellcasting) {
 		const sl = c.spellcasting.slots

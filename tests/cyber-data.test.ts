@@ -22,7 +22,7 @@ const cEq = (ref: string) => eq.find((e) => e.index === ref);
 const XP: Record<number, number> = { 0.125: 25, 0.25: 50, 0.5: 100, 1: 200, 2: 450, 3: 700, 4: 1100, 5: 1800 };
 const DAMAGE = ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"];
 const SLOTS = ["neural", "eyes", "arms", "legs", "skin", "internal"];
-const TOKENS = ["soldier", "raider", "survivor", "drone", "spider_drone"];
+const TOKENS = ["soldier", "raider", "survivor", "drone", "spider_drone", "ice_white", "ice_grey", "ice_black", "sysadmin"];
 /** Names from other cyberpunk games stay out. */
 const BORROWED = /arasaka|militech|night city|kiroshi|sandevistan|mantis|gorilla arms|cyberpsych/i;
 

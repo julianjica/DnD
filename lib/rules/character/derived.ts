@@ -4,6 +4,7 @@ import { ABILITIES } from "../../game/types";
 import { abilityMod, signed } from "../dice";
 import { getClass, getEquipment, getSpecies, getSpell, getSubclass, classLevel as classLevelRow } from "../../srd/index";
 import type { Ruleset } from "../ruleset";
+import { deckTier } from "../deck";
 import { FEATURE_IMMUNITY, FEATURE_RESISTANCE, SKILL_ABILITY, proficiencyBonus } from "./tables";
 
 // ─── basic helpers ─────────────────────────────────────────────────────────
@@ -137,10 +138,14 @@ export function passiveScore(c: Character, skill: string): number {
 // ─── spellcasting ──────────────────────────────────────────────────────────
 
 export function spellSaveDc(c: Character, ab: Ability): number {
-	return 8 + profBonusOf(c) + abilityMod(c.abilities[ab]);
+	return 8 + profBonusOf(c) + abilityMod(c.abilities[ab]) + programDeckBonus(c);
 }
 export function spellAttackBonus(c: Character, ab: Ability): number {
-	return profBonusOf(c) + abilityMod(c.abilities[ab]);
+	return profBonusOf(c) + abilityMod(c.abilities[ab]) + programDeckBonus(c);
+}
+/** Root Access: the carried deck's tier adds to program attacks and save DCs (docs/cyberpunk.md §6). 0 elsewhere. */
+export function programDeckBonus(c: Character): number {
+	return characterRuleset(c) === "cyberpunk" ? (deckTier(c) ?? 0) : 0;
 }
 
 /** Number of spells a prepared caster may prepare (excludes always-prepared subclass spells). */

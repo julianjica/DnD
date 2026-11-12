@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import type { GridMap, TimeOfDay, Weather } from "@/lib/game/types";
 import { frameAround, hasSky, paintPixelScene, skyMask, type Look } from "./pixelScene";
+import type { NetOpts } from "./netPaint";
 
 export interface SpriteSceneProps {
 	map: GridMap;
@@ -16,20 +17,22 @@ export interface SpriteSceneProps {
 	animate?: boolean;
 	/** The Quiet: false once the grid has failed; street lamps stand dark. Default true. */
 	powerOn?: boolean;
+	/** Root Access net maps: the run (node open state) and a style override. */
+	net?: NetOpts;
 }
 
 /**
  * Pixel-sprite close-up of the active map, framed on the player, with falling
  * snow or rain. Fills its parent (which sets the 16:9 box).
  */
-export function SpriteScene({ map, looks, time, weather, dead, viewW = 18, animate = true, powerOn = true }: SpriteSceneProps) {
+export function SpriteScene({ map, looks, time, weather, dead, viewW = 18, animate = true, powerOn = true, net }: SpriteSceneProps) {
 	const base = useRef<HTMLCanvasElement>(null);
 	const fx = useRef<HTMLCanvasElement>(null);
 	const frame = useMemo(() => frameAround(map, viewW), [map, viewW]);
 
 	useEffect(() => {
-		if (base.current) paintPixelScene(base.current, { map, looks, time, weather, dead, powerOn }, frame);
-	}, [map, looks, time, weather, dead, frame, powerOn]);
+		if (base.current) paintPixelScene(base.current, { map, looks, time, weather, dead, powerOn, net }, frame);
+	}, [map, looks, time, weather, dead, frame, powerOn, net]);
 
 	const mask = useMemo(() => skyMask(map, frame), [map, frame]);
 	const falling = hasSky(map) && (weather === "snow" || weather === "rain" || weather === "storm") ? (weather === "snow" ? "snow" : "rain") : null;

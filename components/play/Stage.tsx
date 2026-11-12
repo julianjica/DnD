@@ -19,6 +19,7 @@ import { getSpell } from "@/lib/srd";
 import type { AoeTemplate } from "@/lib/maps/aoe";
 import type { FxItem, SiegeOp } from "./useGame";
 import { SiegePanel, siegeMarks, siegePostSquares } from "./SiegePanel";
+import { NetRunHud } from "./NetRunHud";
 import type { MapFxEvent, TokenStatus } from "@/components/map/BattleMap";
 import { useT } from "@/components/i18n/I18nProvider";
 import { Tooltip } from "@/components/ui/Tooltip";
@@ -277,8 +278,12 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 	const artStyle = state.settings.art?.scenes ?? "paintings";
 	// The sprite scene shows the active map only while the party is still at the place it belongs to.
 	const here = state.world.locations.find((l) => l.id === state.world.currentLocationId);
-	const spriteMap = artStyle === "sprites" && map && (!here || here.mapIds.includes(map.id)) ? map : undefined;
-	const pixelMap = artStyle === "sprites" ? map : undefined;
+	// Root Access: the net is always drawn in pixels (there is no painting of cyberspace), wherever the body is.
+	const netMap = map?.theme === "net";
+	const spriteMap = (artStyle === "sprites" || netMap) && map && (netMap || !here || here.mapIds.includes(map.id)) ? map : undefined;
+	const pixelMap = artStyle === "sprites" || netMap ? map : undefined;
+	const netRun = state.cyber?.run;
+	const net = useMemo(() => (netMap ? { run: netRun } : undefined), [netMap, netRun]);
 	const ruleset = rulesetOf(state.settings);
 	// The Quiet: the grid fails on outbreak day 5 and the street lamps go dark.
 	const powerOn = ruleset !== "zombie" || gridPowered(state);
@@ -452,11 +457,12 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 				{enc && <span className="flex items-center gap-1.5 pr-2 font-display text-xs uppercase tracking-widest text-crimson-2"><Swords size={14} /> {t("play.combat.banner")}{myTurn ? ` · ${t("play.combat.yourTurn")}` : ""}</span>}
 			</div>
 			{enc && <div className="border-b border-line bg-bg-2/50"><Initiative state={state} /></div>}
+			<NetRunHud state={state} />
 
 			<div className="relative min-h-0 flex-1 overflow-hidden">
 				{view === "scene" && (
 					<div className="flex h-full items-center justify-center bg-bg p-3">
-						<SceneArt style={artStyle === "sprites" ? "paintings" : artStyle} backdrop={spriteMap ? <><SpriteScene map={spriteMap} looks={looks} dead={deadIds} time={state.scene.timeOfDay} weather={state.scene.weather} powerOn={powerOn} />{sick && <SickVignette stage={sick} />}</> : isModern(ruleset) ? <><QuietBackdrop time={state.scene.timeOfDay} />{sick && <SickVignette stage={sick} />}</> : undefined} scene={state.scene} npcs={state.scene.npcIds.map((id) => state.npcs[id]).filter(Boolean).map((n) => ({ id: n.id, name: n.name, portrait: n.portrait, speciesId: n.speciesId, role: n.role, description: n.description }))} ruleset={ruleset} className="max-h-full w-full rounded-lg shadow-2xl" />
+						<SceneArt style={artStyle === "sprites" ? "paintings" : artStyle} backdrop={spriteMap ? <><SpriteScene map={spriteMap} looks={looks} dead={deadIds} time={state.scene.timeOfDay} weather={state.scene.weather} powerOn={powerOn} net={net} />{sick && <SickVignette stage={sick} />}</> : isModern(ruleset) ? <><QuietBackdrop time={state.scene.timeOfDay} />{sick && <SickVignette stage={sick} />}</> : undefined} scene={state.scene} npcs={state.scene.npcIds.map((id) => state.npcs[id]).filter(Boolean).map((n) => ({ id: n.id, name: n.name, portrait: n.portrait, speciesId: n.speciesId, role: n.role, description: n.description }))} ruleset={ruleset} className="max-h-full w-full rounded-lg shadow-2xl" />
 					</div>
 				)}
 				{view === "map" && map && (
@@ -464,6 +470,7 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 						map={map}
 						pixel={pixel}
 						powerOn={powerOn}
+						net={net}
 						status={status}
 						notes={notes}
 						exits={exits}

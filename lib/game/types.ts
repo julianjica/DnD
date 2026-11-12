@@ -125,6 +125,8 @@ export interface MonsterStats extends SrdRef {
 	legendaryActions: MonsterAction[];
 	/** Art hint for token generation: "goblin", "wolf", "dragon", "undead"… */
 	tokenHint: string;
+	/** Root Access ICE: trace it adds at the start of each of its turns during a net run (lib/rules/netrun.ts). */
+	traceOnTurn?: number;
 }
 
 export interface SpellInfo extends SrdRef {
@@ -200,6 +202,8 @@ export interface SpellcastingState {
 	slots: number[];
 	slotsUsed: number[];
 	pact?: { level: number; max: number; used: number };
+	/** Root Access: extra level-1 slots (RAM) from the deck, a RAM expansion and the experimental jack, already included in slots[0] (lib/rules/deck.ts syncRamSlots). */
+	ramBonus?: number;
 }
 
 export interface PortraitSpec {
@@ -336,7 +340,8 @@ export interface GridMap {
 	/** Laid out by the DM with draw_map (not procedurally generated). */
 	drawn?: boolean;
 	/** Art theme: "modern" repaints the same tiles as a present-day town (asphalt, brick, linoleum). Missing = fantasy. */
-	theme?: "modern";
+	/** "modern": The Quiet / Root Access streets. "net": a network inside a Root Access net run (docs/cyberpunk.md §4). */
+	theme?: "modern" | "net";
 	/** The Quiet: hit points of each barricade square, keyed "x,y". At 0 the square becomes rubble. */
 	barricades?: Record<string, { hp: number; max: number }>;
 	/** Squares (doors, stairs) that lead to another map of the same place. */
@@ -549,7 +554,7 @@ export interface Encounter {
 export type PlayerCombatAction =
 	| { type: "move"; path: { x: number; y: number }[] }
 	| { type: "attack"; targetId: string; itemId?: string; /** unarmed if no item */ offHand?: boolean }
-	| { type: "cast"; spell: string; slotLevel: number; targetIds?: string[]; point?: { x: number; y: number } }
+	| { type: "cast"; spell: string; slotLevel: number; targetIds?: string[]; point?: { x: number; y: number }; /** Root Access: a deck's built-in program run as a charge (no slot spent), with the deck's own attack bonus and save DC. */ deck?: { attackBonus: number; saveDc: number } }
 	| { type: "dash" } | { type: "disengage" } | { type: "dodge" } | { type: "help"; targetId: string } | { type: "hide" }
 	| { type: "use_item"; itemId: string; targetId?: string }
 	| { type: "use_feature"; featureId: string; targetId?: string }
@@ -1082,4 +1087,54 @@ export interface CyberState {
 	history: { at: number; meter: "hat" | "heat" | "humanity"; delta: number; why: string }[];
 	/** Game minute of the last daily heat decay. */
 	heatDecayedAt?: number;
+	/** The net run in progress, if the PC is jacked in (Phase 2). */
+	run?: NetRun;
+	/** Built-in deck programs used since the last long rest, by program id. */
+	deckUses?: Record<string, number>;
+}
+
+/** What a node of a network is (docs/cyberpunk.md §4). */
+export type NetNodeKind = "entry" | "firewall" | "data" | "control" | "admin" | "vault" | "honeypot";
+
+/** One node of the network being run: a room on the net map. */
+export interface NetNode {
+	id: string;
+	kind: NetNodeKind;
+	/** In-world label ("Payroll DB", "Lobby cameras"). */
+	name: string;
+	/** The room on the net map that is this node (GridMap.rooms id). */
+	roomId: string;
+	/** Firewalls: breached yet. Others: accessed (data read, control taken, admin owned, vault opened). */
+	open: boolean;
+	/** Control nodes: what it changes in the physical world ("the lobby doors", "camera 3"). */
+	controls?: string;
+	/** Data/vault: what's there to take (paydata, a key, the target file). Kept from the player until accessed. */
+	holds?: string;
+	/** Honeypots look like data until touched. */
+	disguise?: string;
+}
+
+/** A net run in progress. The body stays where it jacked in. */
+export interface NetRun {
+	id: string;
+	/** The system being run ("Vantis lab server 7"). */
+	target: string;
+	/** 1 (a café's wifi) … 5 (a megacorp core): sets node DCs, ICE strength and dumpshock. */
+	security: number;
+	/** Where the body is: den (safe), public (a café, a port), onsite (inside the target's building). */
+	body: "den" | "public" | "onsite";
+	/** The physical map the body is on, restored on jack-out. */
+	bodyMapId?: string;
+	/** The net map of this run (GridMap with theme "net"). */
+	netMapId: string;
+	nodes: NetNode[];
+	/** 0…10. At 5 the sysadmin joins; at 8 security goes to the body if onsite; at 10 the runner is dumped. */
+	trace: number;
+	/** Proxy ticks still ignored this run (den proxies, Phase 3). */
+	proxy: number;
+	sysadminAlerted: boolean;
+	securityDispatched: boolean;
+	startedAt: number;
+	/** What happened, for the DM (newest last, capped). */
+	log: string[];
 }

@@ -2,6 +2,7 @@ import { rulesetOf } from "../rules/ruleset";
 import { kesslerFalls } from "../maps/kessler";
 import { marea } from "../maps/marea";
 import { initCyberState } from "../rules/cyber";
+import { syncRamSlots } from "../rules/deck";
 import { addInventoryItem } from "./items";
 import { getEquipment } from "../srd";
 import type { CampaignSettings, GameState, LocationKind, SceneKind, WorldMap } from "../game/types";
@@ -141,6 +142,7 @@ function burnedOpening(state: GameState, rng: Rng, lang: "en" | "es"): void {
 	const es = lang === "es";
 	const t = state.time;
 	state.cyber = initCyberState(state.character, t.day * 1440 + t.hour * 60 + t.minute);
+	syncRamSlots(state); // RAM from the starting deck and the experimental jack
 	// The shard: the gear agent's item if it exists, else a plain named item (same ref, so it upgrades later).
 	const shard = getEquipment("c-vantis-shard");
 	if (!state.character.inventory.some((i) => i.ref === "c-vantis-shard"))

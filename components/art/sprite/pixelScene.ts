@@ -8,6 +8,7 @@ import { FEATURE_ALIASES, LIGHTS, MODERN_FEATURE_ALIASES, MODERN_SPRITES, SPRITE
 import { creatureSprite, hasModernCreature } from "./creatures";
 import { paintPerson, type PersonLook } from "./person";
 import { modernBridge, modernDoor, modernGround, modernObject, modernRoof, modernRubble, modernWall } from "./modern";
+import { netCreatureCanvas, paintNetTiles, type NetOpts } from "./netPaint";
 
 const C = 16;
 const OUTLINE = "rgba(26,17,12,0.88)";
@@ -28,6 +29,8 @@ export interface PixelSceneInput {
 	focusId?: string;
 	/** The Quiet: false once the grid has failed (outbreak day 5+); street lamps stand dark. Default true. */
 	powerOn?: boolean;
+	/** Root Access net maps (theme "net"): the run (node open state) and style override. */
+	net?: NetOpts;
 }
 
 export interface Frame {
@@ -469,6 +472,7 @@ const FLAT = new Set(["footprints", "bed", "shelf", "blood_pool", "body_bag", "h
 /** Paints the static picture (ground, objects, people, light) of the frame into `canvas` at 1 px per sprite pixel. */
 export function paintPixelScene(canvas: HTMLCanvasElement, input: PixelSceneInput, frame: Frame) {
 	const { map } = input;
+	if (map.theme === "net") return paintNetScene(canvas, input, frame);
 	canvas.width = frame.w * C;
 	canvas.height = frame.h * C;
 	const ctx = canvas.getContext("2d")!;
@@ -548,8 +552,41 @@ export function paintPixelScene(canvas: HTMLCanvasElement, input: PixelSceneInpu
 	}
 }
 
+/** Cyberspace (theme "net"): the net field, nodes and data lines, ICE and wireframe avatars. No daylight, no weather. */
+function paintNetScene(canvas: HTMLCanvasElement, input: PixelSceneInput, frame: Frame) {
+	const { map } = input;
+	canvas.width = frame.w * C;
+	canvas.height = frame.h * C;
+	const ctx = canvas.getContext("2d")!;
+	ctx.imageSmoothingEnabled = false;
+	ctx.save();
+	ctx.translate(-frame.x0 * C, -frame.y0 * C);
+	const xs = frame.x0 - 1, xe = frame.x0 + frame.w + 1;
+	const ys = frame.y0 - 1, ye = frame.y0 + frame.h + 1;
+	paintNetTiles(ctx, map, xs, ys, xe - xs, ye - ys, input.net);
+	const p = new P(map, ctx);
+	const ents = map.entities.filter((e) => !e.hidden && e.x >= xs - 1 && e.x < xe + 1 && e.y >= ys - 1 && e.y < ye + 1).sort((a, b) => a.y - b.y);
+	for (const e of ents) {
+		const X = e.x * C, Y = e.y * C;
+		if (CREATURES.has(e.kind)) {
+			const dead = !!e.dead || !!input.dead?.has(e.id);
+			const size = Math.max(1, e.size);
+			const c = netCreatureCanvas(e, dead, () => creatureCanvas({ kind: e.kind === "monster" ? "npc" : e.kind, sprite: e.sprite }, input.looks[e.id], false), input.net?.style);
+			ctx.drawImage(c, X, Y - (dead ? 0 : 1), 16 * size, 16 * size);
+		} else p.sprite(featureSprite(e, true), X, Y);
+	}
+	ctx.restore();
+	if (map.explored.length === map.width * map.height) {
+		ctx.fillStyle = "#020203";
+		for (let y = frame.y0; y < frame.y0 + frame.h; y++)
+			for (let x = frame.x0; x < frame.x0 + frame.w; x++)
+				if (!map.explored[idx(map, x, y)]) ctx.fillRect((x - frame.x0) * C, (y - frame.y0) * C, C, C);
+	}
+}
+
 /** Whether falling snow/rain should be drawn over this map. */
 export function hasSky(map: GridMap): boolean {
+	if (map.theme === "net") return false;
 	return !INDOOR_KINDS.has(map.kind) || map.tiles.includes("grass");
 }
 
@@ -566,10 +603,15 @@ export function skyMask(map: GridMap, frame: Frame): boolean[] {
 // ─── battle map (Map tab) ─────────────────────────────────────────────────
 
 /** Ground and fixed objects (trees, tables, pillars) of a rectangle of squares, 16 px per square, no entities. */
-export function paintPixelTiles(ctx: CanvasRenderingContext2D, map: GridMap, x0: number, y0: number, w: number, h: number) {
+export function paintPixelTiles(ctx: CanvasRenderingContext2D, map: GridMap, x0: number, y0: number, w: number, h: number, net?: NetOpts) {
 	ctx.save();
 	ctx.imageSmoothingEnabled = false;
 	ctx.translate(-x0 * C, -y0 * C);
+	if (map.theme === "net") {
+		paintNetTiles(ctx, map, x0, y0, w, h, net);
+		ctx.restore();
+		return;
+	}
 	const p = new P(map, ctx);
 	for (let y = y0; y < y0 + h; y++) for (let x = x0; x < x0 + w; x++) p.tile(x, y);
 	// Objects may overhang the square above, so draw one extra row below the chunk too.
@@ -578,7 +620,7 @@ export function paintPixelTiles(ctx: CanvasRenderingContext2D, map: GridMap, x0:
 }
 
 /** Same contract as tilePainter's paintMap: chunks of the whole map at T px per square (T a multiple of 16). */
-export function paintPixelMap(map: GridMap, T: number, maxChunkPx = 2048): { canvas: HTMLCanvasElement; x0: number; y0: number; cols: number; rows: number }[] {
+export function paintPixelMap(map: GridMap, T: number, maxChunkPx = 2048, net?: NetOpts): { canvas: HTMLCanvasElement; x0: number; y0: number; cols: number; rows: number }[] {
 	const per = Math.max(8, Math.floor(maxChunkPx / T));
 	const out: { canvas: HTMLCanvasElement; x0: number; y0: number; cols: number; rows: number }[] = [];
 	for (let y0 = 0; y0 < map.height; y0 += per)
@@ -587,7 +629,7 @@ export function paintPixelMap(map: GridMap, T: number, maxChunkPx = 2048): { can
 			const small = document.createElement("canvas");
 			small.width = cols * C;
 			small.height = rows * C;
-			paintPixelTiles(small.getContext("2d")!, map, x0, y0, cols, rows);
+			paintPixelTiles(small.getContext("2d")!, map, x0, y0, cols, rows, net);
 			const canvas = document.createElement("canvas");
 			canvas.width = cols * T;
 			canvas.height = rows * T;
@@ -613,11 +655,15 @@ function upscale(draw: (p: P) => void, map: GridMap | undefined, px: number, n =
 }
 
 /** A creature token for the battle map: the sprite standing on a coloured ring (side / disposition). */
-export function pixelToken(px: number, opts: { kind: MapEntity["kind"]; sprite: string; look?: Look; ring: string; dead?: boolean; modern?: boolean }): HTMLCanvasElement {
+export function pixelToken(px: number, opts: { kind: MapEntity["kind"]; sprite: string; look?: Look; ring: string; dead?: boolean; modern?: boolean; net?: NetOpts }): HTMLCanvasElement {
+	const creature = (dead: boolean) =>
+		opts.net
+			? netCreatureCanvas(opts, dead, () => creatureCanvas({ kind: opts.kind === "monster" ? "npc" : opts.kind, sprite: opts.sprite }, opts.look, false), opts.net.style)
+			: creatureCanvas({ kind: opts.kind, sprite: opts.sprite }, opts.look, dead, opts.modern);
 	return upscale((p) => {
 		const ctx = p.ctx;
 		if (opts.dead) {
-			ctx.drawImage(creatureCanvas({ kind: opts.kind, sprite: opts.sprite }, opts.look, true, opts.modern), 0, 0);
+			ctx.drawImage(creature(true), 0, 0);
 			return;
 		}
 		// ring at the feet
@@ -627,7 +673,7 @@ export function pixelToken(px: number, opts: { kind: MapEntity["kind"]; sprite: 
 		ctx.fillRect(3, 15, 10, 1);
 		ctx.fillStyle = "rgba(0,0,0,0.35)";
 		ctx.fillRect(4, 14, 8, 1);
-		ctx.drawImage(creatureCanvas({ kind: opts.kind, sprite: opts.sprite }, opts.look, false, opts.modern), 0, opts.kind === "monster" ? -1 : -2);
+		ctx.drawImage(creature(false), 0, opts.kind === "monster" && !opts.net ? -1 : -2);
 	}, undefined, px);
 }
 

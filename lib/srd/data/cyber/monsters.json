@@ -1352,5 +1352,651 @@
 		"reactions": [],
 		"legendaryActions": [],
 		"tokenHint": "raider"
+	},
+	{
+		"index": "c-ice-watchdog",
+		"name": "Watchdog ICE",
+		"size": "small",
+		"type": "construct",
+		"alignment": "unaligned",
+		"ac": 13,
+		"hp": 16,
+		"hitDice": "3d6+6",
+		"speed": {
+			"walk": 40
+		},
+		"abilities": {
+			"str": 8,
+			"dex": 16,
+			"con": 14,
+			"int": 6,
+			"wis": 14,
+			"cha": 3
+		},
+		"saves": {},
+		"skills": {
+			"perception": 4
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [
+			"poison"
+		],
+		"conditionImmunities": [
+			"poisoned"
+		],
+		"senses": "blindsight 60 ft., passive Perception 14",
+		"languages": "—",
+		"cr": 0.25,
+		"xp": 50,
+		"traceOnTurn": 1,
+		"traits": [
+			{
+				"name": "Lives in the Net",
+				"description": "It exists only inside its network. It can't leave the system, and a runner who jacks out leaves it behind."
+			},
+			{
+				"name": "Barking Trace",
+				"description": "While it is active, the trace rises by 1 at the start of each of its turns. Destroying it, or fooling it (Ghost, Spoof), stops the barking."
+			}
+		],
+		"actions": [
+			{
+				"name": "Nip",
+				"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 5 (1d4 + 3) psychic damage.",
+				"attack": {
+					"name": "Nip",
+					"kind": "melee",
+					"toHit": 5,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d4+3",
+							"type": "psychic"
+						}
+					],
+					"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 5 (1d4 + 3) psychic damage."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "ice_white"
+	},
+	{
+		"index": "c-ice-barrier",
+		"name": "Barrier ICE",
+		"size": "large",
+		"type": "construct",
+		"alignment": "unaligned",
+		"ac": 17,
+		"hp": 52,
+		"hitDice": "7d10+14",
+		"speed": {
+			"walk": 0
+		},
+		"abilities": {
+			"str": 18,
+			"dex": 1,
+			"con": 14,
+			"int": 1,
+			"wis": 10,
+			"cha": 1
+		},
+		"saves": {},
+		"skills": {},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [
+			"poison"
+		],
+		"conditionImmunities": [
+			"frightened",
+			"poisoned",
+			"prone"
+		],
+		"senses": "blindsight 30 ft. (blind beyond this radius), passive Perception 10",
+		"languages": "—",
+		"cr": 0.5,
+		"xp": 100,
+		"traits": [
+			{
+				"name": "Lives in the Net",
+				"description": "It exists only inside its network. It can't leave the system, and a runner who jacks out leaves it behind."
+			},
+			{
+				"name": "Wall",
+				"description": "It fills the link between two nodes. Nothing gets past it while it stands: a runner has to break it, or open it with a program such as Backdoor, to go on."
+			},
+			{
+				"name": "Immovable",
+				"description": "It can't be moved, pushed or knocked prone."
+			}
+		],
+		"actions": [
+			{
+				"name": "Repel",
+				"description": "Melee Weapon Attack: +6 to hit, reach 10 ft., one target. Hit: 6 (1d4 + 4) psychic damage. The target is pushed 10 feet away from the barrier.",
+				"attack": {
+					"name": "Repel",
+					"kind": "melee",
+					"toHit": 6,
+					"reach": 10,
+					"damage": [
+						{
+							"dice": "1d4+4",
+							"type": "psychic"
+						}
+					],
+					"description": "Melee Weapon Attack: +6 to hit, reach 10 ft., one target. Hit: 6 (1d4 + 4) psychic damage. The target is pushed 10 feet away from the barrier."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "ice_white"
+	},
+	{
+		"index": "c-ice-sparky",
+		"name": "Sparky ICE",
+		"size": "small",
+		"type": "construct",
+		"alignment": "unaligned",
+		"ac": 14,
+		"hp": 27,
+		"hitDice": "6d6+6",
+		"speed": {
+			"walk": 0,
+			"fly": 40,
+			"hover": true
+		},
+		"abilities": {
+			"str": 6,
+			"dex": 18,
+			"con": 12,
+			"int": 8,
+			"wis": 12,
+			"cha": 5
+		},
+		"saves": {},
+		"skills": {},
+		"vulnerabilities": [],
+		"resistances": [
+			"lightning"
+		],
+		"immunities": [
+			"poison"
+		],
+		"conditionImmunities": [
+			"poisoned"
+		],
+		"senses": "blindsight 60 ft., passive Perception 11",
+		"languages": "—",
+		"cr": 1,
+		"xp": 200,
+		"traits": [
+			{
+				"name": "Lives in the Net",
+				"description": "It exists only inside its network. It can't leave the system, and a runner who jacks out leaves it behind."
+			},
+			{
+				"name": "Crackle",
+				"description": "It leaves no gap in its own net: opportunity attacks against it have disadvantage."
+			}
+		],
+		"actions": [
+			{
+				"name": "Spark",
+				"description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 8 (1d8 + 4) psychic damage.",
+				"attack": {
+					"name": "Spark",
+					"kind": "melee",
+					"toHit": 6,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d8+4",
+							"type": "psychic"
+						}
+					],
+					"description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 8 (1d8 + 4) psychic damage."
+				}
+			},
+			{
+				"name": "Overload",
+				"description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 7 (2d6) psychic damage. The target must succeed on a DC 12 Constitution saving throw or be stunned until the end of the Sparky's next turn, and the target loses its lowest RAM slot (its lowest-level unspent program slot): the program loaded there is wiped.",
+				"attack": {
+					"name": "Overload",
+					"kind": "melee",
+					"toHit": 6,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "2d6",
+							"type": "psychic"
+						}
+					],
+					"save": {
+						"ability": "con",
+						"dc": 12,
+						"onFail": "stunned until the end of the Sparky's next turn, and the target loses its lowest RAM slot (its lowest-level unspent program slot)."
+					},
+					"description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 7 (2d6) psychic damage. The target must succeed on a DC 12 Constitution saving throw or be stunned until the end of the Sparky's next turn, and the target loses its lowest RAM slot (its lowest-level unspent program slot): the program loaded there is wiped."
+				},
+				"usage": {
+					"type": "recharge",
+					"minRoll": 5
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "ice_grey"
+	},
+	{
+		"index": "c-ice-tarpit",
+		"name": "Tar Pit ICE",
+		"size": "large",
+		"type": "construct",
+		"alignment": "unaligned",
+		"ac": 12,
+		"hp": 60,
+		"hitDice": "8d10+16",
+		"speed": {
+			"walk": 20
+		},
+		"abilities": {
+			"str": 18,
+			"dex": 6,
+			"con": 15,
+			"int": 3,
+			"wis": 10,
+			"cha": 1
+		},
+		"saves": {},
+		"skills": {},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [
+			"poison"
+		],
+		"conditionImmunities": [
+			"frightened",
+			"poisoned",
+			"prone"
+		],
+		"senses": "blindsight 60 ft. (blind beyond this radius), passive Perception 10",
+		"languages": "—",
+		"cr": 2,
+		"xp": 450,
+		"traits": [
+			{
+				"name": "Lives in the Net",
+				"description": "It exists only inside its network. It can't leave the system, and a runner who jacks out leaves it behind."
+			},
+			{
+				"name": "Sticky Code",
+				"description": "A runner it holds can't jack out, on purpose or otherwise, until it breaks free or the Tar Pit is destroyed. Only a dump at trace 10 tears the runner loose."
+			},
+			{
+				"name": "Drain",
+				"description": "At the start of each of its turns, each creature it is holding takes 5 (1d10) psychic damage. It can hold two creatures at once."
+			}
+		],
+		"actions": [
+			{
+				"name": "Engulf",
+				"description": "Melee Weapon Attack: +6 to hit, reach 10 ft., one target. Hit: 11 (2d6 + 4) psychic damage. The target must succeed on a DC 14 Strength saving throw or be grappled (escape DC 14) and restrained until the grapple ends. While held, it can't jack out.",
+				"attack": {
+					"name": "Engulf",
+					"kind": "melee",
+					"toHit": 6,
+					"reach": 10,
+					"damage": [
+						{
+							"dice": "2d6+4",
+							"type": "psychic"
+						}
+					],
+					"save": {
+						"ability": "str",
+						"dc": 14,
+						"onFail": "grappled (escape DC 14) and restrained until the grapple ends; while held, it can't jack out."
+					},
+					"description": "Melee Weapon Attack: +6 to hit, reach 10 ft., one target. Hit: 11 (2d6 + 4) psychic damage. The target must succeed on a DC 14 Strength saving throw or be grappled (escape DC 14) and restrained until the grapple ends. While held, it can't jack out."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "ice_grey"
+	},
+	{
+		"index": "c-ice-hellhound",
+		"name": "Hellhound ICE",
+		"size": "medium",
+		"type": "fiend",
+		"alignment": "neutral evil",
+		"ac": 14,
+		"hp": 52,
+		"hitDice": "8d8+16",
+		"speed": {
+			"walk": 50
+		},
+		"abilities": {
+			"str": 16,
+			"dex": 16,
+			"con": 15,
+			"int": 6,
+			"wis": 13,
+			"cha": 6
+		},
+		"saves": {},
+		"skills": {
+			"perception": 5
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [
+			"poison"
+		],
+		"conditionImmunities": [
+			"frightened",
+			"poisoned"
+		],
+		"senses": "blindsight 60 ft., passive Perception 15",
+		"languages": "—",
+		"cr": 3,
+		"xp": 700,
+		"traits": [
+			{
+				"name": "Lives in the Net",
+				"description": "It exists only inside its network. It can't leave the system, and a runner who jacks out leaves it behind."
+			},
+			{
+				"name": "Black ICE",
+				"description": "Its psychic damage goes through the jack into the runner's body: it takes real hit points, and a runner it drops to 0 is dying in the chair."
+			},
+			{
+				"name": "Locked On",
+				"description": "It always knows which node every runner in its system is in, and Ghost doesn't hide a runner from it."
+			},
+			{
+				"name": "Hunts in Packs",
+				"description": "It has advantage on attack rolls against a creature if another ICE is within 5 feet of that creature and isn't incapacitated."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "It makes two Bite attacks.",
+				"multiattack": [
+					{
+						"action": "Bite",
+						"count": 2
+					}
+				]
+			},
+			{
+				"name": "Bite",
+				"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 8 (1d10 + 3) psychic damage. Black ICE: the damage is to the runner's real body.",
+				"attack": {
+					"name": "Bite",
+					"kind": "melee",
+					"toHit": 5,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d10+3",
+							"type": "psychic"
+						}
+					],
+					"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 8 (1d10 + 3) psychic damage. Black ICE: the damage is to the runner's real body."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "ice_black"
+	},
+	{
+		"index": "c-ice-wraith",
+		"name": "Wraith ICE",
+		"size": "medium",
+		"type": "fiend",
+		"alignment": "neutral evil",
+		"ac": 15,
+		"hp": 90,
+		"hitDice": "12d8+36",
+		"speed": {
+			"walk": 0,
+			"fly": 40,
+			"hover": true
+		},
+		"abilities": {
+			"str": 10,
+			"dex": 18,
+			"con": 16,
+			"int": 14,
+			"wis": 15,
+			"cha": 17
+		},
+		"saves": {
+			"int": 5,
+			"wis": 5
+		},
+		"skills": {},
+		"vulnerabilities": [],
+		"resistances": [
+			"cold",
+			"lightning"
+		],
+		"immunities": [
+			"poison"
+		],
+		"conditionImmunities": [
+			"frightened",
+			"grappled",
+			"poisoned",
+			"prone",
+			"restrained"
+		],
+		"senses": "blindsight 60 ft., passive Perception 12",
+		"languages": "—",
+		"cr": 5,
+		"xp": 1800,
+		"traits": [
+			{
+				"name": "Lives in the Net",
+				"description": "It exists only inside its network. It can't leave the system, and a runner who jacks out leaves it behind."
+			},
+			{
+				"name": "Black ICE",
+				"description": "Its psychic damage goes through the jack into the runner's body: it takes real hit points, and a runner it drops to 0 is dying in the chair."
+			},
+			{
+				"name": "Ghost in the Wire",
+				"description": "It can move through other ICE and through closed firewalls as if they weren't there."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "It makes two Grave Touch attacks.",
+				"multiattack": [
+					{
+						"action": "Grave Touch",
+						"count": 2
+					}
+				]
+			},
+			{
+				"name": "Grave Touch",
+				"description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 13 (2d8 + 4) psychic damage. Black ICE: the damage is to the runner's real body. The target must succeed on a DC 13 Wisdom saving throw or be frightened of the Wraith until the end of its next turn.",
+				"attack": {
+					"name": "Grave Touch",
+					"kind": "melee",
+					"toHit": 7,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "2d8+4",
+							"type": "psychic"
+						}
+					],
+					"save": {
+						"ability": "wis",
+						"dc": 13,
+						"onFail": "frightened of the Wraith until the end of its next turn."
+					},
+					"description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 13 (2d8 + 4) psychic damage. Black ICE: the damage is to the runner's real body. The target must succeed on a DC 13 Wisdom saving throw or be frightened of the Wraith until the end of its next turn."
+				}
+			},
+			{
+				"name": "Dread Signal",
+				"description": "It screams down every jack within 30 feet. Each runner there makes a DC 14 Wisdom saving throw, taking 22 (4d10) psychic damage to the real body on a failure, or half as much on a success.",
+				"save": {
+					"ability": "wis",
+					"dc": 14,
+					"damage": [
+						{
+							"dice": "4d10",
+							"type": "psychic"
+						}
+					],
+					"halfOnSuccess": true
+				},
+				"usage": {
+					"type": "recharge",
+					"minRoll": 5
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "ice_black"
+	},
+	{
+		"index": "c-ice-sysadmin",
+		"name": "Sysadmin",
+		"size": "medium",
+		"type": "humanoid (human)",
+		"alignment": "any alignment",
+		"ac": 15,
+		"hp": 66,
+		"hitDice": "12d8+12",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 9,
+			"dex": 14,
+			"con": 12,
+			"int": 18,
+			"wis": 14,
+			"cha": 11
+		},
+		"saves": {
+			"int": 7,
+			"wis": 5
+		},
+		"skills": {
+			"investigation": 7,
+			"perception": 5
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [],
+		"conditionImmunities": [],
+		"senses": "passive Perception 15",
+		"languages": "Spanish",
+		"cr": 4,
+		"xp": 1100,
+		"traceOnTurn": 1,
+		"traits": [
+			{
+				"name": "Home System",
+				"description": "This is a human admin's avatar inside the network they run. It has advantage on checks to trace, lock or take admin in its own system, and it knows where every node and ICE is."
+			},
+			{
+				"name": "Live Trace",
+				"description": "While it is in the network, the trace rises by 1 at the start of each of its turns."
+			},
+			{
+				"name": "Neural Firewall",
+				"description": "It has advantage on saving throws against programs."
+			},
+			{
+				"name": "Jack Out",
+				"description": "Dropping it to 0 hit points throws the admin out of the net: they wake at their desk, alive and furious. Its ICE keeps fighting."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "It makes two Kill Command attacks.",
+				"multiattack": [
+					{
+						"action": "Kill Command",
+						"count": 2
+					}
+				]
+			},
+			{
+				"name": "Kill Command",
+				"description": "Ranged Program Attack: +7 to hit, range 120/240 ft., one target. Hit: 13 (2d8 + 4) psychic damage.",
+				"attack": {
+					"name": "Kill Command",
+					"kind": "ranged",
+					"toHit": 7,
+					"range": {
+						"normal": 120,
+						"long": 240
+					},
+					"damage": [
+						{
+							"dice": "2d8+4",
+							"type": "psychic"
+						}
+					],
+					"description": "Ranged Program Attack: +7 to hit, range 120/240 ft., one target. Hit: 13 (2d8 + 4) psychic damage."
+				}
+			},
+			{
+				"name": "Lockout",
+				"description": "It revokes one runner's access. A runner it can see within 60 feet makes a DC 15 Intelligence saving throw; on a failure it is stunned until the end of its next turn.",
+				"save": {
+					"ability": "int",
+					"dc": 15
+				},
+				"usage": {
+					"type": "recharge",
+					"minRoll": 5
+				}
+			}
+		],
+		"bonusActions": [
+			{
+				"name": "Trace Route",
+				"description": "It follows the runner's route back through the proxies: the trace rises by 2.",
+				"usage": {
+					"type": "recharge",
+					"minRoll": 5
+				}
+			},
+			{
+				"name": "Sic 'Em",
+				"description": "One ICE it can see moves up to its speed and makes one attack against a runner of the sysadmin's choice."
+			}
+		],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "sysadmin"
 	}
 ]

@@ -5,6 +5,7 @@ import { computeFov, computePlayerView, parseKey, sqKey, type Point } from "@/li
 import { rand2 } from "@/lib/maps/noise";
 import { paintMap, tileSizeFor } from "../art/tilePainter";
 import { isStreetLamp, paintPixelMap, pixelProp, pixelToken, type Look } from "@/components/art/sprite/pixelScene";
+import type { NetOpts } from "@/components/art/sprite/netPaint";
 import { hasProp, lightStyle, paintProp, paintToken, ringFor } from "../art/tokens";
 
 type Pixi = typeof PIXI;
@@ -60,6 +61,15 @@ export interface RenderInput {
 	exits?: Record<string, string>;
 	/** The Quiet: siege posts, keyed "x,y": who holds them (hover label). */
 	marks?: Record<string, string>;
+	/** Root Access net maps (theme "net", always pixel-drawn): the run's node state and a style override. */
+	net?: NetOpts;
+}
+
+/** What of the net options changes the painted map (node open state, style). */
+function netSig(inp: RenderInput): string {
+	if (inp.map.theme !== "net") return "";
+	const run = inp.net?.run;
+	return `${inp.net?.style ?? ""}|${run && run.netMapId === inp.map.id ? run.nodes.map((n) => `${n.roomId}:${n.kind}:${n.open ? 1 : 0}`).join(",") : ""}`;
 }
 
 /** Light radius an entity actually casts (street lamps are dark without power). */
@@ -175,7 +185,7 @@ export class BattleRenderer {
 		if (this.destroyed) return;
 		const prev = this.input;
 		this.input = next;
-		if (!prev || !sameLayout(prev.map, next.map) || !!prev.pixel !== !!next.pixel) this.buildMap(next.map);
+		if (!prev || !sameLayout(prev.map, next.map) || !!prev.pixel !== !!next.pixel || netSig(prev) !== netSig(next)) this.buildMap(next.map);
 		else this.map = next.map;
 		this.syncEntities(next);
 		this.recomputeVisibility(next);
@@ -257,7 +267,7 @@ export class BattleRenderer {
 	private buildMap(map: GridMap) {
 		const P = this.P;
 		this.map = map;
-		const pixel = !!this.input?.pixel;
+		const pixel = !!this.input?.pixel || map.theme === "net";
 		this.T = pixel ? Math.max(32, Math.floor(tileSizeFor(map) / 16) * 16) : tileSizeFor(map);
 		for (const c of this.base.removeChildren()) c.destroy();
 		for (const c of this.fx.removeChildren()) c.destroy();
@@ -268,7 +278,7 @@ export class BattleRenderer {
 		if (this.lightSprite) { this.lightSprite.destroy(); this.lightSprite = undefined; }
 		if (this.fogSprite) { this.fogSprite.destroy(); this.fogSprite = undefined; }
 		const T = this.T;
-		for (const ch of pixel ? paintPixelMap(map, T) : paintMap(map, T)) {
+		for (const ch of pixel ? paintPixelMap(map, T, undefined, map.theme === "net" ? (this.input?.net ?? {}) : undefined) : paintMap(map, T)) {
 			const tex = P.Texture.from(ch.canvas, true);
 			if (pixel) tex.source.scaleMode = "nearest";
 			this.mapTextures.push(tex);
@@ -307,7 +317,8 @@ export class BattleRenderer {
 			this.fx.addChild(s);
 		}
 		// lighting + fog sprites (textures refreshed on demand)
-		if (map.lighting !== "bright") {
+		// the net glows on its own: no darkness there
+		if (map.lighting !== "bright" && map.theme !== "net") {
 			const c = document.createElement("canvas");
 			c.width = map.width * LIGHT_RES;
 			c.height = map.height * LIGHT_RES;
@@ -637,14 +648,16 @@ export class BattleRenderer {
 			const st = inp.status[e.id];
 			const creature = CREATURE.has(e.kind);
 			const ring = ringFor(e, st?.side);
-			const pixel = inp.pixel;
+			const netMap = inp.map.theme === "net";
+			const pixel = inp.pixel ?? (netMap ? { looks: {} } : undefined);
 			const look = pixel?.looks[e.id];
 			const modern = inp.map.theme === "modern";
+			const net = netMap ? (inp.net ?? {}) : undefined;
 			const isDead = !!e.dead || !!st?.dead || (st?.hp !== undefined && st.hp <= 0 && e.kind !== "pc");
 			const lightR = lightRadiusOf(e, inp);
 			const unpowered = inp.powerOn === false && !creature && isStreetLamp(e, modern);
 			const texKey = pixel
-				? creature ? `px|tok|${e.sprite}|${e.kind}|${isDead ? "dead" : ring}|${modern ? "m" : ""}|${look ? JSON.stringify(look) : ""}` : `px|prop|${e.sprite}|${e.name}|${modern ? "m" : ""}${unpowered ? "|off" : ""}`
+				? creature ? `px|tok|${e.sprite}|${e.kind}|${isDead ? "dead" : ring}|${modern ? "m" : net ? `net${net.style ?? ""}` : ""}|${look ? JSON.stringify(look) : ""}` : `px|prop|${e.sprite}|${e.name}|${modern ? "m" : ""}${unpowered ? "|off" : ""}`
 				: creature ? `tok|${e.sprite}|${e.kind}|${ring}|${e.size > 1 ? 2 : 1}` : `prop|${e.sprite}|${e.kind}`;
 			let v = this.tokens.get(e.id);
 			if (v && (v.key !== texKey || !!v.light !== lightR > 0)) {
@@ -659,7 +672,7 @@ export class BattleRenderer {
 				const px = creature ? (e.size > 1 ? 256 : 160) : 128;
 				const tex = this.textureFor(texKey, () =>
 					pixel
-						? creature ? pixelToken(128, { kind: e.kind, sprite: e.sprite, look, ring, dead: isDead, modern }) : pixelProp(128, e, modern, !unpowered)
+						? creature ? pixelToken(128, { kind: e.kind, sprite: e.sprite, look, ring, dead: isDead, modern, net }) : pixelProp(128, e, modern, !unpowered)
 						: creature ? paintToken(px, e.sprite, e.kind, ring) : paintProp(px, hasProp(e.sprite) ? e.sprite : e.sprite || "crate", e.kind),
 				);
 				const sprite = new P.Sprite(tex);
@@ -690,7 +703,7 @@ export class BattleRenderer {
 				const d = Math.hypot(v.to.x - v.from.x, v.to.y - v.from.y);
 				v.dur = Math.min(900, 140 + d * 90);
 			}
-			const scale = (e.size * T * (creature && !inp.pixel ? 0.94 : 1)) / v.sprite.texture.width;
+			const scale = (e.size * T * (creature && !pixel ? 0.94 : 1)) / v.sprite.texture.width;
 			v.sprite.scale.set(scale);
 			v.root.zIndex = creature ? 10 + (e.kind === "pc" ? 2 : 0) : e.kind === "light" ? 2 : 1;
 			const dead = isDead && creature;

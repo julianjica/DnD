@@ -10,6 +10,7 @@ import { expeditionTick } from "../rules/expeditions";
 import { siegeTick } from "../rules/siege";
 import { addInventoryItem } from "./items";
 import { cyberTick, isCyber } from "../rules/cyber";
+import { syncRamSlots } from "../rules/deck";
 
 /** Events streamed to the browser during a turn (SSE). */
 export type ClientEvent =
@@ -60,6 +61,8 @@ export async function withState<T>(ctx: ToolContext, fn: (tx: StateTxn) => T | P
 		// The Quiet: the survival clock starts before the mutation, so time it advances counts.
 		if (isZombie(state)) survivalOf(state);
 		let out = await fn({ state, rng, roll: (r) => rolls.push(r), fx: (f) => fxs.push(f) });
+		// Root Access: RAM from the deck, a RAM expansion and the experimental jack (extra level-1 slots).
+		syncRamSlots(state);
 		const zombie = isZombie(state);
 		const note = [
 			syncSpellTokens(state),
