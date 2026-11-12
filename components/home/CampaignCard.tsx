@@ -10,9 +10,9 @@ import { SceneArt } from "@/components/art/SceneArt";
 import { cn } from "@/components/ui/cn";
 import { useT } from "@/components/i18n/I18nProvider";
 import { displayTitle, type Lang } from "@/lib/i18n";
-import { rulesetOf } from "@/lib/rules/ruleset";
+import { isModern, rulesetOf } from "@/lib/rules/ruleset";
 
-type Detail = Pick<GameState, "scene"> & { character: Pick<GameState["character"], "portrait" | "speciesId"> & { modern?: { classes: string[] } } };
+type Detail = Pick<GameState, "scene"> & { character: Pick<GameState["character"], "portrait" | "speciesId"> & { modern?: { classes: string[]; city?: "marea" } } };
 
 /** Lazily loads the campaign's state for its portrait and scene thumbnail. */
 function useDetail(id: string): Detail | null {
@@ -22,7 +22,7 @@ function useDetail(id: string): Detail | null {
 		fetch(`/api/campaigns/${encodeURIComponent(id)}`, { cache: "no-store" })
 			.then((r) => (r.ok ? (r.json() as Promise<{ state: GameState }>) : null))
 			.then((j) => {
-				if (alive && j?.state) setD({ scene: j.state.scene, character: { portrait: j.state.character.portrait, speciesId: j.state.character.speciesId, modern: rulesetOf(j.state.settings) === "zombie" ? { classes: j.state.character.classes.map((k) => k.classId) } : undefined } });
+				if (alive && j?.state) setD({ scene: j.state.scene, character: { portrait: j.state.character.portrait, speciesId: j.state.character.speciesId, modern: isModern(rulesetOf(j.state.settings)) ? { classes: j.state.character.classes.map((k) => k.classId), ...(rulesetOf(j.state.settings) === "cyberpunk" ? { city: "marea" as const } : {}) } : undefined } });
 			})
 			.catch(() => {});
 		return () => {

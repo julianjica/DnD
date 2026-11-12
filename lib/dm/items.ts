@@ -6,8 +6,8 @@ import { equipmentForCampaign } from "./content";
 
 /**
  * Fills weapon/armor stats and descriptions from the campaign's own content
- * when `ref` (or the name) matches: fantasy campaigns use the SRD, zombie
- * campaigns only modern gear (no magic items).
+ * when `ref` (or the name) matches: fantasy campaigns use the SRD, modern
+ * (zombie, cyberpunk) campaigns only their own gear (no magic items).
  */
 export function enrichItem(item: InventoryItem, rs: Ruleset = "fantasy"): void {
 	const eq = equipmentForCampaign(rs, item.ref, item.name);
@@ -16,7 +16,7 @@ export function enrichItem(item: InventoryItem, rs: Ruleset = "fantasy"): void {
 		Object.assign(item, { ...base, name: item.name || base.name, quantity: item.quantity, description: item.description ?? base.description });
 		return;
 	}
-	if (rs === "zombie") return;
+	if (rs !== "fantasy") return; // modern rulesets have no magic items
 	const magic = getMagicItem(item.ref ?? item.name) as { index: string; name: string; description?: string; desc?: string; rarity?: string } | undefined;
 	if (magic) {
 		item.ref = magic.index;

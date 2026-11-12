@@ -1,0 +1,3586 @@
+[
+	{
+		"index": "p-sledgehammer",
+		"name": "Sledgehammer",
+		"level": 0,
+		"school": "ice-breaking",
+		"castingTime": "1 action",
+		"range": "120 feet",
+		"rangeFeet": 120,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You hurl a packet of junk code at a piece of ICE, a device, a drone, or a creature through its wireless implant within range. Make a ranged program attack. On a hit it takes 1d10 force damage; a door, camera or lock reduced to 0 hit points crashes until someone reboots it.\nThe damage increases by 1d10 at 5th level (2d10), 11th level (3d10) and 17th level (4d10).",
+		"classes": [
+			"wizard",
+			"sorcerer"
+		],
+		"scope": "net",
+		"heat": 1,
+		"attack": "ranged",
+		"damage": {
+			"type": "force",
+			"byCharacterLevel": {
+				"1": "1d10",
+				"5": "2d10",
+				"11": "3d10",
+				"17": "4d10"
+			}
+		}
+	},
+	{
+		"index": "p-leash-lash",
+		"name": "Leash Lash",
+		"level": 0,
+		"school": "ice-breaking",
+		"castingTime": "1 action",
+		"range": "120 feet",
+		"rangeFeet": 120,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "Your patron's code cracks like a whip down the signal to a creature with an implant, a drone, a device or a piece of ICE within range. Make a ranged program attack. On a hit it takes 1d10 force damage.\nThe script creates more than one lash when you reach higher levels: two lashes at 5th level, three at 11th level and four at 17th level. You can direct them at the same target or at different ones; make a separate attack roll for each.",
+		"classes": [
+			"warlock"
+		],
+		"scope": "net",
+		"heat": 1,
+		"attack": "ranged",
+		"damage": {
+			"type": "force",
+			"byCharacterLevel": {
+				"1": "1d10",
+				"5": "1d10",
+				"11": "1d10",
+				"17": "1d10"
+			}
+		}
+	},
+	{
+		"index": "p-doxx",
+		"name": "Doxx",
+		"level": 0,
+		"school": "social",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You read out a creature's secrets in front of everyone: its real name, its debts, the messages it deleted. A creature within range that can hear you must succeed on a Wisdom saving throw or take 1d4 psychic damage and have disadvantage on the next attack roll it makes before the end of its next turn.\nThe damage increases by 1d4 at 5th level (2d4), 11th level (3d4) and 17th level (4d4).",
+		"classes": [
+			"bard"
+		],
+		"scope": "both",
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		},
+		"damage": {
+			"type": "psychic",
+			"byCharacterLevel": {
+				"1": "1d4",
+				"5": "2d4",
+				"11": "3d4",
+				"17": "4d4"
+			}
+		}
+	},
+	{
+		"index": "p-short-circuit",
+		"name": "Short Circuit",
+		"level": 0,
+		"school": "wetware",
+		"castingTime": "1 action",
+		"range": "Touch",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "Current from your jack's contacts jumps into a creature or device you touch. Make a melee program attack. On a hit it takes 1d8 lightning damage, and it can't take reactions until the start of its next turn.\nThe damage increases by 1d8 at 5th level (2d8), 11th level (3d8) and 17th level (4d8).",
+		"classes": [
+			"sorcerer"
+		],
+		"scope": "both",
+		"attack": "melee",
+		"damage": {
+			"type": "lightning",
+			"byCharacterLevel": {
+				"1": "1d8",
+				"5": "2d8",
+				"11": "3d8",
+				"17": "4d8"
+			}
+		}
+	},
+	{
+		"index": "p-coolant-spike",
+		"name": "Coolant Spike",
+		"level": 0,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You dump the coolant loop of a creature's implant, or of a drone, within range. Make a ranged program attack. On a hit it takes 1d8 cold damage as the frost spreads under its skin or casing, and its speed is reduced by 10 feet until the start of your next turn.\nThe damage increases by 1d8 at 5th level (2d8), 11th level (3d8) and 17th level (4d8).",
+		"classes": [
+			"wizard"
+		],
+		"scope": "net",
+		"heat": 1,
+		"attack": "ranged",
+		"damage": {
+			"type": "cold",
+			"byCharacterLevel": {
+				"1": "1d8",
+				"5": "2d8",
+				"11": "3d8",
+				"17": "4d8"
+			}
+		}
+	},
+	{
+		"index": "p-chem-mist",
+		"name": "Chem Mist",
+		"level": 0,
+		"school": "wetware",
+		"castingTime": "1 action",
+		"range": "10 feet",
+		"rangeFeet": 10,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You spray a puff of irritant from a wrist atomiser at a creature within range. It must succeed on a Constitution saving throw or take 1d12 poison damage.\nThe damage increases by 1d12 at 5th level (2d12), 11th level (3d12) and 17th level (4d12).",
+		"classes": [
+			"druid"
+		],
+		"scope": "both",
+		"save": {
+			"ability": "con",
+			"halfOnSuccess": false
+		},
+		"damage": {
+			"type": "poison",
+			"byCharacterLevel": {
+				"1": "1d12",
+				"5": "2d12",
+				"11": "3d12",
+				"17": "4d12"
+			}
+		}
+	},
+	{
+		"index": "p-feedback-spike",
+		"name": "Feedback Spike",
+		"level": 0,
+		"school": "wetware",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You know exactly where a neural jack meets the nerve. A creature with an implant within range must succeed on a Constitution saving throw or take 1d8 psychic damage as its own implant bites back. Cover doesn't help against it.\nThe damage increases by 1d8 at 5th level (2d8), 11th level (3d8) and 17th level (4d8).",
+		"classes": [
+			"cleric"
+		],
+		"scope": "net",
+		"heat": 1,
+		"save": {
+			"ability": "con",
+			"halfOnSuccess": false
+		},
+		"damage": {
+			"type": "psychic",
+			"byCharacterLevel": {
+				"1": "1d8",
+				"5": "2d8",
+				"11": "3d8",
+				"17": "4d8"
+			}
+		}
+	},
+	{
+		"index": "p-whisper-ping",
+		"name": "Whisper Ping",
+		"level": 0,
+		"school": "intrusion",
+		"castingTime": "1 action",
+		"range": "120 feet",
+		"rangeFeet": 120,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "1 round",
+		"concentration": false,
+		"ritual": false,
+		"description": "You send a short message to a phone, an earpiece or a neural implant within range. Only the target hears it, and it can reply the same way at once. The message doesn't pass through a jammer or an air-gapped wall.",
+		"classes": [
+			"wizard",
+			"bard"
+		],
+		"scope": "net"
+	},
+	{
+		"index": "p-grabber-drone",
+		"name": "Grabber Drone",
+		"level": 0,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "30 feet",
+		"rangeFeet": 30,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "1 minute",
+		"concentration": false,
+		"ritual": false,
+		"description": "A palm-sized drone with a grabber claw buzzes to a point within range, or you take over the controls of a wireless device there. For the duration, as an action, you can use either to open an unlocked door, flip a switch, pick up or carry an object weighing up to 10 pounds, call a lift or work a screen. The drone can't attack, and neither can open a lock or a firewall.",
+		"classes": [
+			"warlock"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-hologram",
+		"name": "Hologram",
+		"level": 0,
+		"school": "stealth",
+		"castingTime": "1 action",
+		"range": "30 feet",
+		"rangeFeet": 30,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "1 minute",
+		"concentration": false,
+		"ritual": false,
+		"description": "You inject a fake sound or image into a speaker, screen, camera, holo-projector or AR overlay within range: footsteps, a voice, a figure in a doorway, an empty corridor where you're standing. A creature that studies it with an action can see through it with an Intelligence (Investigation) check against your program save DC. In a network, it shows a fake signature on a node.",
+		"classes": [
+			"sorcerer",
+			"warlock",
+			"bard"
+		],
+		"scope": "net"
+	},
+	{
+		"index": "p-hotfix",
+		"name": "Hotfix",
+		"level": 0,
+		"school": "utility",
+		"castingTime": "1 minute",
+		"range": "Touch",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You patch one break in a device or object you touch: a cut cable, a cracked screen, a jammed servo, a corrupted file. It works as before, as long as the damage is no bigger than a fist. It can't rebuild a destroyed drone.",
+		"classes": [
+			"cleric",
+			"druid"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-stabilize",
+		"name": "Stabilize",
+		"level": 0,
+		"school": "medical",
+		"castingTime": "1 action",
+		"range": "Touch",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You clamp, pack and jolt a dying creature you touch that has 0 hit points. It becomes stable. This has no effect on a construct or on the dead.",
+		"classes": [
+			"cleric"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-talk-through",
+		"name": "Talk-Through",
+		"level": 0,
+		"school": "social",
+		"castingTime": "1 action",
+		"range": "Touch",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You clip a micro-earpiece on a willing creature you touch and talk it through what to do. Once before the script ends, it can roll a d4 and add the number to one ability check of its choice, before or after the roll. Then the script ends.",
+		"classes": [
+			"cleric"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-myo-boost",
+		"name": "Myo-Boost",
+		"level": 0,
+		"school": "wetware",
+		"castingTime": "1 bonus action",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "1 minute",
+		"concentration": false,
+		"ritual": false,
+		"description": "You inject a muscle stim and grip a simple melee weapon. For the duration, when you attack with it you can use your program ability instead of Strength for the attack and damage rolls, and its damage die becomes a d8. The effect ends early if you let go of the weapon.",
+		"classes": [
+			"druid"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-sensor-read",
+		"name": "Sensor Read",
+		"level": 0,
+		"school": "recon",
+		"castingTime": "1 action",
+		"range": "30 feet",
+		"rangeFeet": 30,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You tap the city's sensor mesh around you. You learn the air quality, whether the water within range is safe to drink, the weather for the next 24 hours, and whether a chem, spore or nanite cloud is drifting nearby. Or you make a small device within range blink, beep or vent once.",
+		"classes": [
+			"druid"
+		],
+		"scope": "net"
+	},
+	{
+		"index": "p-ghost",
+		"name": "Ghost",
+		"level": 1,
+		"school": "stealth",
+		"castingTime": "1 action",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 10 minutes",
+		"concentration": true,
+		"ritual": false,
+		"description": "Your signature drops out of every log. For the duration, ICE and automated sentries (cameras, turrets, door scanners, drones on autopilot) can't see you: you are invisible to them, and they don't raise the trace because of you. The program ends early if you attack or run a program that deals damage. A human sysadmin, or a drone a person is piloting, can still notice you.",
+		"classes": [
+			"wizard",
+			"sorcerer",
+			"warlock",
+			"ranger"
+		],
+		"scope": "net"
+	},
+	{
+		"index": "p-pile-driver",
+		"name": "Pile Driver",
+		"level": 1,
+		"school": "ice-breaking",
+		"castingTime": "1 action",
+		"range": "120 feet",
+		"rangeFeet": 120,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You fire three packets of hammer code. Each hits a target of your choice within range that you can see: a piece of ICE, a device, a drone, or a creature through its wireless implant. Each packet deals 1d4 + 1 force damage. They all strike at the same time and never miss.",
+		"higherLevel": "When you use a level 2 RAM slot or higher, it fires one more packet for each slot level above 1.",
+		"classes": [
+			"wizard"
+		],
+		"scope": "net",
+		"heat": 1,
+		"damage": {
+			"type": "force",
+			"bySlotLevel": {
+				"1": "3d4+3",
+				"2": "4d4+4",
+				"3": "5d4+5",
+				"4": "6d4+6",
+				"5": "7d4+7",
+				"6": "8d4+8",
+				"7": "9d4+9",
+				"8": "10d4+10",
+				"9": "11d4+11"
+			}
+		}
+	},
+	{
+		"index": "p-reactive-firewall",
+		"name": "Reactive Firewall",
+		"level": 1,
+		"school": "control",
+		"castingTime": "1 reaction",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "1 round",
+		"concentration": false,
+		"ritual": false,
+		"description": "When an attack is about to hit you, your deck predicts it and throws up a firewall (in a network) or snaps your reflex wiring aside (in the street). Until the start of your next turn you have a +5 bonus to AC, including against the triggering attack, and you take no damage from Pile Driver.",
+		"classes": [
+			"wizard",
+			"sorcerer"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-power-surge",
+		"name": "Power Surge",
+		"level": 1,
+		"school": "combat",
+		"castingTime": "1 action",
+		"range": "Self (15-foot cone)",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You dump your deck's battery through your fingertips in a crackling arc. Each creature in a 15-foot cone makes a Dexterity saving throw, taking 3d6 lightning damage on a failure or half as much on a success. Unshielded electronics in the area short out.",
+		"higherLevel": "When you use a level 2 RAM slot or higher, it deals an extra 1d6 for each slot level above 1.",
+		"classes": [
+			"sorcerer"
+		],
+		"scope": "both",
+		"heat": 2,
+		"save": {
+			"ability": "dex",
+			"halfOnSuccess": true
+		},
+		"damage": {
+			"type": "lightning",
+			"bySlotLevel": {
+				"1": "3d6",
+				"2": "4d6",
+				"3": "5d6",
+				"4": "6d6",
+				"5": "7d6",
+				"6": "8d6",
+				"7": "9d6",
+				"8": "10d6",
+				"9": "11d6"
+			}
+		},
+		"area": {
+			"shape": "cone",
+			"size": 15
+		}
+	},
+	{
+		"index": "p-brownout",
+		"name": "Brownout",
+		"level": 1,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "90 feet",
+		"rangeFeet": 90,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "1 minute",
+		"concentration": false,
+		"ritual": false,
+		"description": "You push a forced sleep command to every implant and autopilot in a 20-foot radius around a point within range. Roll 5d8: that many hit points of creatures with implants, drones and robots are affected, starting with the lowest current hit points. Each one falls unconscious (a drone powers down) until the program ends, it takes damage, or someone uses an action to shake or reboot it. Creatures without implants are unaffected.",
+		"higherLevel": "When you use a level 2 RAM slot or higher, roll an extra 2d8 for each slot level above 1.",
+		"classes": [
+			"wizard"
+		],
+		"scope": "net",
+		"heat": 2,
+		"area": {
+			"shape": "sphere",
+			"size": 20
+		}
+	},
+	{
+		"index": "p-spoof",
+		"name": "Spoof",
+		"level": 1,
+		"school": "intrusion",
+		"castingTime": "1 action",
+		"range": "30 feet",
+		"rangeFeet": 30,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "1 hour",
+		"concentration": false,
+		"ritual": false,
+		"description": "You forge a friend-or-foe tag. A piece of ICE, a drone, or a creature with a wireless implant within range makes a Wisdom saving throw, with advantage if you or your companions are fighting it. On a failure it treats you as a friendly acquaintance (an ICE lets you pass as authorised traffic) until the program ends or you or your companions harm it. When it ends, it knows it was spoofed.",
+		"higherLevel": "When you use a level 2 RAM slot or higher, you can target one more creature for each slot level above 1.",
+		"classes": [
+			"sorcerer",
+			"warlock",
+			"bard"
+		],
+		"scope": "net",
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		}
+	},
+	{
+		"index": "p-face-mask",
+		"name": "Face Mask",
+		"level": 1,
+		"school": "social",
+		"castingTime": "1 action",
+		"range": "Self",
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "A burner ID to back the new face (used up).",
+		"duration": "1 hour",
+		"concentration": false,
+		"ritual": false,
+		"description": "You wrap yourself in a projected face and a forged identity: to eyes, cameras and ID scanners you look and register as someone else of about your size, with a different face, voice and clothes. A creature that studies you with an action can see through it with an Intelligence (Investigation) check against your program save DC; a scanner checking the burner ID finds a clean record.",
+		"classes": [
+			"bard"
+		],
+		"scope": "both",
+		"consumes": [
+			{
+				"ref": "c-burner-id",
+				"qty": 1
+			}
+		]
+	},
+	{
+		"index": "p-sniffer",
+		"name": "Sniffer",
+		"level": 1,
+		"school": "recon",
+		"castingTime": "1 action",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 10 minutes",
+		"concentration": true,
+		"ritual": true,
+		"description": "For the duration, you sense every wireless device, implant, drone and running program within 30 feet of you. As an action you can read one of them: what it is, who owns it, and whether ICE guards it. Thick concrete, a Faraday cage or a jammer blocks the sniffer. You can run it as a background job.",
+		"classes": [
+			"wizard",
+			"paladin",
+			"ranger"
+		],
+		"scope": "net"
+	},
+	{
+		"index": "p-brand",
+		"name": "Brand",
+		"level": 1,
+		"school": "control",
+		"castingTime": "1 bonus action",
+		"range": "90 feet",
+		"rangeFeet": 90,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 hour",
+		"concentration": true,
+		"ritual": false,
+		"description": "Your patron tags a creature with an implant within range. Until the program ends, you deal an extra 1d6 psychic damage to it whenever you hit it with an attack, and it has disadvantage on ability checks made with one ability of your choice. If it drops to 0 hit points before the program ends, you can use a bonus action on a later turn to move the brand to a new creature.",
+		"higherLevel": "When you use a level 3 or 4 RAM slot, you can keep your concentration on it for up to 8 hours. With a level 5 RAM slot or higher, up to 24 hours.",
+		"classes": [
+			"warlock"
+		],
+		"scope": "net"
+	},
+	{
+		"index": "p-backlash",
+		"name": "Backlash",
+		"level": 1,
+		"school": "ice-breaking",
+		"castingTime": "1 reaction",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "When a creature with an implant within 60 feet damages you, you send its implant into thermal runaway. It makes a Dexterity saving throw, taking 2d10 fire damage on a failure or half as much on a success.",
+		"higherLevel": "When you use a level 2 RAM slot or higher, it deals an extra 1d10 for each slot level above 1.",
+		"classes": [
+			"warlock"
+		],
+		"scope": "net",
+		"heat": 1,
+		"save": {
+			"ability": "dex",
+			"halfOnSuccess": true
+		},
+		"damage": {
+			"type": "fire",
+			"bySlotLevel": {
+				"1": "2d10",
+				"2": "3d10",
+				"3": "4d10",
+				"4": "5d10",
+				"5": "6d10",
+				"6": "7d10",
+				"7": "8d10",
+				"8": "9d10",
+				"9": "10d10"
+			}
+		}
+	},
+	{
+		"index": "p-fake-alarm",
+		"name": "Fake Alarm",
+		"level": 1,
+		"school": "social",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You fire a perfect emergency alert straight into the implant of a creature within range: an evacuation siren, its bank account emptying, its kid's school on lockdown. It makes a Wisdom saving throw. On a failure it takes 3d6 psychic damage and must immediately use its reaction, if available, to move as far as its speed allows away from you. On a success it takes half as much damage and doesn't move away.",
+		"higherLevel": "When you use a level 2 RAM slot or higher, it deals an extra 1d6 for each slot level above 1.",
+		"classes": [
+			"bard"
+		],
+		"scope": "net",
+		"heat": 1,
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": true
+		},
+		"damage": {
+			"type": "psychic",
+			"bySlotLevel": {
+				"1": "3d6",
+				"2": "4d6",
+				"3": "5d6",
+				"4": "6d6",
+				"5": "7d6",
+				"6": "8d6",
+				"7": "9d6",
+				"8": "10d6",
+				"9": "11d6"
+			}
+		}
+	},
+	{
+		"index": "p-keep-it-together",
+		"name": "Keep It Together",
+		"level": 1,
+		"school": "social",
+		"castingTime": "1 bonus action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "Your voice cuts through the comms at the right moment. A creature of your choice within range that can hear you regains hit points equal to 1d4 + your program ability modifier. This has no effect on constructs.",
+		"higherLevel": "When you use a level 2 RAM slot or higher, the healing increases by 1d4 for each slot level above 1.",
+		"classes": [
+			"bard"
+		],
+		"scope": "both",
+		"heal": {
+			"bySlotLevel": {
+				"1": "1d4",
+				"2": "2d4",
+				"3": "3d4",
+				"4": "4d4",
+				"5": "5d4",
+				"6": "6d4",
+				"7": "7d4",
+				"8": "8d4",
+				"9": "9d4"
+			},
+			"addModifier": true
+		}
+	},
+	{
+		"index": "p-stitch-up",
+		"name": "Stitch-Up",
+		"level": 1,
+		"school": "medical",
+		"castingTime": "1 action",
+		"range": "Touch",
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "A med patch (used up).",
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You staple, glue and patch a wound. A creature you touch regains hit points equal to 1d8 + your program ability modifier. This has no effect on constructs.",
+		"higherLevel": "When you use a level 2 RAM slot or higher, the healing increases by 1d8 for each slot level above 1.",
+		"classes": [
+			"cleric",
+			"paladin",
+			"ranger"
+		],
+		"scope": "both",
+		"heal": {
+			"bySlotLevel": {
+				"1": "1d8",
+				"2": "2d8",
+				"3": "3d8",
+				"4": "4d8",
+				"5": "5d8",
+				"6": "6d8",
+				"7": "7d8",
+				"8": "8d8",
+				"9": "9d8"
+			},
+			"addModifier": true
+		},
+		"consumes": [
+			{
+				"ref": "c-med-patch",
+				"qty": 1
+			}
+		]
+	},
+	{
+		"index": "p-auto-injector",
+		"name": "Auto-Injector",
+		"level": 1,
+		"school": "medical",
+		"castingTime": "1 bonus action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "A med patch loaded in a dart (used up).",
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You fire a med-patch dart from your injector pistol at a creature within range. It regains hit points equal to 1d4 + your program ability modifier. This has no effect on constructs.",
+		"higherLevel": "When you use a level 2 RAM slot or higher, the healing increases by 1d4 for each slot level above 1.",
+		"classes": [
+			"cleric"
+		],
+		"scope": "both",
+		"heal": {
+			"bySlotLevel": {
+				"1": "1d4",
+				"2": "2d4",
+				"3": "3d4",
+				"4": "4d4",
+				"5": "5d4",
+				"6": "6d4",
+				"7": "7d4",
+				"8": "8d4",
+				"9": "9d4"
+			},
+			"addModifier": true
+		},
+		"consumes": [
+			{
+				"ref": "c-med-patch",
+				"qty": 1
+			}
+		]
+	},
+	{
+		"index": "p-stim-shot",
+		"name": "Stim Shot",
+		"level": 1,
+		"school": "wetware",
+		"castingTime": "1 bonus action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "A chem vial (used up).",
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You flick a dart of home-brewed regen chem at a creature within range. It regains hit points equal to 1d4 + your program ability modifier. This has no effect on constructs.",
+		"higherLevel": "When you use a level 2 RAM slot or higher, the healing increases by 1d4 for each slot level above 1.",
+		"classes": [
+			"druid"
+		],
+		"scope": "both",
+		"heal": {
+			"bySlotLevel": {
+				"1": "1d4",
+				"2": "2d4",
+				"3": "3d4",
+				"4": "4d4",
+				"5": "5d4",
+				"6": "6d4",
+				"7": "7d4",
+				"8": "8d4",
+				"9": "9d4"
+			},
+			"addModifier": true
+		},
+		"consumes": [
+			{
+				"ref": "c-chem-vial",
+				"qty": 1
+			}
+		]
+	},
+	{
+		"index": "p-paint-targets",
+		"name": "Paint Targets",
+		"level": 1,
+		"school": "recon",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "A drone sweeps a laser designator across a 20-foot cube within range. Each creature in the area that fails a Dexterity saving throw is painted for the duration: it sheds dim light in a 10-foot radius, every smart scope and drone in your crew sees it, and attack rolls against it have advantage if the attacker can see it. A painted creature gains no benefit from being invisible or from optical camo.",
+		"classes": [
+			"druid",
+			"ranger"
+		],
+		"scope": "both",
+		"save": {
+			"ability": "dex",
+			"halfOnSuccess": false
+		},
+		"area": {
+			"shape": "cube",
+			"size": 20
+		}
+	},
+	{
+		"index": "p-lock-on",
+		"name": "Lock-on",
+		"level": 1,
+		"school": "recon",
+		"castingTime": "1 bonus action",
+		"range": "90 feet",
+		"rangeFeet": 90,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 hour",
+		"concentration": true,
+		"ritual": false,
+		"description": "Your drone locks onto a creature you can see within range. Until the program ends, you deal an extra 1d6 damage to it whenever you hit it with a weapon attack, and you have advantage on Wisdom (Perception) and Wisdom (Survival) checks to find it. If it drops to 0 hit points before the program ends, you can use a bonus action on a later turn to lock onto a new creature.",
+		"higherLevel": "When you use a level 3 or 4 RAM slot, you can keep your concentration on it for up to 8 hours. With a level 5 RAM slot or higher, up to 24 hours.",
+		"classes": [
+			"ranger"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-perimeter-alarm",
+		"name": "Perimeter Alarm",
+		"level": 1,
+		"school": "recon",
+		"castingTime": "1 minute",
+		"range": "30 feet",
+		"rangeFeet": 30,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "8 hours",
+		"concentration": false,
+		"ritual": true,
+		"description": "You stick motion sensors on a door, a window or an area no larger than a 20-foot cube within range. Until the program ends, an alarm pings your implant whenever a creature of at least Tiny size enters or touches the area, unless it's someone you named when you set it. The ping wakes you if you're sleeping. You can run it as a background job.",
+		"classes": [
+			"ranger"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-smoke-drone",
+		"name": "Smoke Drone",
+		"level": 1,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "120 feet",
+		"rangeFeet": 120,
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "A drone battery (used up).",
+		"duration": "Up to 1 hour",
+		"concentration": true,
+		"ritual": false,
+		"description": "A drone dives to a point within range and vents dense smoke in a 20-foot radius sphere. The area is heavily obscured for the duration. A wind of at least 10 miles per hour disperses it.",
+		"higherLevel": "When you use a level 2 RAM slot or higher, the radius increases by 20 feet for each slot level above 1.",
+		"classes": [
+			"ranger"
+		],
+		"scope": "both",
+		"area": {
+			"shape": "sphere",
+			"size": 20
+		},
+		"consumes": [
+			{
+				"ref": "c-drone-battery",
+				"qty": 1
+			}
+		]
+	},
+	{
+		"index": "p-sticky-foam",
+		"name": "Sticky Foam",
+		"level": 1,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "90 feet",
+		"rangeFeet": 90,
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "A chem vial (used up).",
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You lob a chem vial that bursts into fast-setting foam over a 20-foot square within range. For the duration, the area is difficult terrain. Each creature in the area when it bursts must succeed on a Strength saving throw or be restrained by the foam until the program ends. A restrained creature can use its action to make a Strength check against your program save DC; on a success it pulls free.",
+		"classes": [
+			"druid"
+		],
+		"scope": "both",
+		"save": {
+			"ability": "str",
+			"halfOnSuccess": false
+		},
+		"area": {
+			"shape": "cube",
+			"size": 20
+		},
+		"consumes": [
+			{
+				"ref": "c-chem-vial",
+				"qty": 1
+			}
+		]
+	},
+	{
+		"index": "p-shield-protocol",
+		"name": "Shield Protocol",
+		"level": 1,
+		"school": "control",
+		"castingTime": "1 bonus action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 10 minutes",
+		"concentration": true,
+		"ritual": false,
+		"description": "You push a predictive threat feed to a creature of your choice within range. It gains a +2 bonus to AC for the duration.",
+		"classes": [
+			"cleric",
+			"paladin"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-charged-edge",
+		"name": "Charged Edge",
+		"level": 1,
+		"school": "combat",
+		"castingTime": "1 bonus action",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You route your deck's power into your weapon. Until the program ends, your weapon attacks deal an extra 1d4 lightning damage on a hit.",
+		"classes": [
+			"paladin"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-override",
+		"name": "Override",
+		"level": 1,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "1 round",
+		"concentration": false,
+		"ritual": false,
+		"description": "You push a one-word command to a creature with an implant, or a drone, within range. It must succeed on a Wisdom saving throw or obey it on its next turn. Commands: Approach (it moves toward you by the shortest route), Drop (it drops what it holds), Flee (it moves away from you), Kneel (it falls prone and ends its turn) or Halt (it doesn't move or act). The program has no effect on a creature without an implant.",
+		"higherLevel": "When you use a level 2 RAM slot or higher, you can target one more creature for each slot level above 1.",
+		"classes": [
+			"paladin"
+		],
+		"scope": "net",
+		"heat": 1,
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		}
+	},
+	{
+		"index": "p-sync-up",
+		"name": "Sync Up",
+		"level": 1,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "30 feet",
+		"rangeFeet": 30,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You sync up to three creatures of your choice within range to a shared tactical feed. Whenever a target makes an attack roll or a saving throw before the program ends, it rolls a d4 and adds the number rolled.",
+		"higherLevel": "When you use a level 2 RAM slot or higher, you can target one more creature for each slot level above 1.",
+		"classes": [
+			"cleric",
+			"paladin"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-mirror",
+		"name": "Mirror",
+		"level": 2,
+		"school": "stealth",
+		"castingTime": "1 action",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "1 minute",
+		"concentration": false,
+		"ritual": false,
+		"description": "Three decoy copies of your signature appear around you, in the network map and in the targeting software of every drone, turret and smart gun. Until the program ends, each time a creature targets you with an attack, roll a d20 to see whether it hits a decoy instead: with three decoys it does on a 6 or higher, with two on an 8 or higher, with one on an 11 or higher. A decoy has AC 10 + your Dexterity modifier and vanishes when hit. A creature that can't see, or that aims with its own unaided eyes in the physical world, isn't fooled.",
+		"classes": [
+			"wizard",
+			"sorcerer"
+		],
+		"scope": "net"
+	},
+	{
+		"index": "p-backdoor",
+		"name": "Backdoor",
+		"level": 2,
+		"school": "intrusion",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You slip through a hole you planted earlier. Choose a firewall, an electronic lock or a sealed door with a wireless controller within range: it opens, and the network doesn't log it (no trace tick). A firewall guarded by an active ICE, or a lock with a mechanical bolt, needs the ICE dealt with or a crowbar first.",
+		"classes": [
+			"wizard",
+			"warlock",
+			"bard"
+		],
+		"scope": "net"
+	},
+	{
+		"index": "p-worm",
+		"name": "Worm",
+		"level": 2,
+		"school": "ice-breaking",
+		"castingTime": "1 action",
+		"range": "90 feet",
+		"rangeFeet": 90,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You plant a self-replicating worm in a piece of ICE, a device, a drone, or a creature's wireless implant within range. Make a ranged program attack. On a hit the target takes 4d4 force damage, and 2d4 force damage more at the end of its next turn as the worm spreads. On a miss it takes half the first damage and nothing at the end of its next turn.",
+		"higherLevel": "When you use a level 3 RAM slot or higher, both the first and the later damage increase by 1d4 for each slot level above 2.",
+		"classes": [
+			"wizard",
+			"warlock"
+		],
+		"scope": "net",
+		"heat": 1,
+		"attack": "ranged",
+		"damage": {
+			"type": "force",
+			"bySlotLevel": {
+				"2": "4d4",
+				"3": "5d4",
+				"4": "6d4",
+				"5": "7d4",
+				"6": "8d4",
+				"7": "9d4",
+				"8": "10d4",
+				"9": "11d4"
+			}
+		}
+	},
+	{
+		"index": "p-freeze-lock",
+		"name": "Freeze Lock",
+		"level": 2,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You lock the motor relays of a humanoid with an implant within range. It must succeed on a Wisdom saving throw or be paralyzed for the duration. At the end of each of its turns it makes another Wisdom saving throw; on a success the program ends on it.",
+		"higherLevel": "When you use a level 3 RAM slot or higher, you can target one more humanoid for each slot level above 2. They must be within 30 feet of each other.",
+		"classes": [
+			"wizard",
+			"bard"
+		],
+		"scope": "net",
+		"heat": 1,
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		}
+	},
+	{
+		"index": "p-feedback-howl",
+		"name": "Feedback Howl",
+		"level": 2,
+		"school": "combat",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "Every speaker, phone and audio implant around a point within range screams at once. Each creature in a 10-foot radius sphere centred on that point makes a Constitution saving throw, taking 3d10 thunder damage on a failure or half as much on a success. Drones and robots make the save with disadvantage. Glass and screens in the area crack.",
+		"higherLevel": "When you use a level 3 RAM slot or higher, it deals an extra 1d10 for each slot level above 2.",
+		"classes": [
+			"sorcerer"
+		],
+		"scope": "both",
+		"heat": 2,
+		"save": {
+			"ability": "con",
+			"halfOnSuccess": true
+		},
+		"damage": {
+			"type": "thunder",
+			"bySlotLevel": {
+				"2": "3d10",
+				"3": "4d10",
+				"4": "5d10",
+				"5": "6d10",
+				"6": "7d10",
+				"7": "8d10",
+				"8": "9d10",
+				"9": "10d10"
+			}
+		},
+		"area": {
+			"shape": "sphere",
+			"size": 10
+		}
+	},
+	{
+		"index": "p-optic-hijack",
+		"name": "Optic Hijack",
+		"level": 2,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "30 feet",
+		"rangeFeet": 30,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "1 minute",
+		"concentration": false,
+		"ritual": false,
+		"description": "You hijack the eyes or ears of a creature with cybereyes or an audio implant, or a drone's camera, within range. It must succeed on a Constitution saving throw or be blinded or deafened (your choice) for the duration. At the end of each of its turns it repeats the save, ending the effect on a success.",
+		"higherLevel": "When you use a level 3 RAM slot or higher, you can target one more creature for each slot level above 2.",
+		"classes": [
+			"cleric"
+		],
+		"scope": "net",
+		"heat": 1,
+		"save": {
+			"ability": "con",
+			"halfOnSuccess": false
+		}
+	},
+	{
+		"index": "p-attack-daemon",
+		"name": "Attack Daemon",
+		"level": 2,
+		"school": "control",
+		"castingTime": "1 bonus action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "1 minute",
+		"concentration": false,
+		"ritual": false,
+		"description": "You release a hunter program into the network or into a device within range. Until the program ends, it lives on a node or device of your choice and can jump to another within 20 feet of it as a bonus action on your turn. When you release it, and as a bonus action on your later turns, it can attack a piece of ICE, a drone, or a creature with a wireless implant within 5 feet of its device (or on its node). Make a melee program attack; on a hit the target takes 1d8 + your program ability modifier force damage.",
+		"higherLevel": "When you use a level 4 RAM slot or higher, the damage increases by 1d8 for every two slot levels above 2.",
+		"classes": [
+			"warlock"
+		],
+		"scope": "net",
+		"heat": 1,
+		"attack": "melee",
+		"damage": {
+			"type": "force",
+			"bySlotLevel": {
+				"2": "1d8+MOD",
+				"3": "1d8+MOD",
+				"4": "2d8+MOD",
+				"5": "2d8+MOD",
+				"6": "3d8+MOD",
+				"7": "3d8+MOD",
+				"8": "4d8+MOD",
+				"9": "4d8+MOD"
+			}
+		}
+	},
+	{
+		"index": "p-adrenal-boost",
+		"name": "Adrenal Boost",
+		"level": 2,
+		"school": "medical",
+		"castingTime": "1 action",
+		"range": "30 feet",
+		"rangeFeet": 30,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "8 hours",
+		"concentration": false,
+		"ritual": false,
+		"description": "You dose up to three creatures within range with a slow-release adrenal cocktail. Each target's hit point maximum and current hit points increase by 5 for the duration.",
+		"higherLevel": "When you use a level 3 RAM slot or higher, the bonus increases by 5 for each slot level above 2.",
+		"classes": [
+			"cleric",
+			"paladin"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-flush",
+		"name": "Flush",
+		"level": 2,
+		"school": "medical",
+		"castingTime": "1 action",
+		"range": "Touch",
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "A med patch (used up).",
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You flush a creature you touch with antitoxins and give its implants a clean reboot. You end one disease or one condition on it: blinded, deafened, paralyzed or poisoned. It also ends dumpshock.",
+		"classes": [
+			"cleric",
+			"paladin",
+			"ranger"
+		],
+		"scope": "both",
+		"consumes": [
+			{
+				"ref": "c-med-patch",
+				"qty": 1
+			}
+		]
+	},
+	{
+		"index": "p-truth-filter",
+		"name": "Truth Filter",
+		"level": 2,
+		"school": "social",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "10 minutes",
+		"concentration": false,
+		"ritual": false,
+		"description": "Your deck runs voice-stress and pupil analysis on everyone in a 15-foot radius sphere centred on a point within range. A creature that enters the area for the first time on a turn, or starts its turn there, makes a Charisma saving throw. On a failure it can't speak a deliberate lie without your deck flagging it. You know whether each creature succeeded. An affected creature knows it's being analysed and can stay silent or answer evasively.",
+		"classes": [
+			"bard",
+			"paladin"
+		],
+		"scope": "both",
+		"save": {
+			"ability": "cha",
+			"halfOnSuccess": false
+		},
+		"area": {
+			"shape": "sphere",
+			"size": 15
+		}
+	},
+	{
+		"index": "p-jammer",
+		"name": "Jammer",
+		"level": 2,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "120 feet",
+		"rangeFeet": 120,
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "A drone battery (used up).",
+		"duration": "Up to 10 minutes",
+		"concentration": true,
+		"ritual": false,
+		"description": "A drone parks at a point within range and jams every signal in a 20-foot radius sphere for the duration. No call, message or wireless link passes into, out of or through the area: net programs can't target anything inside it, drones inside lose their remote pilot and hover in place, and wireless implants there go offline. Wired connections still work.",
+		"classes": [
+			"ranger"
+		],
+		"scope": "both",
+		"heat": 1,
+		"area": {
+			"shape": "sphere",
+			"size": 20
+		},
+		"consumes": [
+			{
+				"ref": "c-drone-battery",
+				"qty": 1
+			}
+		]
+	},
+	{
+		"index": "p-clean-trail",
+		"name": "Clean Trail",
+		"level": 2,
+		"school": "stealth",
+		"castingTime": "1 action",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 hour",
+		"concentration": true,
+		"ritual": false,
+		"description": "A drone runs ahead of you looping camera feeds, scrubbing access logs and killing motion lights along your route. For the duration, each creature you choose within 30 feet of you (including you) has a +10 bonus to Dexterity (Stealth) checks and can't be tracked through cameras or the city's data trail.",
+		"classes": [
+			"druid",
+			"ranger"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-trace-ping",
+		"name": "Trace Ping",
+		"level": 2,
+		"school": "recon",
+		"castingTime": "1 action",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 10 minutes",
+		"concentration": true,
+		"ritual": false,
+		"description": "Name an object you've seen up close, or a kind of object (a deck, a phone, a car). For the duration, you sense the direction of the nearest one within 1,000 feet that carries a chip, a tag or a wireless port. If it's moving, you know its direction of travel. Lead shielding or a Faraday bag hides it.",
+		"classes": [
+			"ranger"
+		],
+		"scope": "net"
+	},
+	{
+		"index": "p-nanite-swarm",
+		"name": "Nanite Swarm",
+		"level": 2,
+		"school": "wetware",
+		"castingTime": "1 action",
+		"range": "120 feet",
+		"rangeFeet": 120,
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "A nanite canister (used up).",
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You open a canister and a grey haze of nanites settles in a 5-foot radius, 40-foot high cylinder centred on a point within range. When a creature enters the area for the first time on a turn or starts its turn there, it makes a Constitution saving throw, taking 2d10 acid damage on a failure or half as much on a success. On each of your turns after you run this program, you can use an action to move the swarm up to 60 feet.",
+		"higherLevel": "When you use a level 3 RAM slot or higher, it deals an extra 1d10 for each slot level above 2.",
+		"classes": [
+			"druid"
+		],
+		"scope": "both",
+		"heat": 1,
+		"save": {
+			"ability": "con",
+			"halfOnSuccess": true
+		},
+		"damage": {
+			"type": "acid",
+			"bySlotLevel": {
+				"2": "2d10",
+				"3": "3d10",
+				"4": "4d10",
+				"5": "5d10",
+				"6": "6d10",
+				"7": "7d10",
+				"8": "8d10",
+				"9": "9d10"
+			}
+		},
+		"area": {
+			"shape": "cylinder",
+			"size": 5
+		},
+		"consumes": [
+			{
+				"ref": "c-nanite-canister",
+				"qty": 1
+			}
+		]
+	},
+	{
+		"index": "p-overheat",
+		"name": "Overheat",
+		"level": 2,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You disable the thermal limiter of a metal implant, a weapon with a smart chip, or a device within range, and it glows red-hot. Any creature in contact with it takes 2d8 fire damage when you run the program. Until it ends, you can use a bonus action on each of your later turns to deal the damage again. A creature holding or wearing the object takes the damage and, if it can, it must succeed on a Constitution saving throw or drop it; if it doesn't drop it, it has disadvantage on attack rolls and ability checks until the start of your next turn.",
+		"higherLevel": "When you use a level 3 RAM slot or higher, it deals an extra 1d8 for each slot level above 2.",
+		"classes": [
+			"druid"
+		],
+		"scope": "net",
+		"heat": 1,
+		"save": {
+			"ability": "con",
+			"halfOnSuccess": false
+		},
+		"damage": {
+			"type": "fire",
+			"bySlotLevel": {
+				"2": "2d8",
+				"3": "3d8",
+				"4": "4d8",
+				"5": "5d8",
+				"6": "6d8",
+				"7": "7d8",
+				"8": "8d8",
+				"9": "9d8"
+			}
+		}
+	},
+	{
+		"index": "p-blackout",
+		"name": "Blackout",
+		"level": 3,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "300 feet",
+		"rangeFeet": 300,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 10 minutes",
+		"concentration": true,
+		"ritual": false,
+		"description": "You crash the power controller for an area: everything wired to the grid in a 60-foot radius sphere centred on a point within range loses power for the duration. Lights, screens, cameras, lifts, electronic locks and turrets go dead (a lock fails open or shut, as its owner set it). Devices on their own battery, drones and implants keep working. The whole block notices.",
+		"classes": [
+			"wizard"
+		],
+		"scope": "both",
+		"heat": 3,
+		"area": {
+			"shape": "sphere",
+			"size": 60
+		}
+	},
+	{
+		"index": "p-arc-line",
+		"name": "Arc Line",
+		"level": 3,
+		"school": "combat",
+		"castingTime": "1 action",
+		"range": "Self (100-foot line)",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You turn your deck's capacitor bank into a bolt. Each creature in a line 100 feet long and 5 feet wide that starts from you makes a Dexterity saving throw, taking 8d6 lightning damage on a failure or half as much on a success. Unshielded electronics in the line fry.",
+		"higherLevel": "When you use a level 4 RAM slot or higher, it deals an extra 1d6 for each slot level above 3.",
+		"classes": [
+			"sorcerer"
+		],
+		"scope": "both",
+		"heat": 3,
+		"save": {
+			"ability": "dex",
+			"halfOnSuccess": true
+		},
+		"damage": {
+			"type": "lightning",
+			"bySlotLevel": {
+				"3": "8d6",
+				"4": "9d6",
+				"5": "10d6",
+				"6": "11d6",
+				"7": "12d6",
+				"8": "13d6",
+				"9": "14d6"
+			}
+		},
+		"area": {
+			"shape": "line",
+			"size": 100
+		}
+	},
+	{
+		"index": "p-cascade",
+		"name": "Cascade",
+		"level": 3,
+		"school": "ice-breaking",
+		"castingTime": "1 action",
+		"range": "150 feet",
+		"rangeFeet": 150,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You set off a chain overload that jumps from device to device around a point within range. Each piece of ICE, drone, robot and creature with a wireless implant in a 20-foot radius sphere centred on that point makes a Dexterity saving throw, taking 8d6 fire damage on a failure or half as much on a success as its circuits burn. Creatures without implants are unaffected, and so is anything shielded or offline.",
+		"higherLevel": "When you use a level 4 RAM slot or higher, it deals an extra 1d6 for each slot level above 3.",
+		"classes": [
+			"wizard"
+		],
+		"scope": "net",
+		"heat": 3,
+		"save": {
+			"ability": "dex",
+			"halfOnSuccess": true
+		},
+		"damage": {
+			"type": "fire",
+			"bySlotLevel": {
+				"3": "8d6",
+				"4": "9d6",
+				"5": "10d6",
+				"6": "11d6",
+				"7": "12d6",
+				"8": "13d6",
+				"9": "14d6"
+			}
+		},
+		"area": {
+			"shape": "sphere",
+			"size": 20
+		}
+	},
+	{
+		"index": "p-purge",
+		"name": "Purge",
+		"level": 3,
+		"school": "intrusion",
+		"castingTime": "1 action",
+		"range": "120 feet",
+		"rangeFeet": 120,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "Choose one creature, device, node or effect within range that is running a program. Any program of level 3 or lower on it ends. For each program of level 4 or higher, make an ability check using your program ability. The DC equals 10 + the program's level. On a success, it ends.",
+		"higherLevel": "When you use a level 4 RAM slot or higher, you automatically end programs of a level equal to or lower than the slot you used.",
+		"classes": [
+			"wizard",
+			"cleric",
+			"paladin"
+		],
+		"scope": "net"
+	},
+	{
+		"index": "p-kill-process",
+		"name": "Kill Process",
+		"level": 3,
+		"school": "ice-breaking",
+		"castingTime": "1 reaction",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "When you see a creature within 60 feet of you run a program, you try to kill it as it loads. If it's level 3 or lower, it fails and has no effect. If it's level 4 or higher, make an ability check using your program ability. The DC equals 10 + the program's level. On a success, it fails. The creature must be running it through a deck, an implant or a device you can reach wirelessly.",
+		"higherLevel": "When you use a level 4 RAM slot or higher, the interrupted program fails automatically if its level is less than or equal to the slot you used.",
+		"classes": [
+			"wizard",
+			"sorcerer",
+			"warlock"
+		],
+		"scope": "net"
+	},
+	{
+		"index": "p-camera-hop",
+		"name": "Camera Hop",
+		"level": 3,
+		"school": "recon",
+		"castingTime": "1 minute",
+		"range": "1 mile",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 10 minutes",
+		"concentration": true,
+		"ritual": false,
+		"description": "You hop into a camera, a doorbell, a drone or a phone within range that you know is there, or one in a place you've been. For the duration you see or hear (choose one, and switch as an action) through it as if you were there. As an action you can hop to another device within 100 feet of it.",
+		"classes": [
+			"wizard"
+		],
+		"scope": "net"
+	},
+	{
+		"index": "p-reflex-spike",
+		"name": "Reflex Spike",
+		"level": 3,
+		"school": "wetware",
+		"castingTime": "1 action",
+		"range": "30 feet",
+		"rangeFeet": 30,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You overclock the reflex wiring of a willing creature with an implant within range. Until the program ends, its speed is doubled, it gains a +2 bonus to AC, it has advantage on Dexterity saving throws, and it gains an additional action on each of its turns (only to Attack with one weapon attack, Dash, Disengage, Hide or Use an Object). When the program ends, it can't move or take actions until after its next turn, as its nerves come down.",
+		"classes": [
+			"sorcerer"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-lag",
+		"name": "Lag",
+		"level": 3,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "120 feet",
+		"rangeFeet": 120,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You throttle the reflex wiring of up to six creatures with implants, or drones, of your choice in a 40-foot cube within range. Each target must succeed on a Wisdom saving throw or, for the duration, have its speed halved, take a −2 penalty to AC and Dexterity saving throws, lose its reactions, and take either an action or a bonus action on its turn, not both, and no more than one attack. At the end of each of its turns it repeats the save, ending the effect on a success.",
+		"classes": [
+			"warlock"
+		],
+		"scope": "net",
+		"heat": 2,
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		},
+		"area": {
+			"shape": "cube",
+			"size": 40
+		}
+	},
+	{
+		"index": "p-panic-broadcast",
+		"name": "Panic Broadcast",
+		"level": 3,
+		"school": "social",
+		"castingTime": "1 action",
+		"range": "Self (30-foot cone)",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You flood every AR overlay and implant in a 30-foot cone with each viewer's worst fear rendered in real time. Each creature with an implant in the cone must succeed on a Wisdom saving throw or drop whatever it is holding and become frightened for the duration. A frightened creature must take the Dash action and move away from you by the safest route on each of its turns. If it ends its turn where it can't see you, it makes a Wisdom saving throw; on a success the program ends for it.",
+		"classes": [
+			"sorcerer",
+			"bard"
+		],
+		"scope": "net",
+		"heat": 2,
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		},
+		"area": {
+			"shape": "cone",
+			"size": 30
+		}
+	},
+	{
+		"index": "p-screen-lock",
+		"name": "Screen Lock",
+		"level": 3,
+		"school": "social",
+		"castingTime": "1 action",
+		"range": "120 feet",
+		"rangeFeet": 120,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "A hypnotic clip plays on every screen and AR overlay in a 30-foot cube within range. Each creature in the area that can see a screen, or has an AR implant, makes a Wisdom saving throw. On a failure it is charmed for the duration: it is incapacitated and has a speed of 0, staring at the loop. The effect ends for a creature if it takes damage or someone uses an action to shake it out of its stare.",
+		"classes": [
+			"bard"
+		],
+		"scope": "net",
+		"heat": 1,
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		},
+		"area": {
+			"shape": "cube",
+			"size": 30
+		}
+	},
+	{
+		"index": "p-mass-patch",
+		"name": "Mass Patch",
+		"level": 3,
+		"school": "medical",
+		"castingTime": "1 bonus action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "Two med patches loaded in darts (used up).",
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You fire a spread of med-patch darts. Up to six creatures of your choice within range regain hit points equal to 1d4 + your program ability modifier. This has no effect on constructs.",
+		"higherLevel": "When you use a level 4 RAM slot or higher, the healing increases by 1d4 for each slot level above 3.",
+		"classes": [
+			"cleric"
+		],
+		"scope": "both",
+		"heal": {
+			"bySlotLevel": {
+				"3": "1d4",
+				"4": "2d4",
+				"5": "3d4",
+				"6": "4d4",
+				"7": "5d4",
+				"8": "6d4",
+				"9": "7d4"
+			},
+			"addModifier": true
+		},
+		"consumes": [
+			{
+				"ref": "c-med-patch",
+				"qty": 2
+			}
+		]
+	},
+	{
+		"index": "p-crash-cart",
+		"name": "Crash Cart",
+		"level": 3,
+		"school": "medical",
+		"castingTime": "1 action",
+		"range": "Touch",
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "Two med patches (used up).",
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You shock, inject and restart a creature that has died within the last minute. It returns to life with 1 hit point. This can't bring back a creature that died of old age, nor restore missing body parts. Its implants reboot with it.",
+		"classes": [
+			"cleric",
+			"paladin"
+		],
+		"scope": "both",
+		"consumes": [
+			{
+				"ref": "c-med-patch",
+				"qty": 2
+			}
+		]
+	},
+	{
+		"index": "p-off-the-grid",
+		"name": "Off the Grid",
+		"level": 3,
+		"school": "stealth",
+		"castingTime": "1 action",
+		"range": "Touch",
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "A burner ID (used up).",
+		"duration": "8 hours",
+		"concentration": false,
+		"ritual": false,
+		"description": "You swap a willing creature you touch onto a burner ID and scrub its biometrics from the city's databases. For the duration it can't be found by tracking programs, Camera Hop, Trace Ping, Skip Trace, facial recognition or a bounty search, and cameras log it as an unknown face.",
+		"classes": [
+			"ranger"
+		],
+		"scope": "net",
+		"consumes": [
+			{
+				"ref": "c-burner-id",
+				"qty": 1
+			}
+		]
+	},
+	{
+		"index": "p-drone-swarm",
+		"name": "Drone Swarm",
+		"level": 3,
+		"school": "combat",
+		"castingTime": "1 action",
+		"range": "120 feet",
+		"rangeFeet": 120,
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "A drone battery (used up).",
+		"duration": "Up to 10 minutes",
+		"concentration": true,
+		"ritual": false,
+		"description": "You launch a swarm of cheap strike drones that circle overhead. When you run the program, choose a point within range: the swarm dives, and each creature within 5 feet of that point makes a Dexterity saving throw, taking 3d10 piercing damage on a failure or half as much on a success. On each of your turns until the program ends, you can use your action to dive again on the same point or a different one. Indoors under a low ceiling, the swarm can't gather and the program fails.",
+		"higherLevel": "When you use a level 4 RAM slot or higher, it deals an extra 1d10 for each slot level above 3.",
+		"classes": [
+			"ranger"
+		],
+		"scope": "both",
+		"heat": 2,
+		"save": {
+			"ability": "dex",
+			"halfOnSuccess": true
+		},
+		"damage": {
+			"type": "piercing",
+			"bySlotLevel": {
+				"3": "3d10",
+				"4": "4d10",
+				"5": "5d10",
+				"6": "6d10",
+				"7": "7d10",
+				"8": "8d10",
+				"9": "9d10"
+			}
+		},
+		"area": {
+			"shape": "sphere",
+			"size": 5
+		},
+		"consumes": [
+			{
+				"ref": "c-drone-battery",
+				"qty": 1
+			}
+		]
+	},
+	{
+		"index": "p-tear-gas-bloom",
+		"name": "Tear Gas Bloom",
+		"level": 3,
+		"school": "wetware",
+		"castingTime": "1 action",
+		"range": "90 feet",
+		"rangeFeet": 90,
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "A chem vial (used up).",
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "A chem vial bursts into a 20-foot radius sphere of choking gas centred on a point within range. The area is heavily obscured. Each creature that starts its turn in the gas must succeed on a Constitution saving throw or spend its action that turn retching and reeling. Creatures that don't need to breathe, or that wear a sealed mask, automatically succeed. A strong wind disperses it.",
+		"classes": [
+			"druid"
+		],
+		"scope": "both",
+		"heat": 1,
+		"save": {
+			"ability": "con",
+			"halfOnSuccess": false
+		},
+		"area": {
+			"shape": "sphere",
+			"size": 20
+		},
+		"consumes": [
+			{
+				"ref": "c-chem-vial",
+				"qty": 1
+			}
+		]
+	},
+	{
+		"index": "p-hijack",
+		"name": "Hijack",
+		"level": 4,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You take over a drone, a robot or a robotic animal within range. It must succeed on a Wisdom saving throw, with advantage if you or your companions are fighting it, or you control it for the duration. While you're within range you can give it orders through your implant (no action needed), and it does its best to obey; as an action you can pilot it directly, taking its reaction too. Each time it takes damage it repeats the save, ending the effect on a success.",
+		"higherLevel": "When you use a level 5 RAM slot, the duration is up to 10 minutes.",
+		"classes": [
+			"druid",
+			"ranger"
+		],
+		"scope": "net",
+		"heat": 2,
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		}
+	},
+	{
+		"index": "p-scramble",
+		"name": "Scramble",
+		"level": 4,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "90 feet",
+		"rangeFeet": 90,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You scramble the sensory feed of every implant in a 10-foot radius sphere centred on a point within range. Each creature with an implant there must succeed on a Wisdom saving throw or be scrambled for the duration. At the start of each of its turns, a scrambled creature rolls a d10: on a 1 it moves in a random direction and doesn't act; on a 2–6 it does nothing; on a 7–8 it attacks a random creature within reach; on a 9–10 it acts normally. At the end of each of its turns it repeats the save, ending the effect on a success.",
+		"higherLevel": "When you use a level 5 RAM slot or higher, the radius increases by 5 feet for each slot level above 4.",
+		"classes": [
+			"sorcerer",
+			"bard"
+		],
+		"scope": "net",
+		"heat": 2,
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		},
+		"area": {
+			"shape": "sphere",
+			"size": 10
+		}
+	},
+	{
+		"index": "p-nightmare-feed",
+		"name": "Nightmare Feed",
+		"level": 4,
+		"school": "wetware",
+		"castingTime": "1 action",
+		"range": "120 feet",
+		"rangeFeet": 120,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You pipe a custom nightmare straight into the visual cortex of a creature with a neural implant within range. It must succeed on a Wisdom saving throw or be frightened for the duration. At the end of each of its turns, it must succeed on a Wisdom saving throw or take 4d10 psychic damage. On a success, the program ends.",
+		"higherLevel": "When you use a level 5 RAM slot or higher, it deals an extra 1d10 for each slot level above 4.",
+		"classes": [
+			"wizard",
+			"warlock"
+		],
+		"scope": "net",
+		"heat": 1,
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		},
+		"damage": {
+			"type": "psychic",
+			"bySlotLevel": {
+				"4": "4d10",
+				"5": "5d10",
+				"6": "6d10",
+				"7": "7d10",
+				"8": "8d10",
+				"9": "9d10"
+			}
+		}
+	},
+	{
+		"index": "p-deep-ghost",
+		"name": "Deep Ghost",
+		"level": 4,
+		"school": "stealth",
+		"castingTime": "1 action",
+		"range": "Touch",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "A willing creature you touch vanishes from every sensor for the duration: ICE, cameras, drones, smart scopes, cybereyes and the network map can't see it, even while it attacks or runs programs. People looking with their own unaided eyes in the physical world still can.",
+		"classes": [
+			"wizard"
+		],
+		"scope": "net"
+	},
+	{
+		"index": "p-failsafe",
+		"name": "Failsafe",
+		"level": 4,
+		"school": "medical",
+		"castingTime": "1 action",
+		"range": "Touch",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "8 hours",
+		"concentration": false,
+		"ritual": false,
+		"description": "You set a cardiac failsafe in a creature you touch. The first time it would drop to 0 hit points before the program ends, it drops to 1 hit point instead, and the program ends. If it would be killed outright without taking damage (a lethal dose, a black ICE flatline), the failsafe stops that instead.",
+		"classes": [
+			"cleric",
+			"paladin"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-cell-burn",
+		"name": "Cell Burn",
+		"level": 4,
+		"school": "wetware",
+		"castingTime": "1 action",
+		"range": "30 feet",
+		"rangeFeet": 30,
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "A chem vial (used up).",
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You fire a dart of cell-killing chem at a creature within range. It makes a Constitution saving throw, taking 8d8 necrotic damage on a failure or half as much on a success. It has no effect on constructs.",
+		"higherLevel": "When you use a level 5 RAM slot or higher, it deals an extra 1d8 for each slot level above 4.",
+		"classes": [
+			"druid"
+		],
+		"scope": "both",
+		"save": {
+			"ability": "con",
+			"halfOnSuccess": true
+		},
+		"damage": {
+			"type": "necrotic",
+			"bySlotLevel": {
+				"4": "8d8",
+				"5": "9d8",
+				"6": "10d8",
+				"7": "11d8",
+				"8": "12d8",
+				"9": "13d8"
+			}
+		},
+		"consumes": [
+			{
+				"ref": "c-chem-vial",
+				"qty": 1
+			}
+		]
+	},
+	{
+		"index": "p-skip-trace",
+		"name": "Skip Trace",
+		"level": 4,
+		"school": "recon",
+		"castingTime": "1 action",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 hour",
+		"concentration": true,
+		"ritual": false,
+		"description": "Name a person you've met or whose ID you hold. For the duration, you know the direction to them if they're within 1,000 feet, read from their phone, payments, implants and the cameras they pass. If they're moving, you know their direction of travel. Someone off the grid, or behind a jammer, can't be found this way.",
+		"classes": [
+			"ranger"
+		],
+		"scope": "net"
+	},
+	{
+		"index": "p-force-disconnect",
+		"name": "Force Disconnect",
+		"level": 4,
+		"school": "intrusion",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You try to kick a piece of ICE, a daemon or a jacked-in hacker within range out of the network. It must succeed on a Charisma saving throw or be quarantined for the duration: it vanishes from the network map and can't act. A hacker's mind is dumped back into their body, stunned until the end of their next turn. If the program lasts the full minute, a foreign daemon or ICE is deleted for good; native ICE and hackers can come back when it ends.",
+		"higherLevel": "When you use a level 5 RAM slot or higher, you can target one more creature for each slot level above 4.",
+		"classes": [
+			"warlock"
+		],
+		"scope": "net",
+		"save": {
+			"ability": "cha",
+			"halfOnSuccess": false
+		}
+	},
+	{
+		"index": "p-lockdown",
+		"name": "Lockdown",
+		"level": 5,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "90 feet",
+		"rangeFeet": 90,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You lock every motor relay of a creature with an implant, a drone, a robot or a piece of ICE within range. It must succeed on a Wisdom saving throw or be paralyzed for the duration. At the end of each of its turns it repeats the save, ending the effect on a success.",
+		"higherLevel": "When you use a level 6 RAM slot or higher, you can target one more creature for each slot level above 5. They must be within 30 feet of each other.",
+		"classes": [
+			"wizard",
+			"sorcerer",
+			"warlock"
+		],
+		"scope": "net",
+		"heat": 2,
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		}
+	},
+	{
+		"index": "p-compliance-patch",
+		"name": "Compliance Patch",
+		"level": 5,
+		"school": "social",
+		"castingTime": "1 minute",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "30 days",
+		"concentration": false,
+		"ritual": false,
+		"description": "You install a behaviour lock in the neural implant of a creature within range that can hear you, with one order: do a service, or stop doing something. It must succeed on a Wisdom saving throw or be charmed by you for the duration. Each time it acts directly against the order, it takes 5d10 psychic damage, no more than once a day. Removing the patch takes Purge run with a level 5 RAM slot, or a ripperdoc's surgery.",
+		"classes": [
+			"bard",
+			"cleric",
+			"paladin"
+		],
+		"scope": "net",
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		}
+	},
+	{
+		"index": "p-payload-burst",
+		"name": "Payload Burst",
+		"level": 5,
+		"school": "combat",
+		"castingTime": "1 action",
+		"range": "Self (30-foot radius)",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You slam your fist into the ground and detonate your deck's payload as a shockwave of sound and current. Each creature you choose within 30 feet of you makes a Constitution saving throw. On a failure it takes 10d6 thunder damage and is knocked prone. On a success it takes half as much damage and isn't knocked prone.",
+		"classes": [
+			"paladin"
+		],
+		"scope": "both",
+		"heat": 3,
+		"save": {
+			"ability": "con",
+			"halfOnSuccess": true
+		},
+		"damage": {
+			"type": "thunder",
+			"bySlotLevel": {
+				"5": "10d6",
+				"6": "10d6",
+				"7": "10d6",
+				"8": "10d6",
+				"9": "10d6"
+			}
+		},
+		"area": {
+			"shape": "sphere",
+			"size": 30
+		}
+	},
+	{
+		"index": "p-triage-sweep",
+		"name": "Triage Sweep",
+		"level": 5,
+		"school": "medical",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "Three med patches (used up).",
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You move through the wounded like a storm of staples and sprays. Up to six creatures of your choice in a 30-foot radius sphere centred on a point within range each regain hit points equal to 3d8 + your program ability modifier. This has no effect on constructs.",
+		"higherLevel": "When you use a level 6 RAM slot or higher, the healing increases by 1d8 for each slot level above 5.",
+		"classes": [
+			"cleric"
+		],
+		"scope": "both",
+		"heal": {
+			"bySlotLevel": {
+				"5": "3d8",
+				"6": "4d8",
+				"7": "5d8",
+				"8": "6d8",
+				"9": "7d8"
+			},
+			"addModifier": true
+		},
+		"area": {
+			"shape": "sphere",
+			"size": 30
+		},
+		"consumes": [
+			{
+				"ref": "c-med-patch",
+				"qty": 3
+			}
+		]
+	},
+	{
+		"index": "p-regen-mist",
+		"name": "Regen Mist",
+		"level": 5,
+		"school": "wetware",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "Two chem vials (used up).",
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You crack two chem vials into a cloud of regenerative vapour. Up to six creatures of your choice in a 30-foot radius sphere centred on a point within range each regain hit points equal to 3d8 + your program ability modifier. This has no effect on constructs.",
+		"higherLevel": "When you use a level 6 RAM slot or higher, the healing increases by 1d8 for each slot level above 5.",
+		"classes": [
+			"druid"
+		],
+		"scope": "both",
+		"heal": {
+			"bySlotLevel": {
+				"5": "3d8",
+				"6": "4d8",
+				"7": "5d8",
+				"8": "6d8",
+				"9": "7d8"
+			},
+			"addModifier": true
+		},
+		"area": {
+			"shape": "sphere",
+			"size": 30
+		},
+		"consumes": [
+			{
+				"ref": "c-chem-vial",
+				"qty": 2
+			}
+		]
+	},
+	{
+		"index": "p-nanite-plague",
+		"name": "Nanite Plague",
+		"level": 5,
+		"school": "wetware",
+		"castingTime": "1 action",
+		"range": "300 feet",
+		"rangeFeet": 300,
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "A nanite canister (used up).",
+		"duration": "Up to 10 minutes",
+		"concentration": true,
+		"ritual": false,
+		"description": "You release a canister of cutting nanites that boils into a 20-foot radius sphere centred on a point within range. The sphere spreads around corners, lightly obscures its area, and is difficult terrain. When it appears, each creature in it makes a Constitution saving throw, taking 4d10 piercing damage on a failure or half as much on a success. A creature also makes the save when it enters the area for the first time on a turn or ends its turn there.",
+		"higherLevel": "When you use a level 6 RAM slot or higher, it deals an extra 1d10 for each slot level above 5.",
+		"classes": [
+			"druid"
+		],
+		"scope": "both",
+		"heat": 2,
+		"save": {
+			"ability": "con",
+			"halfOnSuccess": true
+		},
+		"damage": {
+			"type": "piercing",
+			"bySlotLevel": {
+				"5": "4d10",
+				"6": "5d10",
+				"7": "6d10",
+				"8": "7d10",
+				"9": "8d10"
+			}
+		},
+		"area": {
+			"shape": "sphere",
+			"size": 20
+		},
+		"consumes": [
+			{
+				"ref": "c-nanite-canister",
+				"qty": 1
+			}
+		]
+	},
+	{
+		"index": "p-city-pulse",
+		"name": "City Pulse",
+		"level": 5,
+		"school": "recon",
+		"castingTime": "1 minute",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": true,
+		"description": "You open your mind to the city's sensor web for a moment. You learn up to three facts of your choice about the area within 3 miles of you: where the patrols are, where the water is cut, which buildings have power, where a crowd is gathering, where a drone yard or a hidden server sits. You can run it as a background job.",
+		"classes": [
+			"druid",
+			"ranger"
+		],
+		"scope": "net"
+	},
+	{
+		"index": "p-marionette",
+		"name": "Marionette",
+		"level": 5,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You take over the motor and speech implants of a humanoid within range. It must succeed on a Wisdom saving throw, with advantage if you or your companions are fighting it, or be charmed by you for the duration. While it's charmed you can give it orders through your implant (no action needed), and it does its best to obey; as an action you can drive it directly, taking its reaction too. Each time it takes damage it repeats the save, ending the effect on a success.",
+		"classes": [
+			"warlock"
+		],
+		"scope": "net",
+		"heat": 2,
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		}
+	},
+	{
+		"index": "p-memory-edit",
+		"name": "Memory Edit",
+		"level": 5,
+		"school": "social",
+		"castingTime": "1 action",
+		"range": "30 feet",
+		"rangeFeet": 30,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You reach into the memory buffer of a creature with a neural implant within range. It makes a Wisdom saving throw, with advantage if you or your companions are fighting it. On a failure it is charmed and incapacitated for the duration, and you can erase or rewrite its memory of any event from the last 24 hours that lasted no more than 10 minutes. The change takes hold if the program runs to the end.",
+		"classes": [
+			"bard"
+		],
+		"scope": "net",
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		}
+	},
+	{
+		"index": "p-flatline-wave",
+		"name": "Flatline Wave",
+		"level": 5,
+		"school": "ice-breaking",
+		"castingTime": "1 action",
+		"range": "Self (60-foot cone)",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You broadcast a killing pattern through every implant in a 60-foot cone. Each creature with a neural implant, and each piece of ICE, in the cone makes a Constitution saving throw, taking 8d8 psychic damage on a failure or half as much on a success. Creatures without implants are unaffected.",
+		"higherLevel": "When you use a level 6 RAM slot or higher, it deals an extra 1d8 for each slot level above 5.",
+		"classes": [
+			"wizard",
+			"sorcerer"
+		],
+		"scope": "net",
+		"heat": 3,
+		"save": {
+			"ability": "con",
+			"halfOnSuccess": true
+		},
+		"damage": {
+			"type": "psychic",
+			"bySlotLevel": {
+				"5": "8d8",
+				"6": "9d8",
+				"7": "10d8",
+				"8": "11d8",
+				"9": "12d8"
+			}
+		},
+		"area": {
+			"shape": "cone",
+			"size": 60
+		}
+	},
+	{
+		"index": "p-mass-face-mask",
+		"name": "Mass Face Mask",
+		"level": 5,
+		"school": "social",
+		"castingTime": "1 action",
+		"range": "30 feet",
+		"rangeFeet": 30,
+		"components": [
+			"V",
+			"S",
+			"M"
+		],
+		"material": "A burner ID (used up).",
+		"duration": "8 hours",
+		"concentration": false,
+		"ritual": false,
+		"description": "You wrap any number of creatures you can see within range in projected faces and forged identities seeded from one burner ID. Each looks and registers as someone else of about its size, with a different face, voice and clothes, until the program ends. An unwilling creature can make a Charisma saving throw to resist. A creature that studies a fake with an action can see through it with an Intelligence (Investigation) check against your program save DC.",
+		"classes": [
+			"bard"
+		],
+		"scope": "both",
+		"consumes": [
+			{
+				"ref": "c-burner-id",
+				"qty": 1
+			}
+		]
+	},
+	{
+		"index": "p-flatline-touch",
+		"name": "Flatline Touch",
+		"level": 0,
+		"school": "wetware",
+		"castingTime": "1 action",
+		"range": "120 feet",
+		"rangeFeet": 120,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "1 round",
+		"concentration": false,
+		"ritual": false,
+		"description": "You push a dead-man's signal into the implant of a creature within range. Make a ranged program attack. On a hit it takes 1d8 necrotic damage, and it can't regain hit points until the start of your next turn.\nThe damage increases by 1d8 at 5th level (2d8), 11th level (3d8) and 17th level (4d8).",
+		"classes": [
+			"wizard",
+			"warlock"
+		],
+		"scope": "net",
+		"heat": 1,
+		"attack": "ranged",
+		"damage": {
+			"type": "necrotic",
+			"byCharacterLevel": {
+				"1": "1d8",
+				"5": "2d8",
+				"11": "3d8",
+				"17": "4d8"
+			}
+		}
+	},
+	{
+		"index": "p-aim-assist",
+		"name": "Aim Assist",
+		"level": 0,
+		"school": "recon",
+		"castingTime": "1 action",
+		"range": "30 feet",
+		"rangeFeet": 30,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 round",
+		"concentration": true,
+		"ritual": false,
+		"description": "Your optics model a creature within range and predict how it will move. On your next turn, you gain advantage on your first attack roll against it, as long as the program hasn't ended.",
+		"classes": [
+			"wizard",
+			"warlock",
+			"bard"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-flare",
+		"name": "Flare",
+		"level": 0,
+		"school": "utility",
+		"castingTime": "1 action",
+		"range": "Touch",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "1 hour",
+		"concentration": false,
+		"ritual": false,
+		"description": "You set an object you touch glowing: a UV strip, a phone screen on full, a chem light. It sheds bright light in a 20-foot radius and dim light for 20 feet more. You can make it any colour. Covering it with something opaque blocks the light. The program ends if you run it again or dismiss it as an action.",
+		"classes": [
+			"cleric"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-strobe",
+		"name": "Strobe",
+		"level": 0,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "120 feet",
+		"rangeFeet": 120,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You take over up to four lights, screens or light-drones within range, or project up to four floating holo-lights, and make each shed dim light in a 10-foot radius. As a bonus action on your turn you can move the projected lights up to 60 feet, or change what the hijacked ones do.",
+		"classes": [
+			"sorcerer",
+			"bard"
+		],
+		"scope": "net"
+	},
+	{
+		"index": "p-tinker",
+		"name": "Tinker",
+		"level": 0,
+		"school": "utility",
+		"castingTime": "1 action",
+		"range": "10 feet",
+		"rangeFeet": 10,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 hour",
+		"concentration": false,
+		"ritual": false,
+		"description": "You fiddle with the tech around you for a small, harmless effect: a speaker plays a sound, a screen shows a short message or image, a lock beeps, a light flickers, a fan comes on, a phone rings, a dirty surface gets a cleaning bot's attention. You can have up to three such effects active at once.",
+		"classes": [
+			"wizard",
+			"sorcerer"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-strobe-burst",
+		"name": "Strobe Burst",
+		"level": 1,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "Self (15-foot cone)",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "1 round",
+		"concentration": false,
+		"ritual": false,
+		"description": "Every screen, light and optic in a 15-foot cone fires a seizure-bright burst. Roll 6d10: that many hit points of creatures in the cone are blinded until the end of your next turn, starting with the lowest current hit points. Creatures that can't see are unaffected.",
+		"higherLevel": "When you use a level 2 RAM slot or higher, roll an extra 2d10 for each slot level above 1.",
+		"classes": [
+			"wizard",
+			"sorcerer"
+		],
+		"scope": "both",
+		"heat": 1,
+		"area": {
+			"shape": "cone",
+			"size": 15
+		}
+	},
+	{
+		"index": "p-laugh-loop",
+		"name": "Laugh Loop",
+		"level": 1,
+		"school": "social",
+		"castingTime": "1 action",
+		"range": "30 feet",
+		"rangeFeet": 30,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You loop the funniest thing a creature with an implant within range has ever seen straight into its head. It must succeed on a Wisdom saving throw or fall prone, incapacitated and helpless with laughter for the duration. At the end of each of its turns, and each time it takes damage, it repeats the save, with advantage if damage triggered it. On a success the program ends.",
+		"classes": [
+			"wizard",
+			"bard"
+		],
+		"scope": "net",
+		"heat": 1,
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		}
+	},
+	{
+		"index": "p-projection",
+		"name": "Projection",
+		"level": 1,
+		"school": "stealth",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 10 minutes",
+		"concentration": true,
+		"ritual": false,
+		"description": "A holo-projector or the AR overlays around you show an image of an object, a creature or something else no larger than a 15-foot cube, at a point within range. It makes no sound. As an action you can make it move within range. A creature that uses its action to study it can see through it with an Intelligence (Investigation) check against your program save DC; physical contact passes right through it.",
+		"classes": [
+			"wizard",
+			"bard"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-hardshell",
+		"name": "Hardshell",
+		"level": 1,
+		"school": "wetware",
+		"castingTime": "1 action",
+		"range": "Touch",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "8 hours",
+		"concentration": false,
+		"ritual": false,
+		"description": "You harden the subdermal mesh of a willing creature you touch that isn't wearing armour. Until the program ends, its base AC becomes 13 + its Dexterity modifier. The program ends if it dons armour or you dismiss it as an action.",
+		"classes": [
+			"wizard",
+			"sorcerer"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-daemon-call",
+		"name": "Daemon Call",
+		"level": 1,
+		"school": "control",
+		"castingTime": "1 hour",
+		"range": "10 feet",
+		"rangeFeet": 10,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": true,
+		"description": "You boot a daemon into a small drone shell within range: a spider bot, a micro-drone, a rat drone, a cleaning bot or similar. It acts independently but always obeys you, and it can't attack. While it is within 100 feet of you, you can talk to it through your implant and, as an action, see and hear through its sensors until the start of your next turn. When you run a program with a range of touch, the daemon can deliver it as if it had run it. If the shell drops to 0 hit points, the daemon is lost until you run the program again. You can run it as a background job.",
+		"classes": [
+			"wizard"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-collar-talk",
+		"name": "Collar Talk",
+		"level": 1,
+		"school": "recon",
+		"castingTime": "1 action",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "10 minutes",
+		"concentration": false,
+		"ritual": true,
+		"description": "A bio-reader in your jack decodes the signals of animals around you, from tagged guard dogs to canal rats. For the duration you can understand and talk with beasts. Most are only as smart as they are, but they can tell you about places and creatures nearby. You can run it as a background job.",
+		"classes": [
+			"druid",
+			"ranger"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-sprint-override",
+		"name": "Sprint Override",
+		"level": 1,
+		"school": "wetware",
+		"castingTime": "1 bonus action",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 10 minutes",
+		"concentration": true,
+		"ritual": false,
+		"description": "You override the safety limits on your leg wiring. When you run this program, and as a bonus action on each of your turns until it ends, you can take the Dash action.",
+		"classes": [
+			"wizard",
+			"sorcerer"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-stim-loop",
+		"name": "Stim Loop",
+		"level": 1,
+		"school": "wetware",
+		"castingTime": "1 action",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "1 hour",
+		"concentration": false,
+		"ritual": false,
+		"description": "Your implants start a loop of stims and painkillers. You gain 1d4 + 4 temporary hit points for the duration.",
+		"higherLevel": "When you use a level 2 RAM slot or higher, you gain 5 more temporary hit points for each slot level above 1.",
+		"classes": [
+			"wizard",
+			"warlock"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-spring",
+		"name": "Spring",
+		"level": 1,
+		"school": "wetware",
+		"castingTime": "1 action",
+		"range": "Touch",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "1 minute",
+		"concentration": false,
+		"ritual": false,
+		"description": "You overcharge the leg servos of a creature you touch. Its jump distance is tripled for the duration.",
+		"classes": [
+			"druid",
+			"ranger"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-shockwave",
+		"name": "Shockwave",
+		"level": 1,
+		"school": "combat",
+		"castingTime": "1 action",
+		"range": "Self (15-foot cube)",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "Your speakers and implants dump a pressure wave in a 15-foot cube that starts from you. Each creature in it makes a Constitution saving throw. On a failure it takes 2d8 thunder damage and is pushed 10 feet away from you; on a success it takes half as much damage and isn't pushed. The boom carries for blocks.",
+		"higherLevel": "When you use a level 2 RAM slot or higher, it deals an extra 1d8 for each slot level above 1.",
+		"classes": [
+			"bard",
+			"druid"
+		],
+		"scope": "both",
+		"heat": 2,
+		"save": {
+			"ability": "con",
+			"halfOnSuccess": true
+		},
+		"damage": {
+			"type": "thunder",
+			"bySlotLevel": {
+				"1": "2d8",
+				"2": "3d8",
+				"3": "4d8",
+				"4": "5d8",
+				"5": "6d8",
+				"6": "7d8",
+				"7": "8d8",
+				"8": "9d8",
+				"9": "10d8"
+			}
+		},
+		"area": {
+			"shape": "cube",
+			"size": 15
+		}
+	},
+	{
+		"index": "p-throttle",
+		"name": "Throttle",
+		"level": 1,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "30 feet",
+		"rangeFeet": 30,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You throttle the targeting and reflex assist of up to three creatures with implants within range. Each must succeed on a Charisma saving throw or, whenever it makes an attack roll or a saving throw before the program ends, roll a d4 and subtract the number rolled.",
+		"higherLevel": "When you use a level 2 RAM slot or higher, you can target one more creature for each slot level above 1.",
+		"classes": [
+			"bard",
+			"cleric"
+		],
+		"scope": "net",
+		"heat": 1,
+		"save": {
+			"ability": "cha",
+			"halfOnSuccess": false
+		}
+	},
+	{
+		"index": "p-jitter",
+		"name": "Jitter",
+		"level": 2,
+		"school": "stealth",
+		"castingTime": "1 action",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "Your camo and signature jitter and smear. For the duration, any creature has disadvantage on attack rolls against you. An attacker that doesn't rely on sight, or that sees through illusions, isn't affected.",
+		"classes": [
+			"wizard",
+			"sorcerer"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-weapon-tune",
+		"name": "Weapon Tune",
+		"level": 2,
+		"school": "combat",
+		"castingTime": "1 bonus action",
+		"range": "Touch",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 hour",
+		"concentration": true,
+		"ritual": false,
+		"description": "You tune the smart chip of a weapon you touch: balance, recoil, sights. Until the program ends, it gets a +1 bonus to attack rolls and damage rolls.",
+		"higherLevel": "When you use a level 4 RAM slot or higher, the bonus increases to +2. With a level 6 RAM slot or higher, it increases to +3.",
+		"classes": [
+			"wizard",
+			"paladin"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-blink",
+		"name": "Blink",
+		"level": 2,
+		"school": "stealth",
+		"castingTime": "1 bonus action",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "Your camo flares, every optic around you loses you for a heartbeat, and you sprint. You move up to 30 feet to an unoccupied space you can see, without provoking opportunity attacks, and nobody can tell which way you went until you're there.",
+		"classes": [
+			"wizard",
+			"sorcerer",
+			"warlock"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-thermal-sight",
+		"name": "Thermal Sight",
+		"level": 2,
+		"school": "recon",
+		"castingTime": "1 action",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "1 hour",
+		"concentration": false,
+		"ritual": false,
+		"description": "Your optics switch to thermal and signal overlays. For the duration, you see invisible creatures and objects, and creatures hidden by optical camo or holograms, as heat outlines.",
+		"classes": [
+			"wizard",
+			"bard"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-nudge",
+		"name": "Nudge",
+		"level": 2,
+		"school": "social",
+		"castingTime": "1 action",
+		"range": "30 feet",
+		"rangeFeet": 30,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 8 hours",
+		"concentration": true,
+		"ritual": false,
+		"description": "You slip a suggestion into the implant feed of a creature within range: a course of activity that sounds reasonable, in a sentence or two. It must succeed on a Wisdom saving throw or follow it as well as it can for the duration. Asking it to harm itself ends the program. It ends early if you or your companions harm the target.",
+		"classes": [
+			"sorcerer",
+			"warlock",
+			"bard"
+		],
+		"scope": "net",
+		"heat": 1,
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		}
+	},
+	{
+		"index": "p-morphskin",
+		"name": "Morphskin",
+		"level": 2,
+		"school": "wetware",
+		"castingTime": "1 action",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 hour",
+		"concentration": true,
+		"ritual": false,
+		"description": "Nanites under your skin rework your body for the job. For the duration choose one, and switch as an action: gills and webbed fingers (breathe and swim in water at your walking speed); a new face, build, skin and hair; or hardened knuckle spurs (unarmed strikes deal 1d6 piercing damage and count as a weapon with a +1 bonus).",
+		"classes": [
+			"wizard",
+			"sorcerer"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-levitator",
+		"name": "Levitator",
+		"level": 2,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 10 minutes",
+		"concentration": true,
+		"ritual": false,
+		"description": "A lift drone, or a magnetic plate under the floor, raises one creature or loose object of up to 500 pounds within range up to 20 feet and holds it in the air. An unwilling creature can make a Constitution saving throw to resist. On each of your turns you can use your action to raise or lower it by up to 20 feet. When the program ends, it floats gently to the ground.",
+		"classes": [
+			"wizard",
+			"sorcerer"
+		],
+		"scope": "both",
+		"save": {
+			"ability": "con",
+			"halfOnSuccess": false
+		}
+	},
+	{
+		"index": "p-overheat-burst",
+		"name": "Overheat Burst",
+		"level": 2,
+		"school": "ice-breaking",
+		"castingTime": "1 action",
+		"range": "120 feet",
+		"rangeFeet": 120,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You split an overheat payload into three streams. Each targets a creature with an implant, a drone, a device or a piece of ICE within range; you can pick one target or several. Make a ranged program attack for each stream. On a hit, the target takes 2d6 fire damage.",
+		"higherLevel": "When you use a level 3 RAM slot or higher, you send one more stream for each slot level above 2.",
+		"classes": [
+			"wizard",
+			"sorcerer"
+		],
+		"scope": "net",
+		"heat": 2,
+		"attack": "ranged",
+		"damage": {
+			"type": "fire",
+			"bySlotLevel": {
+				"2": "2d6",
+				"3": "2d6",
+				"4": "2d6",
+				"5": "2d6",
+				"6": "2d6",
+				"7": "2d6",
+				"8": "2d6",
+				"9": "2d6"
+			}
+		}
+	},
+	{
+		"index": "p-mind-tap",
+		"name": "Mind Tap",
+		"level": 2,
+		"school": "intrusion",
+		"castingTime": "1 action",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You tap the neural implant of a creature you can see within 30 feet and read its surface thoughts. As an action you can probe deeper: it makes a Wisdom saving throw, and on a failure you learn its reasoning, emotional state and something that looms large in its mind. On a success the program ends. Either way, it knows you were in its head.",
+		"classes": [
+			"wizard",
+			"bard"
+		],
+		"scope": "net",
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		}
+	},
+	{
+		"index": "p-phase-glitch",
+		"name": "Phase Glitch",
+		"level": 3,
+		"school": "stealth",
+		"castingTime": "1 action",
+		"range": "Self",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "1 minute",
+		"concentration": false,
+		"ritual": false,
+		"description": "Your camo stutters in and out of phase with every sensor around you. At the end of each of your turns for the duration, roll a d20. On 11 or higher you drop out of sight and sensors until the start of your next turn: you can't be seen or targeted, and when you come back you appear in an unoccupied space of your choice within 10 feet of where you vanished.",
+		"classes": [
+			"wizard",
+			"sorcerer"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-lift-rig",
+		"name": "Lift Rig",
+		"level": 3,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "Touch",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 10 minutes",
+		"concentration": true,
+		"ritual": false,
+		"description": "You boot a set of strap-on rotor packs on a willing creature you touch. For the duration it has a flying speed of 60 feet. When the program ends, it drifts down safely if it's still aloft.",
+		"higherLevel": "When you use a level 4 RAM slot or higher, you can target one more creature for each slot level above 3.",
+		"classes": [
+			"wizard",
+			"warlock"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-surge-ward",
+		"name": "Surge Ward",
+		"level": 3,
+		"school": "medical",
+		"castingTime": "1 action",
+		"range": "Touch",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 hour",
+		"concentration": true,
+		"ritual": false,
+		"description": "You load a protective profile into the implants and suit of a willing creature you touch. Choose acid, cold, fire, lightning or thunder: it has resistance to that damage type for the duration.",
+		"classes": [
+			"cleric",
+			"druid",
+			"ranger"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-dead-puppet",
+		"name": "Dead Puppet",
+		"level": 3,
+		"school": "control",
+		"castingTime": "1 minute",
+		"range": "10 feet",
+		"rangeFeet": 10,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Instantaneous",
+		"concentration": false,
+		"ritual": false,
+		"description": "You wire a motor-control rig into a corpse within range, or into a wrecked drone or robot. It rises as your puppet: use the zombie stat block for a body, or the skeleton stat block for a stripped frame. On each of your turns you can use a bonus action to command any puppets within 60 feet. Each obeys its last order for 24 hours, then its batteries die unless you run this program on it again.",
+		"higherLevel": "When you use a level 4 RAM slot or higher, you raise or keep two more puppets for each slot level above 3.",
+		"classes": [
+			"wizard",
+			"cleric"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-malware",
+		"name": "Malware",
+		"level": 3,
+		"school": "intrusion",
+		"castingTime": "1 action",
+		"range": "Touch",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You plant malware in the implants of a creature you touch. It must succeed on a Wisdom saving throw or suffer one effect of your choice for the duration: disadvantage on ability checks and saving throws with one ability; disadvantage on attack rolls against you; a Wisdom save at the start of each of its turns or it loses its action that turn; or your attacks and programs deal it an extra 1d8 necrotic damage.",
+		"higherLevel": "When you use a level 4 RAM slot or higher, the duration is up to 10 minutes. With a level 5 RAM slot, up to 8 hours.",
+		"classes": [
+			"wizard",
+			"bard",
+			"cleric"
+		],
+		"scope": "net",
+		"heat": 1,
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		}
+	},
+	{
+		"index": "p-last-log",
+		"name": "Last Log",
+		"level": 3,
+		"school": "intrusion",
+		"castingTime": "1 action",
+		"range": "10 feet",
+		"rangeFeet": 10,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "10 minutes",
+		"concentration": false,
+		"ritual": false,
+		"description": "You jack into the implant of a corpse within range and replay its last logs. For the duration you can ask it up to five questions; it answers from what the implant recorded while it lived, briefly and not always clearly. A body without a neural implant, or one wiped or burnt out, has nothing to say.",
+		"classes": [
+			"bard",
+			"cleric"
+		],
+		"scope": "net"
+	},
+	{
+		"index": "p-full-hologram",
+		"name": "Full Hologram",
+		"level": 3,
+		"school": "stealth",
+		"castingTime": "1 action",
+		"range": "120 feet",
+		"rangeFeet": 120,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 10 minutes",
+		"concentration": true,
+		"ritual": false,
+		"description": "Holo-projectors and every AR overlay in range render an object, a creature or a scene no larger than a 20-foot cube, with sound, smell from hacked vents, and temperature from the HVAC. As an action you can make it move and act. Physical contact passes through it. A creature that uses its action to study it can see through it with an Intelligence (Investigation) check against your program save DC.",
+		"classes": [
+			"wizard",
+			"bard"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-spy-eye",
+		"name": "Spy Eye",
+		"level": 4,
+		"school": "recon",
+		"castingTime": "1 action",
+		"range": "30 feet",
+		"rangeFeet": 30,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 hour",
+		"concentration": true,
+		"ritual": false,
+		"description": "You launch an invisible-coated micro-drone within range. It hovers and sends you sight with darkvision out to 30 feet. As an action you can fly it up to 30 feet in any direction; it slips through any opening an inch wide. While you watch through it, your own eyes don't see.",
+		"classes": [
+			"wizard"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-puppet",
+		"name": "Puppet",
+		"level": 4,
+		"school": "control",
+		"castingTime": "1 action",
+		"range": "30 feet",
+		"rangeFeet": 30,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 minute",
+		"concentration": true,
+		"ritual": false,
+		"description": "You hijack the motor implants of creatures you can see within range. Each must succeed on a Wisdom saving throw or be compelled for the duration: on each of its turns, you can use a bonus action to choose a direction, and it must use as much of its movement as it can to move that way. It can still take its action. After moving, it repeats the save, ending the effect on a success.",
+		"classes": [
+			"bard"
+		],
+		"scope": "net",
+		"heat": 2,
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		}
+	},
+	{
+		"index": "p-rewrite",
+		"name": "Rewrite",
+		"level": 4,
+		"school": "wetware",
+		"castingTime": "1 action",
+		"range": "60 feet",
+		"rangeFeet": 60,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 hour",
+		"concentration": true,
+		"ritual": false,
+		"description": "Nanites flood a creature within range and rewrite its body into a beast or a drone frame. An unwilling creature must succeed on a Wisdom saving throw to resist. The new form can be any beast whose challenge rating is equal to or less than the target's level or challenge rating; it takes that form's statistics and hit points, and returns to its own form, with its own hit points, when the new form drops to 0 hit points or the program ends.",
+		"classes": [
+			"wizard",
+			"druid"
+		],
+		"scope": "both",
+		"save": {
+			"ability": "wis",
+			"halfOnSuccess": false
+		}
+	},
+	{
+		"index": "p-heavy-daemon",
+		"name": "Heavy Daemon",
+		"level": 5,
+		"school": "control",
+		"castingTime": "1 minute",
+		"range": "90 feet",
+		"rangeFeet": 90,
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Up to 1 hour",
+		"concentration": true,
+		"ritual": false,
+		"description": "You boot a heavy daemon into an industrial frame within range: a loader mech, a cargo bot, a firefighting robot. It uses an elemental's stat block of challenge rating 5 or lower that fits the frame, is friendly to you and your companions, and obeys your spoken orders. If your concentration breaks, the daemon slips its leash and turns on you.",
+		"higherLevel": "When you use a level 6 RAM slot or higher, the challenge rating increases by 1 for each slot level above 5.",
+		"classes": [
+			"wizard",
+			"druid"
+		],
+		"scope": "both"
+	},
+	{
+		"index": "p-safe-zone",
+		"name": "Safe Zone",
+		"level": 5,
+		"school": "control",
+		"castingTime": "24 hours",
+		"range": "Touch",
+		"components": [
+			"V",
+			"S"
+		],
+		"duration": "Until dispelled",
+		"concentration": false,
+		"ritual": false,
+		"description": "You seed a place up to 60 feet in radius with protective code: sensors, a local mesh and countermeasures. Rogue AIs, black ICE, husks and hacked machines can't enter the area or charm, frighten or take over anyone inside it. You also bind one extra effect, such as a jammer, a lock on the doors, or a firewall that stops every remote hack aimed inside. Running Purge on the zone ends only that extra effect.",
+		"classes": [
+			"cleric"
+		],
+		"scope": "both"
+	}
+]

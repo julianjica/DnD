@@ -32,12 +32,35 @@ export const WORLD_PRESETS: WorldPresetInfo[] = [
 	{ id: "desert_kingdoms", scene: sc("desert", "dusk", "clear", "mysterious"), tones: ["political", "mysterious"] },
 	{ id: "fey_wilds", scene: sc("forest", "night", "fog", "mysterious"), tones: ["whimsical", "mysterious"] },
 	{ id: "zombie_outbreak", scene: sc("town", "night", "rain", "tense"), tones: ["dark", "gritty"] },
+	{ id: "marea_burned", scene: sc("town", "night", "rain", "tense"), tones: ["neon_noir"] },
 	{ id: "custom", scene: sc("tavern", "night", "clear", "festive"), tones: ["heroic"] },
 ];
 
 export const presetInfo = (id: WorldPreset): WorldPresetInfo => WORLD_PRESETS.find((p) => p.id === id) ?? WORLD_PRESETS[0];
 
 export const TONES = ["heroic", "humorous", "dark", "mysterious", "political", "whimsical", "romantic", "gritty", "epic"] as const;
+
+/** Root Access (marea_burned): one tone, chosen at setup; the DM's style follows it (lib/dm/prompt.ts). */
+export const CYBER_TONES = ["neon_noir", "grim", "satire"] as const;
+export const CYBER_DEFAULT_TONE = "neon_noir";
+
+/** Tone choices offered for a preset, and whether only one may be picked. */
+export function tonesFor(preset: WorldPreset): { tones: readonly string[]; single: boolean } {
+	return preset === "marea_burned" ? { tones: CYBER_TONES, single: true } : { tones: TONES, single: false };
+}
+
+/**
+ * The tones to keep when the preset changes: Root Access keeps one of its own
+ * (default neon noir); leaving it drops its tones for the new preset's suggestions.
+ */
+export function tonesOnPresetChange(next: WorldPreset, current: string[]): string[] {
+	const cyber = (t: string) => (CYBER_TONES as readonly string[]).includes(t);
+	if (next === "marea_burned") {
+		const keep = current.find(cyber);
+		return [keep ?? CYBER_DEFAULT_TONE];
+	}
+	return current.some(cyber) ? [...presetInfo(next).tones] : current;
+}
 
 /** Labels: enum.format.<id> / enum.formatBlurb.<id>. */
 export const FORMATS: CampaignSettings["structure"]["format"][] = ["one_shot", "short_campaign", "long_campaign"];
@@ -74,6 +97,7 @@ export const HOOKS: ByLang<Record<WorldPreset | "any", string[]>> = {
 		desert_kingdoms: ["A genie's lamp is up for auction, and three factions intend to win it.", "The oasis has dried overnight and the caravan masters blame a curse."],
 		fey_wilds: ["You traded a memory to a fey merchant and now you need it back.", "A rival's wedding to a fey prince must be stopped before the moon sets."],
 		zombie_outbreak: ["Your night shift is interrupted by sirens heading for St. Brigid's, and then the screaming starts.", "Your roommate came home from the Ventara trial with a fever. Now she's standing in the dark kitchen, very still."],
+		marea_burned: ["Santi sold you to Ferro on the way out of the Vantis lab. Now the rain drums on the capsule roof, the shard is warm in your pocket, and La Tía is calling about the rent.", "At 3:00 a.m. your cracked deck lights up with a message from a node that shouldn't exist: \"I know what you're carrying. — ECO\""],
 		custom: [],
 	},
 	es: {
@@ -93,6 +117,7 @@ export const HOOKS: ByLang<Record<WorldPreset | "any", string[]>> = {
 		desert_kingdoms: ["La lámpara de un genio sale a subasta, y tres facciones pretenden ganarla.", "El oasis se secó de la noche a la mañana y los jefes de caravana culpan a una maldición."],
 		fey_wilds: ["Le cambiaste un recuerdo a un mercader feérico y ahora necesitas recuperarlo.", "Hay que impedir la boda de un rival con un príncipe feérico antes de que se ponga la luna."],
 		zombie_outbreak: ["Tu turno de noche se interrumpe con sirenas camino de St. Brigid's, y luego empiezan los gritos.", "Tu compañera de piso volvió del ensayo de Ventara con fiebre. Ahora está de pie en la cocina a oscuras, muy quieta."],
+		marea_burned: ["Santi te vendió a Ferro al salir del laboratorio de Vantis. Ahora la lluvia golpea el techo de la cápsula, el shard está tibio en tu bolsillo y La Tía te llama por la renta.", "A las 3:00 a. m. tu deck rajado se enciende con un mensaje desde un nodo que no debería existir: «Sé lo que llevas encima. — ECO»"],
 		custom: [],
 	},
 };

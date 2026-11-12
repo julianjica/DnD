@@ -97,7 +97,7 @@ export interface MonsterAction {
 
 export interface MonsterStats extends SrdRef {
 	/** Content set ("zombie" = The Quiet); absent = SRD fantasy. */
-	ruleset?: "fantasy" | "zombie";
+	ruleset?: "fantasy" | "zombie" | "cyberpunk";
 	/** The Quiet: first day after the outbreak on which this variant exists. */
 	appearsDay?: number;
 	size: Size;
@@ -129,11 +129,15 @@ export interface MonsterStats extends SrdRef {
 
 export interface SpellInfo extends SrdRef {
 	/** Content set this belongs to ("zombie" = a technique of The Quiet); absent = SRD fantasy. */
-	ruleset?: "fantasy" | "zombie";
+	ruleset?: "fantasy" | "zombie" | "cyberpunk";
 	/** Items used up from the caster's inventory on every use (techniques with components), by equipment index. */
 	consumes?: { ref: string; qty: number }[];
 	/** The Quiet: the technique is loud and raises the noise level (a number = how much, true = like a gunshot, +3). */
 	loud?: number | true;
+	/** Root Access: "net" programs work only in a network or on a wireless device in range; "both" also work in the physical world. */
+	scope?: "net" | "both";
+	/** Root Access: Heat this program adds when used in the physical world (street hacks). */
+	heat?: number;
 	level: number; // 0 = cantrip
 	school: string;
 	castingTime: string; // "1 action", "1 bonus action", "1 reaction", "1 minute"
@@ -223,7 +227,7 @@ export interface PortraitSpec {
 
 export interface Character {
 	/** Content set the character was made in ("zombie" = The Quiet); absent = from the species (fantasy for SRD species). */
-	ruleset?: "fantasy" | "zombie";
+	ruleset?: "fantasy" | "zombie" | "cyberpunk";
 	id: string;
 	name: string;
 	speciesId: string; // "elf"
@@ -570,7 +574,7 @@ export interface EngineConfig {
 
 export interface CampaignSettings {
 	world: {
-		preset: "classic_high_fantasy" | "grimdark" | "gothic_horror" | "sword_and_sorcery" | "pirates" | "arctic" | "desert_kingdoms" | "fey_wilds" | "zombie_outbreak" | "custom";
+		preset: "classic_high_fantasy" | "grimdark" | "gothic_horror" | "sword_and_sorcery" | "pirates" | "arctic" | "desert_kingdoms" | "fey_wilds" | "zombie_outbreak" | "marea_burned" | "custom";
 		customText?: string;
 		tone: string[]; // ["heroic", "humorous", "dark", "mysterious", "political", "whimsical"]
 		lines: string[]; // hard limits
@@ -815,6 +819,8 @@ export interface GameState {
 	combatNotes?: string[];
 	/** The Quiet only: survival systems. */
 	survival?: SurvivalState;
+	/** Root Access (cyberpunk ruleset, docs/cyberpunk.md) only: the three meters and the den. */
+	cyber?: CyberState;
 	/** The Quiet only: survivors who joined and the base. */
 	group?: GroupState;
 	/** The Quiet: the town that moves without the player (factions, hordes, places). */
@@ -1043,4 +1049,37 @@ export interface ModelOption {
 	available: boolean;
 	/** Why unavailable (CLI missing, no API key). */
 	reason?: string;
+}
+
+// ─── Root Access (cyberpunk ruleset, docs/cyberpunk.md) ─────────────────────
+
+/** Where an implant sits; each slot holds a limited number of implants. */
+export type ImplantSlot = "neural" | "eyes" | "arms" | "legs" | "skin" | "internal";
+
+/** An installed implant (an equipment entry with an `implant` block). */
+export interface InstalledImplant {
+	ref: string;
+	slot: ImplantSlot;
+	/** Humanity it cost when installed (given back if removed). */
+	humanity: number;
+	/** Game minutes (day*1440 + hour*60 + minute). */
+	installedAt: number;
+}
+
+/**
+ * The three meters of Root Access, kept by the engine:
+ * - hat: −10 (black) … +10 (white); grey is −3…+3.
+ * - heat: 0…10, how hard they're looking for you.
+ * - humanity: what the chrome has cost; starts at 10 + Wisdom.
+ */
+export interface CyberState {
+	hat: number;
+	heat: number;
+	humanity: number;
+	humanityMax: number;
+	implants: InstalledImplant[];
+	/** A short log of what moved the meters (newest last, capped). */
+	history: { at: number; meter: "hat" | "heat" | "humanity"; delta: number; why: string }[];
+	/** Game minute of the last daily heat decay. */
+	heatDecayedAt?: number;
 }

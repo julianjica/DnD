@@ -1,5 +1,5 @@
 import type { GameState, MonsterStats } from "../game/types";
-import { outbreakDay, rulesetOf, type Ruleset } from "../rules/ruleset";
+import { contentPrefix, outbreakDay, rulesetName, rulesetOf, spellNoun, type Ruleset } from "../rules/ruleset";
 import {
 	EQUIPMENT, MONSTERS, SPECIES, getEquipment, getMagicItem, getMonster, getSpecies, getSpell, lookup, toIndex,
 	type EquipmentData, type LookupHit,
@@ -45,15 +45,24 @@ function bestiaryText(state: Pick<GameState, "settings" | "time">): string {
 	return `Outbreak Day ${day}. Available now: ${now.join(", ")}.${later.length ? ` Not yet: ${later.join(", ")}.` : ""}`;
 }
 
+/** Root Access: the people, drones and machines the DM may put in a fight. */
+function rosterText(state: Pick<GameState, "settings" | "time">): string {
+	const now = availableMonsters(state).map((m) => `${m.index} (${m.name}, CR ${crText(m.cr)})`);
+	return now.length ? `Available: ${now.join(", ")}.` : "No stat blocks yet: use lookup_srd 'monster: …'.";
+}
+
 /** Resolves a monster for start_combat/add_monsters, refusing other rulesets and variants that don't exist yet. */
 export function monsterForCampaign(state: Pick<GameState, "settings" | "time">, ref: string): MonsterStats {
 	const rs = rulesetOf(state.settings);
-	const m = rs === "zombie" ? (getMonster(ref.startsWith("z-") ? ref : `z-${toIndex(ref)}`) ?? getMonster(ref)) : getMonster(ref);
-	if (!m) throw new Error(`Unknown monster '${ref}'. ${rs === "zombie" ? bestiaryText(state) : "Use lookup_srd."}`);
+	const pre = contentPrefix(rs);
+	const m = pre ? (getMonster(ref.startsWith(pre) ? ref : `${pre}${toIndex(ref)}`) ?? getMonster(ref)) : getMonster(ref);
+	if (!m) throw new Error(`Unknown monster '${ref}'. ${rs === "zombie" ? bestiaryText(state) : rs === "cyberpunk" ? rosterText(state) : "Use lookup_srd."}`);
 	if (rsOf(m) !== rs) {
 		throw new Error(rs === "zombie"
 			? `'${m.name}' is fantasy content; The Quiet only has the dead, animals and the living. ${bestiaryText(state)}`
-			: `'${m.name}' belongs to the zombie ruleset, not this campaign. Use lookup_srd for SRD monsters.`);
+			: rs === "cyberpunk"
+				? `'${m.name}' doesn't exist in Root Access (no magic, monsters or the dead: people, drones, robots and animals). ${rosterText(state)}`
+				: `'${m.name}' belongs to the ${rsOf(m) === "cyberpunk" ? "cyberpunk" : "zombie"} ruleset, not this campaign. Use lookup_srd for SRD monsters.`);
 	}
 	if (rs === "zombie" && (m.appearsDay ?? 0) > outbreakDay(state)) {
 		throw new Error(`${m.name} doesn't exist yet: this variant first appears on Day ${m.appearsDay} of the outbreak. ${bestiaryText(state)}`);
@@ -64,12 +73,13 @@ export function monsterForCampaign(state: Pick<GameState, "settings" | "time">, 
 /** Equipment matching a give_item ref/name in this campaign's ruleset (undefined = none). */
 export function equipmentForCampaign(rs: Ruleset, ref: string | undefined, name: string): EquipmentData | undefined {
 	if (ref) {
-		const eq = getEquipment(rs === "zombie" && !ref.startsWith("z-") ? `z-${toIndex(ref)}` : ref) ?? getEquipment(ref);
+		const pre = contentPrefix(rs);
+		const eq = getEquipment(pre && !ref.startsWith(pre) ? `${pre}${toIndex(ref)}` : ref) ?? getEquipment(ref);
 		return eq && rsOf(eq) === rs ? eq : undefined;
 	}
 	const n = name.trim().toLowerCase();
 	const own = EQUIPMENT.filter((e) => rsOf(e) === rs);
-	const hit = own.find((e) => e.name.toLowerCase() === n) ?? (rs === "zombie" ? getEquipment(`z-${toIndex(name)}`) : getEquipment(name));
+	const hit = own.find((e) => e.name.toLowerCase() === n) ?? (rs !== "fantasy" ? getEquipment(`${contentPrefix(rs)}${toIndex(name)}`) : getEquipment(name));
 	return hit && rsOf(hit) === rs ? hit : undefined;
 }
 
@@ -78,11 +88,11 @@ export function assertItemRef(rs: Ruleset, ref: string | undefined): void {
 	if (!ref) return;
 	if (equipmentForCampaign(rs, ref, "")) return;
 	const other = getEquipment(ref) ?? getMagicItem(ref);
-	if (other && rs === "zombie") {
-		const near = lookup(ref, { category: "equipment", limit: 40 }).filter((h) => hitRuleset(h) === "zombie").slice(0, 5).map((h) => `${h.index} (${h.name})`);
-		throw new Error(`'${other.name}' doesn't exist in The Quiet (no fantasy gear or magic items).${near.length ? ` Closest modern items: ${near.join(", ")}.` : " Use lookup_srd 'item: …' for modern gear (z- indices)."}`);
+	if (other && rs !== "fantasy") {
+		const near = lookup(ref, { category: "equipment", limit: 40 }).filter((h) => hitRuleset(h) === rs).slice(0, 5).map((h) => `${h.index} (${h.name})`);
+		throw new Error(`'${other.name}' doesn't exist in ${rulesetName(rs)} (${"ruleset" in other && other.ruleset && other.ruleset !== "fantasy" ? "it belongs to another ruleset" : "no fantasy gear or magic items"}).${near.length ? ` Closest modern items: ${near.join(", ")}.` : ` Use lookup_srd 'item: …' for modern gear (${contentPrefix(rs)} indices).`}`);
 	}
-	if (other && rs === "fantasy" && "ruleset" in other && other.ruleset === "zombie") throw new Error(`'${other.name}' is modern gear from the zombie ruleset, not this campaign.`);
+	if (other && rs === "fantasy" && "ruleset" in other && other.ruleset && other.ruleset !== "fantasy") throw new Error(`'${other.name}' is modern gear from the ${other.ruleset} ruleset, not this campaign.`);
 }
 
 /** lookup_srd for a campaign: only its ruleset's content, the dead tagged by when they appear. */
@@ -97,9 +107,10 @@ export function lookupForCampaign(state: Pick<GameState, "settings" | "time">, q
 			const ad = getMonster(h.index)?.appearsDay;
 			if (ad !== undefined) summary += ad > day ? ` NOT YET: appears on Day ${ad} (now Day ${day}).` : ` Appears from Day ${ad}.`;
 		}
-		return `[${h.category === "spell" && rs === "zombie" ? "technique" : h.category}] ${summary}`;
+		return `[${h.category === "spell" && rs !== "fantasy" ? spellNoun(rs) : h.category}] ${summary}`;
 	});
 	const wantsMonsters = /^(monster|creature)\s*:/i.test(query.trim()) || /\b(zombie|dead|undead|horde|bestiary)\b/i.test(query);
 	if (rs === "zombie" && (wantsMonsters || !lines.length)) lines.push(`[bestiary] ${bestiaryText(state)}`);
-	return lines.length ? lines.join("\n\n") : `No ${rs === "zombie" ? "Quiet" : "SRD"} entry matches "${query}".`;
+	if (rs === "cyberpunk" && !lines.length) lines.push(`[roster] ${rosterText(state)}`);
+	return lines.length ? lines.join("\n\n") : `No ${rs === "zombie" ? "Quiet" : rs === "cyberpunk" ? "Root Access" : "SRD"} entry matches "${query}".`;
 }

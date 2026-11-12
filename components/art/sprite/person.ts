@@ -6,7 +6,7 @@
  */
 import type { PortraitSpec } from "@/lib/game/types";
 import { normalizeSpecies, portraitTraits } from "@/lib/art/portrait";
-import type { Ruleset } from "@/lib/rules/ruleset";
+import { isModern, type Ruleset } from "@/lib/rules/ruleset";
 
 export type Gear =
 	| "staff" | "sword" | "sword_shield" | "spear" | "bow" | "dagger" | "axe" | "mace" | "hammer" | "book" | "lute" | "lantern" | "cane" | "none"
@@ -58,7 +58,7 @@ function mix(a: string, b: string, t: number): string {
 
 /** Gear suggested by class ids (PC) or by role/description words (NPC, English or Spanish). */
 export function gearFor(opts: { classes?: string[]; text?: string; ruleset?: Ruleset }): Gear {
-	if (opts.ruleset === "zombie") return modernRole(opts).gear;
+	if (opts.ruleset && isModern(opts.ruleset)) return modernRole(opts).gear;
 	const cls = opts.classes ?? [];
 	const has = (k: string) => cls.includes(k);
 	if (has("wizard") || has("sorcerer") || has("warlock") || has("druid")) return "staff";
@@ -147,7 +147,7 @@ export function modernRole(opts: { classes?: string[]; text?: string }): ModernR
  * and fantasy features (ears, horns, hoods, circlets) are ignored.
  */
 export function personLook(spec: PortraitSpec, speciesId: string | undefined, gear: Gear, opts?: { ruleset?: Ruleset; classes?: string[]; text?: string }): PersonLook {
-	const modern = opts?.ruleset === "zombie";
+	const modern = !!opts?.ruleset && isModern(opts.ruleset);
 	if (modern) speciesId = "human";
 	const tr = portraitTraits(spec, speciesId);
 	const age = spec.age ?? tr.age ?? 0.3;

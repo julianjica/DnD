@@ -5,7 +5,7 @@ import { AlertTriangle, Footprints, Heart, Shield, Sparkles, Swords, Zap } from 
 import type { Character } from "@/lib/game/types";
 import { ABILITIES } from "@/lib/game/types";
 import { createCharacterDetailed, deriveSheet, type CharacterSheet, type CreationOptions } from "@/lib/rules/character";
-import { getBackground, getClass, getLanguage, getSkill, getSpecies, getSpell, getSubclass, getSubspecies } from "@/lib/srd";
+import { SPECIES, getBackground, getClass, getLanguage, getSkill, getSpecies, getSpell, getSubclass, getSubspecies } from "@/lib/srd";
 import { signed } from "@/lib/rules/dice";
 import { Portrait } from "@/components/art/Portrait";
 import { Tooltip } from "@/components/ui/Tooltip";
@@ -14,8 +14,8 @@ import { describeOption } from "./ChoicePicker";
 import { characterInput, type CharacterDraft } from "./wizardState";
 import { useT } from "@/components/i18n/I18nProvider";
 import type { Lang } from "@/lib/i18n";
-import { srdNameIn } from "./i18n";
-import type { Ruleset } from "@/lib/rules/ruleset";
+import { rsKey, srdNameIn } from "./i18n";
+import { isModern, type Ruleset } from "@/lib/rules/ruleset";
 
 export interface PreviewResult {
 	character?: Character;
@@ -42,7 +42,13 @@ export function usePreview(c: CharacterDraft, level: number, opts: CreationOptio
 
 /** Display name of a language id (SRD languages, or The Quiet's real-world ones from the Bilingual origin). */
 function languageName(id: string): string {
-	return getLanguage(id)?.name ?? getSpecies("z-origin-bilingual")?.choices[0]?.options.find((o) => o.index === id)?.name ?? id;
+	return (
+		getLanguage(id)?.name ??
+		getSpecies("z-origin-bilingual")?.choices[0]?.options.find((o) => o.index === id)?.name ??
+		// Root Access: real-world languages offered by its origins.
+		SPECIES.filter((s) => s.ruleset === "cyberpunk").flatMap((s) => s.choices.filter((c) => c.id.endsWith(":languages")).flatMap((c) => c.options)).find((o) => o.index === id)?.name ??
+		id
+	);
 }
 
 export function speciesLabel(speciesId: string, subspeciesId?: string, lang: Lang = "en", ruleset: Ruleset = "fantasy"): string {
@@ -61,7 +67,7 @@ export function SheetPreview({ preview, draft, compact }: { preview: PreviewResu
 	return (
 		<div className="parchment relative overflow-hidden p-4 text-ink">
 			<div className="flex items-center gap-3">
-				{draft.portrait && <Portrait spec={draft.portrait} speciesId={draft.speciesId} size={compact ? 64 : 84} framed modern={ruleset === "zombie" ? { classes: [draft.classId] } : undefined} />}
+				{draft.portrait && <Portrait spec={draft.portrait} speciesId={draft.speciesId} size={compact ? 64 : 84} framed modern={isModern(ruleset) ? { classes: [draft.classId], ...(ruleset === "cyberpunk" ? { city: "marea" as const } : {}) } : undefined} />}
 				<div className="min-w-0">
 					<div className="truncate font-display text-lg leading-tight text-[#3d2a12]">{draft.name || t("sheet.unnamed")}</div>
 					<div className="font-serif text-sm text-ink/80 italic">
@@ -125,15 +131,15 @@ export function SheetPreview({ preview, draft, compact }: { preview: PreviewResu
 					</Block>
 
 					{sheet.spellcasting.length > 0 && ch.spellcasting && (
-						<Block title={t(ruleset === "zombie" ? "z.sheet.spellcasting" : "sheet.spellcasting")}>
+						<Block title={t(rsKey(ruleset, "sheet.spellcasting"))}>
 							{sheet.spellcasting.map((s) => (
 								<div key={s.classId} className="text-sm">
 									<span>{srdNameIn(ruleset, lang, "class", s.classId, getClass(s.classId)?.name ?? s.classId)}</span> ({te("abilityShort", s.ability)}): {t("sheet.saveDc")} <b>{s.saveDc}</b>, {t("sheet.attack")} <b>{signed(s.attackBonus)}</b>
 									{s.preparedLimit !== undefined && <span className="text-ink/60"> · {t("sheet.prepares", { n: s.preparedLimit })}</span>}
 								</div>
 							))}
-							<SpellList label={t(ruleset === "zombie" ? "z.sheet.cantrips" : "sheet.cantrips")} ids={ch.spellcasting.classes.flatMap((x) => x.cantrips)} />
-							<SpellList label={t(ruleset === "zombie" ? "z.sheet.spells" : "sheet.spells")} ids={[...new Set(ch.spellcasting.classes.flatMap((x) => [...x.known, ...x.prepared]))]} />
+							<SpellList label={t(rsKey(ruleset, "sheet.cantrips"))} ids={ch.spellcasting.classes.flatMap((x) => x.cantrips)} />
+							<SpellList label={t(rsKey(ruleset, "sheet.spells"))} ids={[...new Set(ch.spellcasting.classes.flatMap((x) => [...x.known, ...x.prepared]))]} />
 							{ch.spellcasting.slots.some(Boolean) && (
 								<div className="mt-1 text-xs text-ink/70">
 									{t("sheet.slots")}{" "}

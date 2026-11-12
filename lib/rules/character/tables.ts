@@ -61,6 +61,8 @@ export const SKILL_IDS = Object.keys(SKILL_ABILITY);
 /** Damage type granted as a resistance by a feature/trait id. */
 export const FEATURE_RESISTANCE: Record<string, DamageType> = {
 	"dwarven-resilience": "poison",
+	// Root Access: the Vantis trial kid's experimental jack hardens the mind.
+	"c-hardened-mind": "psychic",
 	"hellish-resistance": "fire",
 	"draconic-ancestry-black": "acid",
 	"draconic-ancestry-blue": "lightning",

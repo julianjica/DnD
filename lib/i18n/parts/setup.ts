@@ -159,6 +159,7 @@ export const en = {
 	"enum.preset.desert_kingdoms": "Desert Kingdoms",
 	"enum.preset.fey_wilds": "The Feywild",
 	"enum.preset.zombie_outbreak": "The Quiet: zombie apocalypse",
+	"enum.preset.marea_burned": "Root Access: cyberpunk hacker story",
 	"enum.preset.custom": "Your Own World",
 	"enum.presetBlurb.classic_high_fantasy": "Castles and dragons, wizard towers, ancient ruins and roads between bustling kingdoms.",
 	"enum.presetBlurb.grimdark": "A broken world of mud, plague and desperate choices. Heroes are rare and rarely rewarded.",
@@ -169,6 +170,7 @@ export const en = {
 	"enum.presetBlurb.desert_kingdoms": "Caravans and sultanates, genie-haunted ruins and tombs beneath the dunes.",
 	"enum.presetBlurb.fey_wilds": "Glittering forests, capricious fey courts and bargains that always cost more than they seem.",
 	"enum.presetBlurb.zombie_outbreak": "Today, in a small river town. No magic, few guns, and the dead get up. Professions instead of classes; survive the first night alone.",
+	"enum.presetBlurb.marea_burned": "Marea, 2068: a drowning Latin American megacity where the corporations own the water. No magic: hacking styles instead of classes, programs instead of spells. Your crew just sold you out, and you're holding the shard everyone wants.",
 	"enum.presetBlurb.custom": "Describe your setting in a few lines and the DM will build on it.",
 
 	"enum.tone.heroic": "Heroic",
@@ -180,6 +182,9 @@ export const en = {
 	"enum.tone.romantic": "Romantic",
 	"enum.tone.gritty": "Gritty",
 	"enum.tone.epic": "Epic",
+	"enum.tone.neon_noir": "Neon noir",
+	"enum.tone.grim": "Grim",
+	"enum.tone.satire": "Satire",
 
 	// ─── structure step ───
 	"structure.format": "Format",
@@ -605,6 +610,27 @@ export const en = {
 	"z.sheet.spellcasting": "Techniques",
 	"z.sheet.cantrips": "Knacks",
 	"z.sheet.spells": "Techniques",
+
+	// ─── Root Access (cyberpunk ruleset): wizard wording ───
+	"c.char.species": "Origin",
+	"c.char.class": "Hacking style",
+	"c.char.tab.choices": "Skills & Programs",
+	"c.char.castsWith": "programs with {abil}",
+	"c.char.tip.spellcaster": "Programs ({abil})",
+	"c.char.tip.martial": "No programs of their own: a deck and their hands",
+	"c.char.prepared": "Loaded programs: {formula}. You can reload your RAM at the den after each long rest.",
+	"c.char.blurb": "Build your hacker: origin, hacking style, gear and a face.",
+	"c.choice.cantrips": "{cls} scripts",
+	"c.choice.spellsKnown": "{cls} programs known",
+	"c.choice.spellbook": "Programs in your codebook",
+	"c.equip.kit": "Hacking style kit",
+	"c.equip.kitEmpty": "You got out with what you had on you; the DM will fill in your pockets.",
+	"c.equip.noMoney": "No cred: what you had went into the job, and La Tía will want her rent.",
+	"c.char.laterChoices": "Choices from levels 2–{level} (new programs, features, ASIs) are picked automatically. The preview shows the result.",
+	"c.sheet.spellcasting": "Programs (RAM)",
+	"c.sheet.cantrips": "Scripts",
+	"c.sheet.spells": "Programs",
+	"c.world.toneHint": "Pick one: the DM's style follows it.",
 } as const satisfies Record<string, string>;
 
 export const es: { [K in keyof typeof en]: string } = {
@@ -758,6 +784,7 @@ export const es: { [K in keyof typeof en]: string } = {
 	"enum.preset.desert_kingdoms": "Reinos del desierto",
 	"enum.preset.fey_wilds": "Las Tierras Feéricas",
 	"enum.preset.zombie_outbreak": "El Silencio: apocalipsis zombi",
+	"enum.preset.marea_burned": "Acceso Root: historia hacker cyberpunk",
 	"enum.preset.custom": "Tu propio mundo",
 	"enum.presetBlurb.classic_high_fantasy": "Castillos y dragones, torres de magos, ruinas antiguas y caminos entre reinos bulliciosos.",
 	"enum.presetBlurb.grimdark": "Un mundo roto de barro, peste y decisiones desesperadas. Los héroes son escasos y rara vez reciben recompensa.",
@@ -768,6 +795,7 @@ export const es: { [K in keyof typeof en]: string } = {
 	"enum.presetBlurb.desert_kingdoms": "Caravanas y sultanatos, ruinas embrujadas por genios y tumbas bajo las dunas.",
 	"enum.presetBlurb.fey_wilds": "Bosques resplandecientes, cortes feéricas caprichosas y tratos que siempre cuestan más de lo que parecen.",
 	"enum.presetBlurb.zombie_outbreak": "Hoy, en un pueblo junto a un río. Sin magia, pocas armas, y los muertos se levantan. Profesiones en vez de clases; sobrevive solo la primera noche.",
+	"enum.presetBlurb.marea_burned": "Marea, 2068: una megaciudad latinoamericana que se ahoga, donde las corporaciones son dueñas del agua. Sin magia: estilos de hackeo en vez de clases, programas en vez de conjuros. Tu crew acaba de venderte, y tienes el shard que todos quieren.",
 	"enum.presetBlurb.custom": "Describe tu ambientación en unas líneas y el DM construirá a partir de ella.",
 
 	"enum.tone.heroic": "Heroico",
@@ -779,6 +807,9 @@ export const es: { [K in keyof typeof en]: string } = {
 	"enum.tone.romantic": "Romántico",
 	"enum.tone.gritty": "Crudo",
 	"enum.tone.epic": "Épico",
+	"enum.tone.neon_noir": "Neón noir",
+	"enum.tone.grim": "Sombrío",
+	"enum.tone.satire": "Sátira",
 
 	"structure.format": "Formato",
 	"structure.formatHint": "¿Cuánto quieres que dure esta historia?",
@@ -1194,4 +1225,25 @@ export const es: { [K in keyof typeof en]: string } = {
 	"z.sheet.spellcasting": "Técnicas",
 	"z.sheet.cantrips": "Trucos",
 	"z.sheet.spells": "Técnicas",
+
+	// ─── Acceso Root (reglas cyberpunk): textos del asistente ───
+	"c.char.species": "Origen",
+	"c.char.class": "Estilo de hackeo",
+	"c.char.tab.choices": "Hab. y programas",
+	"c.char.castsWith": "programas con {abil}",
+	"c.char.tip.spellcaster": "Programas ({abil})",
+	"c.char.tip.martial": "Sin programas propios: un deck y sus manos",
+	"c.char.prepared": "Programas cargados: {formula}. Puedes recargar tu RAM en la guarida tras cada descanso largo.",
+	"c.char.blurb": "Crea a tu hacker: origen, estilo de hackeo, equipo y un rostro.",
+	"c.choice.cantrips": "Scripts de {cls}",
+	"c.choice.spellsKnown": "Programas conocidos de {cls}",
+	"c.choice.spellbook": "Programas de tu codebook",
+	"c.equip.kit": "Equipo de tu estilo",
+	"c.equip.kitEmpty": "Saliste con lo que llevabas encima; el DM llenará tus bolsillos.",
+	"c.equip.noMoney": "Sin cred: lo que tenías se fue en el trabajo, y La Tía querrá su renta.",
+	"c.char.laterChoices": "Las elecciones de los niveles 2–{level} (programas nuevos, rasgos, mejoras de característica) se hacen automáticamente. La vista previa muestra el resultado.",
+	"c.sheet.spellcasting": "Programas (RAM)",
+	"c.sheet.cantrips": "Scripts",
+	"c.sheet.spells": "Programas",
+	"c.world.toneHint": "Elige uno: el estilo del DM lo sigue.",
 };

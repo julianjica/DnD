@@ -21,7 +21,7 @@ import { patchCharacter, type StepProps } from "./types";
 import { optionsFor, speciesCantripPicks, subclassAvailable, type CharacterDraft } from "./wizardState";
 import { useT } from "@/components/i18n/I18nProvider";
 import type { MessageKey } from "@/lib/i18n";
-import { srdNameIn } from "./i18n";
+import { rsKey, srdNameIn } from "./i18n";
 
 type Sub = "origins" | "abilities" | "choices" | "equipment" | "persona";
 const SUBS: { id: Sub; label: MessageKey; zLabel?: MessageKey; icon: ComponentType<{ className?: string }> }[] = [
@@ -91,7 +91,7 @@ export function CharacterStep({ draft, update }: StepProps) {
 	const bonus = (b: Partial<Record<string, number>>) => bonusText(b, te);
 	const nm = (group: string, x: { index: string; name: string }) => srdNameIn(ruleset, lang, group, x.index, x.name);
 	const speedText = (s: { speed: number; darkvision?: number }) => `${t("char.speed", { n: s.speed })}${s.darkvision ? ` · ${t("char.darkvision", { n: s.darkvision })}` : ""}`;	const rs = rulesetOf(draft.settings);
-	const zombie = rs === "zombie";
+
 	const speciesList = useMemo(() => offeredIn(SPECIES, rs), [rs]);
 	const { opts, error: optsError } = useMemo(() => optionsFor(c, rs), [c, rs]);
 	const preview = usePreview(c, level, opts);
@@ -130,7 +130,7 @@ export function CharacterStep({ draft, update }: StepProps) {
 		<div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px]">
 			<div className="min-w-0">
 				<div className="mb-5 flex flex-wrap items-center justify-between gap-3">
-					<Tabs<Sub> label={t("char.sectionsAria")} tabs={SUBS.map((s) => ({ id: s.id, label: <span className="whitespace-nowrap">{t(zombie && s.zLabel ? s.zLabel : s.label)}</span>, icon: <s.icon className="size-4" /> }))} value={sub} onChange={setSub} className="min-w-0 flex-1 overflow-x-auto" />
+					<Tabs<Sub> label={t("char.sectionsAria")} tabs={SUBS.map((s) => ({ id: s.id, label: <span className="whitespace-nowrap">{t(rs !== "fantasy" && s.zLabel ? rsKey(rs, s.label) : s.label)}</span>, icon: <s.icon className="size-4" /> }))} value={sub} onChange={setSub} className="min-w-0 flex-1 overflow-x-auto" />
 					<button type="button" className="btn text-sm" onClick={() => update((d) => ({ ...d, character: randomCharacter(d.character, rulesetOf(d.settings)) }))}title={t("char.surpriseTitle")}>
 							<Dices className="size-4" /> {t("char.surprise")}
 					</button>
@@ -138,7 +138,7 @@ export function CharacterStep({ draft, update }: StepProps) {
 
 				{sub === "origins" && (
 					<div className="flex flex-col gap-8">
-						<Section title={t(zombie ? "z.char.species" : "char.species")} hint={species ? `${nm("species", species)}: ${bonus(opts?.abilityBonuses ?? species.abilityBonuses)} · ${speedText(species)}` : undefined}>
+						<Section title={t(rsKey(rs, "char.species"))} hint={species ? `${nm("species", species)}: ${bonus(opts?.abilityBonuses ?? species.abilityBonuses)} · ${speedText(species)}` : undefined}>
 							<div className="grid grid-cols-3 gap-2 xl:grid-cols-5">
 								{speciesList.map((s) => (
 									<Tooltip key={s.index} content={<OriginTip title={nm("species", s)} lines={[bonus(s.abilityBonuses), speedText(s), s.traits.map((tr) => ts(tr.name)).join(", ")]} />}>
@@ -161,10 +161,10 @@ export function CharacterStep({ draft, update }: StepProps) {
 						</Section>
 
 						<Section
-							title={t(zombie ? "z.char.class" : "char.class")}
+							title={t(rsKey(rs, "char.class"))}
 							hint={
 								cls
-									? `${t("char.hitDieHint", { n: cls.hitDie })} · ${t("char.primaryHint", { list: cls.primaryAbility.map(abil).join("/") })} · ${t("char.savesHint", { list: cls.savingThrows.map(abil).join(", ") })}${cls.spellcasting ? ` · ${t(zombie ? "z.char.castsWith" : "char.castsWith", { abil: abil(cls.spellcasting.ability) })}` : ""}`
+									? `${t("char.hitDieHint", { n: cls.hitDie })} · ${t("char.primaryHint", { list: cls.primaryAbility.map(abil).join("/") })} · ${t("char.savesHint", { list: cls.savingThrows.map(abil).join(", ") })}${cls.spellcasting ? ` · ${t(rsKey(rs, "char.castsWith"), { abil: abil(cls.spellcasting.ability) })}` : ""}`
 									: undefined
 							}
 						>
@@ -178,7 +178,7 @@ export function CharacterStep({ draft, update }: StepProps) {
 												t("char.tip.hitDie", { n: k.hitDie }),
 												t("char.tip.primary", { list: k.primaryAbility.map(abil).join(", ") }),
 												t("char.tip.armor", { list: k.armor.map((x) => srdNameIn(ruleset, lang, "armorProf", x, x)).join(", ") || t("char.tip.none") }),
-												k.spellcasting ? t(zombie ? "z.char.tip.spellcaster" : "char.tip.spellcaster", { abil: abil(k.spellcasting.ability) }) : t(zombie ? "z.char.tip.martial" : "char.tip.martial"),
+												k.spellcasting ? t(rsKey(rs, "char.tip.spellcaster"), { abil: abil(k.spellcasting.ability) }) : t(rsKey(rs, "char.tip.martial")),
 											]}
 										/>}>
 											<PickCard
@@ -257,8 +257,8 @@ export function CharacterStep({ draft, update }: StepProps) {
 									: ch;
 							return <ChoicePicker key={ch.id} names={names} choice={choice} value={c.choices[ch.id]} onChange={(v) => set({ choices: { ...c.choices, ...(v ? { [ch.id]: v } : { [ch.id]: [] }) } })} />;
 						})}
-						{level > 1 && <p className="text-xs text-faint italic">{t(zombie ? "z.char.laterChoices" : "char.laterChoices", { level })}</p>}
-						{preparedFormula && <p className="text-xs text-faint italic">{t(zombie ? "z.char.prepared" : "char.prepared", { formula: preparedFormula })}</p>}
+						{level > 1 && <p className="text-xs text-faint italic">{t(rsKey(rs, "char.laterChoices"), { level })}</p>}
+						{preparedFormula && <p className="text-xs text-faint italic">{t(rsKey(rs, "char.prepared"), { formula: preparedFormula })}</p>}
 					</div>
 				)}
 
@@ -269,7 +269,7 @@ export function CharacterStep({ draft, update }: StepProps) {
 				{nextSub && (
 					<div className="mt-6 flex justify-end">
 						<button type="button" className="btn text-sm" onClick={() => setSub(nextSub.id)}>
-							{t(zombie && nextSub.zLabel ? nextSub.zLabel : nextSub.label)} <ChevronRight className="size-4" />
+							{t(rs !== "fantasy" && nextSub.zLabel ? rsKey(rs, nextSub.label) : nextSub.label)} <ChevronRight className="size-4" />
 						</button>
 					</div>
 				)}

@@ -10,12 +10,17 @@ import type { ModernWho } from "@/components/art/PortraitModern";
 import { cn } from "@/components/ui/cn";
 import { FieldLabel } from "./Field";
 import { useT } from "@/components/i18n/I18nProvider";
+import { isModern } from "@/lib/rules/ruleset";
+import { getSpecies } from "@/lib/srd";
+
+/** Origins of the modern rulesets (The Quiet, Root Access): everyone is human. */
+const isModernSpecies = (speciesId: string) => speciesId.startsWith("z-origin-") || (getSpecies(speciesId)?.ruleset ?? "fantasy") !== "fantasy";
 
 
 export function newPortrait(speciesId: string): PortraitSpec {
 	const p = randomPortrait(new Rng(newSeed()), speciesId);
 	// The Quiet: origins are plain humans, no crowns or circlets.
-	if (!speciesId.startsWith("z-origin-")) return p;
+	if (!isModernSpecies(speciesId)) return p;
 	return { ...p, features: p.features.filter((f) => !FANTASY_ONLY.has(f)), ...(p.accessory && FANTASY_ONLY.has(p.accessory) ? { accessory: "none" } : {}) };
 }
 
@@ -28,7 +33,7 @@ const ageKey = (a: number) => (a < 0.2 ? "young" : a < 0.45 ? "adult" : a < 0.7 
 export function PortraitCustomizer({ spec, speciesId, name, onChange, who }: { spec: PortraitSpec; speciesId: string; name?: string; onChange: (p: PortraitSpec) => void; /** The Quiet: profession/role, so the portrait wears its clothes. */ who?: ModernWho }) {
 	const set = (patch: Partial<PortraitSpec>) => onChange({ ...spec, ...patch });
 	const { t, te, ruleset } = useT();
-	const offered = (v: string) => ruleset !== "zombie" || !FANTASY_ONLY.has(v);
+	const offered = (v: string) => !isModern(ruleset) || !FANTASY_ONLY.has(v);
 	const pretty = (id: string) => te("portrait", id);
 	const skins = skinTonesFor(speciesId);
 	const toggleFeature = (f: string) => set({ features: spec.features.includes(f) ? spec.features.filter((x) => x !== f) : [...spec.features, f] });
@@ -36,7 +41,7 @@ export function PortraitCustomizer({ spec, speciesId, name, onChange, who }: { s
 	return (
 		<div className="grid gap-5 md:grid-cols-[auto_minmax(0,1fr)]">
 			<div className="flex flex-col items-center gap-3">
-				<Portrait spec={spec} speciesId={speciesId} size={180} name={name || undefined} modern={ruleset === "zombie" ? (who ?? true) : undefined} />
+				<Portrait spec={spec} speciesId={speciesId} size={180} name={name || undefined} modern={isModern(ruleset) ? (ruleset === "cyberpunk" ? { ...(who ?? {}), city: "marea" as const } : (who ?? true)) : undefined} />
 				<div className="flex gap-2">
 					<button type="button" className="btn btn-gold py-1.5 text-sm" onClick={() => onChange(newPortrait(speciesId))}>
 						<Dices className="size-4" /> {t("portrait.randomize")}
@@ -69,7 +74,7 @@ export function PortraitCustomizer({ spec, speciesId, name, onChange, who }: { s
 				</div>
 				<SelectField label={t("portrait.gender")} pretty={pretty} value={spec.gender ?? (portraitTraits(spec, speciesId).female ? "female" : "male")} values={["female", "male"]} onPick={(v) => set({ gender: v as "female" | "male", ...(v === "female" ? { facialHair: "none" } : {}) })} />
 				<SelectField label={t("portrait.age")} pretty={pretty} value={ageKey(spec.age ?? portraitTraits(spec, speciesId).age)} values={Object.keys(AGE_VALUES)} onPick={(v) => set({ age: AGE_VALUES[v] })} />
-				{ruleset === "zombie" ? (
+				{isModern(ruleset) ? (
 					<SelectField label={t("portrait.outfit")} pretty={pretty} value={spec.outfit ?? "auto"} values={["auto", ...OUTFIT_CHOICES]} onPick={(v) => set({ outfit: v === "auto" ? undefined : v })} />
 				) : (
 					<SelectField label={t("portrait.outfit")} pretty={pretty} value={spec.clothingStyle ?? portraitTraits(spec, speciesId).clothingStyle} values={["tunic", "armor", "robe", "leather", "cloak"]} onPick={(v) => set({ clothingStyle: v as PortraitSpec["clothingStyle"] })} />

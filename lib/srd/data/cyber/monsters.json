@@ -1,0 +1,1356 @@
+[
+	{
+		"index": "c-ahogados-lookout",
+		"name": "Ahogados Lookout",
+		"size": "medium",
+		"type": "humanoid (human)",
+		"alignment": "any non-lawful alignment",
+		"ac": 12,
+		"hp": 9,
+		"hitDice": "2d8",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 9,
+			"dex": 14,
+			"con": 10,
+			"int": 10,
+			"wis": 12,
+			"cha": 10
+		},
+		"saves": {},
+		"skills": {
+			"perception": 3,
+			"stealth": 4
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [],
+		"conditionImmunities": [],
+		"senses": "passive Perception 13",
+		"languages": "Spanish",
+		"cr": 0.125,
+		"xp": 25,
+		"traits": [
+			{
+				"name": "Whistle Up",
+				"description": "When it spots trouble it whistles or messages the gang first and fights second: Los Ahogados within a few blocks hear about you."
+			}
+		],
+		"actions": [
+			{
+				"name": "Street Knife",
+				"description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 4 (1d4 + 2) piercing damage.",
+				"attack": {
+					"name": "Street Knife",
+					"kind": "melee",
+					"toHit": 4,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d4+2",
+							"type": "piercing"
+						}
+					],
+					"description": "Melee Weapon Attack: +4 to hit, reach 5 ft., one target. Hit: 4 (1d4 + 2) piercing damage."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "raider"
+	},
+	{
+		"index": "c-ahogados-ganger",
+		"name": "Ahogados Ganger",
+		"size": "medium",
+		"type": "humanoid (human)",
+		"alignment": "any non-lawful alignment",
+		"ac": 12,
+		"hp": 11,
+		"hitDice": "2d8+2",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 12,
+			"dex": 14,
+			"con": 12,
+			"int": 9,
+			"wis": 10,
+			"cha": 10
+		},
+		"saves": {},
+		"skills": {
+			"intimidation": 2,
+			"stealth": 4
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [],
+		"conditionImmunities": [],
+		"senses": "passive Perception 10",
+		"languages": "Spanish",
+		"cr": 0.25,
+		"xp": 50,
+		"traits": [
+			{
+				"name": "Pack Courage",
+				"description": "It has advantage on attack rolls against a creature if at least one of its gang is within 5 feet of that creature and isn't incapacitated."
+			}
+		],
+		"actions": [
+			{
+				"name": "Machete",
+				"description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 5 (1d8 + 1) slashing damage.",
+				"attack": {
+					"name": "Machete",
+					"kind": "melee",
+					"toHit": 3,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d8+1",
+							"type": "slashing"
+						}
+					],
+					"description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 5 (1d8 + 1) slashing damage."
+				}
+			},
+			{
+				"name": "Light Pistol",
+				"description": "Ranged Weapon Attack: +4 to hit, range 40/120 ft., one target. Hit: 6 (1d8 + 2) piercing damage. The shot is loud.",
+				"attack": {
+					"name": "Light Pistol",
+					"kind": "ranged",
+					"toHit": 4,
+					"range": {
+						"normal": 40,
+						"long": 120
+					},
+					"damage": [
+						{
+							"dice": "1d8+2",
+							"type": "piercing"
+						}
+					],
+					"description": "Ranged Weapon Attack: +4 to hit, range 40/120 ft., one target. Hit: 6 (1d8 + 2) piercing damage. The shot is loud."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "raider"
+	},
+	{
+		"index": "c-ferro-guard",
+		"name": "Grupo Ferro Guard",
+		"size": "medium",
+		"type": "humanoid (human)",
+		"alignment": "any lawful alignment",
+		"ac": 14,
+		"hp": 16,
+		"hitDice": "3d8+3",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 13,
+			"dex": 12,
+			"con": 12,
+			"int": 10,
+			"wis": 11,
+			"cha": 10
+		},
+		"saves": {},
+		"skills": {
+			"perception": 2
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [],
+		"conditionImmunities": [],
+		"senses": "passive Perception 12",
+		"languages": "Spanish",
+		"cr": 0.5,
+		"xp": 100,
+		"traits": [
+			{
+				"name": "Wireless Implants",
+				"description": "Its comm and targeting implants are wireless: a hacker within range can target them with street hacks."
+			},
+			{
+				"name": "Call It In",
+				"description": "The first time it sees a fight or an intruder, its implant reports it to Ferro dispatch unless it is jammed or hacked first."
+			}
+		],
+		"actions": [
+			{
+				"name": "Stun Baton",
+				"description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 4 (1d6 + 1) lightning damage.",
+				"attack": {
+					"name": "Stun Baton",
+					"kind": "melee",
+					"toHit": 3,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d6+1",
+							"type": "lightning"
+						}
+					],
+					"description": "Melee Weapon Attack: +3 to hit, reach 5 ft., one target. Hit: 4 (1d6 + 1) lightning damage."
+				}
+			},
+			{
+				"name": "Heavy Pistol",
+				"description": "Ranged Weapon Attack: +3 to hit, range 50/150 ft., one target. Hit: 6 (1d10 + 1) piercing damage. The shot is loud.",
+				"attack": {
+					"name": "Heavy Pistol",
+					"kind": "ranged",
+					"toHit": 3,
+					"range": {
+						"normal": 50,
+						"long": 150
+					},
+					"damage": [
+						{
+							"dice": "1d10+1",
+							"type": "piercing"
+						}
+					],
+					"description": "Ranged Weapon Attack: +3 to hit, range 50/150 ft., one target. Hit: 6 (1d10 + 1) piercing damage. The shot is loud."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "soldier"
+	},
+	{
+		"index": "c-security-drone",
+		"name": "Security Drone",
+		"size": "small",
+		"type": "construct",
+		"alignment": "unaligned",
+		"ac": 13,
+		"hp": 18,
+		"hitDice": "4d6+4",
+		"speed": {
+			"walk": 0,
+			"fly": 40,
+			"hover": true
+		},
+		"abilities": {
+			"str": 6,
+			"dex": 16,
+			"con": 12,
+			"int": 4,
+			"wis": 12,
+			"cha": 1
+		},
+		"saves": {},
+		"skills": {
+			"perception": 3
+		},
+		"vulnerabilities": [
+			"lightning"
+		],
+		"resistances": [],
+		"immunities": [
+			"poison",
+			"psychic"
+		],
+		"conditionImmunities": [
+			"charmed",
+			"frightened",
+			"poisoned"
+		],
+		"senses": "passive Perception 13",
+		"languages": "—",
+		"cr": 0.5,
+		"xp": 100,
+		"traits": [
+			{
+				"name": "Wireless",
+				"description": "Everything it does runs over a wireless link: a hacker within range can target it with street hacks, and a signal jammer grounds it."
+			},
+			{
+				"name": "Spotlight",
+				"description": "It lights a 30-foot cone, and anything it sees, Ferro dispatch sees."
+			}
+		],
+		"actions": [
+			{
+				"name": "Taser Dart",
+				"description": "Ranged Weapon Attack: +5 to hit, range 30/60 ft., one target. Hit: 6 (1d6 + 3) lightning damage. The target must succeed on a DC 11 Constitution saving throw or be unable to take reactions until the start of its next turn.",
+				"attack": {
+					"name": "Taser Dart",
+					"kind": "ranged",
+					"toHit": 5,
+					"range": {
+						"normal": 30,
+						"long": 60
+					},
+					"damage": [
+						{
+							"dice": "1d6+3",
+							"type": "lightning"
+						}
+					],
+					"description": "Ranged Weapon Attack: +5 to hit, range 30/60 ft., one target. Hit: 6 (1d6 + 3) lightning damage. The target must succeed on a DC 11 Constitution saving throw or be unable to take reactions until the start of its next turn."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "drone"
+	},
+	{
+		"index": "c-spider-drone",
+		"name": "Spider Drone",
+		"size": "small",
+		"type": "construct",
+		"alignment": "unaligned",
+		"ac": 14,
+		"hp": 27,
+		"hitDice": "5d6+10",
+		"speed": {
+			"walk": 30,
+			"climb": 30
+		},
+		"abilities": {
+			"str": 10,
+			"dex": 16,
+			"con": 14,
+			"int": 4,
+			"wis": 12,
+			"cha": 1
+		},
+		"saves": {},
+		"skills": {
+			"stealth": 5,
+			"perception": 3
+		},
+		"vulnerabilities": [
+			"lightning"
+		],
+		"resistances": [],
+		"immunities": [
+			"poison",
+			"psychic"
+		],
+		"conditionImmunities": [
+			"charmed",
+			"frightened",
+			"poisoned"
+		],
+		"senses": "passive Perception 13",
+		"languages": "—",
+		"cr": 1,
+		"xp": 200,
+		"traits": [
+			{
+				"name": "Wireless",
+				"description": "Everything it does runs over a wireless link: a hacker within range can target it with street hacks, and a signal jammer grounds it."
+			},
+			{
+				"name": "Spider Climb",
+				"description": "It can climb walls and ceilings, upside down too, without a check."
+			}
+		],
+		"actions": [
+			{
+				"name": "Sedative Stinger",
+				"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 6 (1d6 + 3) piercing damage. The target must succeed on a DC 12 Constitution saving throw or be poisoned for 1 minute. A target that fails by 5 or more is also unconscious while poisoned this way, until it takes damage or someone uses an action to shake it awake.",
+				"attack": {
+					"name": "Sedative Stinger",
+					"kind": "melee",
+					"toHit": 5,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d6+3",
+							"type": "piercing"
+						}
+					],
+					"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 6 (1d6 + 3) piercing damage. The target must succeed on a DC 12 Constitution saving throw or be poisoned for 1 minute. A target that fails by 5 or more is also unconscious while poisoned this way, until it takes damage or someone uses an action to shake it awake."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "spider_drone"
+	},
+	{
+		"index": "c-ahogados-enforcer",
+		"name": "Ahogados Enforcer",
+		"size": "medium",
+		"type": "humanoid (human)",
+		"alignment": "any non-lawful alignment",
+		"ac": 13,
+		"hp": 39,
+		"hitDice": "6d8+12",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 16,
+			"dex": 12,
+			"con": 14,
+			"int": 9,
+			"wis": 10,
+			"cha": 11
+		},
+		"saves": {},
+		"skills": {
+			"athletics": 5,
+			"intimidation": 2
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [],
+		"conditionImmunities": [],
+		"senses": "passive Perception 10",
+		"languages": "Spanish",
+		"cr": 1,
+		"xp": 200,
+		"traits": [
+			{
+				"name": "Crane Arm",
+				"description": "Its right arm is hydraulic chrome: it has advantage on Strength checks to grapple and shove."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "It makes two Crane Arm attacks, or two Submachine Gun attacks.",
+				"multiattack": [
+					{
+						"action": "Crane Arm",
+						"count": 2
+					}
+				]
+			},
+			{
+				"name": "Crane Arm",
+				"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 7 (1d8 + 3) bludgeoning damage.",
+				"attack": {
+					"name": "Crane Arm",
+					"kind": "melee",
+					"toHit": 5,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d8+3",
+							"type": "bludgeoning"
+						}
+					],
+					"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 7 (1d8 + 3) bludgeoning damage."
+				}
+			},
+			{
+				"name": "Submachine Gun",
+				"description": "Ranged Weapon Attack: +3 to hit, range 40/120 ft., one target. Hit: 6 (2d4 + 1) piercing damage. The burst is loud.",
+				"attack": {
+					"name": "Submachine Gun",
+					"kind": "ranged",
+					"toHit": 3,
+					"range": {
+						"normal": 40,
+						"long": 120
+					},
+					"damage": [
+						{
+							"dice": "2d4+1",
+							"type": "piercing"
+						}
+					],
+					"description": "Ranged Weapon Attack: +3 to hit, range 40/120 ft., one target. Hit: 6 (2d4 + 1) piercing damage. The burst is loud."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "raider"
+	},
+	{
+		"index": "c-ferro-officer",
+		"name": "Grupo Ferro Officer",
+		"size": "medium",
+		"type": "humanoid (human)",
+		"alignment": "any lawful alignment",
+		"ac": 15,
+		"hp": 52,
+		"hitDice": "8d8+16",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 13,
+			"dex": 16,
+			"con": 14,
+			"int": 12,
+			"wis": 13,
+			"cha": 13
+		},
+		"saves": {
+			"dex": 5,
+			"wis": 3
+		},
+		"skills": {
+			"perception": 3,
+			"intimidation": 3
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [],
+		"conditionImmunities": [],
+		"senses": "passive Perception 13",
+		"languages": "Spanish",
+		"cr": 2,
+		"xp": 450,
+		"traits": [
+			{
+				"name": "Wireless Implants",
+				"description": "Its comm and targeting implants are wireless: a hacker within range can target them with street hacks."
+			},
+			{
+				"name": "Smartlink",
+				"description": "Its smart pistol rounds steer: its Smart Pistol attacks ignore half cover."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "It makes two Smart Pistol attacks, or two Stun Baton attacks.",
+				"multiattack": [
+					{
+						"action": "Smart Pistol",
+						"count": 2
+					}
+				]
+			},
+			{
+				"name": "Smart Pistol",
+				"description": "Ranged Weapon Attack: +5 to hit, range 60/180 ft., one target. Hit: 7 (1d8 + 3) piercing damage. The shot is loud.",
+				"attack": {
+					"name": "Smart Pistol",
+					"kind": "ranged",
+					"toHit": 5,
+					"range": {
+						"normal": 60,
+						"long": 180
+					},
+					"damage": [
+						{
+							"dice": "1d8+3",
+							"type": "piercing"
+						}
+					],
+					"description": "Ranged Weapon Attack: +5 to hit, range 60/180 ft., one target. Hit: 7 (1d8 + 3) piercing damage. The shot is loud."
+				}
+			},
+			{
+				"name": "Stun Baton",
+				"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 6 (1d6 + 3) lightning damage.",
+				"attack": {
+					"name": "Stun Baton",
+					"kind": "melee",
+					"toHit": 5,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d6+3",
+							"type": "lightning"
+						}
+					],
+					"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 6 (1d6 + 3) lightning damage."
+				}
+			}
+		],
+		"bonusActions": [
+			{
+				"name": "Coordinate",
+				"description": "One Ferro ally within 30 feet that can hear the officer can use its reaction to move up to half its speed or make one weapon attack."
+			}
+		],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "soldier"
+	},
+	{
+		"index": "c-rival-hacker",
+		"name": "Rival Hacker",
+		"size": "medium",
+		"type": "humanoid (human)",
+		"alignment": "any alignment",
+		"ac": 13,
+		"hp": 38,
+		"hitDice": "7d8+7",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 9,
+			"dex": 14,
+			"con": 12,
+			"int": 17,
+			"wis": 13,
+			"cha": 11
+		},
+		"saves": {
+			"int": 5,
+			"wis": 3
+		},
+		"skills": {
+			"investigation": 5,
+			"stealth": 4
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [],
+		"conditionImmunities": [],
+		"senses": "passive Perception 11",
+		"languages": "Spanish",
+		"cr": 2,
+		"xp": 450,
+		"traits": [
+			{
+				"name": "Wireless Reach",
+				"description": "It can hack anything wireless within 60 feet: cameras, locks, drones and people's implants. On a network it fights like a sysadmin."
+			},
+			{
+				"name": "Neural Firewall",
+				"description": "It has advantage on saving throws against programs."
+			}
+		],
+		"actions": [
+			{
+				"name": "Neural Spike",
+				"description": "It pushes feedback through the jack of one creature it can see within 60 feet. The target makes a DC 13 Intelligence saving throw, taking 14 (4d6) psychic damage on a failure or half as much on a success.",
+				"save": {
+					"ability": "int",
+					"dc": 13,
+					"damage": [
+						{
+							"dice": "4d6",
+							"type": "psychic"
+						}
+					],
+					"halfOnSuccess": true
+				}
+			},
+			{
+				"name": "Hijack",
+				"description": "It takes over one wireless device within 60 feet (a camera, a door, a turret, a drone) until the end of its next turn. A drone or turret it hijacks makes one attack against a target of its choice.",
+				"usage": {
+					"type": "recharge",
+					"minRoll": 5
+				}
+			},
+			{
+				"name": "Light Pistol",
+				"description": "Ranged Weapon Attack: +4 to hit, range 40/120 ft., one target. Hit: 6 (1d8 + 2) piercing damage. The shot is loud.",
+				"attack": {
+					"name": "Light Pistol",
+					"kind": "ranged",
+					"toHit": 4,
+					"range": {
+						"normal": 40,
+						"long": 120
+					},
+					"damage": [
+						{
+							"dice": "1d8+2",
+							"type": "piercing"
+						}
+					],
+					"description": "Ranged Weapon Attack: +4 to hit, range 40/120 ft., one target. Hit: 6 (1d8 + 2) piercing damage. The shot is loud."
+				}
+			}
+		],
+		"bonusActions": [
+			{
+				"name": "Scrub",
+				"description": "It scrubs itself from nearby cameras and sensors: until the start of its next turn, drones, turrets and cameras can't see it, and attacks against it from creatures relying on implant targeting have disadvantage."
+			}
+		],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "survivor"
+	},
+	{
+		"index": "c-ahogados-boss",
+		"name": "Ahogados Boss",
+		"size": "medium",
+		"type": "humanoid (human)",
+		"alignment": "any non-lawful alignment",
+		"ac": 15,
+		"hp": 65,
+		"hitDice": "10d8+20",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 16,
+			"dex": 14,
+			"con": 14,
+			"int": 12,
+			"wis": 12,
+			"cha": 15
+		},
+		"saves": {
+			"str": 5,
+			"con": 4
+		},
+		"skills": {
+			"intimidation": 6,
+			"deception": 4,
+			"insight": 3
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [],
+		"conditionImmunities": [],
+		"senses": "passive Perception 11",
+		"languages": "Spanish",
+		"cr": 3,
+		"xp": 700,
+		"traits": [
+			{
+				"name": "Pangolin Skin",
+				"description": "Subdermal plates under a silk shirt; it's part of the AC."
+			},
+			{
+				"name": "Owns the Canals",
+				"description": "In Los Anegados it always has two more gangers within a minute's call."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "It makes two Machete attacks or two Shotgun attacks.",
+				"multiattack": [
+					{
+						"action": "Machete",
+						"count": 2
+					}
+				]
+			},
+			{
+				"name": "Machete",
+				"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 7 (1d8 + 3) slashing damage.",
+				"attack": {
+					"name": "Machete",
+					"kind": "melee",
+					"toHit": 5,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d8+3",
+							"type": "slashing"
+						}
+					],
+					"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 7 (1d8 + 3) slashing damage."
+				}
+			},
+			{
+				"name": "Shotgun",
+				"description": "Ranged Weapon Attack: +4 to hit, range 30/90 ft., one target. Hit: 9 (2d6 + 2) piercing damage. The shot is very loud.",
+				"attack": {
+					"name": "Shotgun",
+					"kind": "ranged",
+					"toHit": 4,
+					"range": {
+						"normal": 30,
+						"long": 90
+					},
+					"damage": [
+						{
+							"dice": "2d6+2",
+							"type": "piercing"
+						}
+					],
+					"description": "Ranged Weapon Attack: +4 to hit, range 30/90 ft., one target. Hit: 9 (2d6 + 2) piercing damage. The shot is very loud."
+				}
+			}
+		],
+		"bonusActions": [
+			{
+				"name": "Bark Orders",
+				"description": "One ally within 30 feet that can hear the boss can use its reaction to make one weapon attack."
+			}
+		],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "raider"
+	},
+	{
+		"index": "c-corporate-bodyguard",
+		"name": "Corporate Bodyguard",
+		"size": "medium",
+		"type": "humanoid (human)",
+		"alignment": "any lawful alignment",
+		"ac": 16,
+		"hp": 67,
+		"hitDice": "9d8+27",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 18,
+			"dex": 14,
+			"con": 16,
+			"int": 10,
+			"wis": 13,
+			"cha": 10
+		},
+		"saves": {
+			"str": 6,
+			"con": 5
+		},
+		"skills": {
+			"athletics": 6,
+			"perception": 3
+		},
+		"vulnerabilities": [],
+		"resistances": [
+			"psychic"
+		],
+		"immunities": [],
+		"conditionImmunities": [],
+		"senses": "darkvision 60 ft., passive Perception 13",
+		"languages": "Spanish",
+		"cr": 3,
+		"xp": 700,
+		"traits": [
+			{
+				"name": "Chromed",
+				"description": "Pangolin plating, a Crane Arm and a neural firewall. The plating is part of its AC; the firewall gives it resistance to psychic damage."
+			},
+			{
+				"name": "Low-Light Optics",
+				"description": "Its eyes see in the dark as if it were dim light."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "It makes two Crane Arm attacks or two Heavy Pistol attacks.",
+				"multiattack": [
+					{
+						"action": "Crane Arm",
+						"count": 2
+					}
+				]
+			},
+			{
+				"name": "Crane Arm",
+				"description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 8 (1d8 + 4) bludgeoning damage. If the target is Medium or smaller, it is grappled (escape DC 14).",
+				"attack": {
+					"name": "Crane Arm",
+					"kind": "melee",
+					"toHit": 6,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d8+4",
+							"type": "bludgeoning"
+						}
+					],
+					"description": "Melee Weapon Attack: +6 to hit, reach 5 ft., one target. Hit: 8 (1d8 + 4) bludgeoning damage. If the target is Medium or smaller, it is grappled (escape DC 14)."
+				}
+			},
+			{
+				"name": "Heavy Pistol",
+				"description": "Ranged Weapon Attack: +4 to hit, range 50/150 ft., one target. Hit: 7 (1d10 + 2) piercing damage. The shot is loud.",
+				"attack": {
+					"name": "Heavy Pistol",
+					"kind": "ranged",
+					"toHit": 4,
+					"range": {
+						"normal": 50,
+						"long": 150
+					},
+					"damage": [
+						{
+							"dice": "1d10+2",
+							"type": "piercing"
+						}
+					],
+					"description": "Ranged Weapon Attack: +4 to hit, range 50/150 ft., one target. Hit: 7 (1d10 + 2) piercing damage. The shot is loud."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [
+			{
+				"name": "Take the Bullet",
+				"description": "When a creature it can see attacks its principal within 5 feet of it, it becomes the target of the attack instead."
+			}
+		],
+		"legendaryActions": [],
+		"tokenHint": "raider"
+	},
+	{
+		"index": "c-santi-varela",
+		"name": "Santi Varela",
+		"size": "medium",
+		"type": "humanoid (human)",
+		"alignment": "neutral",
+		"ac": 15,
+		"hp": 65,
+		"hitDice": "10d8+20",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 12,
+			"dex": 16,
+			"con": 14,
+			"int": 15,
+			"wis": 13,
+			"cha": 16
+		},
+		"saves": {
+			"dex": 5,
+			"int": 4
+		},
+		"skills": {
+			"deception": 7,
+			"insight": 3,
+			"persuasion": 5,
+			"stealth": 5
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [],
+		"conditionImmunities": [],
+		"senses": "passive Perception 11",
+		"languages": "Spanish",
+		"cr": 3,
+		"xp": 700,
+		"traits": [
+			{
+				"name": "Your Old Crew Lead",
+				"description": "Santi ran the job that burned you and sold you to Grupo Ferro on the way out. He knows your habits, your handle and how you hack: you can't surprise him, and the first program you run against him in a fight has disadvantage on its attack roll (or he has advantage on the save)."
+			},
+			{
+				"name": "Always an Exit",
+				"description": "The first time he drops below half his hit points, he can immediately move up to his speed without provoking opportunity attacks. He would rather run than die, and he always has a plan for running."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "He makes two Smart Pistol attacks, or uses Neural Spike and makes one Smart Pistol attack.",
+				"multiattack": [
+					{
+						"action": "Smart Pistol",
+						"count": 2
+					}
+				]
+			},
+			{
+				"name": "Smart Pistol",
+				"description": "Ranged Weapon Attack: +5 to hit, range 60/180 ft., one target. Hit: 7 (1d8 + 3) piercing damage. The shot is loud and ignores half cover.",
+				"attack": {
+					"name": "Smart Pistol",
+					"kind": "ranged",
+					"toHit": 5,
+					"range": {
+						"normal": 60,
+						"long": 180
+					},
+					"damage": [
+						{
+							"dice": "1d8+3",
+							"type": "piercing"
+						}
+					],
+					"description": "Ranged Weapon Attack: +5 to hit, range 60/180 ft., one target. Hit: 7 (1d8 + 3) piercing damage. The shot is loud and ignores half cover."
+				}
+			},
+			{
+				"name": "Street Knife",
+				"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 5 (1d4 + 3) piercing damage.",
+				"attack": {
+					"name": "Street Knife",
+					"kind": "melee",
+					"toHit": 5,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d4+3",
+							"type": "piercing"
+						}
+					],
+					"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 5 (1d4 + 3) piercing damage."
+				}
+			},
+			{
+				"name": "Neural Spike",
+				"description": "He pushes feedback through the jack of one creature he can see within 60 feet. The target makes a DC 13 Intelligence saving throw, taking 14 (4d6) psychic damage on a failure or half as much on a success.",
+				"save": {
+					"ability": "int",
+					"dc": 13,
+					"damage": [
+						{
+							"dice": "4d6",
+							"type": "psychic"
+						}
+					],
+					"halfOnSuccess": true
+				},
+				"usage": {
+					"type": "recharge",
+					"minRoll": 5
+				}
+			}
+		],
+		"bonusActions": [
+			{
+				"name": "Silver Tongue",
+				"description": "He talks while he fights. One creature within 30 feet that can hear and understand him makes a DC 13 Wisdom saving throw or has disadvantage on its next attack roll against him before the end of its next turn."
+			}
+		],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "raider"
+	},
+	{
+		"index": "c-ferro-tactical",
+		"name": "Grupo Ferro Tactical",
+		"size": "medium",
+		"type": "humanoid (human)",
+		"alignment": "any lawful alignment",
+		"ac": 18,
+		"hp": 82,
+		"hitDice": "11d8+33",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 16,
+			"dex": 14,
+			"con": 16,
+			"int": 10,
+			"wis": 12,
+			"cha": 10
+		},
+		"saves": {
+			"str": 5,
+			"con": 5
+		},
+		"skills": {
+			"athletics": 5,
+			"perception": 3
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [],
+		"conditionImmunities": [],
+		"senses": "passive Perception 13",
+		"languages": "Spanish",
+		"cr": 4,
+		"xp": 1100,
+		"traits": [
+			{
+				"name": "Wireless Implants",
+				"description": "Its comm and targeting implants are wireless: a hacker within range can target them with street hacks."
+			},
+			{
+				"name": "Tactical Armour",
+				"description": "Plates, a helmet and a ballistic shield; all part of its AC. It has disadvantage on Dexterity (Stealth) checks."
+			},
+			{
+				"name": "Breach Team",
+				"description": "It has advantage on attack rolls against a creature that another Ferro ally attacked since the end of its last turn."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "It makes two Assault Rifle attacks, or two Stun Baton attacks.",
+				"multiattack": [
+					{
+						"action": "Assault Rifle",
+						"count": 2
+					}
+				]
+			},
+			{
+				"name": "Assault Rifle",
+				"description": "Ranged Weapon Attack: +5 to hit, range 100/400 ft., one target. Hit: 9 (2d6 + 2) piercing damage. The shot is loud.",
+				"attack": {
+					"name": "Assault Rifle",
+					"kind": "ranged",
+					"toHit": 5,
+					"range": {
+						"normal": 100,
+						"long": 400
+					},
+					"damage": [
+						{
+							"dice": "2d6+2",
+							"type": "piercing"
+						}
+					],
+					"description": "Ranged Weapon Attack: +5 to hit, range 100/400 ft., one target. Hit: 9 (2d6 + 2) piercing damage. The shot is loud."
+				}
+			},
+			{
+				"name": "Stun Baton",
+				"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 6 (1d6 + 3) lightning damage.",
+				"attack": {
+					"name": "Stun Baton",
+					"kind": "melee",
+					"toHit": 5,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d6+3",
+							"type": "lightning"
+						}
+					],
+					"description": "Melee Weapon Attack: +5 to hit, reach 5 ft., one target. Hit: 6 (1d6 + 3) lightning damage."
+				}
+			},
+			{
+				"name": "Flashbang",
+				"description": "It throws a flashbang up to 30 feet. Each creature within 10 feet of where it lands makes a DC 13 Constitution saving throw or is blinded and deafened until the end of its next turn.",
+				"save": {
+					"ability": "con",
+					"dc": 13
+				},
+				"usage": {
+					"type": "recharge",
+					"minRoll": 5
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "soldier"
+	},
+	{
+		"index": "c-bounty-hunter",
+		"name": "Bounty Hunter",
+		"size": "medium",
+		"type": "humanoid (human)",
+		"alignment": "any alignment",
+		"ac": 16,
+		"hp": 78,
+		"hitDice": "12d8+24",
+		"speed": {
+			"walk": 30
+		},
+		"abilities": {
+			"str": 14,
+			"dex": 18,
+			"con": 14,
+			"int": 12,
+			"wis": 14,
+			"cha": 10
+		},
+		"saves": {
+			"dex": 6,
+			"wis": 4
+		},
+		"skills": {
+			"perception": 6,
+			"investigation": 3,
+			"survival": 4,
+			"stealth": 6
+		},
+		"vulnerabilities": [],
+		"resistances": [],
+		"immunities": [],
+		"conditionImmunities": [],
+		"senses": "darkvision 60 ft., passive Perception 16",
+		"languages": "Spanish",
+		"cr": 4,
+		"xp": 1100,
+		"traits": [
+			{
+				"name": "Low-Light Optics",
+				"description": "Hawk Eye optics: it sees in the dark as if it were dim light, and you can't hide from it in dim light."
+			},
+			{
+				"name": "Skip Tracer",
+				"description": "It found you through your data trail. It always knows which district you are in, and it has advantage on attack rolls against a creature that has a bounty on it."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "It makes two Heavy Pistol attacks, or two Assault Rifle attacks.",
+				"multiattack": [
+					{
+						"action": "Heavy Pistol",
+						"count": 2
+					}
+				]
+			},
+			{
+				"name": "Heavy Pistol",
+				"description": "Ranged Weapon Attack: +6 to hit, range 50/150 ft., one target. Hit: 9 (1d10 + 4) piercing damage. The shot is loud.",
+				"attack": {
+					"name": "Heavy Pistol",
+					"kind": "ranged",
+					"toHit": 6,
+					"range": {
+						"normal": 50,
+						"long": 150
+					},
+					"damage": [
+						{
+							"dice": "1d10+4",
+							"type": "piercing"
+						}
+					],
+					"description": "Ranged Weapon Attack: +6 to hit, range 50/150 ft., one target. Hit: 9 (1d10 + 4) piercing damage. The shot is loud."
+				}
+			},
+			{
+				"name": "Assault Rifle",
+				"description": "Ranged Weapon Attack: +6 to hit, range 100/400 ft., one target. Hit: 11 (2d6 + 4) piercing damage. The shot is loud.",
+				"attack": {
+					"name": "Assault Rifle",
+					"kind": "ranged",
+					"toHit": 6,
+					"range": {
+						"normal": 100,
+						"long": 400
+					},
+					"damage": [
+						{
+							"dice": "2d6+4",
+							"type": "piercing"
+						}
+					],
+					"description": "Ranged Weapon Attack: +6 to hit, range 100/400 ft., one target. Hit: 11 (2d6 + 4) piercing damage. The shot is loud."
+				}
+			},
+			{
+				"name": "Net Launcher",
+				"description": "It fires a weighted polymer net at one creature within 30 feet, which makes a DC 14 Dexterity saving throw or is restrained. A restrained creature can use its action to make a DC 14 Strength check to break free; the net has AC 10 and 15 hit points.",
+				"save": {
+					"ability": "dex",
+					"dc": 14
+				},
+				"usage": {
+					"type": "recharge",
+					"minRoll": 5
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "raider"
+	},
+	{
+		"index": "c-fractured-chromehead",
+		"name": "Fractured Chromehead",
+		"size": "medium",
+		"type": "humanoid (human)",
+		"alignment": "chaotic neutral",
+		"ac": 15,
+		"hp": 110,
+		"hitDice": "13d8+52",
+		"speed": {
+			"walk": 40
+		},
+		"abilities": {
+			"str": 18,
+			"dex": 16,
+			"con": 18,
+			"int": 8,
+			"wis": 8,
+			"cha": 6
+		},
+		"saves": {
+			"str": 7,
+			"con": 7
+		},
+		"skills": {
+			"athletics": 7,
+			"perception": 2
+		},
+		"vulnerabilities": [],
+		"resistances": [
+			"psychic"
+		],
+		"immunities": [],
+		"conditionImmunities": [
+			"charmed",
+			"frightened"
+		],
+		"senses": "passive Perception 12",
+		"languages": "Spanish (when it talks at all)",
+		"cr": 5,
+		"xp": 1800,
+		"traits": [
+			{
+				"name": "Fractured",
+				"description": "Its Humanity broke under too much chrome. It doesn't feel pain or fear, it can't be reasoned with in a fight, and some days it doesn't remember its own name."
+			},
+			{
+				"name": "Redline",
+				"description": "Pangolin plating, spring legs and reflex wiring at full redline. It can't be surprised, and it has advantage on initiative rolls."
+			},
+			{
+				"name": "Episode",
+				"description": "When it drops below half its hit points, roll a d6 at the start of each of its turns. On a 1 it freezes and does nothing this turn; on a 6 it attacks the nearest creature, friend or foe."
+			}
+		],
+		"actions": [
+			{
+				"name": "Multiattack",
+				"description": "It makes three Retractable Blades attacks.",
+				"multiattack": [
+					{
+						"action": "Retractable Blades",
+						"count": 3
+					}
+				]
+			},
+			{
+				"name": "Retractable Blades",
+				"description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 8 (1d8 + 4) slashing damage.",
+				"attack": {
+					"name": "Retractable Blades",
+					"kind": "melee",
+					"toHit": 7,
+					"reach": 5,
+					"damage": [
+						{
+							"dice": "1d8+4",
+							"type": "slashing"
+						}
+					],
+					"description": "Melee Weapon Attack: +7 to hit, reach 5 ft., one target. Hit: 8 (1d8 + 4) slashing damage."
+				}
+			}
+		],
+		"bonusActions": [
+			{
+				"name": "Lunge",
+				"description": "It leaps up to 20 feet toward a creature it can see without provoking opportunity attacks."
+			}
+		],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "raider"
+	}
+]

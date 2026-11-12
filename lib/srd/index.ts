@@ -43,6 +43,12 @@ import zEquipment from "./data/zombie/equipment.json";
 import zMonsters from "./data/zombie/monsters.json";
 import zOrigins from "./data/zombie/origins.json";
 import zKits from "./data/zombie/kits.json";
+// Root Access (cyberpunk ruleset, docs/cyberpunk.md): original content, marked ruleset: "cyberpunk" (ids c-/p-).
+import cPrograms from "./data/cyber/programs.json";
+import cEquipment from "./data/cyber/equipment.json";
+import cMonsters from "./data/cyber/monsters.json";
+import cOrigins from "./data/cyber/origins.json";
+import cKits from "./data/cyber/kits.json";
 import type { Ruleset } from "../rules/ruleset";
 
 export * from "./types";
@@ -54,7 +60,8 @@ function HOMEBREW_SUBCLASS_IDS(classId: string): string[] {
 
 // Casting through unknown keeps tsc from inferring huge literal types.
 const zTag = <T,>(list: unknown) => (list as T[]).map((x) => ({ ...x, ruleset: "zombie" as const }));
-export const SPECIES = [...(speciesJson as unknown as SpeciesData[]), ...zTag<SpeciesData>(zOrigins)];
+const cTag = <T,>(list: unknown) => ((Array.isArray(list) ? list : []) as T[]).map((x) => ({ ...x, ruleset: "cyberpunk" as const }));
+export const SPECIES = [...(speciesJson as unknown as SpeciesData[]), ...zTag<SpeciesData>(zOrigins), ...cTag<SpeciesData>(cOrigins)];
 export const CLASSES = (classesJson as unknown as ClassData[]).map((c) => ({
 	...c,
 	// Offer the homebrew subclasses alongside the SRD one.
@@ -72,10 +79,10 @@ export const CONDITIONS = conditionsJson as unknown as SimpleEntry[];
 export const DAMAGE_TYPES = damageTypesJson as unknown as SimpleEntry[];
 export const WEAPON_PROPERTIES = weaponPropertiesJson as unknown as SimpleEntry[];
 export const MAGIC_SCHOOLS = magicSchoolsJson as unknown as SimpleEntry[];
-export const EQUIPMENT = [...(equipmentJson as unknown as EquipmentData[]), ...zTag<EquipmentData>(zEquipment)];
+export const EQUIPMENT = [...(equipmentJson as unknown as EquipmentData[]), ...zTag<EquipmentData>(zEquipment), ...cTag<EquipmentData>(cEquipment)];
 export const MAGIC_ITEMS = magicItemsJson as unknown as MagicItemData[];
-export const SPELLS = [...(spellsJson as unknown as SpellInfo[]), ...zTag<SpellInfo>(zTechniques)];
-export const MONSTERS = [...(monstersJson as unknown as MonsterStats[]), ...zTag<MonsterStats>(zMonsters)];
+export const SPELLS = [...(spellsJson as unknown as SpellInfo[]), ...zTag<SpellInfo>(zTechniques), ...cTag<SpellInfo>(cPrograms)];
+export const MONSTERS = [...(monstersJson as unknown as MonsterStats[]), ...zTag<MonsterStats>(zMonsters), ...cTag<MonsterStats>(cMonsters)];
 
 function indexBy<T extends { index: string }>(list: T[]): Map<string, T> {
 	return new Map(list.map((x) => [x.index, x]));
@@ -176,6 +183,18 @@ export function spellsForClass(classId: string, opts: { maxLevel?: number; level
 export function zombieKit(classId: string): { ref: string; qty: number }[] {
 	const kits = zKits as unknown as Record<string, { ref: string; qty: number }[] | undefined>;
 	return (kits[classId] ?? []).filter((g) => g && typeof g.ref === "string" && g.qty > 0);
+}
+
+/** Root Access: a hacking style's starting kit (lib/srd/data/cyber/kits.json), replacing class/background gear and gold. */
+export function cyberKit(classId: string): { ref: string; qty: number }[] {
+	const kits = cKits as unknown as Record<string, { ref: string; qty: number }[] | undefined>;
+	const k = kits[classId];
+	return (Array.isArray(k) ? k : []).filter((g) => g && typeof g.ref === "string" && g.qty > 0);
+}
+
+/** The starting kit of a modern ruleset's class (none in fantasy: class/background gear instead). */
+export function modernKit(ruleset: Ruleset, classId: string): { ref: string; qty: number }[] {
+	return ruleset === "zombie" ? zombieKit(classId) : ruleset === "cyberpunk" ? cyberKit(classId) : [];
 }
 
 export function featuresOf(classId: string, subclassId?: string): FeatureData[] {

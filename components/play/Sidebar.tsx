@@ -12,9 +12,10 @@ import type { MessageKey } from "@/lib/i18n";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { SpellAdvChips, SpellCard } from "./SpellCard";
 import { SurvivalBlock } from "./Survival";
+import { CyberMeters } from "./CyberMeters";
 import { GroupTab, livingSurvivors } from "./Group";
 import { RadioTab } from "./Radio";
-import { rulesetOf } from "@/lib/rules/ruleset";
+import { isModern, rulesetOf } from "@/lib/rules/ruleset";
 
 const ABIL: Ability[] = ["str", "dex", "con", "int", "wis", "cha"];
 
@@ -97,7 +98,7 @@ function SheetTab({ state, onLevelUp, actions }: { state: GameState; onLevelUp: 
 		<div className="space-y-4">
 			<div className="flex items-center gap-3">
 				<button type="button" className="shrink-0 rounded-lg transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-gold" onClick={actions.editPortrait} title={t("play.portrait.edit")} aria-label={t("play.portrait.edit")}>
-					<Portrait spec={c.portrait} size={84} speciesId={c.speciesId} modern={rulesetOf(state.settings) === "zombie" ? { classes: c.classes.map((k) => k.classId) } : undefined} />
+					<Portrait spec={c.portrait} size={84} speciesId={c.speciesId} modern={isModern(rulesetOf(state.settings)) ? { classes: c.classes.map((k) => k.classId), ...(rulesetOf(state.settings) === "cyberpunk" ? { city: "marea" as const } : {}) } : undefined} />
 				</button>
 				<div className="min-w-0">
 					<div className="heading truncate text-lg">{c.name}</div>
@@ -119,6 +120,7 @@ function SheetTab({ state, onLevelUp, actions }: { state: GameState; onLevelUp: 
 				</div>
 			)}
 			{rulesetOf(state.settings) === "zombie" && <SurvivalBlock state={state} />}
+			{rulesetOf(state.settings) === "cyberpunk" && <CyberMeters state={state} />}
 			{sheet && (
 				<div className="grid grid-cols-4 gap-1.5">
 					<Stat label={t("play.stat.ac")} title={t("play.stat.acTitle")} value={sheet.ac} />
@@ -365,7 +367,7 @@ function CodexTab({ state }: { state: GameState }) {
 		<div className="space-y-2">
 			{npcs.map((n) => (
 				<div key={n.id} className={`flex gap-3 rounded-lg border border-line bg-bg-2/60 p-2 ${n.alive ? "" : "opacity-50 grayscale"}`}>
-					<Portrait spec={n.portrait} size={56} speciesId={n.speciesId} framed={false} modern={rulesetOf(state.settings) === "zombie" ? { text: `${n.role ?? ""} ${n.description ?? ""}` } : undefined} />
+					<Portrait spec={n.portrait} size={56} speciesId={n.speciesId} framed={false} modern={isModern(rulesetOf(state.settings)) ? { text: `${n.role ?? ""} ${n.description ?? ""}`, ...(rulesetOf(state.settings) === "cyberpunk" ? { city: "marea" as const } : {}) } : undefined} />
 					<div className="min-w-0">
 						<div className="flex items-center gap-2">
 							<span className="font-display text-sm text-gold-2">{n.name}</span>

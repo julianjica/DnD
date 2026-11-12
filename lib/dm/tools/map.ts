@@ -1,4 +1,4 @@
-import { rulesetOf } from "../../rules/ruleset";
+import { isModern, rulesetOf } from "../../rules/ruleset";
 import type { EntityKind, GameState, GridMap, LocationKind, MapKind, TerrainKind, Tile, WorldLocation } from "../../game/types";
 import { MODERN_FEATURE_SPRITES, mapToRows } from "../../maps/draw";
 import { autoLink, linkBoth, linkSummary } from "../../maps/links";
@@ -40,7 +40,7 @@ function activeMap(state: GameState): GridMap {
 
 /** Makes `map` the active map of the current location, keeping only the 12 most recent maps. */
 function addMap(state: GameState, map: GridMap) {
-	if (rulesetOf(state.settings) === "zombie") map.theme = "modern";
+	if (isModern(rulesetOf(state.settings))) map.theme = "modern";
 	state.maps[map.id] = map;
 	state.activeMapId = map.id;
 	const loc = state.world.locations.find((l) => l.id === state.world.currentLocationId);

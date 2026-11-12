@@ -1,0 +1,550 @@
+{
+	"barbarian": [
+		{
+			"ref": "c-machete",
+			"qty": 1
+		},
+		{
+			"ref": "c-shotgun",
+			"qty": 1
+		},
+		{
+			"ref": "c-shells",
+			"qty": 8
+		},
+		{
+			"ref": "c-armored-jacket",
+			"qty": 1
+		},
+		{
+			"ref": "c-deck-secondhand",
+			"qty": 1
+		},
+		{
+			"ref": "c-med-patch",
+			"qty": 1
+		},
+		{
+			"ref": "c-burner-phone",
+			"qty": 1
+		},
+		{
+			"ref": "c-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "c-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "c-bottled-water",
+			"qty": 2
+		},
+		{
+			"ref": "c-ration-bars",
+			"qty": 2
+		}
+	],
+	"bard": [
+		{
+			"ref": "c-knife",
+			"qty": 1
+		},
+		{
+			"ref": "c-armored-jacket",
+			"qty": 1
+		},
+		{
+			"ref": "c-deck-secondhand",
+			"qty": 1
+		},
+		{
+			"ref": "c-burner-id",
+			"qty": 2
+		},
+		{
+			"ref": "c-badge-cloner",
+			"qty": 1
+		},
+		{
+			"ref": "c-burner-phone",
+			"qty": 1
+		},
+		{
+			"ref": "c-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "c-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "c-bottled-water",
+			"qty": 2
+		},
+		{
+			"ref": "c-ration-bars",
+			"qty": 2
+		}
+	],
+	"cleric": [
+		{
+			"ref": "c-stun-baton",
+			"qty": 1
+		},
+		{
+			"ref": "c-ballistic-vest",
+			"qty": 1
+		},
+		{
+			"ref": "c-deck-secondhand",
+			"qty": 1
+		},
+		{
+			"ref": "c-med-patch",
+			"qty": 5
+		},
+		{
+			"ref": "c-trauma-kit",
+			"qty": 1
+		},
+		{
+			"ref": "c-burner-phone",
+			"qty": 1
+		},
+		{
+			"ref": "c-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "c-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "c-bottled-water",
+			"qty": 2
+		},
+		{
+			"ref": "c-ration-bars",
+			"qty": 2
+		}
+	],
+	"druid": [
+		{
+			"ref": "c-knife",
+			"qty": 1
+		},
+		{
+			"ref": "c-synth-coat",
+			"qty": 1
+		},
+		{
+			"ref": "c-deck-secondhand",
+			"qty": 1
+		},
+		{
+			"ref": "c-chem-vial",
+			"qty": 4
+		},
+		{
+			"ref": "c-nanite-canister",
+			"qty": 1
+		},
+		{
+			"ref": "c-respirator",
+			"qty": 1
+		},
+		{
+			"ref": "c-burner-phone",
+			"qty": 1
+		},
+		{
+			"ref": "c-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "c-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "c-bottled-water",
+			"qty": 2
+		},
+		{
+			"ref": "c-ration-bars",
+			"qty": 2
+		}
+	],
+	"fighter": [
+		{
+			"ref": "c-rifle",
+			"qty": 1
+		},
+		{
+			"ref": "c-ammo-rifle",
+			"qty": 30
+		},
+		{
+			"ref": "c-knife",
+			"qty": 1
+		},
+		{
+			"ref": "c-ballistic-vest",
+			"qty": 1
+		},
+		{
+			"ref": "c-deck-secondhand",
+			"qty": 1
+		},
+		{
+			"ref": "c-flashbang",
+			"qty": 1
+		},
+		{
+			"ref": "c-med-patch",
+			"qty": 1
+		},
+		{
+			"ref": "c-burner-phone",
+			"qty": 1
+		},
+		{
+			"ref": "c-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "c-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "c-bottled-water",
+			"qty": 2
+		},
+		{
+			"ref": "c-ration-bars",
+			"qty": 2
+		}
+	],
+	"monk": [
+		{
+			"ref": "c-stun-baton",
+			"qty": 1
+		},
+		{
+			"ref": "c-deck-secondhand",
+			"qty": 1
+		},
+		{
+			"ref": "c-grapple-line",
+			"qty": 1
+		},
+		{
+			"ref": "c-med-patch",
+			"qty": 1
+		},
+		{
+			"ref": "c-burner-phone",
+			"qty": 1
+		},
+		{
+			"ref": "c-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "c-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "c-bottled-water",
+			"qty": 2
+		},
+		{
+			"ref": "c-ration-bars",
+			"qty": 2
+		}
+	],
+	"paladin": [
+		{
+			"ref": "c-heavy-pistol",
+			"qty": 1
+		},
+		{
+			"ref": "c-ammo-heavy",
+			"qty": 20
+		},
+		{
+			"ref": "c-machete",
+			"qty": 1
+		},
+		{
+			"ref": "c-ballistic-vest",
+			"qty": 1
+		},
+		{
+			"ref": "c-deck-secondhand",
+			"qty": 1
+		},
+		{
+			"ref": "c-zip-cuffs",
+			"qty": 2
+		},
+		{
+			"ref": "c-med-patch",
+			"qty": 2
+		},
+		{
+			"ref": "c-burner-phone",
+			"qty": 1
+		},
+		{
+			"ref": "c-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "c-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "c-bottled-water",
+			"qty": 2
+		},
+		{
+			"ref": "c-ration-bars",
+			"qty": 2
+		}
+	],
+	"ranger": [
+		{
+			"ref": "c-marksman-rifle",
+			"qty": 1
+		},
+		{
+			"ref": "c-ammo-marksman",
+			"qty": 10
+		},
+		{
+			"ref": "c-knife",
+			"qty": 1
+		},
+		{
+			"ref": "c-armored-jacket",
+			"qty": 1
+		},
+		{
+			"ref": "c-deck-secondhand",
+			"qty": 1
+		},
+		{
+			"ref": "c-scout-drone",
+			"qty": 1
+		},
+		{
+			"ref": "c-drone-battery",
+			"qty": 3
+		},
+		{
+			"ref": "c-smart-binoculars",
+			"qty": 1
+		},
+		{
+			"ref": "c-burner-phone",
+			"qty": 1
+		},
+		{
+			"ref": "c-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "c-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "c-bottled-water",
+			"qty": 2
+		},
+		{
+			"ref": "c-ration-bars",
+			"qty": 2
+		}
+	],
+	"rogue": [
+		{
+			"ref": "c-knife",
+			"qty": 1
+		},
+		{
+			"ref": "c-needle-pistol",
+			"qty": 1
+		},
+		{
+			"ref": "c-needles",
+			"qty": 12
+		},
+		{
+			"ref": "c-armored-jacket",
+			"qty": 1
+		},
+		{
+			"ref": "c-deck-secondhand",
+			"qty": 1
+		},
+		{
+			"ref": "c-bypass-kit",
+			"qty": 1
+		},
+		{
+			"ref": "c-badge-cloner",
+			"qty": 1
+		},
+		{
+			"ref": "c-grapple-line",
+			"qty": 1
+		},
+		{
+			"ref": "c-burner-phone",
+			"qty": 1
+		},
+		{
+			"ref": "c-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "c-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "c-bottled-water",
+			"qty": 2
+		},
+		{
+			"ref": "c-ration-bars",
+			"qty": 2
+		}
+	],
+	"sorcerer": [
+		{
+			"ref": "c-knife",
+			"qty": 1
+		},
+		{
+			"ref": "c-synth-coat",
+			"qty": 1
+		},
+		{
+			"ref": "c-deck-secondhand",
+			"qty": 1
+		},
+		{
+			"ref": "c-med-patch",
+			"qty": 1
+		},
+		{
+			"ref": "c-data-spike",
+			"qty": 1
+		},
+		{
+			"ref": "c-burner-phone",
+			"qty": 1
+		},
+		{
+			"ref": "c-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "c-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "c-bottled-water",
+			"qty": 2
+		},
+		{
+			"ref": "c-ration-bars",
+			"qty": 2
+		}
+	],
+	"warlock": [
+		{
+			"ref": "c-light-pistol",
+			"qty": 1
+		},
+		{
+			"ref": "c-ammo-light",
+			"qty": 15
+		},
+		{
+			"ref": "c-knife",
+			"qty": 1
+		},
+		{
+			"ref": "c-armored-jacket",
+			"qty": 1
+		},
+		{
+			"ref": "c-deck-secondhand",
+			"qty": 1
+		},
+		{
+			"ref": "c-burner-phone",
+			"qty": 1
+		},
+		{
+			"ref": "c-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "c-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "c-bottled-water",
+			"qty": 2
+		},
+		{
+			"ref": "c-ration-bars",
+			"qty": 2
+		}
+	],
+	"wizard": [
+		{
+			"ref": "c-knife",
+			"qty": 1
+		},
+		{
+			"ref": "c-deck-tier1",
+			"qty": 1
+		},
+		{
+			"ref": "c-tech-toolkit",
+			"qty": 1
+		},
+		{
+			"ref": "c-signal-jammer",
+			"qty": 1
+		},
+		{
+			"ref": "c-data-spike",
+			"qty": 2
+		},
+		{
+			"ref": "c-burner-phone",
+			"qty": 1
+		},
+		{
+			"ref": "c-flashlight",
+			"qty": 1
+		},
+		{
+			"ref": "c-backpack",
+			"qty": 1
+		},
+		{
+			"ref": "c-bottled-water",
+			"qty": 2
+		},
+		{
+			"ref": "c-ration-bars",
+			"qty": 2
+		}
+	]
+}

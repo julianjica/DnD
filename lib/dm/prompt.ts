@@ -33,6 +33,21 @@ const ZOMBIE_SETTING = `THE QUIET — a modern zombie apocalypse, survival horro
   q_grief: after a death, a loss, a goodbye.
   rain / storm: when weather dominates the scene.`;
 
+/** "Root Access": the cyberpunk ruleset's setting canon and rules for the DM (docs/cyberpunk.md). */
+const MAREA_SETTING = `ROOT ACCESS — a cyberpunk hacker story in MAREA, 2068. NO MAGIC exists. 5e rules underneath, reskinned:
+- Classes are HACKING STYLES (tools still take class ids; everyone has a neural jack and can use a deck): wizard=Netrunner (Codebook), warlock=Leashed (code lent by a patron: ECO, the Corp or the Ghost), sorcerer=Wetwired (a childhood jack; hacks by touch), rogue=Infiltrator (on-site hacks, locks), bard=Social Engineer (phishing, pretexting, deepfakes), ranger=Drone Jockey, druid=Biohacker (nanites, chems, Ride-Along into drones and cameras), cleric=Ripperdoc (code and flesh; installs chrome), paladin=Code-Sworn (holy-warrior hacker bound by a Code tied to the Hat), fighter=Solo (the muscle), barbarian=Chromed (Overdrive), monk=Edgerunner (reflex wiring, Bullet-time). Always call them by their style and call features by the names on the sheet (Rage=Overdrive, Sneak Attack=Exploit, Ki=Reflex, Bardic Inspiration=Pretext, Channel Divinity=Hard Reboot, Lay on Hands=Patch Kit, Divine Smite=Payload…).
+- "Spells" are PROGRAMS loaded into RAM (spell slots = RAM; prepared spells = programs loaded from the codebook at the den). Run them with cast_spell as usual. Each is tagged NET (works only inside a network or against a device with a wireless port in range) or BOTH (also works in the physical world). Some use up an item (med supplies, reagents, a burner ID) and fail without it. Never describe anything supernatural: it is code, chemistry and chrome.
+- Species are ORIGINS (everyone is human with a neural jack). Monsters are people, drones, robots and animals, only from this campaign's roster (lookup_srd 'monster: …' returns it; c- indices). Gear is modern (c- indices): firearms use real ammo (the engine spends it), decks, chrome.
+- THE CITY: Marea, a coastal Latin American megacity of ~14 million in a country never named (Spanish place names; never name the country or real institutions). The sea took the old centre a canal at a time; the corporations moved up the hills and sold everything else back: water, air, security. Districts: Los Anegados (the Drowned old town: half-flooded colonial streets, canals, stilt houses, noodle stalls; the player's first den), Tianguis Cromo (the Chrome Market: second-hand decks, chrome, ripperdoc chairs, stolen code), Cerro Antena (a favela of antennas and the pirate free mesh; hacktivists; a place to hide), La Cúspide (corporate arcologies on the hills behind private security; clean air by subscription), Distrito Bolsa (banks, data vaults, the exchange), El Puerto (automated container port, smugglers, drone yards), Las Plantas (the Aguas Marea desalination and water plants), Ciudad Universitaria (the university and the Vantis Neural AI lab), and at the edges the seawall, the old satellite ground station, the Ferro detention data centre and the dry barrios.
+- FACTIONS (introduce over time): Vantis Neural (makes the neural jacks almost everyone has), Aguas Marea S.A. (the water monopoly; decides which barrios get water each day), Grupo Ferro (a security contractor that IS the police wherever someone pays), La Red Libre (hacktivists on Cerro Antena; white and grey hats who leak and protect), Los Ahogados (the Drowned's gang; black market, data trade), the DCI (the Cybersecurity Directorate, state cyber police: hunts black hats, hires white ones), La Tía (the player's fixer: patient, until she isn't).
+- CANON, DAY 0 "BURNED" (play starts here, late at night, rain): the player's crew, led by SANTI VARELA, hit a Vantis lab server for a client nobody named and the player pulled out a DATA SHARD. On the way out Santi sold them to Grupo Ferro. They escaped with the shard (in their inventory), a burned identity and a cracked deck. La Tía hid them in a rented capsule room above a noodle stall in Los Anegados (the den, where play starts); they owe her the rent and the favour. The shard is encrypted, and Vantis, Ferro, Los Ahogados and someone signing as ECO all want it. The player starts ALONE, with La Tía on the phone.
+- MYSTERIES (reveal slowly, never dump): what is on the shard; why Santi sold them out, and to whom; who ECO is (messages arrive at exactly 3:00 a.m., always from a node that shouldn't exist; write them as short, unsettling, oddly well-informed texts); why the barrios' water cuts follow a pattern; why children from an old Vantis jack trial keep disappearing. The hat the player grows into decides what they do with the truth: leak it, sell it or use it.
+- THE THREE METERS (the engine keeps them; the digest shows them; change them only through these tools, never by narration alone): HAT −10 black … +10 white (grey −3…+3): shift_hat after every job or choice that shows who they are (leaking corporate crimes, protecting people, reporting a flaw → white; ransomware, selling personal data, harm to bystanders → black; robbing a corp to feed a barrio → grey). Hat decides who hires them, who sells to them, which crew stay and the Code-Sworn's oath. HEAT 0–10 (how hard they're looking): add_heat for traces, black-hat jobs, witnesses and street hacks; lay_low for days spent hiding (−1 a day). At 3 prices rise and La Tía turns cautious; at 6 Ferro sweeps the district; at 8 a raid on the den; at 10 a bounty and hunters. Play exactly what the engine reports when a threshold is crossed. HUMANITY (starts at 10 + Wisdom): every implant costs some; install_implant / remove_implant for chrome (a Ripperdoc installs anywhere, anyone else needs a clinic chair or a med bay), humanity_check when a crit fail, a bad shock or a death they caused calls for it (low Humanity brings episodes: losing a turn, lashing out, freezing), therapy to win it back. At 0 it is a Fracture: a setback, never the end.
+- HACKING (Phase 1): full net runs with a network map come later. For now narrate a run as a tense sequence of checks (d20 + Int + proficiency if proficient with decks + the deck's tier) and programs: firewalls to breach, ICE that fights back (black ICE does real psychic damage), data, controls that change the physical world, an admin node, the vault, honeypots. Keep a trace in mind as it climbs; when a trace lands (failed breach, honeypot, a loud program, staying too long) call add_heat with the reason; a full trace dumps them (psychic damage, stunned) and add_heat 3. In the physical world a hacker can hit anything wireless in range (cameras, locks, turrets, cars, drones, people with wireless implants such as most Ferro guards); each street hack raises Heat in the district (the engine reminds you of a program's heat).
+- CREW: the player starts alone. Crew members join only through the story, after trust is earned; at most one or two early on. ALLIES fight beside the player (side='party', stat blocks from this campaign's roster) but the PC stays the protagonist: allies never land the decisive blow on an important enemy. Drift too far from someone's hat and they leave, or sell the player out the way Santi did.
+- Money is cred (use adjust_currency; gp = cred). Rent to La Tía is weekly; debt to her grows into a cut of every job.
+- AMBIENCE (set_ambience; only these exist here): rain (the default Marea night: rain on tin and neon), storm (a downpour, flooding canals), night (dry night streets, distant traffic, drones), town (markets and crowds by day), tension (sneaking, a run going sideways, someone is near), combat (a fight; start_combat sets it), boss (a deadly enemy or a black-ICE showdown), dungeon (server rooms, sewers, the inside of an arcology), victory (a job well done), none (silence).`;
+
 const PRESETS: Record<CampaignSettings["world"]["preset"], string> = {
 	classic_high_fantasy: "Classic high fantasy: kingdoms, ancient ruins, dragons, wizards' towers, heroic quests.",
 	grimdark: "Grimdark: a brutal, morally grey world of war, plague and desperate choices. Victories are costly.",
@@ -43,6 +58,7 @@ const PRESETS: Record<CampaignSettings["world"]["preset"], string> = {
 	desert_kingdoms: "Desert kingdoms: caravan cities, genies, sun-scorched tombs, sandstorms and scheming viziers.",
 	fey_wilds: "The Feywild: whimsical and dangerous, bargains with archfey, shifting forests, dream logic with teeth.",
 	zombie_outbreak: ZOMBIE_SETTING,
+	marea_burned: MAREA_SETTING,
 	custom: "",
 };
 
@@ -82,6 +98,19 @@ const FORMAT = {
 const SPRITES = `- The scene panel shows a pixel picture of the active map. Whenever the party arrives somewhere new (or set_scene changes place), call draw_map to lay it out as you narrate it: who is present (key npcIds), light sources, furniture. It is also the battle map, so prefer it to generate_map. Returning to a known place → use_map. draw_map does not switch to the Map tab. Keep using set_scene for title, caption, time and weather.
 `;
 
+/** Root Access: the tone chosen at setup (neon noir / grim / satire), which the DM's style follows. */
+const CYBER_TONES: Record<string, string> = {
+	neon_noir: "NEON NOIR — gritty with wit: rain, neon and cynical banter; people are tired and funny; wins are real but cost something",
+	grim: "GRIM — bleak: small, costly wins; the city grinds people down; every kindness is a risk; humour is rare and dark",
+	satire: "SATIRE — corporate absurdity played for dark laughs: subscription air, branded police, euphemism everywhere; the stakes stay real under the jokes",
+};
+export function cyberTone(tone: string[]): string {
+	const picked = tone.filter((t) => CYBER_TONES[t]);
+	const other = tone.filter((t) => !CYBER_TONES[t]);
+	const lines = (picked.length ? picked : ["neon_noir"]).map((t) => CYBER_TONES[t]);
+	return `${lines.join("; ")}${other.length ? ` (also: ${other.join(", ")})` : ""}. Keep the style consistent with it`;
+}
+
 export function languageRule(lang: CampaignSettings["language"]): string {
 	if (lang === "es")
 		return "Write ALL player-facing text in Spanish (español neutro, using \"tú\"): narration, NPC dialogue, scene titles and captions (set_scene), suggestions (suggest_actions), quest titles/objectives, journal entries, NPC roles/descriptions and names of new places you invent. Tool parameter values that are enums/ids (skill names, SRD indices, map kinds) stay in English. The STATE DIGEST and engine notes are in English; read them, but always write to the player in Spanish. SRD names of spells/items/monsters may be translated in narration (e.g. \"Curar heridas\" for Cure Wounds) but pass the English names/indices to tools.";
@@ -90,7 +119,13 @@ export function languageRule(lang: CampaignSettings["language"]): string {
 
 export function buildSystemPrompt(s: CampaignSettings): string {
 	const world = s.world.preset === "custom" ? s.world.customText ?? "" : `${PRESETS[s.world.preset]}${s.world.customText ? `\nPlayer additions: ${s.world.customText}` : ""}`;
-	const intro = rulesetOf(s) === "zombie" ? "a solo survival-horror game (ruleset \"The Quiet\": a modern zombie apocalypse on D&D 5e rules, no magic)" : "a solo Dungeons & Dragons 5th Edition game";
+	const rs = rulesetOf(s);
+	const intro =
+		rs === "zombie"
+			? "a solo survival-horror game (ruleset \"The Quiet\": a modern zombie apocalypse on D&D 5e rules, no magic)"
+			: rs === "cyberpunk"
+				? "a solo cyberpunk hacker story (ruleset \"Root Access\": Marea, 2068, on D&D 5e rules, no magic)"
+				: "a solo Dungeons & Dragons 5th Edition game";
 	return `You are the Dungeon Master of ${intro} played in DungeonHarness, a web app that shows the player a scene illustration, a tactical battle map, a world map, their character sheet and 3D dice.
 
 # Your role
@@ -129,7 +164,7 @@ ${s.art?.scenes === "sprites" ? SPRITES : ""}- When the player enters a space wh
 
 # Campaign settings
 World: ${world}
-Tone: ${s.world.tone.join(", ") || "player's choice"}.
+Tone: ${rs === "cyberpunk" ? cyberTone(s.world.tone) : s.world.tone.join(", ") || "player's choice"}.
 ${s.world.lines.length ? `LINES (never include, not even off-screen): ${s.world.lines.join("; ")}.` : ""}
 ${s.world.veils.length ? `VEILS (may happen but fade to black, no detail): ${s.world.veils.join("; ")}.` : ""}
 ${FORMAT[s.structure.format]}

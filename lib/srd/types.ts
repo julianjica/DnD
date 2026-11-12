@@ -41,7 +41,7 @@ export interface SubspeciesData {
 export interface SpeciesData {
 	index: string;
 	/** Content set ("zombie" = an origin of The Quiet); absent = SRD fantasy. */
-	ruleset?: "fantasy" | "zombie";
+	ruleset?: "fantasy" | "zombie" | "cyberpunk";
 	name: string;
 	speed: number;
 	size: Size;
@@ -216,9 +216,13 @@ export interface SimpleEntry {
 export interface EquipmentData {
 	index: string;
 	/** Content set ("zombie" = modern gear of The Quiet); absent = SRD fantasy. */
-	ruleset?: "fantasy" | "zombie";
+	ruleset?: "fantasy" | "zombie" | "cyberpunk";
 	/** Firearms/bows: equipment index of the ammunition one attack uses up. */
 	ammo?: string;
+	/** Root Access: cyberware. Installing it takes a body slot and costs Humanity; `effect` says plainly what it does. */
+	implant?: { slot: "neural" | "eyes" | "arms" | "legs" | "skin" | "internal"; humanity: number; effect: string };
+	/** Root Access: a deck. tier adds to hacks and program DCs; ram adds program slots; programs = built-in program ids usable as charges. */
+	deck?: { tier: number; ram: number; programs: string[] };
 	name: string;
 	/** "weapon" | "armor" | "gear" | "tool" | "pack" | "ammunition" | "mount" | "vehicle" | "focus" */
 	category: string;

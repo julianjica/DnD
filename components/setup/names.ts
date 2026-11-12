@@ -1,3 +1,5 @@
+import { getSpecies } from "@/lib/srd";
+
 /** Random fantasy names per species (first + optional surname/epithet). */
 
 const NAMES: Record<string, { first: string[]; last: string[] }> = {
@@ -45,8 +47,14 @@ const MODERN = {
 	last: ["Miller", "Novak", "Garcia", "Reyes", "Okafor", "Brennan", "Kowalski", "Nguyen", "Price", "Delgado", "Harper", "Chen", "Walsh", "Moreno", "Lindqvist", "Dawson", "Patel", "Hale", "Ruiz", "Sorensen"],
 };
 
+/** Root Access: names from Marea, a Latin American megacity (origins are all human). */
+const MAREA = {
+	first: ["Valeria", "Mateo", "Ximena", "Iker", "Camila", "Joaquín", "Renata", "Diego", "Itzel", "Bruno", "Luz", "Emiliano", "Paloma", "Tomás", "Yara", "Rafa", "Inés", "Gael", "Nayeli", "Óscar", "Abril", "Leo", "Maite", "Chuy"],
+	last: ["Quispe", "Ochoa", "Barrios", "Salazar", "Mendoza", "Arce", "Villalobos", "Ibarra", "Cárdenas", "Tapia", "Rojas", "Medina", "Paredes", "Cruz", "Lozano", "Fuentes", "Ríos", "Aguilar", "Nieves", "Ortega"],
+};
+
 export function randomName(speciesId: string, rand: () => number = Math.random): string {
-	const n = speciesId.startsWith("z-origin-") ? MODERN : NAMES[speciesId] ?? NAMES.human;
+	const n = speciesId.startsWith("z-origin-") ? MODERN : (getSpecies(speciesId)?.ruleset === "cyberpunk") ? MAREA : NAMES[speciesId] ?? NAMES.human;
 	const pick = (xs: string[]) => xs[Math.floor(rand() * xs.length)];
 	const last = pick(n.last);
 	return last ? `${pick(n.first)} ${last}` : pick(n.first);

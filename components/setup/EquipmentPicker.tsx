@@ -7,7 +7,8 @@ import { cn } from "@/components/ui/cn";
 import { describeOption } from "./ChoicePicker";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { useT } from "@/components/i18n/I18nProvider";
-import { srdNameIn } from "./i18n";
+import { rsKey, srdNameIn } from "./i18n";
+import { isModern } from "@/lib/rules/ruleset";
 
 export interface EquipmentPickerProps {
 	opts: CreationOptions;
@@ -29,12 +30,12 @@ export function EquipmentPicker({ opts, value, onChange }: EquipmentPickerProps)
 		onChange(next);
 	};
 
-	if (opts.ruleset === "zombie") {
+	if (isModern(opts.ruleset)) {
 		// The Quiet: a fixed profession kit, no gear choices and no money.
 		return (
 			<div className="rounded-lg border border-line bg-bg-2/50 p-4">
 				<div className="mb-2 flex items-center gap-2 font-display text-sm tracking-wide">
-					<Backpack className="size-4 text-gold/80" /> {t("z.equip.kit")}
+					<Backpack className="size-4 text-gold/80" /> {t(rsKey(opts.ruleset, "equip.kit"))}
 				</div>
 				{opts.kit.length ? (
 					<div className="flex flex-wrap gap-1.5">
@@ -48,10 +49,10 @@ export function EquipmentPicker({ opts, value, onChange }: EquipmentPickerProps)
 						))}
 					</div>
 				) : (
-					<p className="text-sm text-dim">{t("z.equip.kitEmpty")}</p>
+					<p className="text-sm text-dim">{t(rsKey(opts.ruleset, "equip.kitEmpty"))}</p>
 				)}
 				<p className="mt-3 flex items-center gap-1.5 text-xs text-faint italic">
-					<Coins className="size-3" /> {t("z.equip.noMoney")}
+					<Coins className="size-3" /> {t(rsKey(opts.ruleset, "equip.noMoney"))}
 				</p>
 			</div>
 		);

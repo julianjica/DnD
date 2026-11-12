@@ -52,8 +52,12 @@ export const QUIET_SFX: SfxName[] = ["groan", "bite", "glass", "car_alarm", "sho
 /** Fantasy-only effects: not offered to zombie campaigns. */
 const FANTASY_ONLY_SFX: SfxName[] = ["spell", "gem", "gong", "levelup", "victory"];
 
+/** Root Access: a modern city with programs (the "spell" zap) but no dead and no temple gongs. */
+const CYBER_EXCLUDED_SFX: SfxName[] = ["groan", "bite", "gong"];
+
 /** SFX the DM may play in a campaign of this ruleset. */
 export function sfxFor(rs: Ruleset): SfxName[] {
+	if (rs === "cyberpunk") return SFX_NAMES.filter((s) => !CYBER_EXCLUDED_SFX.includes(s));
 	return rs === "zombie" ? SFX_NAMES.filter((s) => !FANTASY_ONLY_SFX.includes(s)) : SFX_NAMES.filter((s) => !QUIET_SFX.includes(s));
 }
 
@@ -70,8 +74,12 @@ export const FANTASY_TRACKS: AmbienceTrack[] = [
 
 export const AMBIENCE_TRACKS: AmbienceTrack[] = [...FANTASY_TRACKS, ...QUIET_TRACKS];
 
+/** Root Access (Marea): the neutral beds that fit a rainy megacity; no q_ tracks, no tavern/forest/temple. */
+export const CYBER_TRACKS: AmbienceTrack[] = ["none", "town", "night", "rain", "storm", "combat", "tension", "boss", "victory", "dungeon"];
+
 /** Beds offered in a ruleset: zombie games get the q_ tracks plus rain/storm weather; fantasy never sees q_. */
 export function tracksFor(rs: Ruleset): AmbienceTrack[] {
+	if (rs === "cyberpunk") return CYBER_TRACKS;
 	return rs === "zombie" ? ["none", ...QUIET_TRACKS, "rain", "storm"] : FANTASY_TRACKS;
 }
 

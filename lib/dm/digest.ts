@@ -12,6 +12,7 @@ import { expeditionDigest } from "../rules/expeditions";
 import { storyDigest, voiceDigest } from "../rules/threads";
 import { radioDigest } from "../rules/radio";
 import { siegeDigest } from "../rules/siege";
+import { cyberDigest } from "../rules/cyber";
 import { rulesetLabelEn } from "../i18n/ruleset-labels";
 import { getClass, getSpecies, getSubclass } from "../srd/index";
 import { compassOf, mapDistance, travelDaysIn, travelText } from "../maps/geography";
@@ -69,15 +70,17 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 	if (radio) lines.push(radio);
 	const siege = rs === "zombie" ? siegeDigest(s) : undefined;
 	if (siege) lines.push(siege);
+	const cyber = rs === "cyberpunk" ? cyberDigest(s) : undefined;
+	if (cyber) lines.push(cyber);
 	if (c.hp === 0) lines.push(`Death saves: ${c.deathSaves.successes} successes / ${c.deathSaves.failures} failures`);
 	if (c.spellcasting) {
 		const sl = c.spellcasting.slots
 			.map((max, i) => (max ? `L${i + 1} ${max - (c.spellcasting!.slotsUsed[i] ?? 0)}/${max}` : ""))
 			.filter(Boolean)
 			.join(", ");
-		if (sl) lines.push(`${rs === "zombie" ? "Technique slots" : "Spell slots"}: ${sl}${c.spellcasting.pact ? `; pact L${c.spellcasting.pact.level} ${c.spellcasting.pact.max - c.spellcasting.pact.used}/${c.spellcasting.pact.max}` : ""}`);
+		if (sl) lines.push(`${rs === "zombie" ? "Technique slots" : rs === "cyberpunk" ? "Program slots (RAM)" : "Spell slots"}: ${sl}${c.spellcasting.pact ? `; pact L${c.spellcasting.pact.level} ${c.spellcasting.pact.max - c.spellcasting.pact.used}/${c.spellcasting.pact.max}` : ""}`);
 		const prepared = c.spellcasting.classes.flatMap((k) => [...k.cantrips, ...k.prepared]);
-		if (prepared.length) lines.push(`${rs === "zombie" ? "Techniques ready" : "Spells ready"}: ${prepared.join(", ")}`);
+		if (prepared.length) lines.push(`${rs === "zombie" ? "Techniques ready" : rs === "cyberpunk" ? "Programs loaded" : "Spells ready"}: ${prepared.join(", ")}`);
 	}
 	if (c.concentration) lines.push(`Concentrating on: ${c.concentration.spell}`);
 	const limited = c.features.filter((f) => f.uses).map((f) => `${label(f.name)} ${f.uses!.max - f.uses!.used}/${f.uses!.max}`);

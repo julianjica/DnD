@@ -1,0 +1,1158 @@
+[
+	{
+		"index": "c-knife",
+		"name": "Street Knife",
+		"category": "weapon",
+		"subcategory": "simple-melee",
+		"cost": {
+			"qty": 30,
+			"unit": "cred"
+		},
+		"weight": 1,
+		"description": "A folding blade with a ceramic edge, the kind every stall in Tianguis Cromo sells. Light, quick and easy to hide; you can throw it in a pinch.",
+		"weapon": {
+			"category": "simple",
+			"ranged": false,
+			"damage": "1d4",
+			"damageType": "piercing",
+			"properties": [
+				"finesse",
+				"light",
+				"thrown"
+			],
+			"throwRange": {
+				"normal": 20,
+				"long": 60
+			}
+		}
+	},
+	{
+		"index": "c-stun-baton",
+		"name": "Stun Baton",
+		"category": "weapon",
+		"subcategory": "simple-melee",
+		"cost": {
+			"qty": 150,
+			"unit": "cred"
+		},
+		"weight": 2,
+		"description": "A collapsible Ferro-issue baton with a charged tip. It hits with a jolt instead of a bruise, and wireless implants hate it.",
+		"weapon": {
+			"category": "simple",
+			"ranged": false,
+			"damage": "1d6",
+			"damageType": "lightning",
+			"properties": [
+				"light"
+			]
+		}
+	},
+	{
+		"index": "c-pry-bar",
+		"name": "Pry Bar",
+		"category": "weapon",
+		"subcategory": "simple-melee",
+		"cost": {
+			"qty": 25,
+			"unit": "cred"
+		},
+		"weight": 4,
+		"description": "A carbon-steel pry bar. Advantage on Strength checks to force doors, hatches and server cages, and it doubles as a club.",
+		"weapon": {
+			"category": "simple",
+			"ranged": false,
+			"damage": "1d6",
+			"damageType": "bludgeoning",
+			"properties": []
+		}
+	},
+	{
+		"index": "c-machete",
+		"name": "Machete",
+		"category": "weapon",
+		"subcategory": "martial-melee",
+		"cost": {
+			"qty": 40,
+			"unit": "cred"
+		},
+		"weight": 2,
+		"description": "A long canal-cutter's blade, sold for clearing mangrove roots out of the waterways. Nobody in Los Anegados buys it for the roots.",
+		"weapon": {
+			"category": "martial",
+			"ranged": false,
+			"damage": "1d8",
+			"damageType": "slashing",
+			"properties": []
+		}
+	},
+	{
+		"index": "c-monowire-whip",
+		"name": "Monowire Whip",
+		"category": "weapon",
+		"subcategory": "martial-melee",
+		"cost": {
+			"qty": 1200,
+			"unit": "cred"
+		},
+		"weight": 0.5,
+		"description": "A weighted grip that unspools a single-molecule wire. It cuts at ten feet and coils back with a flick of the wrist. Careless owners lose fingers.",
+		"weapon": {
+			"category": "martial",
+			"ranged": false,
+			"damage": "1d6",
+			"damageType": "slashing",
+			"properties": [
+				"finesse",
+				"reach"
+			]
+		}
+	},
+	{
+		"index": "c-light-pistol",
+		"name": "Light Pistol",
+		"category": "weapon",
+		"subcategory": "simple-ranged",
+		"cost": {
+			"qty": 250,
+			"unit": "cred"
+		},
+		"weight": 1.5,
+		"description": "A cheap polymer pistol printed by the thousand in El Puerto. Each shot uses up one light round and is LOUD.",
+		"weapon": {
+			"category": "simple",
+			"ranged": true,
+			"damage": "1d8",
+			"damageType": "piercing",
+			"properties": [
+				"ammunition",
+				"loud",
+				"light"
+			],
+			"range": {
+				"normal": 40,
+				"long": 120
+			}
+		},
+		"ammo": "c-ammo-light"
+	},
+	{
+		"index": "c-heavy-pistol",
+		"name": "Heavy Pistol",
+		"category": "weapon",
+		"subcategory": "martial-ranged",
+		"cost": {
+			"qty": 450,
+			"unit": "cred"
+		},
+		"weight": 3,
+		"description": "A big-bore semi-automatic, Ferro's sidearm of choice. Each shot uses up one heavy round and is LOUD.",
+		"weapon": {
+			"category": "martial",
+			"ranged": true,
+			"damage": "1d10",
+			"damageType": "piercing",
+			"properties": [
+				"ammunition",
+				"loud"
+			],
+			"range": {
+				"normal": 50,
+				"long": 150
+			}
+		},
+		"ammo": "c-ammo-heavy"
+	},
+	{
+		"index": "c-smart-pistol",
+		"name": "Smart Pistol",
+		"category": "weapon",
+		"subcategory": "martial-ranged",
+		"cost": {
+			"qty": 1100,
+			"unit": "cred"
+		},
+		"weight": 2,
+		"description": "A pistol that fires guided rounds which bend toward a target your optics or smartlink have tagged: with either installed, its attacks ignore half cover. Each shot uses up one smart round and is LOUD.",
+		"weapon": {
+			"category": "martial",
+			"ranged": true,
+			"damage": "1d8",
+			"damageType": "piercing",
+			"properties": [
+				"ammunition",
+				"loud",
+				"light"
+			],
+			"range": {
+				"normal": 60,
+				"long": 180
+			}
+		},
+		"ammo": "c-ammo-smart"
+	},
+	{
+		"index": "c-smg",
+		"name": "Submachine Gun",
+		"category": "weapon",
+		"subcategory": "martial-ranged",
+		"cost": {
+			"qty": 800,
+			"unit": "cred"
+		},
+		"weight": 4,
+		"description": "A compact submachine gun chambered for the same light rounds as a light pistol. Each attack is a short burst that uses up one round and is LOUD.",
+		"weapon": {
+			"category": "martial",
+			"ranged": true,
+			"damage": "2d4",
+			"damageType": "piercing",
+			"properties": [
+				"ammunition",
+				"loud"
+			],
+			"range": {
+				"normal": 40,
+				"long": 120
+			}
+		},
+		"ammo": "c-ammo-light"
+	},
+	{
+		"index": "c-shotgun",
+		"name": "Shotgun",
+		"category": "weapon",
+		"subcategory": "martial-ranged",
+		"cost": {
+			"qty": 550,
+			"unit": "cred"
+		},
+		"weight": 7,
+		"description": "A pump shotgun with a sawn-down stock, the gangs' favourite. Devastating up close, nearly useless far away. Each shot uses up one shell and is VERY loud.",
+		"weapon": {
+			"category": "martial",
+			"ranged": true,
+			"damage": "2d6",
+			"damageType": "piercing",
+			"properties": [
+				"ammunition",
+				"loud",
+				"heavy",
+				"two-handed"
+			],
+			"range": {
+				"normal": 30,
+				"long": 90
+			}
+		},
+		"ammo": "c-shells"
+	},
+	{
+		"index": "c-rifle",
+		"name": "Assault Rifle",
+		"category": "weapon",
+		"subcategory": "martial-ranged",
+		"cost": {
+			"qty": 1400,
+			"unit": "cred"
+		},
+		"weight": 7,
+		"description": "A bullpup rifle of the kind Ferro's tactical squads carry. Each shot uses up one rifle round and is LOUD.",
+		"weapon": {
+			"category": "martial",
+			"ranged": true,
+			"damage": "2d6",
+			"damageType": "piercing",
+			"properties": [
+				"ammunition",
+				"loud",
+				"two-handed"
+			],
+			"range": {
+				"normal": 100,
+				"long": 400
+			}
+		},
+		"ammo": "c-ammo-rifle"
+	},
+	{
+		"index": "c-marksman-rifle",
+		"name": "Marksman Rifle",
+		"category": "weapon",
+		"subcategory": "martial-ranged",
+		"cost": {
+			"qty": 1800,
+			"unit": "cred"
+		},
+		"weight": 9,
+		"description": "A long rifle with a networked scope, for overwatch from a rooftop or a drone's eye. One shot per action (loading). Each shot uses up one marksman round and is LOUD.",
+		"weapon": {
+			"category": "martial",
+			"ranged": true,
+			"damage": "2d8",
+			"damageType": "piercing",
+			"properties": [
+				"ammunition",
+				"loud",
+				"heavy",
+				"two-handed",
+				"loading"
+			],
+			"range": {
+				"normal": 150,
+				"long": 600
+			}
+		},
+		"ammo": "c-ammo-marksman"
+	},
+	{
+		"index": "c-needle-pistol",
+		"name": "Needle Pistol",
+		"category": "weapon",
+		"subcategory": "simple-ranged",
+		"cost": {
+			"qty": 700,
+			"unit": "cred"
+		},
+		"weight": 1,
+		"description": "A slim pistol that fires flechettes on a magnetic rail. QUIET: barely a click. Each shot uses up one needle.",
+		"weapon": {
+			"category": "simple",
+			"ranged": true,
+			"damage": "1d6",
+			"damageType": "piercing",
+			"properties": [
+				"ammunition",
+				"light",
+				"quiet"
+			],
+			"range": {
+				"normal": 30,
+				"long": 90
+			}
+		},
+		"ammo": "c-needles"
+	},
+	{
+		"index": "c-ammo-light",
+		"name": "Light Rounds",
+		"category": "ammunition",
+		"subcategory": "ammunition",
+		"cost": {
+			"qty": 30,
+			"unit": "cred"
+		},
+		"weight": 0.5,
+		"description": "Light pistol rounds, a full magazine of 15. Light pistols and submachine guns both use them.",
+		"bundle": 15
+	},
+	{
+		"index": "c-ammo-heavy",
+		"name": "Heavy Rounds",
+		"category": "ammunition",
+		"subcategory": "ammunition",
+		"cost": {
+			"qty": 40,
+			"unit": "cred"
+		},
+		"weight": 0.5,
+		"description": "Big-bore pistol rounds, sold ten to a box.",
+		"bundle": 10
+	},
+	{
+		"index": "c-ammo-smart",
+		"name": "Smart Rounds",
+		"category": "ammunition",
+		"subcategory": "ammunition",
+		"cost": {
+			"qty": 90,
+			"unit": "cred"
+		},
+		"weight": 0.5,
+		"description": "Guided rounds with tiny fins and a chip in every tip. Pricey, and they only steer for a smart pistol.",
+		"bundle": 12
+	},
+	{
+		"index": "c-shells",
+		"name": "Shotgun Shells",
+		"category": "ammunition",
+		"subcategory": "ammunition",
+		"cost": {
+			"qty": 30,
+			"unit": "cred"
+		},
+		"weight": 1,
+		"description": "Buckshot shells, eight to a sleeve.",
+		"bundle": 8
+	},
+	{
+		"index": "c-ammo-rifle",
+		"name": "Rifle Rounds",
+		"category": "ammunition",
+		"subcategory": "ammunition",
+		"cost": {
+			"qty": 60,
+			"unit": "cred"
+		},
+		"weight": 0.5,
+		"description": "Rifle rounds for an assault rifle. Ferro issue; they fall off a truck in El Puerto now and then.",
+		"bundle": 15
+	},
+	{
+		"index": "c-ammo-marksman",
+		"name": "Marksman Rounds",
+		"category": "ammunition",
+		"subcategory": "ammunition",
+		"cost": {
+			"qty": 80,
+			"unit": "cred"
+		},
+		"weight": 1,
+		"description": "Match-grade rounds for a marksman rifle, ten to a box.",
+		"bundle": 10
+	},
+	{
+		"index": "c-needles",
+		"name": "Needle Flechettes",
+		"category": "ammunition",
+		"subcategory": "ammunition",
+		"cost": {
+			"qty": 50,
+			"unit": "cred"
+		},
+		"weight": 0.2,
+		"description": "A clip of steel flechettes for a needle pistol.",
+		"bundle": 12
+	},
+	{
+		"index": "c-synth-coat",
+		"name": "Synthleather Coat",
+		"category": "armor",
+		"subcategory": "light",
+		"cost": {
+			"qty": 120,
+			"unit": "cred"
+		},
+		"weight": 4,
+		"description": "A long rain-slick coat lined with impact mesh. Keeps off the rain and some of the knives.",
+		"armor": {
+			"type": "light",
+			"baseAc": 11,
+			"dex": true,
+			"stealthDisadvantage": false
+		}
+	},
+	{
+		"index": "c-armored-jacket",
+		"name": "Armoured Jacket",
+		"category": "armor",
+		"subcategory": "light",
+		"cost": {
+			"qty": 400,
+			"unit": "cred"
+		},
+		"weight": 5,
+		"description": "A street jacket with ballistic weave in the lining. It looks like fashion and stops a knife and most of a light round.",
+		"armor": {
+			"type": "light",
+			"baseAc": 12,
+			"dex": true,
+			"stealthDisadvantage": false
+		}
+	},
+	{
+		"index": "c-ballistic-vest",
+		"name": "Ballistic Vest",
+		"category": "armor",
+		"subcategory": "medium",
+		"cost": {
+			"qty": 700,
+			"unit": "cred"
+		},
+		"weight": 8,
+		"description": "A plate-carrier vest with soft armour panels. Stops a bullet to the chest; doesn't help your arms.",
+		"armor": {
+			"type": "medium",
+			"baseAc": 14,
+			"dex": true,
+			"dexCap": 2,
+			"stealthDisadvantage": false
+		}
+	},
+	{
+		"index": "c-tactical-armor",
+		"name": "Light Tactical Armour",
+		"category": "armor",
+		"subcategory": "medium",
+		"cost": {
+			"qty": 1600,
+			"unit": "cred"
+		},
+		"weight": 15,
+		"description": "Ferro tactical plates over a ballistic undersuit, with a helmet and visor. Bulky and noisy to move in.",
+		"armor": {
+			"type": "medium",
+			"baseAc": 15,
+			"dex": true,
+			"dexCap": 2,
+			"stealthDisadvantage": true
+		}
+	},
+	{
+		"index": "c-ballistic-shield",
+		"name": "Ballistic Shield",
+		"category": "shield",
+		"subcategory": "shield",
+		"cost": {
+			"qty": 450,
+			"unit": "cred"
+		},
+		"weight": 8,
+		"description": "A hand-held polymer shield with a view slit. Ferro's door-kickers carry them.",
+		"armor": {
+			"type": "shield",
+			"baseAc": 2,
+			"dex": false,
+			"stealthDisadvantage": false
+		}
+	},
+	{
+		"index": "c-deck-secondhand",
+		"name": "Second-hand Deck",
+		"category": "gear",
+		"subcategory": "deck",
+		"cost": {
+			"qty": 150,
+			"unit": "cred"
+		},
+		"weight": 2,
+		"description": "A scratched cyberdeck from a Tianguis Cromo stall, three owners old and patched with tape. No bonus to hacks (tier 0), but it jacks you in, and it carries two built-in programs you can run as charges: Sledgehammer and Ghost.",
+		"deck": {
+			"tier": 0,
+			"ram": 0,
+			"programs": [
+				"p-sledgehammer",
+				"p-ghost"
+			]
+		}
+	},
+	{
+		"index": "c-deck-tier1",
+		"name": "Street Deck",
+		"category": "gear",
+		"subcategory": "deck",
+		"cost": {
+			"qty": 1500,
+			"unit": "cred"
+		},
+		"weight": 2,
+		"description": "A solid mid-market deck with clean firmware. Tier 1: +1 to hacks and to the save DCs of your programs. Built-in programs: Sledgehammer and Ghost.",
+		"deck": {
+			"tier": 1,
+			"ram": 0,
+			"programs": [
+				"p-sledgehammer",
+				"p-ghost"
+			]
+		}
+	},
+	{
+		"index": "c-deck-tier2",
+		"name": "Pro Deck",
+		"category": "gear",
+		"subcategory": "deck",
+		"cost": {
+			"qty": 6000,
+			"unit": "cred"
+		},
+		"weight": 2,
+		"description": "A professional deck with liquid cooling and a hardened bus. Tier 2: +2 to hacks and to the save DCs of your programs, and +1 RAM. Built-in programs: Sledgehammer and Backdoor.",
+		"deck": {
+			"tier": 2,
+			"ram": 1,
+			"programs": [
+				"p-sledgehammer",
+				"p-backdoor"
+			]
+		}
+	},
+	{
+		"index": "c-deck-tier3",
+		"name": "Black-Label Deck",
+		"category": "gear",
+		"subcategory": "deck",
+		"cost": {
+			"qty": 18000,
+			"unit": "cred"
+		},
+		"weight": 2,
+		"description": "A hand-built deck with no serial number, the kind that only changes hands in back rooms. Tier 3: +3 to hacks and to the save DCs of your programs, and +1 RAM. Built-in programs: Worm and Backdoor.",
+		"deck": {
+			"tier": 3,
+			"ram": 1,
+			"programs": [
+				"p-worm",
+				"p-backdoor"
+			]
+		}
+	},
+	{
+		"index": "c-hawk-eye",
+		"name": "Hawk Eye Optics",
+		"category": "gear",
+		"subcategory": "cyberware",
+		"cost": {
+			"qty": 1500,
+			"unit": "cred"
+		},
+		"weight": 0,
+		"description": "Replacement eyes with gold-ringed irises, low-light sensors and a ten-times zoom.",
+		"implant": {
+			"slot": "eyes",
+			"humanity": 2,
+			"effect": "You see in darkness within 60 feet as if it were dim light (darkvision 60 ft) and have advantage on Wisdom (Perception) checks that rely on sight."
+		}
+	},
+	{
+		"index": "c-quick-nerve",
+		"name": "Quick Nerve Wiring",
+		"category": "gear",
+		"subcategory": "cyberware",
+		"cost": {
+			"qty": 3000,
+			"unit": "cred"
+		},
+		"weight": 0,
+		"description": "Reflex wiring threaded along the spine. The world slows down a little; you don't.",
+		"implant": {
+			"slot": "neural",
+			"humanity": 3,
+			"effect": "+3 to your initiative rolls."
+		}
+	},
+	{
+		"index": "c-pangolin-skin",
+		"name": "Pangolin Skin",
+		"category": "gear",
+		"subcategory": "cyberware",
+		"cost": {
+			"qty": 4000,
+			"unit": "cred"
+		},
+		"weight": 0,
+		"description": "Overlapping subdermal plates that show as faint scales under the skin.",
+		"implant": {
+			"slot": "skin",
+			"humanity": 4,
+			"effect": "+1 to your AC, whatever armour you wear or don't."
+		}
+	},
+	{
+		"index": "c-crane-arm",
+		"name": "Crane Arm",
+		"category": "gear",
+		"subcategory": "cyberware",
+		"cost": {
+			"qty": 3000,
+			"unit": "cred"
+		},
+		"weight": 0,
+		"description": "A hydraulic arm with a dock-loader's grip, sleeved in synthskin or left bare.",
+		"implant": {
+			"slot": "arms",
+			"humanity": 3,
+			"effect": "Advantage on Strength (Athletics) checks to lift, push, climb and grapple; your carrying capacity doubles; your unarmed strikes deal 1d6 bludgeoning damage."
+		}
+	},
+	{
+		"index": "c-retractable-blades",
+		"name": "Retractable Blades",
+		"category": "gear",
+		"subcategory": "cyberware",
+		"cost": {
+			"qty": 2500,
+			"unit": "cred"
+		},
+		"weight": 0,
+		"description": "Two blades sheathed in the forearms that slide out over the knuckles.",
+		"implant": {
+			"slot": "arms",
+			"humanity": 3,
+			"effect": "The blades slide out or in at no cost in actions. They are a martial melee weapon you are proficient with (1d8 slashing; finesse, light), can't be disarmed and don't show up in a pat-down."
+		}
+	},
+	{
+		"index": "c-filter-lungs",
+		"name": "Filter Lungs",
+		"category": "gear",
+		"subcategory": "cyberware",
+		"cost": {
+			"qty": 800,
+			"unit": "cred"
+		},
+		"weight": 0,
+		"description": "Membrane filters grown into the bronchial tree, standard in the dry barrios for those who can pay.",
+		"implant": {
+			"slot": "internal",
+			"humanity": 1,
+			"effect": "You ignore the dry barrios' toxic air, have advantage on saving throws against inhaled poisons, gas and smoke, and can hold your breath for 10 minutes."
+		}
+	},
+	{
+		"index": "c-ram-expansion",
+		"name": "RAM Expansion",
+		"category": "gear",
+		"subcategory": "cyberware",
+		"cost": {
+			"qty": 5000,
+			"unit": "cred"
+		},
+		"weight": 0,
+		"description": "A memory lattice wired into the neural jack.",
+		"implant": {
+			"slot": "neural",
+			"humanity": 4,
+			"effect": "+1 RAM: one extra level 1 program slot."
+		}
+	},
+	{
+		"index": "c-voice-modulator",
+		"name": "Voice Modulator",
+		"category": "gear",
+		"subcategory": "cyberware",
+		"cost": {
+			"qty": 900,
+			"unit": "cred"
+		},
+		"weight": 0,
+		"description": "A synthetic larynx that can sample and rebuild any voice.",
+		"implant": {
+			"slot": "internal",
+			"humanity": 1,
+			"effect": "You can mimic any voice you have heard for at least a minute: advantage on Charisma (Deception) checks to pass as someone by voice, and you can fool voiceprint locks."
+		}
+	},
+	{
+		"index": "c-biomonitor",
+		"name": "Biomonitor",
+		"category": "gear",
+		"subcategory": "cyberware",
+		"cost": {
+			"qty": 600,
+			"unit": "cred"
+		},
+		"weight": 0,
+		"description": "A subdermal sensor web with a stim reservoir and a crew beacon.",
+		"implant": {
+			"slot": "internal",
+			"humanity": 1,
+			"effect": "Advantage on Constitution saving throws against poison and disease. When you drop to 0 hit points, it pings your crew with your location and pushes a stim: you are stabilised automatically."
+		}
+	},
+	{
+		"index": "c-gecko-palms",
+		"name": "Gecko Palms",
+		"category": "gear",
+		"subcategory": "cyberware",
+		"cost": {
+			"qty": 1800,
+			"unit": "cred"
+		},
+		"weight": 0,
+		"description": "Palms and fingertips lined with micro-setae.",
+		"implant": {
+			"slot": "arms",
+			"humanity": 2,
+			"effect": "You have a climbing speed equal to your walking speed on walls and ceilings that aren't wet or greased."
+		}
+	},
+	{
+		"index": "c-spring-legs",
+		"name": "Spring Legs",
+		"category": "gear",
+		"subcategory": "cyberware",
+		"cost": {
+			"qty": 2800,
+			"unit": "cred"
+		},
+		"weight": 0,
+		"description": "Reinforced shins with carbon tendons and shock-absorbing knees.",
+		"implant": {
+			"slot": "legs",
+			"humanity": 3,
+			"effect": "+5 feet to your walking speed, your long and high jumps are tripled, and you take no damage from falls of 30 feet or less."
+		}
+	},
+	{
+		"index": "c-chameleon-weave",
+		"name": "Chameleon Weave",
+		"category": "gear",
+		"subcategory": "cyberware",
+		"cost": {
+			"qty": 7000,
+			"unit": "cred"
+		},
+		"weight": 0,
+		"description": "Optical camouflage threads laced under the skin, fed by a battery in the hip.",
+		"implant": {
+			"slot": "skin",
+			"humanity": 5,
+			"effect": "Once per short rest, as a bonus action, you become invisible until the end of your next turn. Attacking or running a program ends it early."
+		}
+	},
+	{
+		"index": "c-neural-firewall",
+		"name": "Neural Firewall",
+		"category": "gear",
+		"subcategory": "cyberware",
+		"cost": {
+			"qty": 2000,
+			"unit": "cred"
+		},
+		"weight": 0,
+		"description": "A hardened co-processor between your jack and your brain.",
+		"implant": {
+			"slot": "neural",
+			"humanity": 2,
+			"effect": "You have advantage on saving throws against programs and ICE that try to stun, charm or control you, and street hacks that target your implants have disadvantage on their attack rolls."
+		}
+	},
+	{
+		"index": "c-smartlink",
+		"name": "Smartlink",
+		"category": "gear",
+		"subcategory": "cyberware",
+		"cost": {
+			"qty": 1500,
+			"unit": "cred"
+		},
+		"weight": 0,
+		"description": "A palm plate that talks to a gun's grip and paints its aim point on your vision.",
+		"implant": {
+			"slot": "arms",
+			"humanity": 2,
+			"effect": "+1 to attack rolls with firearms, and a smart pistol you hold can steer its guided rounds."
+		}
+	},
+	{
+		"index": "c-pain-editor",
+		"name": "Pain Editor",
+		"category": "gear",
+		"subcategory": "cyberware",
+		"cost": {
+			"qty": 9000,
+			"unit": "cred"
+		},
+		"weight": 0,
+		"description": "A grey-market chip that cuts the pain signal off at the brainstem. Clinics won't install it; somebody always does.",
+		"implant": {
+			"slot": "neural",
+			"humanity": 6,
+			"effect": "Once per long rest, when you drop to 0 hit points but aren't killed outright, you drop to 1 hit point instead. You feel nothing; your crew sees everything."
+		}
+	},
+	{
+		"index": "c-skull-comm",
+		"name": "Skull Comm",
+		"category": "gear",
+		"subcategory": "cyberware",
+		"cost": {
+			"qty": 400,
+			"unit": "cred"
+		},
+		"weight": 0,
+		"description": "A phone in your head, with a HUD on the edge of your vision.",
+		"implant": {
+			"slot": "neural",
+			"humanity": 1,
+			"effect": "Hands-free, silent calls and messages and a HUD with maps and the time. It is wireless, so a hacker in range can reach it."
+		}
+	},
+	{
+		"index": "c-med-patch",
+		"name": "Med Patch",
+		"category": "gear",
+		"subcategory": "medical",
+		"cost": {
+			"qty": 50,
+			"unit": "cred"
+		},
+		"weight": 0.1,
+		"description": "A trauma patch: coagulant gel, a stim and a painkiller in one sticky square. One use; a Ripperdoc's healing uses them up."
+	},
+	{
+		"index": "c-trauma-kit",
+		"name": "Trauma Kit",
+		"category": "gear",
+		"subcategory": "medical",
+		"cost": {
+			"qty": 250,
+			"unit": "cred"
+		},
+		"weight": 3,
+		"description": "A street clinic's kit: sutures, sealant foam, splints and a blood-volume pack. Enough for one serious patch-up."
+	},
+	{
+		"index": "c-chem-vial",
+		"name": "Chem Vial",
+		"category": "gear",
+		"subcategory": "chem",
+		"cost": {
+			"qty": 40,
+			"unit": "cred"
+		},
+		"weight": 0.1,
+		"description": "A sealed vial of reagent cooked in a street lab: catalysts, neurotoxins, coagulants. A Biohacker's chems use them up."
+	},
+	{
+		"index": "c-nanite-canister",
+		"name": "Nanite Canister",
+		"category": "gear",
+		"subcategory": "chem",
+		"cost": {
+			"qty": 300,
+			"unit": "cred"
+		},
+		"weight": 1,
+		"description": "A pressurised canister of programmable nanites the size of a soda can. A Biohacker's swarm techniques use them up."
+	},
+	{
+		"index": "c-burner-id",
+		"name": "Burner ID",
+		"category": "gear",
+		"subcategory": "consumable",
+		"cost": {
+			"qty": 300,
+			"unit": "cred"
+		},
+		"weight": 0,
+		"description": "A one-use fake identity: a forged citizen record, a face-and-voice profile for deepfakes and a clean payment token. It burns after one use; a deepfake or a pretext that needs a face uses it up."
+	},
+	{
+		"index": "c-drone-battery",
+		"name": "Drone Battery",
+		"category": "gear",
+		"subcategory": "consumable",
+		"cost": {
+			"qty": 60,
+			"unit": "cred"
+		},
+		"weight": 1,
+		"description": "A swappable power cell for drones and robots, good for an hour of flight. Some drone techniques burn through one."
+	},
+	{
+		"index": "c-flashbang",
+		"name": "Flashbang",
+		"category": "gear",
+		"subcategory": "consumable",
+		"cost": {
+			"qty": 120,
+			"unit": "cred"
+		},
+		"weight": 1,
+		"description": "Thrown up to 30 feet. Each creature within 10 feet of where it lands makes a DC 13 Constitution saving throw or is blinded and deafened until the end of its next turn. VERY loud."
+	},
+	{
+		"index": "c-smoke-grenade",
+		"name": "Smoke Grenade",
+		"category": "gear",
+		"subcategory": "consumable",
+		"cost": {
+			"qty": 80,
+			"unit": "cred"
+		},
+		"weight": 1,
+		"description": "Thrown up to 30 feet. It fills a 20-foot radius with thick smoke (heavily obscured) for one minute, or until a strong wind clears it."
+	},
+	{
+		"index": "c-data-spike",
+		"name": "Data Spike",
+		"category": "gear",
+		"subcategory": "consumable",
+		"cost": {
+			"qty": 150,
+			"unit": "cred"
+		},
+		"weight": 0.1,
+		"description": "A plug-in spike for a physical port. Jacked into a terminal, it gives you a wired line in that skips the network's outer firewall. One use."
+	},
+	{
+		"index": "c-bypass-kit",
+		"name": "Bypass Kit",
+		"category": "tool",
+		"subcategory": "tool",
+		"cost": {
+			"qty": 200,
+			"unit": "cred"
+		},
+		"weight": 1,
+		"description": "Lockpicks, tension wrenches and a shim board for electronic locks. Counts as thieves' tools: proficient users add their proficiency bonus to open mechanical and electronic locks."
+	},
+	{
+		"index": "c-tech-toolkit",
+		"name": "Tech Toolkit",
+		"category": "tool",
+		"subcategory": "tool",
+		"cost": {
+			"qty": 250,
+			"unit": "cred"
+		},
+		"weight": 4,
+		"description": "Drivers, a solder pen, a multimeter and spare boards. Counts as tinker's tools: repair decks, drones and guns, and build gear at a workbench."
+	},
+	{
+		"index": "c-badge-cloner",
+		"name": "Badge Cloner",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 400,
+			"unit": "cred"
+		},
+		"weight": 0.5,
+		"description": "A palm-sized reader that copies any keycard or ID badge it gets within an inch of (a Dexterity (Sleight of Hand) check if someone is wearing it). The clone works until the badge is reissued."
+	},
+	{
+		"index": "c-signal-jammer",
+		"name": "Signal Jammer",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 500,
+			"unit": "cred"
+		},
+		"weight": 2,
+		"description": "A brick-sized jammer. Switched on (an action), it blocks wireless signals within 30 feet for 10 minutes: no calls, no drone links and no wireless hacks in or out, yours included. One charge per long rest."
+	},
+	{
+		"index": "c-burner-phone",
+		"name": "Burner Phone",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 30,
+			"unit": "cred"
+		},
+		"weight": 0.3,
+		"description": "A cheap phone on a prepaid line: calls, messages and the mesh. Dump it after a job and nobody follows the number."
+	},
+	{
+		"index": "c-ration-bars",
+		"name": "Ration Bars",
+		"category": "gear",
+		"subcategory": "food",
+		"cost": {
+			"qty": 5,
+			"unit": "cred"
+		},
+		"weight": 0.5,
+		"description": "A pack of algae-protein bars that taste of salt and nothing else. One day's food."
+	},
+	{
+		"index": "c-bottled-water",
+		"name": "Bottled Water",
+		"category": "gear",
+		"subcategory": "food",
+		"cost": {
+			"qty": 5,
+			"unit": "cred"
+		},
+		"weight": 2,
+		"description": "A litre and a half of Aguas Marea water with a printed date. One day's water. In the dry barrios it is worth more than cred."
+	},
+	{
+		"index": "c-flashlight",
+		"name": "Flashlight",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 20,
+			"unit": "cred"
+		},
+		"weight": 0.5,
+		"description": "A rechargeable LED torch. Bright light in a 40-foot beam."
+	},
+	{
+		"index": "c-grapple-line",
+		"name": "Grapple Line",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 80,
+			"unit": "cred"
+		},
+		"weight": 3,
+		"description": "Fifty feet of thin synthetic line with a folding grapple hook. For seawalls, stilt-house roofs and the gap between two canal balconies."
+	},
+	{
+		"index": "c-backpack",
+		"name": "Waterproof Backpack",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 40,
+			"unit": "cred"
+		},
+		"weight": 2,
+		"description": "A roll-top bag that keeps a deck dry through a canal crossing."
+	},
+	{
+		"index": "c-zip-cuffs",
+		"name": "Zip Cuffs",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 15,
+			"unit": "cred"
+		},
+		"weight": 0.2,
+		"description": "A bundle of polymer restraints. Escaping a pair takes a DC 20 Strength or Dexterity check."
+	},
+	{
+		"index": "c-respirator",
+		"name": "Respirator Mask",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 60,
+			"unit": "cred"
+		},
+		"weight": 1,
+		"description": "A filter mask for the dry barrios' toxic air. While you wear it you have advantage on saving throws against inhaled poisons, gas and smoke."
+	},
+	{
+		"index": "c-scout-drone",
+		"name": "Scout Drone",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 600,
+			"unit": "cred"
+		},
+		"weight": 1,
+		"description": "A palm-sized quadrotor with a camera you see through on your deck or skull comm. It flies 40 feet a turn up to 300 feet from you (AC 13, 1 hit point) and runs an hour on a charge; a drone battery adds another."
+	},
+	{
+		"index": "c-smart-binoculars",
+		"name": "Smart Binoculars",
+		"category": "gear",
+		"subcategory": "standard-gear",
+		"cost": {
+			"qty": 150,
+			"unit": "cred"
+		},
+		"weight": 1,
+		"description": "Binoculars with a range-finder and a face-match overlay. See who's on the corner three blocks away before they see you."
+	},
+	{
+		"index": "c-vantis-shard",
+		"name": "Encrypted Data Shard",
+		"category": "gear",
+		"subcategory": "story",
+		"cost": {
+			"qty": 0,
+			"unit": "cred"
+		},
+		"weight": 0,
+		"description": "A thumb-sized Vantis Neural data shard pulled from a lab server the night Santi sold you out. Its encryption is beyond any deck you own, for now. Vantis, Grupo Ferro, Los Ahogados and someone signing as ECO all want it. Not for sale, at least not to anyone you'd survive selling it to."
+	}
+]

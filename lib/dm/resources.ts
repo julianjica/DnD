@@ -179,7 +179,7 @@ export function castSpell(tx: StateTxn, a: CastSpellInput): string {
 		throw new RulesError(`${c.name} doesn't know/hasn't prepared ${spell.name}. Castable: ${own.join(", ")}.`);
 	if (a.ritual && !spell.ritual) throw new RulesError(`${spell.name} is not a ritual.`);
 	const rs = rulesetOf(tx.state.settings);
-	if ((spell.ruleset ?? "fantasy") !== rs) throw new RulesError(`${spell.name} doesn't exist in this campaign (${rs === "zombie" ? "The Quiet uses techniques, no magic" : "a fantasy campaign"}).`);
+	if ((spell.ruleset ?? "fantasy") !== rs) throw new RulesError(`${spell.name} doesn't exist in this campaign (${rs === "zombie" ? "The Quiet uses techniques, no magic" : rs === "cyberpunk" ? "Root Access runs programs, no magic" : "a fantasy campaign"}).`);
 	// Techniques with components: everything must be in the inventory (checked before any slot is spent).
 	const nameOf = (ref: string) => getEquipment(ref)?.name;
 	const needs = spell.consumes ?? [];
@@ -198,11 +198,12 @@ export function castSpell(tx: StateTxn, a: CastSpellInput): string {
 	}
 	if (slot) tx.state.character = spendSlot(tx.state.character, slot);
 	const ch = tx.state.character;
-	const lines = [`${ch.name} ${rs === "zombie" ? "uses" : "casts"} ${spell.name}${slot ? ` (level ${slot} slot)` : ritual ? " as a ritual (no slot, +10 min)" : " (cantrip)"}. Slots now: ${slotsLeft(ch)}.`];
+	const lines = [`${ch.name} ${rs === "zombie" ? "uses" : rs === "cyberpunk" ? "runs" : "casts"} ${spell.name}${slot ? ` (level ${slot} slot)` : ritual ? " as a ritual (no slot, +10 min)" : " (cantrip)"}. Slots now: ${slotsLeft(ch)}.`];
 	if (needs.length) {
 		spendSupplies(ch, needs, nameOf);
 		lines.push(`Used up ${suppliesText(ch, needs, nameOf)}.`);
 	}
+	if (rs === "cyberpunk" && spell.heat) lines.push(`Street hack: if ${spell.name} ran in the physical world (not inside a network), call add_heat ${spell.heat} ("${spell.name}").`);
 	if (rs === "zombie" && spell.loud) lines.push(addNoise(tx.state, tx.rng, typeof spell.loud === "number" ? spell.loud : DEFAULT_LOUDNESS, spell.name));
 	if (spell.concentration) {
 		if (ch.concentration) lines.push(`Concentration on ${getSpell(ch.concentration.spell)?.name ?? ch.concentration.spell} ends.`);

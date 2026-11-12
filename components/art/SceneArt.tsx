@@ -13,7 +13,7 @@ import { buildInterior } from "./scene/interior";
 import { buildOutdoor, type Layers, type OutCtx } from "./scene/outdoor";
 import { drawProp, type PropCtx } from "./scene/props";
 import { pickBackdrop, type Backdrop } from "@/lib/art/backdrops";
-import type { Ruleset } from "@/lib/rules/ruleset";
+import { isModern, type Ruleset } from "@/lib/rules/ruleset";
 
 export interface SceneNpc {
 	id: string;
@@ -134,7 +134,7 @@ export function SceneArt({ scene, npcs, parallax = true, animate = true, showCap
 				<div className="absolute top-3 right-3 flex max-w-[70%] flex-row-reverse flex-wrap items-start justify-start gap-2">
 					{present.map((n) => (
 						<div key={n.id} className="group relative drop-shadow-[0_6px_14px_rgba(0,0,0,0.7)] transition-transform hover:-translate-y-1" title={n.role ? `${n.name} — ${n.role}` : n.name}>
-							<Portrait spec={n.portrait} speciesId={n.speciesId} size={pSize} modern={ruleset === "zombie" ? { text: `${n.role ?? ""} ${n.description ?? ""}` } : undefined} />
+							<Portrait spec={n.portrait} speciesId={n.speciesId} size={pSize} modern={ruleset && isModern(ruleset) ? { text: `${n.role ?? ""} ${n.description ?? ""}`, ...(ruleset === "cyberpunk" ? { city: "marea" as const } : {}) } : undefined} />
 							<div className="mt-1 max-w-[--w] truncate text-center font-serif text-[11px] text-amber-50/90" style={{ maxWidth: pSize }}>
 								{n.name}
 							</div>

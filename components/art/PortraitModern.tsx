@@ -21,6 +21,8 @@ export const MODERN_FRAME_DEFAULT: ModernFrame = "badge";
 export interface ModernWho {
 	classes?: string[];
 	text?: string;
+	/** Root Access: ID cards come from Marea's institutions, not Kessler Falls. */
+	city?: "marea";
 }
 
 type CivWear = "denim_jacket" | "leather" | "flannel" | "puffer";
@@ -46,6 +48,8 @@ export interface ModernLook {
 	blood: boolean;
 	plaster: "none" | "brow" | "cheek" | "chin";
 	dept: Dept;
+	/** Which city issued the ID card (default Kessler Falls, The Quiet). */
+	city?: "marea";
 	/** Seeded draws for grit placement. */
 	specks: [number, number, number][];
 }
@@ -112,6 +116,7 @@ export function modernLook(spec: PortraitSpec, who: ModernWho, cloth: string, ag
 		plaster: plasterRoll < 0.16 ? plasterAt : "none",
 		// The ID card is from where they worked (profession/role), whatever they wear now.
 		dept: DEPT[modernRole(who).outfit] ?? DEPT[o] ?? "civ",
+		...(who.city ? { city: who.city } : {}),
 		specks,
 	};
 }
@@ -1081,6 +1086,22 @@ export function modernBackdrop(frame: ModernFrame, background: string, seed: num
 	}
 }
 
+/** Root Access: the same departments, issued by Marea's institutions (docs/cyberpunk.md). */
+const DEPT_HEAD_MAREA: Record<Dept, [string, string]> = {
+	medical: ["#2f6f7a", "CLÍNICA LOS ANEGADOS"],
+	police: ["#24324e", "GRUPO FERRO"],
+	fire: ["#8a2a26", "BOMBEROS DE MAREA"],
+	army: ["#4a5236", "FERRO TÁCTICO"],
+	school: ["#4a3a6a", "UNIVERSIDAD DE MAREA"],
+	prison: ["#8a5a2a", "CENTRO DE DETENCIÓN FERRO"],
+	church: ["#3a3a44", "RED LIBRE · CERRO ANTENA"],
+	diner: ["#a83a3a", "FIDEOS DOÑA LUPE"],
+	farm: ["#5a6a3a", "AGUAS MAREA S.A."],
+	civ: ["#3c5a7a", "REGISTRO CIVIL · MAREA"],
+};
+
+const deptHead = (look: ModernLook): [string, string] => (look.city === "marea" ? DEPT_HEAD_MAREA : DEPT_HEAD)[look.dept];
+
 const DEPT_HEAD: Record<Dept, [string, string]> = {
 	medical: ["#2f6f7a", "ST. BRIGID'S REGIONAL"],
 	police: ["#24324e", "KESSLER FALLS POLICE"],
@@ -1104,7 +1125,7 @@ export function modernWindow(frame: ModernFrame, framed: boolean): { x: number; 
 /** Card / instant-film border behind the photo. */
 export function modernFrameBack(c: { id: (s: string) => string; url: (s: string) => string }, frame: ModernFrame, look: ModernLook): ReactNode {
 	if (frame === "badge") {
-		const [hc] = DEPT_HEAD[look.dept];
+		const [hc] = deptHead(look);
 		return (
 			<g>
 				<defs>
@@ -1141,7 +1162,7 @@ export function modernFrameFront(c: { id: (s: string) => string; url: (s: string
 	const r = new ArtRng((seed ^ 0x7f4a7c15) >>> 0);
 	const shown = name && name.length > 22 ? name.slice(0, 21) + "…" : name;
 	if (frame === "badge") {
-		const [hc, label] = DEPT_HEAD[look.dept];
+		const [hc, label] = deptHead(look);
 		const idNo = `${String(seed % 97).padStart(2, "0")}-${String((seed >>> 8) % 9000 + 1000)}`;
 		return (
 			<g>

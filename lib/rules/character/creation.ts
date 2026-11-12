@@ -6,9 +6,9 @@ import type { Abilities, Ability, Character, Feature, InventoryItem, PortraitSpe
 import { ABILITIES } from "../../game/types";
 import { roll, Rng } from "../dice";
 import {
-	EQUIPMENT, LANGUAGES, SKILLS, getBackground, getClass, getEquipment, getSpecies, getSubclass, spellsForClass, toIndex, zombieKit,
+	EQUIPMENT, LANGUAGES, SKILLS, getBackground, getClass, getEquipment, getSpecies, getSubclass, spellsForClass, toIndex, modernKit, SPECIES,
 } from "../../srd/index";
-import type { Ruleset } from "../ruleset";
+import { isModern, rulesetName, type Ruleset } from "../ruleset";
 import type {
 	BackgroundData, ClassData, EquipmentChoice, EquipmentData, OptionChoice, Ref, SpeciesData, SubspeciesData,
 } from "../../srd/types";
@@ -178,8 +178,17 @@ function lookupAll(classId: string, speciesId: string, backgroundId: string, sub
  * the real-world languages listed by the Bilingual origin.
  */
 function langRefs(exclude: string[], rs: Ruleset): Ref[] {
-	const pool = rs === "zombie" ? (getSpecies("z-origin-bilingual")?.choices.find((c) => c.id.endsWith(":languages"))?.options ?? []) : LANGUAGES.map((l) => ({ index: l.index, name: l.name }));
+	const pool = rs === "zombie" ? bilingual() : rs === "cyberpunk" ? cyberLanguages() : LANGUAGES.map((l) => ({ index: l.index, name: l.name }));
 	return pool.filter((l) => !exclude.includes(l.index));
+}
+
+const bilingual = (): Ref[] => getSpecies("z-origin-bilingual")?.choices.find((c) => c.id.endsWith(":languages"))?.options ?? [];
+
+/** Root Access: the real-world languages its origins offer (else The Quiet's list). */
+function cyberLanguages(): Ref[] {
+	const seen = new Map<string, Ref>();
+	for (const sp of SPECIES) if (sp.ruleset === "cyberpunk") for (const ch of sp.choices) if (ch.id.endsWith(":languages")) for (const o of ch.options) seen.set(o.index, o);
+	return seen.size ? [...seen.values()] : bilingual();
 }
 
 /**
@@ -190,6 +199,8 @@ function langRefs(exclude: string[], rs: Ruleset): Ref[] {
 function creationRuleset(sp: SpeciesData, ruleset?: Ruleset): Ruleset {
 	const own = sp.ruleset ?? "fantasy";
 	if (ruleset === "fantasy" && own === "zombie") throw new RulesError(`${sp.name} is only available in The Quiet`);
+	// Origins of one modern ruleset can't be used in another (or in fantasy).
+	if (ruleset && own !== "fantasy" && own !== ruleset) throw new RulesError(`${sp.name} is only available in ${rulesetName(own)}`);
 	return ruleset ?? own;
 }
 
@@ -200,7 +211,7 @@ function creationRuleset(sp: SpeciesData, ruleset?: Ruleset): Ruleset {
 export function creationOptions(classId: string, speciesId: string, backgroundId: string, subspeciesId?: string, ruleset?: Ruleset): CreationOptions {
 	const { cls, sp, bg, sub } = lookupAll(classId, speciesId, backgroundId, subspeciesId);
 	const rs = creationRuleset(sp, ruleset);
-	const zombie = rs === "zombie";
+	const modern = isModern(rs);
 	const granted = [...new Set([...sp.skills, ...(sub?.skills ?? []), ...bg.skills])];
 	const choices: OptionChoice[] = [];
 	for (const ch of [...sp.choices, ...(sub?.choices ?? [])]) {
@@ -219,6 +230,7 @@ export function creationOptions(classId: string, speciesId: string, backgroundId
 	for (const tc of bg.toolChoices) choices.push(tc);
 	// Level-1 class choices (subclass at 1, fighting style, expertise, spells…).
 	const stub = blankCharacter("stub", speciesId);
+	if (rs === "cyberpunk") stub.ruleset = rs;
 	stub.skills = [...granted];
 	stub.tools = [...bg.tools, ...cls.tools];
 	const lvl1 = levelUpOptions(stub, classId);
@@ -228,8 +240,8 @@ export function creationOptions(classId: string, speciesId: string, backgroundId
 			choices.push({ ...ch, options: [...SKILL_IDS.map((s) => ({ index: s, name: SKILLS.find((k) => k.index === s)?.name ?? s })), ...(classId === "rogue" ? [{ index: "thieves-tools", name: "Thieves' Tools" }] : [])] });
 		} else choices.push(ch);
 	}
-	const equipment = zombie ? [] : [...resolveEquipment(cls.equipmentChoices, "class", 0), ...resolveEquipment(bg.equipmentChoices, "background", cls.equipmentChoices.length)];
-	const kit = zombie ? zombieKit(classId).map((g) => ({ ref: g.ref, name: getEquipment(g.ref)?.name ?? g.ref, qty: g.qty })) : [];
+	const equipment = modern ? [] : [...resolveEquipment(cls.equipmentChoices, "class", 0), ...resolveEquipment(bg.equipmentChoices, "background", cls.equipmentChoices.length)];
+	const kit = modern ? modernKit(rs, classId).map((g) => ({ ref: g.ref, name: getEquipment(g.ref)?.name ?? g.ref, qty: g.qty })) : [];
 	const bonuses: Partial<Record<Ability, number>> = { ...sp.abilityBonuses };
 	for (const [a, v] of Object.entries(sub?.abilityBonuses ?? {}) as [Ability, number][]) bonuses[a] = (bonuses[a] ?? 0) + v;
 	return {
@@ -244,7 +256,7 @@ export function creationOptions(classId: string, speciesId: string, backgroundId
 		choices,
 		equipment,
 		kit,
-		startingGold: zombie ? 0 : bg.gold,
+		startingGold: modern ? 0 : bg.gold,
 		subspecies: sp.subspecies.map((s) => ({ index: s.index, name: s.name })),
 		...(cls.spellcasting?.prepares ? { preparedFormula: `${cls.spellcasting.ability.toUpperCase()} modifier + ${cls.spellcasting.type === "half" ? "half " : ""}${cls.name} level (min 1)` } : {}),
 	};
@@ -450,7 +462,7 @@ export function createCharacterDetailed(input: CreateCharacterInput): CreateResu
 	if (!Number.isInteger(level) || level < 1 || level > 20) throw new RulesError("Starting level must be 1–20");
 	if (!input.name.trim()) throw new RulesError("Name is required");
 	const opts = creationOptions(input.classId, input.speciesId, input.backgroundId, input.subspeciesId, input.ruleset);
-	const zombie = opts.ruleset === "zombie";
+	const modern = isModern(opts.ruleset);
 	const { cls, sp, bg, sub } = lookupAll(input.classId, input.speciesId, input.backgroundId, input.subspeciesId);
 	if (!sub && sp.subspecies.length > 1) throw new RulesError(`Choose a subspecies of ${sp.name}`);
 	const choices: Choices = { ...(input.choices ?? {}) };
@@ -473,7 +485,7 @@ export function createCharacterDetailed(input: CreateCharacterInput): CreateResu
 
 	const id = input.id ?? nanoid(10);
 	const c = blankCharacter(id, sp.index);
-	if (zombie) c.ruleset = "zombie";
+	if (modern) c.ruleset = opts.ruleset;
 	c.name = input.name.trim();
 	if (sub) c.subspeciesId = sub.index;
 	c.backgroundId = bg.index;
@@ -536,7 +548,7 @@ export function createCharacterDetailed(input: CreateCharacterInput): CreateResu
 	c.languages = [...new Set(c.languages)];
 
 	// Equipment.
-	let grants: { ref: string; qty: number }[] = zombie ? opts.kit.map((k) => ({ ref: k.ref, qty: k.qty })) : [...cls.startingEquipment, ...bg.equipment];
+	let grants: { ref: string; qty: number }[] = modern ? opts.kit.map((k) => ({ ref: k.ref, qty: k.qty })) : [...cls.startingEquipment, ...bg.equipment];
 	opts.equipment.forEach((ec, i) => {
 		const sel = input.equipment?.[i] ?? { option: 0 };
 		const opt = ec.options[sel.option];

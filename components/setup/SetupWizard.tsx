@@ -1,6 +1,7 @@
 "use client";
 
 import { rulesetOf } from "@/lib/rules/ruleset";
+import { rsKey } from "./i18n";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { BookOpen, Check, ChevronLeft, ChevronRight, Globe2, Home, RotateCcw, Settings, Sparkles, UserRound, Wand2, ScrollText } from "lucide-react";
@@ -100,7 +101,7 @@ export function SetupWizard() {
 						{t("setup.stepOf", { n: step + 1, total: STEPS.length })}
 					</div>
 					<h1 className="heading text-3xl">{t(stepKey(info.id, "title"))}</h1>
-					<p className="mt-1 font-serif text-lg text-dim">{t(rs === "zombie" && info.id === "character" ? "z.char.blurb" : stepKey(info.id, "blurb"))}</p>
+					<p className="mt-1 font-serif text-lg text-dim">{t(rs !== "fantasy" && info.id === "character" ? rsKey(rs, "char.blurb") : stepKey(info.id, "blurb"))}</p>
 				</div>
 				{step < 3 && (
 					<button type="button" className="btn text-sm" onClick={() => goTo(STEPS.length - 1)} title={t("setup.skipTitle")}>

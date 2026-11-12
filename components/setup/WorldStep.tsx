@@ -5,14 +5,17 @@ import { Ban, Check, EyeOff, Plus, X } from "lucide-react";
 import { SceneArt } from "@/components/art/SceneArt";
 import { cn } from "@/components/ui/cn";
 import { ChipToggle, FieldLabel, Section } from "./Field";
-import { LINE_SUGGESTIONS, TONES, VEIL_SUGGESTIONS, WORLD_PRESETS, presetInfo } from "./presets";
+import { LINE_SUGGESTIONS, VEIL_SUGGESTIONS, WORLD_PRESETS, presetInfo, tonesFor, tonesOnPresetChange } from "./presets";
 import { patchSettings, type StepProps } from "./types";
 import { useT } from "@/components/i18n/I18nProvider";
 
 export function WorldStep({ draft, update }: StepProps) {
 	const w = draft.settings.world;
 	const set = (patch: Partial<typeof w>) => patchSettings(update, "world", patch);
-	const toggleTone = (tone: string) => set({ tone: w.tone.includes(tone) ? w.tone.filter((x) => x !== tone) : [...w.tone, tone] });
+	const toneChoice = tonesFor(w.preset);
+	// Root Access picks exactly one tone (neon noir / grim / satire); the others are free multi-select.
+	const toggleTone = (tone: string) =>
+		set({ tone: toneChoice.single ? [tone] : w.tone.includes(tone) ? w.tone.filter((x) => x !== tone) : [...w.tone, tone] });
 	const info = presetInfo(w.preset);
 	const { t, te, lang } = useT();
 	const infoName = te("preset", info.id);
@@ -30,7 +33,7 @@ export function WorldStep({ draft, update }: StepProps) {
 									type="button"
 									role="radio"
 									aria-checked={active}
-									onClick={() => set({ preset: p.id })}
+									onClick={() => set({ preset: p.id, tone: tonesOnPresetChange(p.id, w.tone) })}
 									className={cn(
 										"group relative overflow-hidden rounded-lg border text-left transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold",
 										active ? "border-gold shadow-[0_0_0_1px_var(--gold),0_8px_30px_rgb(212_166_74/0.18)]" : "border-line hover:border-gold/60",
@@ -72,9 +75,9 @@ export function WorldStep({ draft, update }: StepProps) {
 					</div>
 				</div>
 
-				<Section title={t("world.tone")} hint={t("world.toneHint")}>
-					<div className="flex flex-wrap gap-2">
-						{TONES.map((tone) => (
+				<Section title={t("world.tone")} hint={t(toneChoice.single ? "c.world.toneHint" : "world.toneHint")}>
+					<div className="flex flex-wrap gap-2" role={toneChoice.single ? "radiogroup" : undefined}>
+						{toneChoice.tones.map((tone) => (
 							<ChipToggle key={tone} active={w.tone.includes(tone)} onClick={() => toggleTone(tone)}>
 								{te("tone", tone)}
 							</ChipToggle>

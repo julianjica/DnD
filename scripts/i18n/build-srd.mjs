@@ -2,6 +2,6 @@
 import fs from "node:fs";
 const dir = "lib/srd/es";
 const out = {};
-for (const f of fs.readdirSync(dir).filter((f) => /^(\d+|hb|m\d+|z[a-z0-9]*)\.json$/.test(f)).sort()) Object.assign(out, JSON.parse(fs.readFileSync(`${dir}/${f}`, "utf8")));
+for (const f of fs.readdirSync(dir).filter((f) => /^(\d+|hb|m\d+|c[a-z0-9]*|z[a-z0-9]*)\.json$/.test(f)).sort()) Object.assign(out, JSON.parse(fs.readFileSync(`${dir}/${f}`, "utf8")));
 fs.writeFileSync(`${dir}/dict.json`, JSON.stringify(out));
 console.log(`dict.json: ${Object.keys(out).length} strings`);

@@ -1,0 +1,399 @@
+[
+	{
+		"index": "c-origin-barrio-kid",
+		"name": "Barrio kid (Antenna Hill)",
+		"speed": 30,
+		"size": "medium",
+		"sizeDescription": "People in Marea come in every height and build. Whatever yours, your size is Medium.",
+		"age": "You're an adult, somewhere between your late teens and your sixties. In Marea almost everyone your age has had a neural jack since school.",
+		"alignment": "The city doesn't make anyone good or evil; it just puts a price on both.",
+		"abilityBonuses": {
+			"dex": 1,
+			"wis": 1
+		},
+		"languages": [
+			"common"
+		],
+		"languageDescription": "You speak, read and write the common tongue of Marea, Spanish with a port's worth of borrowed words, and the street slang of your barrio.",
+		"traits": [
+			{
+				"index": "c-hill-runner",
+				"name": "Hill Runner",
+				"description": "You grew up on Antenna Hill's stairways and rooftops. You have proficiency in the Stealth and Insight skills."
+			},
+			{
+				"index": "c-free-mesh",
+				"name": "Free Mesh",
+				"description": "You always find a free-mesh access point: anywhere in Marea outside La Cúspide you can get online without a paid line or an account anyone can trace back to you."
+			}
+		],
+		"skills": [
+			"stealth",
+			"insight"
+		],
+		"weapons": [],
+		"tools": [],
+		"choices": [],
+		"darkvision": 0,
+		"subspecies": [],
+		"portraitFeatures": []
+	},
+	{
+		"index": "c-origin-corp-brat",
+		"name": "Corp brat (La Cúspide)",
+		"speed": 30,
+		"size": "medium",
+		"sizeDescription": "People in Marea come in every height and build. Whatever yours, your size is Medium.",
+		"age": "You're an adult, somewhere between your late teens and your sixties. In Marea almost everyone your age has had a neural jack since school.",
+		"alignment": "The city doesn't make anyone good or evil; it just puts a price on both.",
+		"abilityBonuses": {
+			"cha": 1,
+			"int": 1
+		},
+		"languages": [
+			"common"
+		],
+		"languageDescription": "You speak, read and write the common tongue of Marea, Spanish with a port's worth of borrowed words, and the street slang of your barrio.",
+		"traits": [
+			{
+				"index": "c-boardroom-manners",
+				"name": "Boardroom Manners",
+				"description": "You learnt to ask for things the way rich people do. You have proficiency in the Persuasion skill."
+			},
+			{
+				"index": "c-old-corp-id",
+				"name": "Old Corp ID",
+				"description": "An expired corporate ID nobody bothered to revoke. Once a day it opens a low-security corporate door, turnstile or lift in La Cúspide, or gets you past a lobby guard without a check. Every use risks a flag; the DM decides when it stops working."
+			}
+		],
+		"skills": [
+			"persuasion"
+		],
+		"weapons": [],
+		"tools": [],
+		"choices": [],
+		"darkvision": 0,
+		"subspecies": [],
+		"portraitFeatures": []
+	},
+	{
+		"index": "c-origin-drowned-born",
+		"name": "Drowned-born",
+		"speed": 30,
+		"size": "medium",
+		"sizeDescription": "People in Marea come in every height and build. Whatever yours, your size is Medium.",
+		"age": "You're an adult, somewhere between your late teens and your sixties. In Marea almost everyone your age has had a neural jack since school.",
+		"alignment": "The city doesn't make anyone good or evil; it just puts a price on both.",
+		"abilityBonuses": {
+			"str": 1,
+			"wis": 1
+		},
+		"languages": [
+			"common"
+		],
+		"languageDescription": "You speak, read and write the common tongue of Marea, Spanish with a port's worth of borrowed words, and the street slang of your barrio.",
+		"traits": [
+			{
+				"index": "c-canal-born",
+				"name": "Canal-born",
+				"description": "You learnt to swim before you could read. You have proficiency in the Athletics and Perception skills, a swimming speed equal to your walking speed, and you can hold your breath for 10 minutes."
+			},
+			{
+				"index": "c-know-the-canals",
+				"name": "Know the Canals",
+				"description": "In Los Anegados you never get lost, you know a waterway shortcut between any two points, and you have advantage on checks to lose a pursuer there."
+			}
+		],
+		"skills": [
+			"athletics",
+			"perception"
+		],
+		"weapons": [],
+		"tools": [],
+		"choices": [],
+		"darkvision": 0,
+		"subspecies": [],
+		"portraitFeatures": []
+	},
+	{
+		"index": "c-origin-port-family",
+		"name": "Port family",
+		"speed": 30,
+		"size": "medium",
+		"sizeDescription": "People in Marea come in every height and build. Whatever yours, your size is Medium.",
+		"age": "You're an adult, somewhere between your late teens and your sixties. In Marea almost everyone your age has had a neural jack since school.",
+		"alignment": "The city doesn't make anyone good or evil; it just puts a price on both.",
+		"abilityBonuses": {
+			"dex": 1,
+			"cha": 1
+		},
+		"languages": [
+			"common"
+		],
+		"languageDescription": "You speak, read and write the common tongue of Marea, Spanish with a port's worth of borrowed words, and the street slang of your barrio.",
+		"traits": [
+			{
+				"index": "c-dock-hand",
+				"name": "Dock Hand",
+				"description": "You grew up loading what the automated cranes dropped. You have proficiency in the Deception skill and with land and water vehicles."
+			},
+			{
+				"index": "c-port-contacts",
+				"name": "Port Contacts",
+				"description": "Your family still works El Puerto. You can always find someone there who'll move a crate, a person or a rumour off the books, for a price, and you hear what came in on the night ships."
+			}
+		],
+		"skills": [
+			"deception"
+		],
+		"weapons": [],
+		"tools": [
+			"land-vehicles",
+			"water-vehicles"
+		],
+		"choices": [],
+		"darkvision": 0,
+		"subspecies": [],
+		"portraitFeatures": []
+	},
+	{
+		"index": "c-origin-vantis-trial-kid",
+		"name": "Vantis trial kid",
+		"speed": 30,
+		"size": "medium",
+		"sizeDescription": "People in Marea come in every height and build. Whatever yours, your size is Medium.",
+		"age": "You're an adult, somewhere between your late teens and your sixties. In Marea almost everyone your age has had a neural jack since school.",
+		"alignment": "The city doesn't make anyone good or evil; it just puts a price on both.",
+		"abilityBonuses": {
+			"int": 1
+		},
+		"languages": [
+			"common"
+		],
+		"languageDescription": "You speak, read and write the common tongue of Marea, Spanish with a port's worth of borrowed words, and the street slang of your barrio.",
+		"traits": [
+			{
+				"index": "c-experimental-jack",
+				"name": "Experimental Jack",
+				"description": "The prototype jack Vantis put in you as a child is still faster than anything on the market. You have +1 RAM: one extra level 1 program slot."
+			},
+			{
+				"index": "c-hardened-mind",
+				"name": "Hardened Mind",
+				"description": "Your neural tissue grew around the prototype. You have resistance to psychic damage."
+			},
+			{
+				"index": "c-vantis-wants-you-back",
+				"name": "Vantis Wants You Back",
+				"description": "You belong to a trial cohort Vantis never closed. Their systems recognise your jack's signature on any network they own, and every so often someone from Vantis comes looking for you."
+			}
+		],
+		"skills": [],
+		"weapons": [],
+		"tools": [],
+		"choices": [],
+		"darkvision": 0,
+		"subspecies": [],
+		"portraitFeatures": []
+	},
+	{
+		"index": "c-origin-ex-ferro",
+		"name": "Ex-Ferro",
+		"speed": 30,
+		"size": "medium",
+		"sizeDescription": "People in Marea come in every height and build. Whatever yours, your size is Medium.",
+		"age": "You're an adult, somewhere between your late teens and your sixties. In Marea almost everyone your age has had a neural jack since school.",
+		"alignment": "The city doesn't make anyone good or evil; it just puts a price on both.",
+		"abilityBonuses": {
+			"str": 1,
+			"con": 1
+		},
+		"languages": [
+			"common"
+		],
+		"languageDescription": "You speak, read and write the common tongue of Marea, Spanish with a port's worth of borrowed words, and the street slang of your barrio.",
+		"traits": [
+			{
+				"index": "c-ferro-training",
+				"name": "Ferro Training",
+				"description": "You did a contract with Grupo Ferro before you walked, or were walked out. You have proficiency with firearms (pistols, submachine guns, shotguns and rifles) and with light armour."
+			},
+			{
+				"index": "c-know-the-routine",
+				"name": "Know the Routine",
+				"description": "You have advantage on checks to spot patrols, guard rotations, camera sweeps and other security routines, and to guess where Ferro will look next."
+			}
+		],
+		"skills": [],
+		"weapons": [
+			"c-light-pistol",
+			"c-heavy-pistol",
+			"c-smart-pistol",
+			"c-smg",
+			"c-shotgun",
+			"c-rifle",
+			"c-marksman-rifle",
+			"c-needle-pistol"
+		],
+		"tools": [],
+		"choices": [],
+		"darkvision": 0,
+		"subspecies": [],
+		"portraitFeatures": []
+	},
+	{
+		"index": "c-origin-campus-dropout",
+		"name": "Campus dropout",
+		"speed": 30,
+		"size": "medium",
+		"sizeDescription": "People in Marea come in every height and build. Whatever yours, your size is Medium.",
+		"age": "You're an adult, somewhere between your late teens and your sixties. In Marea almost everyone your age has had a neural jack since school.",
+		"alignment": "The city doesn't make anyone good or evil; it just puts a price on both.",
+		"abilityBonuses": {
+			"int": 1
+		},
+		"languages": [
+			"common"
+		],
+		"languageDescription": "You speak, read and write the common tongue of Marea, Spanish with a port's worth of borrowed words, and the street slang of your barrio.",
+		"traits": [
+			{
+				"index": "c-half-a-degree",
+				"name": "Half a Degree",
+				"description": "You left Ciudad Universitaria with debts and half a degree. You have proficiency in one skill of your choice."
+			},
+			{
+				"index": "c-still-on-the-list",
+				"name": "Still on the List",
+				"description": "Nobody closed your student account: you can get into the university's libraries, labs and campus network, and you know which professors still answer your messages."
+			}
+		],
+		"skills": [],
+		"weapons": [],
+		"tools": [],
+		"choices": [
+			{
+				"id": "c-origin-campus-dropout:skills",
+				"label": "Half a Degree",
+				"choose": 1,
+				"options": [
+					{
+						"index": "acrobatics",
+						"name": "Acrobatics"
+					},
+					{
+						"index": "animal-handling",
+						"name": "Animal Handling"
+					},
+					{
+						"index": "arcana",
+						"name": "Arcana"
+					},
+					{
+						"index": "athletics",
+						"name": "Athletics"
+					},
+					{
+						"index": "deception",
+						"name": "Deception"
+					},
+					{
+						"index": "history",
+						"name": "History"
+					},
+					{
+						"index": "insight",
+						"name": "Insight"
+					},
+					{
+						"index": "intimidation",
+						"name": "Intimidation"
+					},
+					{
+						"index": "investigation",
+						"name": "Investigation"
+					},
+					{
+						"index": "medicine",
+						"name": "Medicine"
+					},
+					{
+						"index": "nature",
+						"name": "Nature"
+					},
+					{
+						"index": "perception",
+						"name": "Perception"
+					},
+					{
+						"index": "performance",
+						"name": "Performance"
+					},
+					{
+						"index": "persuasion",
+						"name": "Persuasion"
+					},
+					{
+						"index": "religion",
+						"name": "Religion"
+					},
+					{
+						"index": "sleight-of-hand",
+						"name": "Sleight of Hand"
+					},
+					{
+						"index": "stealth",
+						"name": "Stealth"
+					},
+					{
+						"index": "survival",
+						"name": "Survival"
+					}
+				]
+			}
+		],
+		"darkvision": 0,
+		"subspecies": [],
+		"portraitFeatures": []
+	},
+	{
+		"index": "c-origin-coast-road-nomad",
+		"name": "Coast-road nomad",
+		"speed": 30,
+		"size": "medium",
+		"sizeDescription": "People in Marea come in every height and build. Whatever yours, your size is Medium.",
+		"age": "You're an adult, somewhere between your late teens and your sixties. In Marea almost everyone your age has had a neural jack since school.",
+		"alignment": "The city doesn't make anyone good or evil; it just puts a price on both.",
+		"abilityBonuses": {
+			"con": 1,
+			"dex": 1
+		},
+		"languages": [
+			"common"
+		],
+		"languageDescription": "You speak, read and write the common tongue of Marea, Spanish with a port's worth of borrowed words, and the street slang of your barrio.",
+		"traits": [
+			{
+				"index": "c-road-born",
+				"name": "Road-born",
+				"description": "Your family drove the coast road between the dry towns. You have proficiency in the Survival skill and with land vehicles: you can drive anything with wheels and fix it at the roadside."
+			},
+			{
+				"index": "c-long-haul",
+				"name": "Long Haul",
+				"description": "You've slept in truck cabs and dry riverbeds. You need only half the usual water, and you have advantage on Constitution saving throws against exhaustion from travel, heat and thirst."
+			}
+		],
+		"skills": [
+			"survival"
+		],
+		"weapons": [],
+		"tools": [
+			"land-vehicles"
+		],
+		"choices": [],
+		"darkvision": 0,
+		"subspecies": [],
+		"portraitFeatures": []
+	}
+]

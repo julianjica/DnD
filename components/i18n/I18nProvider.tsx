@@ -42,7 +42,7 @@ export function I18nProvider({ initial, children }: { initial: Lang; children: R
 			setLang,
 			t: (key, vars) => translate(lang, key, vars),
 			// The Quiet relabels classes, subclasses, backgrounds and skills (Wizard → Chemistry Teacher).
-			te: (group, v) => (group === "species" && v.startsWith("z-") ? rulesetText(ruleset, lang, srd, getSpecies(v)?.name ?? v) : null) || (ruleset !== "fantasy" && RELABELED_ENUMS.has(group) && rulesetLabel(ruleset, lang, srd, translateEnum("en", group, v))) || translateEnum(lang, group, v),
+			te: (group, v) => (group === "species" && (v.startsWith("z-") || v.startsWith("c-")) ? rulesetText(ruleset, lang, srd, getSpecies(v)?.name ?? v) : null) || (ruleset !== "fantasy" && RELABELED_ENUMS.has(group) && rulesetLabel(ruleset, lang, srd, translateEnum("en", group, v))) || translateEnum(lang, group, v),
 			ts: (text) => rulesetText(ruleset, lang, srd, text),
 			ruleset,
 			setRuleset,
