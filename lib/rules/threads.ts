@@ -12,7 +12,7 @@ import type { GameState, PacingState, StoryThread } from "../game/types";
 
 export const MAX_OPEN_THREADS = 8;
 /** Player turns without mention before a thread is overdue. */
-const OVERDUE = 15;
+const OVERDUE = 25;
 
 // ─── threads ───────────────────────────────────────────────────────────────
 
@@ -80,17 +80,22 @@ export function markBeat(state: GameState, ...beats: Beat[]): void {
 	if (beats.includes("action")) p.last.threat = p.turn;
 }
 
-/** The director's single nudge for the next scene, or undefined when the rhythm is fine. */
+/**
+ * The director's single nudge for the next scene, or undefined when the rhythm
+ * is fine. It is advice for when the player has no direction of their own,
+ * never a reason to pull them off what they chose (the prompt says so too).
+ */
 export function pacingNudge(state: GameState): string | undefined {
 	const p = pacingOf(state);
 	if (state.encounter?.status === "active") return undefined;
 	const since = (b: Beat) => p.turn - p.last[b];
 	const overdue = openThreads(state).filter((t) => p.turn - t.touchedTurn >= OVERDUE).sort((x, y) => x.touchedTurn - y.touchedTurn)[0];
 	if (since("action") <= 2 && p.last.action > p.last.human) return "the fight just ended: let it breathe. A quiet, human beat next (wounds tended, a companion shaking, someone saying what they really think), before anything new comes at them.";
-	if (since("twist") >= 18) return `nothing has turned the story in a while: bring a reveal or a complication${overdue ? `, ideally paying off or twisting "${overdue.title}"` : " (a betrayal, a discovery, a plan going wrong)"}. Make it land on the player.`;
-	if (since("threat") >= 8) return "it's been quiet too long: bring danger into the next scene (a sound, a sign, the dead, a hostile human). Not necessarily a fight; dread counts.";
-	if (since("human") >= 12) return "time for a human moment: a companion or NPC opens up, asks for something, or clashes with someone.";
-	if (overdue) return `"${overdue.title}" hasn't come up in ${p.turn - overdue.touchedTurn} turns: bring it back (a clue, a reminder, a consequence).`;
+	const only = " Only if it fits what the player is doing now; if they are following their own plan, follow them and let this wait.";
+	if (since("twist") >= 25) return `the story hasn't turned in a while: a reveal or a complication could come out of what the player is doing${overdue ? ` (perhaps touching "${overdue.title}")` : ""}.${only}`;
+	if (since("threat") >= 10) return `it's been quiet for a while: some danger or dread could enter the player's current scene (a sound, a sign, a hostile face), not necessarily a fight.${only}`;
+	if (since("human") >= 12) return `room for a human moment: someone the player is with opens up, asks for something, or clashes with someone.${only}`;
+	if (overdue) return `"${overdue.title}" hasn't come up in ${p.turn - overdue.touchedTurn} turns: the world can remember it in passing (a mention, a consequence) if it fits; never pull the player toward it.`;
 	return undefined;
 }
 
@@ -100,7 +105,7 @@ export function storyDigest(state: GameState): string | undefined {
 	const p = pacingOf(state);
 	const open = openThreads(state);
 	const lines: string[] = [];
-	if (open.length) lines.push(`Open threads (you owe each a payoff; story_thread touch/resolve): ${open.map((t) => (p.turn - t.touchedTurn >= OVERDUE ? `${t.title} [${t.id}] OVERDUE: ${t.planted}` : `${t.title} [${t.id}]`)).join(" | ")}`);
+	if (open.length) lines.push(`Open threads (the world's background: they pay off when the player engages them or as consequences of what they do; story_thread touch/resolve): ${open.map((t) => (p.turn - t.touchedTurn >= OVERDUE ? `${t.title} [${t.id}] OVERDUE: ${t.planted}` : `${t.title} [${t.id}]`)).join(" | ")}`);
 	else if (state.journal.length >= 5) lines.push("Open threads: none recorded. Record the story's open threads now with story_thread op=plant (mysteries, promises, debts, names you planted), up to 8.");
 	const nudge = pacingNudge(state);
 	if (nudge) lines.push(`PACING (director, turn ${p.turn}): ${nudge}`);

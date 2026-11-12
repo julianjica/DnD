@@ -65,7 +65,7 @@ test("story threads: plant, touch, resolve; capped; overdue flagged; hidden from
 	assert.equal((await call(id, "story_thread", { op: "plant", title: "One too many", planted: "x" })).isError, true);
 	let st = m.loadState(id);
 	const names = st.threads!.find((t) => t.title === "The 3 a.m. names")!;
-	st.pacing!.turn = 20;
+	st.pacing!.turn = 30;
 	m.saveState(st);
 	assert.match(m.digest.stateDigest(m.loadState(id)), /The 3 a\.m\. names \[th\S+\] OVERDUE/);
 	await call(id, "story_thread", { op: "touch", id: names.id, planted: "The coordinates match the water plant." });
@@ -74,7 +74,7 @@ test("story threads: plant, touch, resolve; capped; overdue flagged; hidden from
 	st = m.loadState(id);
 	assert.equal(st.threads!.find((t) => t.id === names.id)!.status, "resolved");
 	assert.match(st.threads!.find((t) => t.id === names.id)!.planted, /water plant/);
-	assert.equal(st.pacing!.last.twist, 20, "a payoff is a twist");
+	assert.equal(st.pacing!.last.twist, 30, "a payoff is a twist");
 	assert.equal(m.client.clientState(st).threads, undefined);
 	assert.equal(m.client.clientState(st).pacing, undefined);
 });
@@ -87,10 +87,11 @@ test("pacing director: breathe after a fight, then threat, twist and human nudge
 	p.turn = 30;
 	p.last = { threat: 30, action: 29, human: 25, twist: 29 };
 	assert.match(m.th.pacingNudge(st)!, /breathe/);
-	p.last = { threat: 21, action: 21, human: 29, twist: 28 };
-	assert.match(m.th.pacingNudge(st)!, /quiet too long/);
+	p.last = { threat: 19, action: 19, human: 29, twist: 28 };
+	assert.match(m.th.pacingNudge(st)!, /quiet for a while/);
 	p.last = { threat: 29, action: 20, human: 29, twist: 5 };
 	assert.match(m.th.pacingNudge(st)!, /reveal or a complication/);
+	assert.match(m.th.pacingNudge(st)!, /follow them and let this wait/, "advice, never an order");
 	p.last = { threat: 29, action: 20, human: 10, twist: 29 };
 	assert.match(m.th.pacingNudge(st)!, /human moment/);
 	m.th.markBeat(st, "action");
