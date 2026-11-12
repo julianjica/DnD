@@ -11,7 +11,7 @@ export interface Appearance {
 	gender?: "female" | "male";
 	age?: "child" | "young" | "adult" | "middle-aged" | "old" | "ancient";
 	skin?: "pale" | "fair" | "olive" | "tan" | "brown" | "dark" | "red" | "purple" | "blue" | "green" | "grey" | "gold";
-	hair?: "bald" | "short" | "cropped" | "long" | "ponytail" | "braids" | "bun" | "topknot" | "mohawk" | "wild" | "curly" | "shaved_sides";
+	hair?: "bald" | "short" | "cropped" | "sidepart" | "long" | "ponytail" | "braids" | "bun" | "topknot" | "mohawk" | "wild" | "curly" | "shaved_sides" | "buzz" | "undercut" | "quiff" | "slicked_back" | "receding" | "dreadlocks" | "cornrows" | "curtains" | "spiky" | "flat_top";
 	hairColor?: "black" | "dark-brown" | "brown" | "auburn" | "red" | "ginger" | "blonde" | "platinum" | "grey" | "white" | "blue" | "purple" | "green";
 	facialHair?: "none" | "stubble" | "mustache" | "goatee" | "short_beard" | "full_beard" | "braided_beard" | "sideburns";
 	eyes?: "brown" | "amber" | "green" | "blue" | "grey" | "gold" | "red" | "violet" | "white";
@@ -123,6 +123,8 @@ export function appearanceFromText(text: string): Appearance {
 	else if (has(t, "middle-aged", "weathered", "grizzled", "veteran", "mediana edad", "curtido", "curtida", "veterano", "veterana")) a.age = "middle-aged";
 
 	if (has(t, "bald", "shaven head", "shaved head", "calvo", "calva", "rapado", "rapada", "tonsura", "tonsured")) a.hair = "bald";
+	else if (has(t, "dreadlocks", "dreadlocked", "rastas", "rastafari")) a.hair = "dreadlocks";
+	else if (has(t, "cornrows", "cornrowed", "trenzas pegadas", "trenzas africanas")) a.hair = "cornrows";
 	else if (has(t, "braid", "braids", "braided", "trenza", "trenzas", "trenzado")) a.hair = "braids";
 	else if (has(t, "ponytail", "coleta", "cola de caballo")) a.hair = "ponytail";
 	else if (has(t, "bun", "moño")) a.hair = "bun";
@@ -131,6 +133,14 @@ export function appearanceFromText(text: string): Appearance {
 	else if (has(t, "cropped", "short hair", "pelo corto", "cabello corto")) a.hair = "cropped";
 	else if (has(t, "wild hair", "unkempt", "greñas", "desgreñado", "desgreñada", "enmarañado")) a.hair = "wild";
 	else if (has(t, "mohawk", "cresta")) a.hair = "mohawk";
+	else if (has(t, "receding hairline", "receding", "balding", "thinning hair", "entradas pronunciadas", "calvicie incipiente")) a.hair = "receding";
+	else if (has(t, "buzz cut", "buzzcut", "crew cut", "rapado al cero", "pelo al rape")) a.hair = "buzz";
+	else if (has(t, "undercut")) a.hair = "undercut";
+	else if (has(t, "quiff", "pompadour", "tupé")) a.hair = "quiff";
+	else if (has(t, "slicked-back", "slicked back", "slicked", "engominado", "engominada", "peinado hacia atrás")) a.hair = "slicked_back";
+	else if (has(t, "middle part", "center part", "centre part", "raya al medio", "raya en medio")) a.hair = "curtains";
+	else if (has(t, "spiky", "spiked hair", "pelo de punta", "pelo en punta")) a.hair = "spiky";
+	else if (has(t, "flat top", "flat-top", "flattop", "corte de cepillo")) a.hair = "flat_top";
 
 	const hc: [Appearance["hairColor"], string[]][] = [
 		["white", ["white hair", "white-haired", "snow-white", "pelo blanco", "cabello blanco", "canas blancas"]],

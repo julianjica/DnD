@@ -8,6 +8,7 @@ import {
 	modernGlasses, modernGrit, modernHat, modernHatDefs, modernHoodBack, modernHoodFront, modernLook, modernPhotoOverlay, modernWindow,
 	type ModernCtx, type ModernFrame, type ModernWho,
 } from "./PortraitModern";
+import { menHair } from "./portraitHairMen";
 
 /**
  * Layered procedural SVG bust portrait. Deterministic for a given spec, SSR-safe
@@ -223,7 +224,13 @@ export function Portrait({ spec: specIn, size = 160, speciesId: speciesIn, name,
 		</g>
 	);
 	let capD = "";
-	switch (style) {
+	// Men's cuts live in their own module; the older styles below are untouched.
+	const men = menHair(style, { cx: CX, w, top, hatted, skin, hair, hairHi, hairLo, hairLine, id, url });
+	if (men) {
+		hairBack = men.back;
+		hairFront = men.front;
+		hairExtra = men.extra;
+	} else switch (style) {
 		case "bald":
 			break;
 		case "long": {
@@ -742,7 +749,7 @@ export function Portrait({ spec: specIn, size = 160, speciesId: speciesIn, name,
 			<ellipse cx={CX + w * 0.55} cy={eyeY + 14} rx={8} ry={5} fill="#e05a5a" opacity={0.1} filter={url("soft2")} />
 			<ellipse cx={CX - w * 0.35} cy={top + 18} rx={14} ry={9} fill={skinHi} opacity={0.5} filter={url("soft2")} />
 			{!draconic && <path d={`M${CX - w} 132 Q${CX} ${t.chin + 10} ${CX + w} 132`} fill="none" stroke={shade(skin, -0.2)} strokeWidth={6} opacity={0.25} filter={url("soft2")} />}
-			{style !== "bald" && !hidesHairTop && <path d={`M${CX - w} 92 Q${CX} 72 ${CX + w} 92`} fill="none" stroke={shade(skin, -0.35)} strokeWidth={8} opacity={0.35} filter={url("soft2")} />}
+			{style !== "bald" && !men?.noBrowShadow && !hidesHairTop && <path d={`M${CX - w} 92 Q${CX} 72 ${CX + w} 92`} fill="none" stroke={shade(skin, -0.35)} strokeWidth={8} opacity={0.35} filter={url("soft2")} />}
 			{scales}
 			{markings}
 			{freckles}

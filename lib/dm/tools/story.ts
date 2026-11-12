@@ -205,7 +205,7 @@ const appearanceSchema = S.obj(
 		gender: S.str(undefined, ["female", "male"]),
 		age: S.str(undefined, ["child", "young", "adult", "middle-aged", "old", "ancient"]),
 		skin: S.str(undefined, ["pale", "fair", "olive", "tan", "brown", "dark", "red", "purple", "blue", "green", "grey", "gold"]),
-		hair: S.str(undefined, ["bald", "short", "cropped", "long", "ponytail", "braids", "bun", "topknot", "mohawk", "wild", "curly", "shaved_sides"]),
+		hair: S.str(undefined, ["bald", "short", "cropped", "sidepart", "long", "ponytail", "braids", "bun", "topknot", "mohawk", "wild", "curly", "shaved_sides", "buzz", "undercut", "quiff", "slicked_back", "receding", "dreadlocks", "cornrows", "curtains", "spiky", "flat_top"]),
 		hairColor: S.str(undefined, ["black", "dark-brown", "brown", "auburn", "red", "ginger", "blonde", "platinum", "grey", "white", "blue", "purple", "green"]),
 		facialHair: S.str(undefined, ["none", "stubble", "mustache", "goatee", "short_beard", "full_beard", "braided_beard", "sideburns"]),
 		eyes: S.str(undefined, ["brown", "amber", "green", "blue", "grey", "gold", "red", "violet", "white"]),

@@ -630,6 +630,94 @@ export function paintPerson(px: Px, l: PersonLook) {
 				set(hx1, hy + 1, HD);
 				set(hx + 2, hy - 1, HL);
 				break;
+			// ── men's cuts ──
+			case "buzz": {
+				const f1 = mix(H, skin, 0.4), f2 = mix(H, skin, 0.58);
+				for (let i = 1; i <= 4; i++) set(hx + i, hy, i % 2 ? f1 : f2);
+				set(hx, hy + 1, f2);
+				set(hx1, hy + 1, shade(f2, 0.85));
+				break;
+			}
+			case "undercut": {
+				const fz = mix(H, skin, 0.55);
+				rect(hx + 1, hy - 1, 4, 2, H);
+				set(hx + 4, hy - 1, HD);
+				set(hx + 2, hy - 1, HL);
+				set(hx + 1, hy, HL);
+				set(hx + 4, hy, HD);
+				set(hx, hy + 1, fz);
+				set(hx1, hy + 1, shade(fz, 0.85));
+				break;
+			}
+			case "quiff":
+				rect(hx + 1, hy - 1, 4, 2, H);
+				set(hx + 4, hy - 1, HD);
+				set(hx + 4, hy, HD);
+				set(hx + 1, hy - 2, H);
+				set(hx + 2, hy - 2, HL);
+				set(hx + 3, hy - 2, H);
+				set(hx, hy + 1, mix(H, skin, 0.4));
+				set(hx1, hy + 1, mix(HD, skin, 0.4));
+				break;
+			case "slicked_back":
+				crown();
+				set(hx + 2, hy - 1, HL);
+				set(hx + 1, hy, HL);
+				set(hx + 2, hy, shade(H, 1.06));
+				break;
+			case "receding":
+				set(hx, hy, H);
+				set(hx1, hy, HD);
+				set(hx, hy + 1, H);
+				set(hx1, hy + 1, HD);
+				set(hx + 2, hy, mix(H, skin, 0.5));
+				set(hx + 3, hy, mix(HD, skin, 0.6));
+				set(hx + 1, hy, skinL);
+				break;
+			case "dreadlocks":
+				crown();
+				set(hx + 1, hy - 2, H);
+				set(hx + 3, hy - 2, HD);
+				set(hx, hy + 1, H);
+				set(hx1, hy + 1, HD);
+				for (let j = 0; j <= 5; j++) { set(hx - 1, hy + j, j % 2 ? HD : H); set(hx1 + 1, hy + j, j % 2 ? H : HD); }
+				break;
+			case "cornrows": {
+				const pt = mix(H, skin, 0.5);
+				for (let i = 1; i <= 4; i++) { set(hx + i, hy - 1, i % 2 ? H : pt); set(hx + i, hy, i % 2 ? HD : pt); }
+				set(hx, hy, H);
+				set(hx1, hy, HD);
+				break;
+			}
+			case "curtains":
+				crown();
+				set(hx + 3, hy - 1, mix(H, skin, 0.5)); // the middle part
+				set(hx, hy + 1, H);
+				set(hx + 1, hy + 1, H);
+				set(hx + 4, hy + 1, HD);
+				set(hx1, hy + 1, HD);
+				set(hx, hy + 2, H);
+				set(hx1, hy + 2, HD);
+				break;
+			case "spiky":
+				crown();
+				set(hx, hy - 1, H);
+				set(hx1, hy - 1, HD);
+				set(hx + 1, hy - 2, H);
+				set(hx + 3, hy - 2, HL);
+				set(hx + 2, hy + 1, H);
+				set(hx + 4, hy + 1, HD);
+				break;
+			case "flat_top":
+				rect(hx, hy - 2, 6, 1, HL);
+				rect(hx, hy - 1, 6, 1, H);
+				set(hx1, hy - 2, H);
+				set(hx1, hy - 1, HD);
+				rect(hx + 1, hy, 4, 1, H);
+				set(hx + 4, hy, HD);
+				set(hx, hy + 1, mix(H, skin, 0.55));
+				set(hx1, hy + 1, mix(HD, skin, 0.55));
+				break;
 			default: // short
 				crown();
 				set(hx, hy + 1, H);

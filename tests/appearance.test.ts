@@ -45,3 +45,14 @@ test("repair fixes old random portraits once", () => {
 	assert.equal(npcs.a.portrait.facialHair, "none");
 	assert.equal(repairNpcPortraits(npcs), false);
 });
+
+test("reads men's cuts from English and Spanish descriptions", () => {
+	assert.equal(appearanceFromText("A wiry man with dreadlocks to his shoulders.").hair, "dreadlocks");
+	assert.equal(appearanceFromText("Un hombre joven con rastas y barba corta.").hair, "dreadlocks");
+	assert.equal(appearanceFromText("A bouncer with tight cornrows.").hair, "cornrows");
+	assert.equal(appearanceFromText("A soldier with a buzz cut.").hair, "buzz");
+	assert.equal(appearanceFromText("A banker, hair slicked back.").hair, "slicked_back");
+	assert.equal(appearanceFromText("Un tabernero de mediana edad con entradas pronunciadas.").hair, "receding");
+	assert.equal(appearanceFromText("A mechanic with a flat top.").hair, "flat_top");
+	assert.equal(appearanceFromText("A guard who dreads the dark, standing by the curtains.").hair, undefined);
+});

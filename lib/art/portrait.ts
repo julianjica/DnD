@@ -16,8 +16,18 @@ export const SKIN_TONES = {
 	dragonborn: ["#c9a14a", "#b07a3a", "#b5653a", "#a33a2c", "#3d5f9e", "#3f7a4a", "#2b2b33", "#d9dde2", "#9aa3ad", "#c4b07a"],
 } as const;
 
+/**
+ * Men's cuts added later. They are offered in the character creator but not
+ * yet rolled for random NPCs: `randomPortrait` only draws from its own weight
+ * lists, so existing seeded portraits are unchanged.
+ */
+export const NEW_MALE_HAIR = [
+	"buzz", "undercut", "quiff", "slicked_back", "receding", "dreadlocks", "cornrows", "curtains", "spiky", "flat_top",
+] as const;
+
 export const HAIR_STYLES = [
 	"bald", "short", "cropped", "sidepart", "long", "ponytail", "braids", "bun", "topknot", "mohawk", "wild", "curly", "shaved_sides",
+	...NEW_MALE_HAIR,
 ] as const;
 
 export const HAIR_COLORS = [
