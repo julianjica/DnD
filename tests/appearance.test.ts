@@ -46,13 +46,14 @@ test("repair fixes old random portraits once", () => {
 	assert.equal(repairNpcPortraits(npcs), false);
 });
 
-test("reads men's cuts from English and Spanish descriptions", () => {
-	assert.equal(appearanceFromText("A wiry man with dreadlocks to his shoulders.").hair, "dreadlocks");
-	assert.equal(appearanceFromText("Un hombre joven con rastas y barba corta.").hair, "dreadlocks");
-	assert.equal(appearanceFromText("A bouncer with tight cornrows.").hair, "cornrows");
-	assert.equal(appearanceFromText("A soldier with a buzz cut.").hair, "buzz");
-	assert.equal(appearanceFromText("A banker, hair slicked back.").hair, "slicked_back");
-	assert.equal(appearanceFromText("Un tabernero de mediana edad con entradas pronunciadas.").hair, "receding");
-	assert.equal(appearanceFromText("A mechanic with a flat top.").hair, "flat_top");
+test("reads men's cuts from English and Spanish descriptions (natural cuts are live)", () => {
+	assert.equal(appearanceFromText("A wiry man with dreadlocks to his shoulders.").hair, "m_locs_long");
+	assert.equal(appearanceFromText("Un hombre joven con rastas y barba corta.").hair, "m_locs_short");
+	assert.equal(appearanceFromText("A bouncer with tight cornrows.").hair, "m_cornrows");
+	assert.equal(appearanceFromText("A soldier with a buzz cut.").hair, "m_buzz");
+	assert.equal(appearanceFromText("A banker, hair slicked back.").hair, "m_slick_back");
+	assert.equal(appearanceFromText("Un tabernero de mediana edad con entradas pronunciadas.").hair, "m_receding");
+	assert.equal(appearanceFromText("A mechanic with a flat top.").hair, "m_crew");
 	assert.equal(appearanceFromText("A guard who dreads the dark, standing by the curtains.").hair, undefined);
+	assert.equal(appearanceFromText("A student with a middle part.").hair, "m_curtains");
 });

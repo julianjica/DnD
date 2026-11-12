@@ -41,7 +41,7 @@ export const NATURAL_MALE_HAIR = [
  * Flip to true to go live: the character creator offers the natural cuts and
  * stops offering NEW_MALE_HAIR (characters already wearing those still render).
  */
-export const NATURAL_HAIR_LIVE = false;
+export const NATURAL_HAIR_LIVE = true;
 
 export const HAIR_STYLES = [
 	"bald", "short", "cropped", "sidepart", "long", "ponytail", "braids", "bun", "topknot", "mohawk", "wild", "curly", "shaved_sides",

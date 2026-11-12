@@ -19,7 +19,7 @@ export const DM_HAIR_IDS: string[] = NATURAL_HAIR_LIVE ? [...BASE_HAIR_IDS, ...N
 const NATURAL_PHRASES: [NaturalHair, string[]][] = [
 	["m_horseshoe", ["horseshoe", "bald crown", "balding on top", "bald on top", "coronilla calva", "calvo en la coronilla"]],
 	["m_receding", ["receding hairline", "receding", "balding", "thinning hair", "entradas pronunciadas", "entradas", "calvicie incipiente"]],
-	["m_locs_long", ["long dreadlocks", "long locs", "rastas largas"]],
+	["m_locs_long", ["long dreadlocks", "long locs", "rastas largas", "dreadlocks to his shoulders", "dreadlocks down", "locs down", "rastas hasta los hombros", "rastas hasta la espalda", "rastas largas"]],
 	["m_locs_short", ["dreadlocks", "dreadlocked", "locs", "rastas", "rastafari"]],
 	["m_cornrows", ["cornrows", "cornrowed", "trenzas pegadas", "trenzas africanas"]],
 	["m_twists", ["twists", "twisted hair"]],
@@ -35,7 +35,7 @@ const NATURAL_PHRASES: [NaturalHair, string[]][] = [
 	["m_brushed_back", ["brushed back", "swept back", "hair swept back"]],
 	["m_side_part", ["side part", "side-parted", "raya al lado", "raya a un lado"]],
 	["m_ivy", ["ivy league"]],
-	["m_curtains", ["middle part", "center part", "centre part", "curtains", "raya al medio", "raya en medio"]],
+	["m_curtains", ["middle part", "center part", "centre part", "curtain fringe", "curtain bangs", "curtained hair", "raya al medio", "raya en medio"]],
 	["m_mod", ["bowl cut", "mod cut", "corte de tazón", "tazón"]],
 	["m_shag", ["shag"]],
 	["m_caesar", ["caesar cut", "corte césar"]],
