@@ -1,6 +1,7 @@
 import { EQUIPMENT, getEquipment, toIndex } from "../../srd/index";
 import { addHeat, cyberOf, HEAT_MAX, humanityCheck, installImplant, isCyber, LAY_LOW_MAX_DAYS, layLow, removeImplant, shiftHat, therapy } from "../../rules/cyber";
 import { gameMinutes, takeOne } from "../../rules/survival";
+import { hasMedBay } from "../../rules/den";
 import type { EquipmentData } from "../../srd/types";
 import { S, tool, withState, type ToolFactory } from "../context";
 
@@ -65,7 +66,8 @@ export const installImplantTool = tool<{ ref: string }>(
 			if (!r.ok) throw new Error(r.text);
 			const carried = takeOne(state.character, (i) => i.ref === item.index);
 			if (r.fractured) state.dmNotes.push(`Fracture on Day ${state.time.day}: the PC woke in a clinic, in debt for the emergency work.`);
-			return carried ? `${r.text} (Used the carried ${item.name}.)` : r.text;
+			const home = hasMedBay(state) ? " (The den's med bay can do this work at home: no clinic chair needed.)" : "";
+			return (carried ? `${r.text} (Used the carried ${item.name}.)` : r.text) + home;
 		}),
 );
 

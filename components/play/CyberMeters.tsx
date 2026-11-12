@@ -5,10 +5,11 @@
  * carries in their body. Read-only: the engine owns state.cyber
  * (lib/rules/cyber.ts).
  */
-import { Cpu, Flame, HeartPulse, VenetianMask } from "lucide-react";
+import { Cpu, Flame, HeartPulse, Siren, VenetianMask } from "lucide-react";
 import type { CyberState, GameState, ImplantSlot } from "@/lib/game/types";
 import { EPISODE_AT, episodeDc, HAT_MAX, HAT_MIN, HEAT_MAX, HEAT_THRESHOLDS, hatBand, UNSETTLING_AT } from "@/lib/rules/cyber";
 import { getEquipment } from "@/lib/srd";
+import { gameMinutes } from "@/lib/rules/survival";
 import { useT } from "@/components/i18n/I18nProvider";
 import { Tooltip } from "@/components/ui/Tooltip";
 import type { MessageKey } from "@/lib/i18n";
@@ -128,6 +129,23 @@ function HumanityBar({ cy }: { cy: CyberState }) {
 	);
 }
 
+/** A raid on the den is coming (or on): who, and how long until it lands (lib/rules/raid.ts). */
+function RaidChip({ state }: { state: GameState }) {
+	const { t } = useT();
+	const due = state.cyber?.den?.raidDue;
+	if (!due) return null;
+	const left = due.at - gameMinutes(state.time);
+	const phase = due.started ? "on" : left <= 0 ? "now" : "due";
+	const who = t(`play.cyber.raid.by.${due.by}` as MessageKey);
+	return (
+		<Tooltip content={t(`play.cyber.raid.help.${phase}` as MessageKey, { who, h: Math.max(1, Math.ceil(left / 60)) })}>
+			<span tabIndex={0} className="chip animate-pulse border-crimson/60 text-crimson-2" data-testid="raid-chip">
+				<Siren size={12} /> {t(`play.cyber.raid.${phase}` as MessageKey, { h: Math.max(1, Math.ceil(left / 60)) })}
+			</span>
+		</Tooltip>
+	);
+}
+
 /** Compact Root Access block for the character sheet (cyberpunk campaigns only). */
 export function CyberMeters({ state }: { state: GameState }) {
 	const { t, ts } = useT();
@@ -138,6 +156,7 @@ export function CyberMeters({ state }: { state: GameState }) {
 			<h4 className="heading text-sm">{t("play.cyber.title")}</h4>
 			<HatScale hat={cy.hat} />
 			<HeatMeter heat={cy.heat} />
+			<RaidChip state={state} />
 			<HumanityBar cy={cy} />
 			{cy.humanity <= EPISODE_AT && (
 				<div className="flex flex-wrap gap-1">

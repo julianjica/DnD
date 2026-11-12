@@ -14,6 +14,10 @@ import { radioDigest } from "../rules/radio";
 import { siegeDigest } from "../rules/siege";
 import { cyberDigest } from "../rules/cyber";
 import { netrunDigest } from "../rules/netrun";
+import { denDigest } from "../rules/den";
+import { gigDigest } from "../rules/gigs";
+import { crewDigest } from "../rules/crew";
+import { raidDigest } from "../rules/raid";
 import { rulesetLabelEn } from "../i18n/ruleset-labels";
 import { getClass, getSpecies, getSubclass } from "../srd/index";
 import { compassOf, mapDistance, travelDaysIn, travelText } from "../maps/geography";
@@ -75,6 +79,14 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 	if (cyber) lines.push(cyber);
 	const netrun = rs === "cyberpunk" ? netrunDigest(s) : undefined;
 	if (netrun) lines.push(netrun);
+	const den = rs === "cyberpunk" ? denDigest(s) : undefined;
+	if (den) lines.push(den);
+	const gigs = rs === "cyberpunk" ? gigDigest(s) : undefined;
+	if (gigs) lines.push(gigs);
+	const crew = rs === "cyberpunk" ? crewDigest(s) : undefined;
+	if (crew) lines.push(crew);
+	const raid = rs === "cyberpunk" ? raidDigest(s) : undefined;
+	if (raid) lines.push(raid);
 	if (c.hp === 0) lines.push(`Death saves: ${c.deathSaves.successes} successes / ${c.deathSaves.failures} failures`);
 	if (c.spellcasting) {
 		const sl = c.spellcasting.slots

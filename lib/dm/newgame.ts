@@ -2,6 +2,7 @@ import { rulesetOf } from "../rules/ruleset";
 import { kesslerFalls } from "../maps/kessler";
 import { marea } from "../maps/marea";
 import { initCyberState } from "../rules/cyber";
+import { initDen } from "../rules/den";
 import { syncRamSlots } from "../rules/deck";
 import { addInventoryItem } from "./items";
 import { getEquipment } from "../srd";
@@ -142,6 +143,7 @@ function burnedOpening(state: GameState, rng: Rng, lang: "en" | "es"): void {
 	const es = lang === "es";
 	const t = state.time;
 	state.cyber = initCyberState(state.character, t.day * 1440 + t.hour * 60 + t.minute);
+	state.cyber.den = initDen(state, t.day * 1440 + t.hour * 60 + t.minute); // the capsule room, 200 a week to La Tía (lib/rules/den.ts)
 	syncRamSlots(state); // RAM from the starting deck and the experimental jack
 	// The shard: the gear agent's item if it exists, else a plain named item (same ref, so it upgrades later).
 	const shard = getEquipment("c-vantis-shard");

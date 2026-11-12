@@ -28,6 +28,8 @@ import type { Encounter, GridMap } from "../../game/types";
 import { S, newId, tool, withState, type StateTxn, type ToolFactory } from "../context";
 import { applyDamageToCharacter, healCharacter } from "../derived";
 import { linkSurvivorCombatants, survivorForCombatant, survivorsAfterCombat, survivorsForCombat, survivorSpawn } from "../../rules/group";
+import { crewAfterCombat, crewAsThemselves, crewForCombatant, linkCrewCombatants, withCrew } from "../../rules/crew";
+import { isCyber } from "../../rules/cyber";
 
 const CONDITIONS: ConditionId[] = ["blinded", "charmed", "deafened", "frightened", "grappled", "incapacitated", "invisible", "paralyzed", "petrified", "poisoned", "prone", "restrained", "stunned", "unconscious"];
 const DAMAGE: DamageType[] = ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"];
@@ -125,7 +127,7 @@ function turnStatus(state: GameState): string {
 	const cur = e.combatants[e.order[e.turnIndex]];
 	return isPcTurn(state)
 		? `\nIt is now the PLAYER's turn (round ${e.round}). Narrate and stop; the player acts via the map.`
-		: `\nNext turn: ${cur.name} [${cur.id}] (round ${e.round})${survivorForCombatant(state, cur) ? ", a companion of the player" : ""}. Resolve it with monster_turn.`;
+		: `\nNext turn: ${cur.name} [${cur.id}] (round ${e.round})${survivorForCombatant(state, cur) || crewForCombatant(state, cur) ? ", a companion of the player" : ""}. Resolve it with monster_turn.`;
 }
 
 /**
@@ -192,12 +194,14 @@ export function beginCombat(tx: StateTxn, a: { monsters: SpawnArg[]; pcSurprised
 	const spawns = toSpawns(state, a.monsters);
 	if (!map) throw new Error("No active map. Call generate_map first.");
 	// The Quiet: companions with the party fight beside the player (as many as the ally cap allows).
-	const group = withSurvivors(state, map, spawns);
+	// Root Access: the crew with the PC fights beside them the same way (lib/rules/crew.ts).
+	const group = isCyber(state) ? withCrew(state, map, spawns) : withSurvivors(state, map, spawns);
 	const budgetNote = budgetGate(state, group.spawns, a.override);
 	const res = startCombat({ encounterId: newId("enc"), map, character: state.character, monsters: group.spawns, pcSurprised: a.pcSurprised }, rng, combatOpts(state));
 	const syncNote = res.ok ? mapSyncGate(res.encounter, res.map, state.character.id, a.override) : "";
 	const log = applyCombatResult(tx, res) + syncNote + group.note;
 	linkSurvivorCombatants(state);
+	linkCrewCombatants(state);
 	state.mode = "combat";
 	state.view = "map";
 	// The Quiet fights to its own synth score; a horde keeps its bed.
@@ -268,12 +272,13 @@ export const addMonstersTool = tool<{ monsters: SpawnArg[]; override?: string }>
 	S.obj({ monsters: spawnSchema, override: S.str("Story reason to exceed the budget") }, ["monsters"]),
 	async (a, ctx) =>
 		withState(ctx, (tx) => {
-			const spawns = survivorsAsThemselves(tx.state, toSpawns(tx.state, a.monsters));
+			const spawns = crewAsThemselves(tx.state, survivorsAsThemselves(tx.state, toSpawns(tx.state, a.monsters)));
 			const note = budgetGate(tx.state, spawns, a.override);
 			const res = addMonsters(combatState(tx.state), tx.rng, spawns, combatOpts(tx.state));
 			const syncNote = res.ok ? mapSyncGate(res.encounter, res.map, tx.state.character.id, a.override) : "";
 			const log = applyCombatResult(tx, res);
 			linkSurvivorCombatants(tx.state);
+			linkCrewCombatants(tx.state);
 			return `${note}\n${log}${syncNote}`;
 		}),
 );
@@ -320,6 +325,8 @@ export const endCombatTool = tool<{ status?: "victory" | "defeat" | "fled" | "en
 			// The Quiet: companions who went down but lived get up (their tokens aren't corpses).
 			const up = survivorsAfterCombat(state, state.encounter ?? enc);
 			if (up) log += `\n${up}`;
+			const crewUp = crewAfterCombat(state, state.encounter ?? enc);
+			if (crewUp) log += `\n${crewUp}`;
 			state.encounter = undefined;
 			state.mode = "explore";
 			state.scene.mood = a.status === "defeat" ? "somber" : "tense";

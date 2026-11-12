@@ -2,6 +2,7 @@ import type { Character, CyberState, GameState, ImplantSlot, InstalledImplant, R
 import { checkBreakdown } from "./character/derived";
 import { roll, signed, type Rng } from "./dice";
 import { rulesetOf } from "./ruleset";
+import { raidOnHeat } from "./raid";
 import { advanceClock, gameMinutes } from "./survival";
 
 /**
@@ -133,7 +134,8 @@ export function addHeat(cy: CyberState, delta: number, why: string, now: number)
 	const crossed = HEAT_THRESHOLDS.filter((t) => from < t.at && to >= t.at);
 	const cleared = HEAT_THRESHOLDS.filter((t) => from >= t.at && to < t.at);
 	const head = to === from ? `Heat stays ${to}/${HEAT_MAX}.` : `Heat ${from} → ${to}/${HEAT_MAX}: ${why}.`;
-	const extra = heatLine(from, to, crossed, cleared);
+	// Heat 8 / 10 schedules a raid on the den (lib/rules/raid.ts).
+	const extra = [heatLine(from, to, crossed, cleared), raidOnHeat(cy, crossed, now)].filter(Boolean).join(" ");
 	return { from, to, crossed, cleared, text: extra ? `${head} ${extra}` : head };
 }
 

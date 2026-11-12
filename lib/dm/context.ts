@@ -11,6 +11,9 @@ import { siegeTick } from "../rules/siege";
 import { addInventoryItem } from "./items";
 import { cyberTick, isCyber } from "../rules/cyber";
 import { syncRamSlots } from "../rules/deck";
+import { denTick } from "../rules/den";
+import { gigTick } from "../rules/gigs";
+import { crewTick } from "../rules/crew";
 
 /** Events streamed to the browser during a turn (SSE). */
 export type ClientEvent =
@@ -77,6 +80,11 @@ export async function withState<T>(ctx: ToolContext, fn: (tx: StateTxn) => T | P
 			zombie ? siegeTick(state, rng, (r) => rolls.push(r)) : undefined,
 			// Root Access: Heat cools 1 a day as game time passes (lib/rules/cyber.ts).
 			isCyber(state) ? cyberTick(state) : undefined,
+			// Root Access: the crew reacts to the Hat; daily loyalty drift and betrayal rolls (lib/rules/crew.ts).
+			isCyber(state) ? crewTick(state, rng) : undefined,
+			// Root Access: the den's day (income, rent, the sleep pod, the workbench) and gig offers expiring (lib/rules/den.ts, gigs.ts).
+			isCyber(state) ? denTick(state, rng) : undefined,
+			isCyber(state) ? gigTick(state) : undefined,
 		]
 			.filter(Boolean)
 			.join("\n");

@@ -12,7 +12,7 @@ import { SECURITY_AT, SYSADMIN_AT, TRACE_MAX } from "@/lib/rules/netrun";
 export type NetStyleId = "A" | "B" | "C";
 
 /** The net style the game draws with. A: green terminal, B: synthwave, C: blueprint. */
-export const NET_STYLE: NetStyleId = "A";
+export const NET_STYLE: NetStyleId = "B";
 
 export const NET_NODE_KINDS: readonly NetNodeKind[] = ["entry", "firewall", "data", "control", "admin", "vault", "honeypot"];
 

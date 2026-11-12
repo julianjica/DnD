@@ -282,7 +282,8 @@ export function levelUpOptions(c: Character, classId: string, choicesSoFar: Choi
 		const magicalSecrets = features.some((f) => /^magical-secrets-\d$/.test(f.index));
 		if (!sc.prepares) {
 			// Mystic Arcanum spells (6th+) don't count against warlock spells known.
-			const extras = new Set(c.features.filter((f) => f.id.startsWith("additional-magical-secrets:")).map((f) => f.id.split(":")[1]));
+			// Root Access: programs written at the den's workbench don't count either (lib/rules/den.ts).
+			const extras = new Set(c.features.filter((f) => f.id.startsWith("additional-magical-secrets:") || f.id.startsWith("written-program:")).map((f) => f.id.split(":")[1]));
 			const counted = (known?.known ?? []).filter((s) => !extras.has(s) && (classId !== "warlock" || (SPELLS.find((x) => x.index === s)?.level ?? 0) <= 5)).length;
 			const n = (row?.spellsKnown ?? 0) - counted;
 			if (n > 0) choices.push({ id: "spells", label: `${cls.name} spells known`, choose: n, options: spellOptions(c, classId, maxSpellLevel, magicalSecrets) });

@@ -48,8 +48,8 @@ export const deckChargesMax = (c: Character): number => {
 };
 
 /** A built-in program's attack bonus and save DC: Intelligence + proficiency + the deck's tier (whatever the class). */
-export function deckProgramNumbers(c: Character): { attackBonus: number; saveDc: number } {
-	const attackBonus = hackBonus(c);
+export function deckProgramNumbers(c: Character, extra = 0): { attackBonus: number; saveDc: number } {
+	const attackBonus = hackBonus(c) + extra;
 	return { attackBonus, saveDc: 8 + attackBonus };
 }
 
@@ -89,7 +89,12 @@ export function syncRamSlots(state: Pick<GameState, "character" | "cyber" | "set
 	const prev = sc.ramBonus ?? 0;
 	const base = Math.max(0, (sc.slots[0] ?? 0) - prev);
 	const caster = base > 0 || sc.slots.slice(1).some((n) => n > 0) || (sc.pact?.max ?? 0) > 0;
-	const next = rulesetOf(state.settings) === "cyberpunk" && caster ? ramBonus(state.character, state.cyber?.implants) : 0;
+	const cyber = rulesetOf(state.settings) === "cyberpunk";
+	// The den's RAM rack (+1 a level) and cooling while jacked in (lib/rules/den.ts).
+	const next = cyber && caster ? ramBonus(state.character, state.cyber?.implants) + (state.cyber?.den?.upgrades.ram_rack ?? 0) : 0;
+	const overclock = cyber && state.cyber?.run && state.cyber.den?.upgrades.cooling ? 1 : 0;
+	if (overclock) sc.overclock = overclock;
+	else delete sc.overclock;
 	if (next === prev) return;
 	while (sc.slots.length < 1) sc.slots.push(0);
 	sc.slots[0] = base + next;

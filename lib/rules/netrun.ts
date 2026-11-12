@@ -5,7 +5,10 @@ import { addCondition, applyDamage } from "./character";
 import type { CombatEvent } from "./combat/types";
 import { addHeat, cyberOf, isCyber, type RecordRoll } from "./cyber";
 import { deckOf, hackBonus } from "./deck";
+import { denFoundModifier, denProxy } from "./den";
 import { roll, signed, Rng } from "./dice";
+import { raidOnDump } from "./raid";
+import { vanAssist, vanHoldsTheBody } from "./crew";
 import { gameMinutes } from "./survival";
 
 /**
@@ -95,6 +98,9 @@ export function traceTick(state: GameState, amount: number, why: string, rng?: R
 			out.push(
 				`TRACE ${SECURITY_AT}: security is dispatched to the PC's body, jacked in onsite at ${run.target}. Guards reach it in a few rounds: narrate it (radio chatter, boots in the corridor) and put them in play; the body is helpless until the PC jacks out.`,
 			);
+			// The van: muscle and drivers of the crew try to hold them off (lib/rules/crew.ts).
+			out.push(...vanHoldsTheBody(state, r, record ?? (() => undefined)));
+			if (!rng) state.rng = r.state;
 		} else out.push(`TRACE ${SECURITY_AT}: they have the PC's route; two more ticks and the PC is dumped.`);
 	}
 	if (to >= TRACE_MAX) {
@@ -123,11 +129,13 @@ function dumpshock(state: GameState, rng: Rng, record: RecordRoll): string[] {
 	);
 	out.push(addHeat(cyberOf(state), 3, `dumped from ${run.target}`, gameMinutes(state.time)).text);
 	if (run.body === "den") {
-		const d = roll(rng, `1d20+${2 * run.security}`, { label: "Did they find the den? (20+)", actor: "dm", target: 20 });
+		// The den's faraday mesh makes it harder to find (lib/rules/den.ts).
+		const mod = 2 * run.security + denFoundModifier(state);
+		const d = roll(rng, `1d20${mod ? signed(mod) : ""}`, { label: "Did they find the den? (20+)", actor: "dm", target: 20 });
 		record(d);
 		out.push(
 			d.total >= 20
-				? `DEN FOUND (${d.total} vs 20): the trace led back to the den. A raid on the den is due: foreshadow it (a car parked too long, La Tía's warning); the raid itself comes later.`
+				? `DEN FOUND (${d.total} vs 20): the trace led back to the den. ${raidOnDump(state, run.target)}`
 				: `The den holds (${d.total} vs 20): the trace died in the proxies before it reached the den.`,
 		);
 	}
@@ -356,7 +364,8 @@ export function jackIn(state: GameState, input: JackInInput, rng: Rng): string {
 		netMapId: map.id,
 		nodes,
 		trace: 0,
-		proxy: Math.max(0, Math.round(input.proxy ?? 0)),
+		// The den's proxy chain covers runs started from the den (lib/rules/den.ts).
+		proxy: Math.max(0, Math.round(input.proxy ?? 0), denProxy(cy, input.body)),
 		sysadminAlerted: false,
 		securityDispatched: false,
 		startedAt: gameMinutes(state.time),
@@ -459,10 +468,12 @@ export function netAction(state: GameState, ref: string, action: NetActionId, rn
 	if (pcC) pcC.turn.action = false;
 	const c = state.character;
 	const dc = nodeDc(run.security);
+	// The van: a runner or tech of the crew rides along (+2, lib/rules/crew.ts).
+	const van = vanAssist(state);
 	const check = (label: string) => {
-		const r = roll(rng, `1d20${signed(hackBonus(c))}`, { label: `${label} (DC ${dc})`, actor: c.id, target: dc });
+		const r = roll(rng, `1d20${signed(hackBonus(c) + van.bonus)}`, { label: `${label} (DC ${dc})${van.who ? ` +${van.bonus} ${van.who} in the van` : ""}`, actor: c.id, target: dc });
 		record(r);
-		return { ok: r.total >= dc, text: `${label}: ${r.total} vs DC ${dc}` };
+		return { ok: r.total >= dc, text: `${label}: ${r.total} vs DC ${dc}${van.who ? ` (${van.who} helping from the van, +${van.bonus})` : ""}` };
 	};
 	let extra = 0;
 	let why = `${action.replace("_", " ")} at ${nodeFace(node).name}`;

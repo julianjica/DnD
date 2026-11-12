@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Backpack, BookOpen, BookUser, Feather, Scroll, Shield, Sparkles, Users, Heart, Swords, ArrowUpCircle, Coins, Radio as RadioIcon } from "lucide-react";
+import { Backpack, BookOpen, BookUser, Feather, Scroll, Shield, Sparkles, Users, Heart, Swords, ArrowUpCircle, Coins, Radio as RadioIcon, Warehouse, Handshake } from "lucide-react";
 import type { Ability, GameState, InventoryItem, PlayerCombatAction, RadioStation } from "@/lib/game/types";
 import { canLevelUp, deriveSheet, XP_THRESHOLDS } from "@/lib/rules/character";
 import { getSpell } from "@/lib/srd";
@@ -13,6 +13,8 @@ import { Tooltip } from "@/components/ui/Tooltip";
 import { SpellAdvChips, SpellCard } from "./SpellCard";
 import { SurvivalBlock } from "./Survival";
 import { CyberMeters } from "./CyberMeters";
+import { DenPanel } from "./DenPanel";
+import { CrewPanel, activeCrewCount } from "./CrewPanel";
 import { GroupTab, livingSurvivors } from "./Group";
 import { RadioTab } from "./Radio";
 import { isModern, rulesetOf } from "@/lib/rules/ruleset";
@@ -29,6 +31,8 @@ export interface SheetActions {
 	listen?: (station: RadioStation, label: string) => void;
 	/** The Quiet: send or recall an expedition (starts a DM turn). */
 	expedition?: (body: Record<string, unknown> & { label: string }) => void;
+	/** Reloads the state and the log (after a direct action such as buying a den upgrade). */
+	refresh?: () => void;
 }
 
 const CONSUMABLE = /potion|elixir|ration|torch|oil|scroll|antitoxin|candle|holy water|acid|alchemist|healer|caltrop|ball bearing|chalk|food|wine|ale\b/i;
@@ -54,7 +58,7 @@ function UseBtn({ label, onClick, disabled, title }: { label: string; onClick: (
 	);
 }
 
-type Tab = "sheet" | "inventory" | "spells" | "quests" | "journal" | "codex" | "group" | "radio";
+type Tab = "sheet" | "inventory" | "spells" | "quests" | "journal" | "codex" | "group" | "radio" | "den";
 
 function Bar({ value, max, color, label }: { value: number; max: number; color: string; label: string }) {
 	const pct = max > 0 ? Math.max(0, Math.min(100, (value / max) * 100)) : 0;
@@ -399,16 +403,20 @@ const ZOMBIE_TABS: typeof TABS = [
 	{ id: "codex", label: "play.tab.codex", icon: BookUser },
 ];
 
+/** Root Access: the den (upgrades, rent, gig board) gets its own tab. */
+const CYBER_TABS: typeof TABS = [...TABS, { id: "group", label: "play.tab.crew", icon: Handshake }, { id: "den", label: "play.tab.den", icon: Warehouse }];
+
 export function Sidebar({ state, onLevelUp, actions }: { state: GameState; onLevelUp: () => void; actions: SheetActions }) {
 	const { t } = useT();
 	const [tab, setTab] = useState<Tab>("sheet");
 	const activeQuests = state.quests.filter((q) => q.status === "active").length;
 	const zombie = rulesetOf(state.settings) === "zombie";
-	const tabs = zombie ? ZOMBIE_TABS : TABS;
-	const groupSize = zombie ? livingSurvivors(state).length : 0;
+	const cyber = rulesetOf(state.settings) === "cyberpunk";
+	const tabs = zombie ? ZOMBIE_TABS : cyber ? CYBER_TABS : TABS;
+	const groupSize = zombie ? livingSurvivors(state).length : cyber ? activeCrewCount(state) : 0;
 	return (
 		<div className="@container flex h-full min-h-0 flex-col">
-			<div className={`grid border-b border-line ${zombie ? "grid-cols-8" : "grid-cols-6"}`}>
+			<div className="grid border-b border-line" style={{ gridTemplateColumns: `repeat(${tabs.length}, minmax(0, 1fr))` }}>
 				{tabs.map((tb) => (
 					<button
 						key={tb.id}
@@ -433,7 +441,9 @@ export function Sidebar({ state, onLevelUp, actions }: { state: GameState; onLev
 				{tab === "journal" && <JournalTab state={state} />}
 				{tab === "codex" && <CodexTab state={state} />}
 				{tab === "group" && zombie && <GroupTab state={state} expeditions={{ busy: actions.busy, send: actions.expedition, recall: actions.expedition }} />}
+				{tab === "group" && cyber && <CrewPanel state={state} />}
 				{tab === "radio" && zombie && <RadioTab state={state} busy={actions.busy} listen={actions.listen} />}
+				{tab === "den" && cyber && <DenPanel state={state} busy={actions.busy} onChanged={() => actions.refresh?.()} />}
 			</div>
 		</div>
 	);

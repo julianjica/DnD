@@ -331,5 +331,12 @@
 	"Live Trace": "Rastreo en vivo",
 	"While it is in the network, the trace rises by 1 at the start of each of its turns.": "Mientras esté en la red, el rastreo sube 1 al inicio de cada uno de sus turnos.",
 	"Jack Out": "Desconectarse",
-	"Dropping it to 0 hit points throws the admin out of the net: they wake at their desk, alive and furious. Its ICE keeps fighting.": "Dejarlo a 0 puntos de golpe expulsa al administrador de la red: despierta en su escritorio, vivo y furioso. Su ICE sigue luchando."
+	"Dropping it to 0 hit points throws the admin out of the net: they wake at their desk, alive and furious. Its ICE keeps fighting.": "Dejarlo a 0 puntos de golpe expulsa al administrador de la red: despierta en su escritorio, vivo y furioso. Su ICE sigue luchando.",
+	"Den Turret": "Torreta de la guarida",
+	"Bolted Down": "Atornillada",
+	"A ceiling-and-floor mount in the den: it can't move, and it can't be shoved or knocked prone.": "Un montaje de techo a suelo en la guarida: no puede moverse, ni ser empujada ni derribada.",
+	"Friend or Foe": "Amigo o enemigo",
+	"It fires only at people its owner never tagged as friendly. Whoever takes control of it with a street hack chooses the targets until it is reset.": "Solo dispara a quien su dueño no marcó como amigo. Quien tome su control con un hackeo callejero elige los blancos hasta que la reinicien.",
+	"Autocannon Burst": "Ráfaga de autocañón",
+	"Ranged Weapon Attack: +4 to hit, range 60/120 ft., one target. Hit: 7 (1d10 + 2) piercing damage. The burst is loud.": "Ataque con arma a distancia: +4 al ataque, alcance 60/120 pies, un objetivo. Impacto: 7 (1d10 + 2) de daño perforante. La ráfaga es ruidosa."
 }

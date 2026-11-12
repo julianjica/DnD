@@ -204,6 +204,8 @@ export interface SpellcastingState {
 	pact?: { level: number; max: number; used: number };
 	/** Root Access: extra level-1 slots (RAM) from the deck, a RAM expansion and the experimental jack, already included in slots[0] (lib/rules/deck.ts syncRamSlots). */
 	ramBonus?: number;
+	/** Root Access: the den's cooling while jacked in (+1 to program save DCs and attacks; lib/rules/deck.ts syncRamSlots). */
+	overclock?: number;
 }
 
 export interface PortraitSpec {
@@ -1091,6 +1093,101 @@ export interface CyberState {
 	run?: NetRun;
 	/** Built-in deck programs used since the last long rest, by program id. */
 	deckUses?: Record<string, number>;
+	/** Phase 3: the den (home, upgrades, rent, raids). Money is the character's gp, shown as cred. */
+	den?: DenState;
+	/** Phase 3: the jobs on offer and taken (La Tía, factions, boards). */
+	gigs?: Gig[];
+	/** Phase 4: the crew, by NPC id (the NPC record stays in state.npcs). */
+	crew?: Record<string, CrewMember>;
+	/** Phase 4: when the crew last ticked (daily loyalty, betrayal) and the PC's Hat it last reacted to. */
+	crewTick?: { at: number; hat: number };
+}
+
+/** Den upgrades (docs/cyberpunk.md §6). Levels: ram_rack 1-3, the rest 1. */
+export type DenUpgradeId =
+	| "ram_rack" | "cooling" | "proxy_chain" | "faraday_mesh" | "steel_door" | "sleep_pod" | "med_bay"
+	| "botnet" | "render_farm" | "workbench" | "cameras" | "turret" | "hidden_exit";
+
+export interface DenState {
+	/** "The Capsule Room", "a back room in Tianguis Cromo". */
+	name: string;
+	/** World location id of the den. */
+	locationId: string;
+	/** The den's map (draw_map), if drawn. */
+	mapId?: string;
+	/** Rent per week in cred (gp). */
+	rent: number;
+	/** Game minute the next rent is due. */
+	rentDueAt: number;
+	/** Unpaid rent owed to La Tía (cred). */
+	debt: number;
+	/** Installed upgrades and their level. Fixed ones (door, mesh, cameras, turret, hidden exit, sleep pod, med bay) are lost when the den moves. */
+	upgrades: Partial<Record<DenUpgradeId, number>>;
+	/** A program being written at the workbench. */
+	writing?: { program: string; readyAt: number };
+	/** A raid is coming (Heat 8, a dump that found the den, a betrayal). */
+	raidDue?: {
+		reason: string;
+		at: number;
+		by: "ferro" | "gang" | "bounty" | "corp";
+		/** Set by raid_begin: the fight at the den is on (lib/rules/raid.ts). */
+		started?: { at: number; force: string[]; mapId: string };
+	};
+	raids: { at: number; won: boolean; seized: DenUpgradeId[]; moved: boolean }[];
+	/** How many times the den has moved. */
+	moves: number;
+	/** Game minute of the last daily den tick (botnet, rent, sleep pod). */
+	lastTick: number;
+	/** Nights slept at the den with a sleep pod, toward the next +1 Humanity (lib/rules/den.ts). */
+	podNights?: number;
+	/** Recent den events (EN engine lines, newest last, capped). */
+	log: string[];
+}
+
+export type GigKind = "heist" | "sabotage" | "leak" | "ransom" | "bounty" | "defence" | "extraction" | "skiptrace";
+
+/** A job (docs/cyberpunk.md §6): what it pays and what it does to your Hat and Heat. */
+export interface Gig {
+	id: string;
+	title: string;
+	/** Who offers it (NPC id or a faction name). */
+	client: string;
+	kind: GigKind;
+	pay: number;
+	/** Hat shift when done (−3…+3). */
+	hat: number;
+	/** Heat added when done (0…4). */
+	heat: number;
+	/** 1…5. */
+	risk: number;
+	/** One or two lines: the job as the client puts it. */
+	brief: string;
+	status: "offered" | "taken" | "done" | "failed" | "expired";
+	offeredAt: number;
+	expiresAt: number;
+}
+
+export type CrewRole = "driver" | "face" | "muscle" | "medic" | "runner" | "tech";
+
+/** A crew member (docs/cyberpunk.md §7). Their NPC record (name, portrait, voice) is state.npcs[npcId]. */
+export interface CrewMember {
+	npcId: string;
+	/** Hacking style = class id. */
+	classId: string;
+	level: number;
+	hp: number;
+	maxHp: number;
+	role: CrewRole;
+	/** Where their own hat sits (−10 black … +10 white): drifting away from it costs loyalty. */
+	hatPref: number;
+	/** 0 (about to walk or sell you out) … 10 (ride or die). */
+	loyalty: number;
+	status: "with_pc" | "at_den" | "away" | "left" | "betrayed" | "dead";
+	/** One line: what they bring ("drives anything with wheels"). */
+	specialty: string;
+	/** Equipment refs they carry (c-…). */
+	gear: string[];
+	joinedAt: number;
 }
 
 /** What a node of a network is (docs/cyberpunk.md §4). */

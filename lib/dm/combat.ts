@@ -7,6 +7,7 @@ import { addNoise, DEFAULT_LOUDNESS, infectionSave, isZombie, survivalItem, surv
 import type { StateTxn } from "./context";
 import { survivorBitten, survivorForCombatant, syncSurvivorsFromCombat } from "../rules/group";
 import { cyberCombatHook } from "../rules/netrun";
+import { syncCrewFromCombat } from "../rules/crew";
 
 /** Combat options bound to the current character and the SRD. */
 export function combatOpts(state: GameState): CombatOptions {
@@ -80,7 +81,9 @@ export function applyCombatResult(tx: StateTxn, res: CombatResult): string {
 	const needs = res.events.filter((e) => e.type === "needs_dm").map((e) => `DM ADJUDICATE: ${(e as { text: string }).text}`);
 	// Root Access: trace for PC turns, ICE turns and programs during a run; Heat for street hacks (lib/rules/netrun.ts).
 	const cyber = cyberCombatHook(state, res.events, tx.rng, tx.roll);
-	return [...res.log, ...needs, ...survival, ...cyber].join("\n");
+	// Root Access: the crew's HP and deaths persist (lib/rules/crew.ts).
+	const crew = syncCrewFromCombat(state, tx.rng, tx.roll);
+	return [...res.log, ...needs, ...survival, ...cyber, ...crew].join("\n");
 }
 
 /**

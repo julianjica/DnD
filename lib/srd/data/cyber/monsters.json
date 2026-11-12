@@ -1998,5 +1998,84 @@
 		"reactions": [],
 		"legendaryActions": [],
 		"tokenHint": "sysadmin"
+	},
+	{
+		"index": "c-den-turret",
+		"name": "Den Turret",
+		"size": "small",
+		"type": "construct",
+		"alignment": "unaligned",
+		"ac": 15,
+		"hp": 22,
+		"hitDice": "4d6+8",
+		"speed": {
+			"walk": 0
+		},
+		"abilities": {
+			"str": 10,
+			"dex": 14,
+			"con": 14,
+			"int": 3,
+			"wis": 12,
+			"cha": 1
+		},
+		"saves": {},
+		"skills": {
+			"perception": 3
+		},
+		"vulnerabilities": [
+			"lightning"
+		],
+		"resistances": [],
+		"immunities": [
+			"poison",
+			"psychic"
+		],
+		"conditionImmunities": [
+			"charmed",
+			"frightened",
+			"poisoned",
+			"prone"
+		],
+		"senses": "passive Perception 13",
+		"languages": "—",
+		"cr": 0.25,
+		"xp": 50,
+		"traits": [
+			{
+				"name": "Bolted Down",
+				"description": "A ceiling-and-floor mount in the den: it can't move, and it can't be shoved or knocked prone."
+			},
+			{
+				"name": "Friend or Foe",
+				"description": "It fires only at people its owner never tagged as friendly. Whoever takes control of it with a street hack chooses the targets until it is reset."
+			}
+		],
+		"actions": [
+			{
+				"name": "Autocannon Burst",
+				"description": "Ranged Weapon Attack: +4 to hit, range 60/120 ft., one target. Hit: 7 (1d10 + 2) piercing damage. The burst is loud.",
+				"attack": {
+					"name": "Autocannon Burst",
+					"kind": "ranged",
+					"toHit": 4,
+					"range": {
+						"normal": 60,
+						"long": 120
+					},
+					"damage": [
+						{
+							"dice": "1d10+2",
+							"type": "piercing"
+						}
+					],
+					"description": "Ranged Weapon Attack: +4 to hit, range 60/120 ft., one target. Hit: 7 (1d10 + 2) piercing damage. The burst is loud."
+				}
+			}
+		],
+		"bonusActions": [],
+		"reactions": [],
+		"legendaryActions": [],
+		"tokenHint": "drone"
 	}
 ]

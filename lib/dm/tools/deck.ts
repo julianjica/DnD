@@ -1,5 +1,6 @@
 import type { SpellInfo } from "../../game/types";
 import { isCyber, cyberOf } from "../../rules/cyber";
+import { coolingBonus } from "../../rules/den";
 import { deckChargesMax, deckOf, deckProgramNumbers, deckUsesOf } from "../../rules/deck";
 import { programRan } from "../../rules/netrun";
 import { getSpell } from "../../srd";
@@ -38,7 +39,7 @@ export function runDeckProgram(tx: StateTxn, a: DeckProgramInput): string {
 	const cy = cyberOf(state);
 	const used = deckUsesOf(cy, spell.index);
 	if (used >= max) throw new RulesError(`${spell.name} on ${deck.name} has no charges left (${max} per long rest). It is NOT run; the charges come back on a long rest.`);
-	const nums = deckProgramNumbers(c);
+	const nums = deckProgramNumbers(c, coolingBonus(cy)); // the den's cooling while jacked in
 	const ct = spell.castingTime.toLowerCase();
 	const lines: string[] = [];
 	if (state.encounter?.status === "active" && isPcTurn(state) && ct.includes("action") && !ct.includes("reaction")) {

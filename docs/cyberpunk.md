@@ -225,7 +225,7 @@ You start in a capsule room above a noodle stall in Los Anegados. **Rent** is we
 |---|---|
 | **Deck tier** (carried) | Tier 1–3: +1/+2/+3 to hacks and program DCs; tiers 2 and 3 also give +1 RAM |
 | **RAM rack** | +1 program slot per level |
-| **Cooling** | Overclock without overheating on long runs |
+| **Cooling** | Overclock without overheating on long runs: +1 to program save DCs and attacks while jacked in |
 | **Proxy chain / uplink** | The first 2 ticks of each run are ignored; hack far targets without going on site |
 | **Faraday mesh and a steel door** | Raid defence, and they're less likely to find the den when you're dumped |
 | **Sleep pod** | Better long rests (+1 Humanity per week of good sleep) |

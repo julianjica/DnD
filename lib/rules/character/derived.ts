@@ -145,7 +145,8 @@ export function spellAttackBonus(c: Character, ab: Ability): number {
 }
 /** Root Access: the carried deck's tier adds to program attacks and save DCs (docs/cyberpunk.md §6). 0 elsewhere. */
 export function programDeckBonus(c: Character): number {
-	return characterRuleset(c) === "cyberpunk" ? (deckTier(c) ?? 0) : 0;
+	// + the den's cooling while jacked in (spellcasting.overclock, synced by syncRamSlots).
+	return characterRuleset(c) === "cyberpunk" ? (deckTier(c) ?? 0) + (c.spellcasting?.overclock ?? 0) : 0;
 }
 
 /** Number of spells a prepared caster may prepare (excludes always-prepared subclass spells). */
