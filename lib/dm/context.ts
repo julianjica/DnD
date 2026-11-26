@@ -33,7 +33,9 @@ export type FxEvent =
 	| { kind: "heal"; entityId?: string; amount: number }
 	| { kind: "miss"; entityId?: string }
 	| { kind: "sfx"; sound: string }
-	| { kind: "level_up"; level: number };
+	| { kind: "level_up"; level: number }
+	/** The player walked up to something with a discover text (lib/dm/discover.ts): a caption on the map. */
+	| { kind: "discover"; entityId?: string; name: string; text: string; significant?: boolean; item?: string };
 
 export interface ToolContext {
 	campaignId: string;

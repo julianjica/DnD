@@ -55,6 +55,9 @@ export function SettingsDrawer({ state, onClose, onSave }: { state: GameState; o
 				<Field label={t("play.set.campaignTitle")}>
 					<input className="input" value={title} onChange={(e) => setTitle(e.target.value)} />
 				</Field>
+				<Field label={t("structure.goals")} hint={t("structure.goalsHint")}>
+					<textarea className="input min-h-20 resize-y font-serif text-sm" value={s.structure.goals ?? ""} onChange={(e) => set("structure", { goals: e.target.value })} placeholder={t("structure.goalsPh")} maxLength={600} />
+				</Field>
 				<Field label={t("play.set.language")} hint={t("play.set.languageHint")}>
 					<div className="flex flex-wrap gap-1">
 						{LANGS.map((l) => (

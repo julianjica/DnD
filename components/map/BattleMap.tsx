@@ -62,6 +62,8 @@ export interface BattleMapProps {
 	exits?: Record<string, string>;
 	/** The Quiet: siege posts, keyed "x,y" → who holds them. */
 	marks?: Record<string, string>;
+	/** Squares ("x,y") with something to discover: a soft glint while in sight. */
+	glints?: Set<string>;
 	/** Root Access net maps: the run (node open state) and a style override. */
 	net?: NetOpts;
 }
@@ -160,9 +162,10 @@ export default function BattleMap(props: BattleMapProps) {
 			notes: props.notes,
 			exits: props.exits,
 			marks: props.marks,
+			glints: props.glints,
 			net: props.net,
 		});
-	}, [ready, map, entities, status, visibleSquares, fog, showHidden, highlights, highlightColor, pathPreview, pathLabel, aoe, selectedId, gridOn, darkvision, props.pixel, props.powerOn, barricadeLabel, props.notes, props.exits, props.marks, props.net]);
+	}, [ready, map, entities, status, visibleSquares, fog, showHidden, highlights, highlightColor, pathPreview, pathLabel, aoe, selectedId, gridOn, darkvision, props.pixel, props.powerOn, barricadeLabel, props.notes, props.exits, props.marks, props.glints, props.net]);
 
 	const focusKey = props.focus == null ? "" : typeof props.focus === "string" ? props.focus : `${props.focus.x},${props.focus.y}`;
 	useEffect(() => {

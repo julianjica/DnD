@@ -306,6 +306,20 @@ export interface MapEntity {
 	description?: string;
 	/** A corpse: drawn lying down, never blocks movement. */
 	dead?: boolean;
+	/** Shown to the player when their token walks up to it (lib/dm/discover.ts). */
+	discover?: MapDiscovery;
+}
+
+/** Something the player finds by walking up to it (an entity) or into it (a room). */
+export interface MapDiscovery {
+	/** One or two sentences in the campaign language, shown as a caption and logged. */
+	text: string;
+	/** Hands the turn to the DM when found (a clue, an NPC who wants to talk). */
+	significant?: boolean;
+	/** A small story object handed over when found ("Rusty key", "2 Silver coins"). */
+	item?: string;
+	/** Already found: shown once. */
+	found?: boolean;
 }
 
 export interface MapRoom {
@@ -318,6 +332,8 @@ export interface MapRoom {
 	tag?: string;
 	/** DM-given name/description once placed. */
 	name?: string;
+	/** Shown to the player when they walk into the room. */
+	discover?: MapDiscovery;
 }
 
 export interface GridMap {
@@ -477,6 +493,10 @@ export interface StoryThread {
 export interface PacingState {
 	turn: number;
 	last: { threat: number; action: number; human: number; twist: number };
+	/** Breathing room: until this game minute no threat or pursuer reaches the player unless they go looking (set by a successful escape/hide or the end of a fight). */
+	respiteUntil?: number;
+	/** Why the respite was granted ("hid in the brambles"). */
+	respiteWhy?: string;
 }
 
 export interface Quest {
@@ -592,6 +612,8 @@ export interface CampaignSettings {
 		startingLevel: number;
 		difficulty: "story" | "easy" | "normal" | "hard" | "deadly";
 		hook?: string;
+		/** What the player wants for their character (their own goals; the DM builds opportunities around them). */
+		goals?: string;
 		leveling: "xp" | "milestone";
 	};
 	dm: {
@@ -844,6 +866,8 @@ export interface GameState {
 	radio?: RadioState;
 	/** The Quiet: a night siege at the base, from warning to dawn. */
 	siege?: SiegeState;
+	/** A timed challenge (chase, heist, escape) the player plays on the Challenge panel (lib/rules/challenge.ts). */
+	challenge?: ChallengeState;
 	/** Threads the DM planted and owes a payoff. */
 	threads?: StoryThread[];
 	/** The pacing director's memory. */
@@ -1056,7 +1080,8 @@ export interface SiegeState {
 /** One line in the play log (data/campaigns/<id>/log.jsonl). */
 export interface LogEntry {
 	id: string;
-	role: "player" | "dm" | "system" | "roll";
+	/** "discovery": the engine showed the player something they walked up to (no DM call). */
+	role: "player" | "dm" | "system" | "roll" | "discovery";
 	text: string;
 	roll?: RollRecord;
 	/** Tool activity summary for the DM entry (collapsed in the UI). */
@@ -1296,4 +1321,105 @@ export interface NetRun {
 	startedAt: number;
 	/** What happened, for the DM (newest last, capped). */
 	log: string[];
+}
+
+// ─── Timed challenges: chases, heists, escapes (lib/rules/challenge.ts) ─────
+
+export type ChallengeKind = "chase" | "heist" | "escape" | "infiltration" | "race" | "other";
+
+/** What a failed approach (or a failed challenge) costs; the engine applies it. */
+export interface ChallengeCost {
+	/** Extra ticks off the clock. */
+	clock?: number;
+	/** Damage dice ("1d6", "2"); a challenge never drops the PC below 1 HP. */
+	hp?: string;
+	/** Root Access only: Heat added. */
+	heat?: number;
+	/** The Quiet only: noise added where the player is. */
+	noise?: number;
+	/** An inventory item lost (by name). */
+	item?: string;
+	/** An alarm is raised / the pursuers are alerted (short text, campaign language). */
+	alarm?: string;
+}
+
+export interface ChallengeApproach {
+	/** What the player does, in the campaign language ("Over the rooftops"). */
+	label: string;
+	/** Skill index ("athletics") or ability ("dex"). */
+	skill: string;
+	dc: number;
+	/** What success gains, in the campaign language. */
+	success: string;
+	/** What failure costs, in the campaign language. */
+	failure: string;
+	/** Ticks the attempt takes whatever happens (1 fast … 3 slow). */
+	time: number;
+	/** Progress on success (2 = a shortcut). */
+	gain: number;
+	cost: ChallengeCost;
+}
+
+export interface ChallengeStage {
+	/** The obstacle, in the campaign language. */
+	prompt: string;
+	approaches: ChallengeApproach[];
+}
+
+export interface ChallengeComplication {
+	/** Shown when it fires (campaign language). */
+	text: string;
+	/** Fires when the clock left drops to this or below. */
+	atClock: number;
+	/** DCs of every later attempt go up by this. */
+	dcPlus: number;
+	cost?: ChallengeCost;
+	fired?: boolean;
+}
+
+/** One attempt (or event) on the challenge log, as data for the panel. */
+export interface ChallengeLogEntry {
+	kind: "attempt" | "complication";
+	stage: number;
+	/** Approach label, or the complication text. */
+	label: string;
+	skill?: string;
+	dc?: number;
+	total?: number;
+	bonus?: number;
+	success?: boolean;
+	helper?: string;
+	ticks?: number;
+	gain?: number;
+	/** Costs actually paid. */
+	paid?: { clock?: number; hp?: number; heat?: number; noise?: number; item?: string; alarm?: string };
+}
+
+export interface ChallengeState {
+	id: string;
+	title: string;
+	kind: ChallengeKind;
+	goal: string;
+	clock: number;
+	clockMax: number;
+	progress: number;
+	target: number;
+	/** Index of the current stage. */
+	stage: number;
+	stages: ChallengeStage[];
+	stakes: { success: string; partial: string; failure: string; cost?: ChallengeCost };
+	complications: ChallengeComplication[];
+	/** DC raise in effect from fired complications. */
+	dcPlus: number;
+	/** Game minutes one tick stands for. */
+	minutesPerTick: number;
+	startedAt: number;
+	status: "active" | "success" | "partial" | "failure";
+	log: ChallengeLogEntry[];
+	/** Engine threshold lines (noise, Heat) waiting for the DM. */
+	pending: string[];
+	/** DM-only end summary (the ENGINE NOTE), stripped for the browser. */
+	summary?: string;
+	/** The end has been narrated by the DM. */
+	narrated?: boolean;
 }

@@ -1,14 +1,16 @@
 "use client";
 
 /**
- * The Quiet: the player's group and the base (docs/zombie.md §7). Read-only:
- * the engine owns state.group.
+ * The Quiet: the player's group and the base (docs/zombie.md §7). The engine
+ * owns state.group; the player stashes, takes, builds, sends companions on
+ * errands and leaves them at the base or brings them along through POST
+ * /api/campaigns/[id]/base (lib/dm/downtime.ts, no DM turn).
  *
  * A survivor's infection `turnsAt` is the DM's secret: nothing here reads it,
  * and no time since the bite is shown (that would let the player count it down).
  */
 import { ExpeditionsSection, type ExpeditionActions } from "./Expeditions";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
 	BellRing, CloudRain, Crosshair, Droplet, Fuel, Hammer, Hospital, House, MapPin, Pill, Radio, ScrollText, Shield, Sprout, TowerControl, Users, Utensils, Wrench, Zap, type LucideIcon,
 } from "lucide-react";
@@ -23,6 +25,138 @@ import { useEngineText } from "@/components/i18n/useEngineText";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { InfectionChip } from "./Survival";
 import { residentHeadcount } from "@/lib/rules/residents";
+import { atBase, BASE_UPGRADES, STOCK_KINDS, stockValue, UPGRADES } from "@/lib/rules/base";
+import { ERRAND_TASKS, type ErrandTask } from "@/lib/rules/group";
+import { useDowntime } from "./useDowntime";
+
+/** The player's own management on the Group tab (null when the tab is read-only). */
+type Manage = { locked: boolean; post: (body: Record<string, unknown>) => void; atBase: boolean; hasBase: boolean; error?: string | null };
+
+function ActBtn({ label, onClick, disabled, title, testId }: { label: string; onClick: () => void; disabled: boolean; title?: string; testId?: string }) {
+	return (
+		<button
+			type="button"
+			className="shrink-0 rounded border border-gold/50 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-gold-2 transition hover:bg-gold/15 disabled:cursor-not-allowed disabled:opacity-40"
+			disabled={disabled}
+			title={title}
+			onClick={onClick}
+			data-testid={testId}
+		>
+			{label}
+		</button>
+	);
+}
+
+const SELECT = "rounded border border-line bg-bg px-1 py-0.5 text-[11px] text-text";
+
+/** Errand and stay/come controls on a companion's card. */
+function CompanionControls({ s, manage }: { s: Survivor; manage: Manage }) {
+	const { t } = useT();
+	const tasks = ERRAND_TASKS.filter((x) => x !== "guard" || manage.hasBase);
+	const [task, setTask] = useState<ErrandTask>("scavenge");
+	const [hours, setHours] = useState(4);
+	if (s.status !== "with_party" && s.status !== "at_base") return null;
+	const down = s.hp <= 0;
+	return (
+		<div className="mt-2 space-y-1.5 border-t border-line/60 pt-2" data-testid="companion-controls">
+			<Tooltip content={t("downtime.ui.errandHelp")} className="flex w-full">
+				<div className="flex w-full items-center gap-1.5" tabIndex={0}>
+					<span className="w-14 shrink-0 text-[10px] uppercase tracking-wider text-faint">{t("downtime.ui.errand")}</span>
+					<select className={`${SELECT} min-w-0 flex-1`} value={task} onChange={(e) => setTask(e.target.value as ErrandTask)} aria-label={t("downtime.ui.errand")}>
+						{tasks.map((x) => <option key={x} value={x}>{t(`downtime.task.${x}` as MessageKey)}</option>)}
+					</select>
+					<select className={SELECT} value={hours} onChange={(e) => setHours(Number(e.target.value))} aria-label={t("downtime.ui.hours", { n: "" })}>
+						{[2, 4, 8, 12].map((n) => <option key={n} value={n}>{t("downtime.ui.hours", { n })}</option>)}
+					</select>
+					<ActBtn label={t("downtime.ui.send")} disabled={manage.locked || down} onClick={() => manage.post({ op: "errand", npcId: s.npcId, task, hours })} testId="errand-send" />
+				</div>
+			</Tooltip>
+			{manage.hasBase && (
+				<div className="flex justify-end">
+					{s.status === "with_party" ? (
+						<ActBtn label={t("downtime.ui.stayBase")} disabled={manage.locked} onClick={() => manage.post({ op: "place", npcId: s.npcId, status: "at_base" })} />
+					) : (
+						<ActBtn label={t("downtime.ui.comeAlong")} disabled={manage.locked || !manage.atBase} title={manage.atBase ? undefined : t("downtime.ui.notAtBase")} onClick={() => manage.post({ op: "place", npcId: s.npcId, status: "with_party" })} />
+					)}
+				</div>
+			)}
+		</div>
+	);
+}
+
+/** Stash, take and build, at the base. */
+function BaseManage({ base, state, manage }: { base: BaseState; state: GameState; manage: Manage }) {
+	const { t, ts } = useT();
+	const [kind, setKind] = useState<(typeof STOCK_KINDS)[number]>("food");
+	const [qty, setQty] = useState(1);
+	if (!manage.atBase) return <p className="text-[11px] italic text-faint">{t("downtime.ui.notAtBase")}</p>;
+	const stockable = state.character.inventory.filter((i) => i.quantity > 0 && stockValue(i));
+	// "Stash all" leaves the rounds for the PC's guns in the pack (stash them one by one if wanted).
+	const bulk = stockable.filter((i) => stockValue(i)!.kind !== "ammo");
+	const buildable = BASE_UPGRADES.filter((u) => !base.upgrades.includes(u) && !base.building?.some((b) => b.upgrade === u));
+	const kindLabel = (k: (typeof STOCK_KINDS)[number]) => t(`group.stock.${k}` as MessageKey).toLowerCase();
+	return (
+		<div className="space-y-3" data-testid="base-manage">
+			{manage.error && <p className="rounded border border-crimson/50 bg-crimson/5 px-2 py-1 text-xs text-crimson-2">{manage.error}</p>}
+			<div>
+				<h5 className="mb-1 flex items-center justify-between text-[10px] uppercase tracking-widest text-faint">
+					<span>{t("downtime.ui.stashTitle")}</span>
+					{bulk.length > 1 && <ActBtn label={t("downtime.ui.stashAll")} title={t("downtime.ui.stashAllHelp")} disabled={manage.locked} onClick={() => manage.post({ op: "stash", items: bulk.map((i) => ({ itemId: i.id })) })} testId="stash-all" />}
+				</h5>
+				{stockable.length === 0 ? (
+					<p className="text-xs italic text-faint">{t("downtime.ui.stashNone")}</p>
+				) : (
+					<ul className="space-y-1">
+						{stockable.map((i) => {
+							const v = stockValue(i)!;
+							return (
+								<li key={i.id} className="flex items-center justify-between gap-2 text-xs">
+									<span className="min-w-0 truncate text-text">{ts(i.name)}{i.quantity > 1 && <span className="text-dim"> ×{i.quantity}</span>} <span className="text-faint">→ {kindLabel(v.kind)} +{v.units * i.quantity}</span></span>
+									<ActBtn label={t("downtime.ui.stash")} disabled={manage.locked} onClick={() => manage.post({ op: "stash", items: [{ itemId: i.id }] })} testId="stash-item" />
+								</li>
+							);
+						})}
+					</ul>
+				)}
+			</div>
+			<div>
+				<h5 className="mb-1 text-[10px] uppercase tracking-widest text-faint">{t("downtime.ui.takeTitle")}</h5>
+				<div className="flex items-center gap-1.5" data-testid="stash-take">
+					<select className={`${SELECT} min-w-0 flex-1`} value={kind} onChange={(e) => setKind(e.target.value as typeof kind)} aria-label={t("downtime.ui.takeTitle")}>
+						{STOCK_KINDS.map((k) => <option key={k} value={k} disabled={base.stock[k] <= 0}>{t(`group.stock.${k}` as MessageKey)} ({Math.max(0, base.stock[k])})</option>)}
+					</select>
+					<input type="number" min={1} max={Math.max(1, base.stock[kind])} step={kind === "fuel" ? 5 : 1} className={`${SELECT} w-14`} value={qty} onChange={(e) => setQty(Math.max(1, Math.round(Number(e.target.value) || 1)))} aria-label="qty" />
+					<ActBtn label={t("downtime.ui.takeBtn")} disabled={manage.locked || base.stock[kind] < qty} onClick={() => manage.post({ op: "take", kind, qty })} />
+				</div>
+			</div>
+			<div>
+				<h5 className="mb-1 text-[10px] uppercase tracking-widest text-faint">{t("downtime.ui.buildTitle")}</h5>
+				{buildable.length === 0 ? (
+					<p className="text-xs italic text-faint">{t("downtime.ui.allBuilt")}</p>
+				) : (
+					<ul className="space-y-1.5">
+						{buildable.map((u) => {
+							const Icon = UPGRADE_ICON[u] ?? Wrench;
+							const cost = STOCK_KINDS.filter((k) => UPGRADES[u].cost[k]).map((k) => `${UPGRADES[u].cost[k]} ${kindLabel(k)}`).join(" + ");
+							const short = STOCK_KINDS.some((k) => (UPGRADES[u].cost[k] ?? 0) > base.stock[k]);
+							return (
+								<li key={u} className="flex items-start gap-2 text-xs" data-testid={`build-${u}`}>
+									<Icon size={14} className="mt-px shrink-0 text-faint" />
+									<span className="min-w-0 flex-1">
+										<span className="text-text">{t(`group.upgrade.${u}` as MessageKey)}</span>
+										<span className="block text-[11px] text-dim">{t(`group.upgradeInfo.${u}` as MessageKey)}</span>
+										<span className={`block text-[11px] ${short ? "text-crimson-2" : "text-faint"}`}>{cost} · {t("downtime.ui.hours", { n: UPGRADES[u].hours })}</span>
+									</span>
+									<ActBtn label={t("downtime.ui.build")} disabled={manage.locked || short} onClick={() => manage.post({ op: "build", upgrade: u })} />
+								</li>
+							);
+						})}
+					</ul>
+				)}
+			</div>
+		</div>
+	);
+}
 
 // ─── pure helpers ───────────────────────────────────────────────────────────
 
@@ -132,7 +266,7 @@ function StatusChip({ s, state }: { s: Survivor; state: GameState }) {
 	return <span className={cls}>{t(`group.status.${s.status}` as MessageKey)}</span>;
 }
 
-function SurvivorCard({ s, state }: { s: Survivor; state: GameState }) {
+function SurvivorCard({ s, state, manage }: { s: Survivor; state: GameState; manage?: Manage }) {
 	const { t, te, ts } = useT();
 	const n = state.npcs[s.npcId];
 	const look = useMemo(() => survivorLook(state, s), [state, s]);
@@ -198,6 +332,7 @@ function SurvivorCard({ s, state }: { s: Survivor; state: GameState }) {
 				<span className="text-[10px] uppercase tracking-wider text-faint">{t("group.gear")} · </span>
 				{s.gear.length ? s.gear.map((g) => `${ts(getEquipment(g.ref)?.name ?? g.ref)}${g.qty > 1 ? ` ×${g.qty}` : ""}`).join(", ") : <span className="italic">{t("group.noGear")}</span>}
 			</p>
+			{manage && <CompanionControls s={s} manage={manage} />}
 		</article>
 	);
 }
@@ -316,7 +451,7 @@ function fortWord(f: number): MessageKey {
 	return f <= 1 ? "group.fort.open" : f <= 4 ? "group.fort.weak" : f <= 7 ? "group.fort.solid" : "group.fort.fortress";
 }
 
-function BaseSection({ base, state, mouths }: { base: BaseState; state: GameState; mouths: number }) {
+function BaseSection({ base, state, mouths, manage }: { base: BaseState; state: GameState; mouths: number; manage?: Manage }) {
 	const { t } = useT();
 	const place = state.world.locations.find((l) => l.id === base.locationId)?.name;
 	const fort = clamp10(base.fortification);
@@ -370,6 +505,8 @@ function BaseSection({ base, state, mouths }: { base: BaseState; state: GameStat
 					</p>
 				</Tooltip>
 			</div>
+
+			{manage && <BaseManage base={base} state={state} manage={manage} />}
 
 			<div>
 				<h5 className="mb-1 text-[10px] uppercase tracking-widest text-faint">{t("group.upgrades")}</h5>
@@ -464,14 +601,20 @@ function ResidentsSection({ base, state }: { base: BaseState; state: GameState }
 // ─── sidebar tab ────────────────────────────────────────────────────────────
 
 /** Sidebar "Group" tab (zombie campaigns only): survivors, then the base. */
-export function GroupTab({ state, expeditions }: { state: GameState; expeditions?: ExpeditionActions }) {
+export function GroupTab({ state, expeditions, manage: actions }: { state: GameState; expeditions?: ExpeditionActions; manage?: { busy: boolean; onChanged: () => void } }) {
 	const { t } = useT();
+	const { post, pending, error } = useDowntime(state.id, "base", () => actions?.onChanged());
+	// Not mid-fight, not during a siege or a timed challenge (the server refuses too).
+	const manage: Manage | undefined = actions
+		? { locked: actions.busy || pending || state.encounter?.status === "active" || !!state.siege || state.challenge?.status === "active", post: (b) => void post(b), atBase: atBase(state), hasBase: !!state.group?.base, error }
+		: undefined;
 	const living = livingSurvivors(state);
 	const gone = Object.values(state.group?.survivors ?? {}).filter((s) => GONE.has(s.status));
 	const base = state.group?.base;
 	const campLog = [...(state.group?.log ?? [])].sort((a, b) => b.at - a.at).slice(0, 6);
 	return (
 		<div className="space-y-4" data-testid="group-tab">
+			{error && <p className="rounded border border-crimson/50 bg-crimson/5 px-2 py-1 text-xs text-crimson-2" data-testid="manage-error">{error}</p>}
 			<section className="space-y-2">
 				<div className="flex items-center justify-between">
 					<h4 className="heading flex items-center gap-1.5 text-sm"><Users size={14} /> {t("group.title")}</h4>
@@ -483,7 +626,7 @@ export function GroupTab({ state, expeditions }: { state: GameState; expeditions
 						<p className="mt-1 text-xs text-faint">{t("group.aloneHint")}</p>
 					</div>
 				) : (
-					living.map((s) => <SurvivorCard key={s.npcId} s={s} state={state} />)
+					living.map((s) => <SurvivorCard key={s.npcId} s={s} state={state} manage={manage} />)
 				)}
 				{!base && campLog.length > 0 && (
 					<div data-testid="camp-log">
@@ -511,7 +654,7 @@ export function GroupTab({ state, expeditions }: { state: GameState; expeditions
 
 			<section className="space-y-2">
 				<h4 className="heading flex items-center gap-1.5 text-sm"><House size={14} /> {t("group.base")}</h4>
-				{base ? <BaseSection base={base} state={state} mouths={living.length + 1 + residentHeadcount(state)} /> : <p className="rounded-lg border border-dashed border-line px-3 py-3 text-center text-xs text-faint">{t("group.noBase")}</p>}
+				{base ? <BaseSection base={base} state={state} mouths={living.length + 1 + residentHeadcount(state)} manage={manage} /> : <p className="rounded-lg border border-dashed border-line px-3 py-3 text-center text-xs text-faint">{t("group.noBase")}</p>}
 			</section>
 		</div>
 	);

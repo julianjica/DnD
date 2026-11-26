@@ -281,6 +281,16 @@ function writerClass(c: Character, p: SpellInfo): { entry: NonNullable<Character
 	return { problem };
 }
 
+/** Programs the PC could start writing at the workbench now (on their list, a level they can run, not already theirs), lowest level first. */
+export function writablePrograms(c: Character): SpellInfo[] {
+	return SPELLS.filter((p) => p.ruleset === "cyberpunk" && p.level >= 1)
+		.filter((p) => {
+			const w = writerClass(c, p);
+			return !("problem" in w) && !w.entry.known.includes(p.index) && !w.entry.prepared.includes(p.index);
+		})
+		.sort((a, b) => a.level - b.level || a.name.localeCompare(b.name));
+}
+
 /** Starts writing a program at the workbench: pays 100 × level² cred, done in level × 2 days (the daily tick). */
 export function writeProgram(state: GameState, ref: string): { ok: boolean; text: string } {
 	const den = denOf(state);

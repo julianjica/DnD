@@ -1,4 +1,4 @@
-import type { GridMap, MapEntity, MapKind, Tile } from "../game/types";
+import type { GridMap, MapDiscovery, MapEntity, MapKind, Tile } from "../game/types";
 
 /**
  * DM-drawn maps: the DM lays a place out as rows of characters (one per 5 ft
@@ -53,6 +53,10 @@ export interface DrawKey {
 	/** Light radius in squares (torches ~4, hearth ~6). */
 	lightRadius?: number;
 	description?: string;
+	/** Shown to the player when they walk up to it (lib/dm/discover.ts). */
+	discover?: MapDiscovery;
+	/** Not on the map until found (a discovery reveals it). */
+	hidden?: boolean;
 }
 
 /** Present-day feature sprites (The Quiet: GridMap.theme "modern"). */
@@ -161,6 +165,8 @@ export function drawMap(input: DrawInput): DrawResult {
 			...(k.npcId ? { npcId: k.npcId, disposition: "friendly" as const } : {}),
 			...(k.lightRadius ? { lightRadius: k.lightRadius } : {}),
 			...(k.description ? { description: k.description } : {}),
+			...(k.discover ? { discover: { ...k.discover } } : {}),
+			...(k.hidden ? { hidden: true } : {}),
 		});
 	}
 	const pc = pcs[0] ? { x: pcs[0].x, y: pcs[0].y } : undefined;

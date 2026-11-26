@@ -30,6 +30,7 @@ import { applyDamageToCharacter, healCharacter } from "../derived";
 import { linkSurvivorCombatants, survivorForCombatant, survivorsForCombat, survivorSpawn } from "../../rules/group";
 import { crewAsThemselves, crewForCombatant, linkCrewCombatants, withCrew } from "../../rules/crew";
 import { isCyber } from "../../rules/cyber";
+import { discoverAt, silentNote } from "../discover";
 
 const CONDITIONS: ConditionId[] = ["blinded", "charmed", "deafened", "frightened", "grappled", "incapacitated", "invisible", "paralyzed", "petrified", "poisoned", "prone", "restrained", "stunned", "unconscious"];
 const DAMAGE: DamageType[] = ["acid", "bludgeoning", "cold", "fire", "force", "lightning", "necrotic", "piercing", "poison", "psychic", "radiant", "slashing", "thunder"];
@@ -416,7 +417,8 @@ export const movePlayerTool = tool<{ x?: number; y?: number; towardId?: string; 
 			const cheb = (p: { x: number; y: number }) => Math.max(Math.abs(p.x - goal.x), Math.abs(p.y - goal.y));
 			if (!enc) {
 				placeEntityNear(map, pc, goal, !!goalEnt);
-				return `Moved ${pc.name} to ${where(map, pc)}.`;
+				// What they now stand next to counts as seen: the DM narrates it.
+				return `Moved ${pc.name} to ${where(map, pc)}.${silentNote(discoverAt(state, map, pc, { silent: true }))}`;
 			}
 			if (!isPcTurn(state)) throw new Error("It isn't the player's turn; they move on their own turn.");
 			const pcId = state.character.id;

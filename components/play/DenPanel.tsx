@@ -3,14 +3,15 @@
 /**
  * Root Access: the den tab (docs/cyberpunk.md §6). Where the den is, rent and
  * debt to La Tía, what's installed, the upgrade catalogue with a Buy button,
- * the program at the workbench and the gig board. Buying and paying go through
- * POST /api/campaigns/[id]/den (the engine validates and charges); the rest is
- * read-only.
+ * the program at the workbench and the gig board. Buying and paying, taking or
+ * declining a gig, starting a program at the workbench and lying low go through
+ * POST /api/campaigns/[id]/den (the engine validates and applies; no DM turn,
+ * lib/dm/downtime.ts).
  */
 import { useState } from "react";
-import { Briefcase, Coins, Cpu, Flame, Hammer, HomeIcon, MapPin, ShieldAlert, VenetianMask } from "lucide-react";
+import { Briefcase, Coins, Cpu, EyeOff, Flame, Hammer, HomeIcon, MapPin, ShieldAlert, VenetianMask } from "lucide-react";
 import type { DenState, DenUpgradeId, GameState, Gig } from "@/lib/game/types";
-import { DAY, DEBT_CUT, DEN_UPGRADE_IDS, DEN_UPGRADES, levelOf, maxLevel, nextPrice, REPO_WEEKS, START_RENT } from "@/lib/rules/den";
+import { DAY, DEBT_CUT, DEN_UPGRADE_IDS, DEN_UPGRADES, levelOf, maxLevel, nextPrice, programCost, programDays, REPO_WEEKS, START_RENT, writablePrograms } from "@/lib/rules/den";
 import { openGigs } from "@/lib/rules/gigs";
 import { getSpell } from "@/lib/srd";
 import { useT } from "@/components/i18n/I18nProvider";
@@ -33,7 +34,7 @@ function BuyBtn({ label, onClick, disabled, title }: { label: string; onClick: (
 	);
 }
 
-function GigCard({ gig, debt }: { gig: Gig; debt: number }) {
+function GigCard({ gig, debt, act }: { gig: Gig; debt: number; act?: { locked: boolean; post: (body: Record<string, unknown>) => void } }) {
 	const { t } = useT();
 	const cut = debt > 0 ? Math.min(debt, Math.round(gig.pay * DEBT_CUT)) : 0;
 	return (
@@ -54,6 +55,14 @@ function GigCard({ gig, debt }: { gig: Gig; debt: number }) {
 				<span className={`chip ${gig.risk >= 4 ? "border-crimson/50 text-crimson-2" : "text-dim"}`}><ShieldAlert size={11} /> {t("play.den.gig.risk", { n: gig.risk })}</span>
 				{cut > 0 && <span className="chip border-crimson/40 text-crimson-2">{t("play.den.gig.cut", { n: cut })}</span>}
 			</div>
+			{act && gig.status === "offered" && (
+				<div className="mt-1.5 flex justify-end gap-1.5">
+					<button type="button" className="rounded border border-line px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-dim transition hover:bg-bg disabled:cursor-not-allowed disabled:opacity-40" disabled={act.locked} onClick={() => act.post({ op: "decline_gig", gig: gig.id })} data-testid="gig-decline">
+						{t("downtime.ui.decline")}
+					</button>
+					<BuyBtn label={t("downtime.ui.take")} disabled={act.locked} onClick={() => act.post({ op: "take_gig", gig: gig.id })} />
+				</div>
+			)}
 		</li>
 	);
 }
@@ -81,6 +90,8 @@ export function DenPanel({ state, busy, onChanged }: { state: GameState; busy: b
 	const { t, ts } = useT();
 	const [pending, setPending] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [program, setProgram] = useState("");
+	const [days, setDays] = useState(3);
 	const den = state.cyber?.den;
 	const c = state.character;
 	const cred = c.currency.gp;
@@ -94,7 +105,10 @@ export function DenPanel({ state, busy, onChanged }: { state: GameState; busy: b
 	const installed = DEN_UPGRADE_IDS.filter((id) => levelOf(den, id) > 0);
 	const forSale = DEN_UPGRADE_IDS.filter((id) => nextPrice(den, id) !== undefined);
 	const gigs = openGigs(state.cyber?.gigs).sort((a, b) => (a.status === b.status ? a.expiresAt - b.expiresAt : a.status === "taken" ? -1 : 1));
-	const locked = busy || pending;
+	const locked = busy || pending || state.challenge?.status === "active";
+	const fighting = state.encounter?.status === "active" || !!state.cyber?.run;
+	const writable = levelOf(den, "workbench") > 0 && !den.writing ? writablePrograms(c) : [];
+	const picked = writable.find((p) => p.index === program);
 
 	async function post(body: Record<string, unknown>) {
 		setPending(true);
@@ -159,6 +173,10 @@ export function DenPanel({ state, busy, onChanged }: { state: GameState; busy: b
 
 			{error && <p className="rounded border border-crimson/50 bg-crimson/5 px-2 py-1 text-xs text-crimson-2">{error}</p>}
 
+			<Section icon={Briefcase} title={t("play.den.gigs")} help={t("downtime.ui.gigsHelp")}>
+				{gigs.length === 0 ? <p className="text-xs text-faint">{t("play.den.gigsNone")}</p> : <ul className="space-y-1.5">{gigs.map((g) => <GigCard key={g.id} gig={g} debt={den.debt} act={{ locked: locked || fighting, post: (b) => void post(b) }} />)}</ul>}
+			</Section>
+
 			<Section icon={HomeIcon} title={t("play.den.installed")}>
 				{installed.length === 0 ? (
 					<p className="text-xs text-faint">{t("play.den.none")}</p>
@@ -180,6 +198,40 @@ export function DenPanel({ state, busy, onChanged }: { state: GameState; busy: b
 					<p className="text-xs text-text">{t("play.den.writingValue", { program: ts(getSpell(den.writing.program)?.name ?? den.writing.program), day: Math.floor(den.writing.readyAt / DAY) })}</p>
 				</Section>
 			)}
+
+			{levelOf(den, "workbench") > 0 && !den.writing && (
+				<Section icon={Hammer} title={t("downtime.ui.workbench")} help={t("downtime.ui.writeHelp")}>
+					{writable.length === 0 ? (
+						<p className="text-xs text-faint">{t("downtime.ui.noPrograms")}</p>
+					) : (
+						<div className="flex items-center gap-2" data-testid="den-workbench">
+							<select className="min-w-0 flex-1 rounded border border-line bg-bg px-1.5 py-1 text-xs text-text" value={program} onChange={(e) => setProgram(e.target.value)} aria-label={t("downtime.ui.pick")}>
+								<option value="">{t("downtime.ui.pick")}</option>
+								{writable.map((p) => (
+									<option key={p.index} value={p.index} disabled={cred < programCost(p.level)}>
+										{t("downtime.ui.programOption", { name: ts(p.name), level: p.level, cost: programCost(p.level), days: programDays(p.level) })}
+									</option>
+								))}
+							</select>
+							<BuyBtn label={t("downtime.ui.write")} disabled={locked || fighting || !picked || cred < programCost(picked.level)} onClick={() => void post({ op: "write", program })} />
+						</div>
+					)}
+				</Section>
+			)}
+
+			<Section icon={EyeOff} title={t("downtime.ui.layLow")} help={t("downtime.ui.layLowHelp")}>
+				<div className="flex items-center justify-between gap-2" data-testid="den-laylow">
+					<span className="flex items-center gap-1 text-xs text-dim"><Flame size={12} className="text-[#e0702f]" /> {state.cyber?.heat ?? 0}/10</span>
+					<div className="flex items-center gap-2">
+						<select className="rounded border border-line bg-bg px-1.5 py-1 text-xs text-text" value={days} onChange={(e) => setDays(Number(e.target.value))} aria-label={t("downtime.ui.layLow")}>
+							{[1, 2, 3, 5, 7, 14].map((n) => (
+								<option key={n} value={n}>{n === 1 ? t("downtime.ui.day1") : t("downtime.ui.days", { n })}</option>
+							))}
+						</select>
+						<BuyBtn label={t("downtime.ui.layLow")} disabled={locked || fighting || !!den.raidDue} title={den.raidDue ? t("downtime.ui.raidDue") : undefined} onClick={() => void post({ op: "lay_low", days })} />
+					</div>
+				</div>
+			</Section>
 
 			<Section icon={Cpu} title={t("play.den.catalogue")} help={t("play.den.catalogueHelp")}>
 				<ul className="space-y-2">
@@ -206,10 +258,6 @@ export function DenPanel({ state, busy, onChanged }: { state: GameState; busy: b
 						);
 					})}
 				</ul>
-			</Section>
-
-			<Section icon={Briefcase} title={t("play.den.gigs")} help={t("play.den.gigsHelp")}>
-				{gigs.length === 0 ? <p className="text-xs text-faint">{t("play.den.gigsNone")}</p> : <ul className="space-y-1.5">{gigs.map((g) => <GigCard key={g.id} gig={g} debt={den.debt} />)}</ul>}
 			</Section>
 		</div>
 	);

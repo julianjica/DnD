@@ -1,9 +1,11 @@
 "use client";
 
 /**
- * Root Access: the crew (docs/cyberpunk.md §7). Read-only: the engine owns
- * state.cyber.crew (lib/rules/crew.ts). Betrayal odds are the DM's secret:
- * nothing here shows them, only loyalty and where each hat sits.
+ * Root Access: the crew (docs/cyberpunk.md §7). The engine owns
+ * state.cyber.crew (lib/rules/crew.ts); the player moves people (with you, at
+ * the den, away) through POST /api/campaigns/[id]/den (lib/dm/downtime.ts, no
+ * DM turn). Betrayal odds are the DM's secret: nothing here shows them, only
+ * loyalty and where each hat sits.
  */
 import { Car, HeartPulse, MessageSquare, Shield, Terminal, Users, Wrench, type LucideIcon } from "lucide-react";
 import type { CrewMember, CrewRole, GameState } from "@/lib/game/types";
@@ -13,6 +15,7 @@ import { getEquipment } from "@/lib/srd";
 import Portrait from "@/components/art/Portrait";
 import { useT } from "@/components/i18n/I18nProvider";
 import { Tooltip } from "@/components/ui/Tooltip";
+import { useDowntime } from "./useDowntime";
 
 const CAP = 4;
 const ACTIVE = new Set<CrewMember["status"]>(["with_pc", "at_den", "away"]);
@@ -92,7 +95,14 @@ function HatPair({ theirs, yours }: { theirs: number; yours: number }) {
 	);
 }
 
-function CrewCard({ m, state }: { m: CrewMember; state: GameState }) {
+type Move = { locked: boolean; post: (body: Record<string, unknown>) => void };
+const PLACES: { status: "with_pc" | "at_den" | "away"; label: MessageKey }[] = [
+	{ status: "with_pc", label: "downtime.ui.crewBring" },
+	{ status: "at_den", label: "downtime.ui.crewDen" },
+	{ status: "away", label: "downtime.ui.crewAway" },
+];
+
+function CrewCard({ m, state, move }: { m: CrewMember; state: GameState; move?: Move }) {
 	const { t, te, ts } = useT();
 	const n = state.npcs[m.npcId];
 	const RoleIcon = ROLE_ICON[m.role] ?? Users;
@@ -142,13 +152,31 @@ function CrewCard({ m, state }: { m: CrewMember; state: GameState }) {
 					{m.gear.length ? m.gear.map((g) => ts(getEquipment(g)?.name ?? g)).join(", ") : <span className="italic">{t("play.crew.noGear")}</span>}
 				</p>
 			)}
+			{!gone && move && (
+				<div className="mt-2 flex flex-wrap justify-end gap-1.5" data-testid="crew-move">
+					{PLACES.filter((p) => p.status !== m.status).map((p) => (
+						<button
+							key={p.status}
+							type="button"
+							className="rounded border border-gold/50 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-gold-2 transition hover:bg-gold/15 disabled:cursor-not-allowed disabled:opacity-40"
+							disabled={move.locked}
+							onClick={() => move.post({ op: "crew", npcId: m.npcId, status: p.status })}
+						>
+							{t(p.label)}
+						</button>
+					))}
+				</div>
+			)}
 		</article>
 	);
 }
 
 /** The crew tab of the sidebar in Root Access (where The Quiet shows its group). */
-export function CrewPanel({ state }: { state: GameState }) {
+export function CrewPanel({ state, busy = true, onChanged }: { state: GameState; busy?: boolean; onChanged?: () => void }) {
 	const { t } = useT();
+	const { post, pending, error } = useDowntime(state.id, "den", () => onChanged?.());
+	// Not mid-fight, not during a run (the server refuses too).
+	const move: Move | undefined = onChanged ? { locked: busy || pending || state.encounter?.status === "active" || !!state.cyber?.run || state.challenge?.status === "active", post: (b) => void post(b) } : undefined;
 	const list = crewList(state);
 	const active = list.filter((m) => ACTIVE.has(m.status));
 	const gone = list.filter((m) => !ACTIVE.has(m.status));
@@ -162,8 +190,9 @@ export function CrewPanel({ state }: { state: GameState }) {
 			</div>
 			{!list.length && <p className="text-xs italic text-dim">{t("play.crew.empty")}</p>}
 			{state.cyber?.run && active.some((m) => m.status === "with_pc") && <p className="text-[11px] text-sky">{t("play.crew.van")}</p>}
+			{error && <p className="rounded border border-crimson/50 bg-crimson/5 px-2 py-1 text-xs text-crimson-2">{error}</p>}
 			{active.map((m) => (
-				<CrewCard key={m.npcId} m={m} state={state} />
+				<CrewCard key={m.npcId} m={m} state={state} move={move} />
 			))}
 			{gone.length > 0 && (
 				<div className="space-y-2 pt-1">

@@ -12,6 +12,7 @@ import { useGame } from "./useGame";
 import { Narration } from "./Narration";
 import { Sidebar } from "./Sidebar";
 import { Stage } from "./Stage";
+import { ChallengePanel } from "./ChallengePanel";
 import { SavesDialog } from "./SavesDialog";
 import { SettingsDrawer } from "./SettingsDrawer";
 import { LevelUpDialog } from "./LevelUpDialog";
@@ -67,6 +68,7 @@ export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 			if (f.kind === "sfx" && f.sound) playSfx(f.sound as SfxName);
 			else if (f.kind === "damage") playSfx("hit");
 			else if (f.kind === "level_up") playSfx("levelup");
+			else if (f.kind === "discover") playSfx("gem");
 		}
 	}, [game.fx, state?.settings.audio.enabled]);
 
@@ -140,6 +142,7 @@ export function PlayScreen({ id, opening }: { id: string; opening: boolean }) {
 				</section>
 				<section className="relative min-h-0">
 					<Stage state={state} busy={game.busy} fx={game.fx} act={(a) => void game.act(a)} siege={(op) => void game.siege(op)} setView={(v) => game.setState({ ...state, view: v })} />
+					{state.challenge && <ChallengePanel state={state} busy={game.busy} send={(op) => void game.challenge(op)} />}
 					{enemyTurnStalled && (
 						<button className="btn btn-gold absolute bottom-16 left-1/2 z-20 -translate-x-1/2" onClick={() => void game.send("(Continue the enemies' turns.)")}>
 							{t("play.letEnemiesAct")}

@@ -8,6 +8,7 @@ import { climateForPreset, drawMap, FEATURE_SPRITES, generateMap, LEGEND_TEXT, M
 import { distanceInDays, isTownWorld, travelDaysIn, travelText } from "../../maps/geography";
 import { addTerrainFeature, BEARING, betweenFromText, compassOf, daysForDistance, directionFromText, distanceForDays, fits, mapDistance, placeFor, REGION_SIZE, retimeRoutes, terrainFor, type Compass, type PlaceSpec } from "../../maps/geography";
 import { S, newId, tool, withState, type ToolFactory } from "../context";
+import { discoverAt, discoverTag, makeDiscovery, silentNote } from "../discover";
 
 const LOCATION_KINDS: LocationKind[] = ["town", "city", "village", "dungeon", "cave", "forest", "mountain", "ruins", "castle", "temple", "swamp", "coast", "camp", "tower", "landmark"];
 const ENTITY_KINDS: EntityKind[] = ["monster", "npc", "item", "trap", "feature", "light"];
@@ -27,9 +28,9 @@ export function ensurePc(map: GridMap, state: GameState): void {
 }
 
 function mapSummary(map: GridMap, state?: GameState): string {
-	const rooms = map.rooms.map((r) => `${r.id}${r.tag ? `(${r.tag})` : ""} x${r.x}-${r.x + r.w - 1} y${r.y}-${r.y + r.h - 1}${r.name ? ` "${r.name}"` : ""}`);
+	const rooms = map.rooms.map((r) => `${r.id}${r.tag ? `(${r.tag})` : ""} x${r.x}-${r.x + r.w - 1} y${r.y}-${r.y + r.h - 1}${r.name ? ` "${r.name}"` : ""}${discoverTag(r.discover)}`);
 	const links = state ? linkSummary(state, map) : "";
-	return `Map ${map.name} [${map.id}] ${map.kind} ${map.width}x${map.height}, lighting ${map.lighting}, entry ${map.entry.x},${map.entry.y}.\nRooms/areas: ${rooms.join("; ") || "none"}.\nEntities: ${map.entities.map((e) => `${e.name}[${e.id}] ${e.kind}@${e.x},${e.y}${e.dead ? " DEAD (a corpse; it stays dead)" : ""}`).join("; ")}${links ? `\nExits to other maps (the player walks through them): ${links}` : ""}`;
+	return `Map ${map.name} [${map.id}] ${map.kind} ${map.width}x${map.height}, lighting ${map.lighting}, entry ${map.entry.x},${map.entry.y}.\nRooms/areas: ${rooms.join("; ") || "none"}.\nEntities: ${map.entities.map((e) => `${e.name}[${e.id}] ${e.kind}@${e.x},${e.y}${e.dead ? " DEAD (a corpse; it stays dead)" : ""}${e.hidden ? " hidden" : ""}${discoverTag(e.discover)}`).join("; ")}${links ? `\nExits to other maps (the player walks through them): ${links}` : ""}`;
 }
 
 function activeMap(state: GameState): GridMap {
@@ -49,14 +50,24 @@ function addMap(state: GameState, map: GridMap) {
 	if (ids.length > 12) for (const old of ids.slice(0, ids.length - 12)) if (old !== map.id) delete state.maps[old];
 }
 
-type DrawKeyArg = DrawKey & { char: string };
+type DrawKeyArg = Omit<DrawKey, "discover"> & { char: string } & DiscoverArgs;
+type DiscoverArgs = { discover?: string; significant?: boolean; findItem?: string };
+type RoomArg = { name: string; x: number; y: number; w: number; h: number; discover?: string; significant?: boolean };
 
-export const drawMapTool = tool<{ name: string; kind: MapKind; rows: string[]; key?: DrawKeyArg[]; climate?: Climate; lighting?: GridMap["lighting"]; show?: boolean }>(
+/** Optional discovery parameters shared by draw_map key entries, place_entity and update_entity. */
+const DISCOVER_PARAMS = {
+	discover: S.str("1–2 sentences the player sees when they walk up to it on their own (in the campaign language); no DM turn unless significant"),
+	significant: S.bool("Finding it hands you the turn (a key clue, an NPC who wants to talk)"),
+	findItem: S.str("A small story object they pick up on finding it (\"Rusty key\", \"2 Silver coins\")"),
+};
+
+export const drawMapTool = tool<{ name: string; kind: MapKind; rows: string[]; key?: DrawKeyArg[]; rooms?: RoomArg[]; climate?: Climate; lighting?: GridMap["lighting"]; show?: boolean }>(
 	"draw_map",
 	`Draw the place the player is in, square by square (5 ft each), as rows of characters. It becomes the picture in the scene panel AND the battle map, so draw what you narrate: walls, doors, furniture, terrain, who stands where. Typical size 24-40 wide x 14-22 tall; all rows the same length.
 Legend: ${LEGEND_TEXT}.
 Anything else (features, NPCs) goes in key: one character each (letters/digits not in the legend, e.g. R, 1, 2). Feature sprites: ${FEATURE_SPRITES.filter((f) => !(MODERN_FEATURE_SPRITES as readonly string[]).includes(f)).join(", ")}. Modern props (The Quiet only): ${MODERN_FEATURE_SPRITES.join(", ")}. NPCs: {char, npcId}. Light sources: add lightRadius.
-Example (a hall): rows ["########+########", "#.....=====.....#", "#.R.==hhhh==..1.#", "#....==@===.....#", "#################"] with key [{char:"R", sprite:"runestone"}, {char:"h", sprite:"hearth", lightRadius:6}, {char:"1", npcId:"npc_…"}].
+Example (a hall): rows ["########+########", "#.....=====.....#", "#.R.==hhhh==..1.#", "#....==@===.....#", "#################"] with key [{char:"R", sprite:"runestone", discover:"Fresh claw marks score the runes.", significant:true}, {char:"h", sprite:"hearth", lightRadius:6}, {char:"1", npcId:"npc_…", discover:"The old woman looks up and beckons you closer."}].
+Exploring on foot: give the things worth a closer look a short discover text (the player walks up and reads it, no DM turn); significant ones hand you the turn; hidden:true keeps a thing off the map until found; findItem hands over a small story object. rooms: optional named areas (x,y,w,h) with a discover text shown on entering.
 Draw each place once; return later with use_map. Another part of a place already drawn (the back yard of the same building) must match the maps there: same building outline, walls, doors and features where they overlap; the first draw_map there shows you those maps and draws nothing; draw again after. Monsters for a fight are added by start_combat as usual.`,
 	S.obj(
 		{
@@ -73,9 +84,15 @@ Draw each place once; return later with use_map. Another part of a place already
 						npcId: S.str(),
 						lightRadius: S.int(undefined, 1, 12),
 						description: S.str(),
+						...DISCOVER_PARAMS,
+						hidden: S.bool("Off the map until the player finds it (needs discover)"),
 					},
 					["char"],
 				),
+			),
+			rooms: S.arr(
+				S.obj({ name: S.str(), x: S.int(undefined, 0), y: S.int(undefined, 0), w: S.int(undefined, 1), h: S.int(undefined, 1), discover: S.str("Shown when the player walks in"), significant: S.bool() }, ["name", "x", "y", "w", "h"]),
+				"Named areas (optional)",
 			),
 			climate: S.str("Default from the campaign setting", ["temperate", "snow", "desert"]),
 			lighting: S.str(undefined, ["bright", "dim", "dark"]),
@@ -106,12 +123,19 @@ Draw each place once; return later with use_map. Another part of a place already
 			const key: Record<string, DrawKey> = {};
 			for (const k of a.key ?? []) {
 				if (k.npcId && !state.npcs[k.npcId]) throw new Error(`Unknown npcId ${k.npcId} for key "${k.char}".`);
-				const { char, ...rest } = k;
-				key[char] = rest;
+				const { char, discover, significant, findItem, ...rest } = k;
+				const d = makeDiscovery(discover, significant, findItem);
+				key[char] = { ...rest, ...(d ? { discover: d } : {}) };
 			}
 			const res = drawMap({ rows: a.rows, key, kind: a.kind, name: a.name, climate: a.climate ?? climateForPreset(state.settings.world.preset), lighting: a.lighting, seed: rng.int(1, 2 ** 31 - 1) });
 			const map = res.map;
 			map.id = newId("map");
+			for (const r of a.rooms ?? []) {
+				const x = Math.max(0, r.x), y = Math.max(0, r.y), w = Math.min(r.w, map.width - x), h = Math.min(r.h, map.height - y);
+				if (w < 1 || h < 1) continue;
+				const d = makeDiscovery(r.discover, r.significant);
+				map.rooms.push({ id: `room-${map.rooms.length + 1}`, x, y, w, h, name: r.name, ...(d ? { discover: d } : {}) });
+			}
 			for (const e of res.entities) {
 				const npc = e.npcId ? state.npcs[e.npcId] : undefined;
 				map.entities.push({ ...e, id: newId("ent"), ...(npc ? { name: npc.name } : {}) });
@@ -189,9 +213,9 @@ export const linkMapsTool = tool<{ mapId: string; x: number; y: number; toMapId:
 		}),
 );
 
-export const placeEntityTool = tool<{ kind: EntityKind; name: string; sprite?: string; x?: number; y?: number; room?: string; size?: number; hidden?: boolean; disposition?: "friendly" | "neutral" | "hostile"; npcId?: string; description?: string; lightRadius?: number }>(
+export const placeEntityTool = tool<{ kind: EntityKind; name: string; sprite?: string; x?: number; y?: number; room?: string; size?: number; hidden?: boolean; disposition?: "friendly" | "neutral" | "hostile"; npcId?: string; description?: string; lightRadius?: number } & DiscoverArgs>(
 	"place_entity",
-	"Place a token/object on the active map: NPCs, monsters (not yet in combat), items, chests, traps (hidden=true until found), features (altar, statue, campfire, well, barrels), lights (torches, braziers). Give x,y or a room id (placed near its center).",
+	"Place a token/object on the active map: NPCs, monsters (not yet in combat), items, chests, traps (hidden=true until found), features (altar, statue, campfire, well, barrels), lights (torches, braziers). Give x,y or a room id (placed near its center). discover: what the player sees when they walk up to it.",
 	S.obj(
 		{
 			kind: S.str(undefined, ENTITY_KINDS),
@@ -206,6 +230,7 @@ export const placeEntityTool = tool<{ kind: EntityKind; name: string; sprite?: s
 			npcId: S.str(),
 			description: S.str(),
 			lightRadius: S.int("Light radius in squares (lights)"),
+			...DISCOVER_PARAMS,
 		},
 		["kind", "name"],
 	),
@@ -219,9 +244,11 @@ export const placeEntityTool = tool<{ kind: EntityKind; name: string; sprite?: s
 				if (!r) throw new Error(`Unknown room ${a.room}`);
 				near = { x: r.x + Math.floor(r.w / 2), y: r.y + Math.floor(r.h / 2) };
 			}
+			const discover = makeDiscovery(a.discover, a.significant, a.findItem);
 			const e = placeEntity(
 				map,
 				{
+					...(discover ? { discover } : {}),
 					id: newId("ent"),
 					kind: a.kind,
 					name: a.name,
@@ -240,10 +267,10 @@ export const placeEntityTool = tool<{ kind: EntityKind; name: string; sprite?: s
 		}),
 );
 
-export const updateEntityTool = tool<{ id: string; x?: number; y?: number; hidden?: boolean; remove?: boolean; name?: string; disposition?: "friendly" | "neutral" | "hostile"; dead?: boolean }>(
+export const updateEntityTool = tool<{ id: string; x?: number; y?: number; hidden?: boolean; remove?: boolean; name?: string; disposition?: "friendly" | "neutral" | "hostile"; dead?: boolean } & DiscoverArgs>(
 	"update_entity",
-	"Move (outside combat), reveal/hide, rename, mark dead (a corpse lying on the map) or remove a map entity.",
-	S.obj({ id: S.str(), x: S.int(), y: S.int(), hidden: S.bool(), remove: S.bool(), name: S.str(), disposition: S.str(undefined, ["friendly", "neutral", "hostile"]), dead: S.bool("Creature is dead (shown as a corpse)") }, ["id"]),
+	"Move (outside combat), reveal/hide, rename, mark dead (a corpse lying on the map) or remove a map entity. discover sets (or replaces) what the player finds when they walk up to it; discover '' clears it (e.g. once you have narrated it).",
+	S.obj({ id: S.str(), x: S.int(), y: S.int(), hidden: S.bool(), remove: S.bool(), name: S.str(), disposition: S.str(undefined, ["friendly", "neutral", "hostile"]), dead: S.bool("Creature is dead (shown as a corpse)"), ...DISCOVER_PARAMS }, ["id"]),
 	async (a, ctx) =>
 		withState(ctx, ({ state }) => {
 			const map = activeMap(state);
@@ -257,6 +284,11 @@ export const updateEntityTool = tool<{ id: string; x?: number; y?: number; hidde
 			if (a.hidden !== undefined) e.hidden = a.hidden;
 			if (a.name) e.name = a.name;
 			if (a.disposition) e.disposition = a.disposition;
+			if (a.discover !== undefined) {
+				const d = makeDiscovery(a.discover, a.significant, a.findItem);
+				if (d) e.discover = d;
+				else delete e.discover;
+			}
 			if (a.dead !== undefined) {
 				if (a.dead && e.combatantId && state.encounter?.status === "active") throw new Error("In combat, creatures die through damage (apply_damage / the engine).");
 				if (a.dead) e.dead = true;
@@ -267,7 +299,10 @@ export const updateEntityTool = tool<{ id: string; x?: number; y?: number; hidde
 				placeEntity(map, { ...e, x: a.x, y: a.y });
 				if (e.kind === "pc") revealAround(map, e.x, e.y, SIGHT_RADIUS);
 			}
-			return `Updated ${e.name} at ${e.x},${e.y}${e.hidden ? " (hidden)" : ""}.`;
+			// The DM moved the player: what they now stand next to counts as seen (the DM narrates it).
+			const pcNow = e.kind === "pc" && a.x !== undefined ? map.entities.find((x) => x.kind === "pc") : undefined;
+			const seen = pcNow ? silentNote(discoverAt(state, map, pcNow, { silent: true })) : "";
+			return `Updated ${e.name} at ${e.x},${e.y}${e.hidden ? " (hidden)" : ""}.${seen}`;
 		}),
 );
 
@@ -293,15 +328,17 @@ export const setTileTool = tool<{ x: number; y: number; tile: Tile; width?: numb
 		}),
 );
 
-export const nameRoomTool = tool<{ roomId: string; name: string }>(
+export const nameRoomTool = tool<{ roomId: string; name: string; discover?: string; significant?: boolean }>(
 	"name_room",
-	"Name a room/area on the active map (shown on hover).",
-	S.obj({ roomId: S.str(), name: S.str() }, ["roomId", "name"]),
+	"Name a room/area on the active map (shown on hover). discover: 1–2 sentences the player sees when they walk in on their own; significant hands you the turn then.",
+	S.obj({ roomId: S.str(), name: S.str(), discover: S.str("Shown when the player walks in"), significant: S.bool() }, ["roomId", "name"]),
 	async (a, ctx) =>
 		withState(ctx, ({ state }) => {
 			const r = activeMap(state).rooms.find((x) => x.id === a.roomId);
 			if (!r) throw new Error(`Unknown room ${a.roomId}`);
 			r.name = a.name;
+			const d = makeDiscovery(a.discover, a.significant);
+			if (d) r.discover = d;
 			return `Room ${a.roomId} named ${a.name}.`;
 		}),
 );

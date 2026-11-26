@@ -140,6 +140,13 @@ export function StructureStep({ draft, update }: StepProps) {
 						))}
 					</ul>
 				</Section>
+
+				<Section title={t("structure.goals")} hint={t("structure.goalsHint")}>
+					<FieldLabel htmlFor="goals" optional>
+						{t("structure.goalsLabel")}
+					</FieldLabel>
+					<textarea id="goals" className="input min-h-24 resize-y font-serif text-base" value={s.goals ?? ""} onChange={(e) => set({ goals: e.target.value })} placeholder={t("structure.goalsPh")} maxLength={600} />
+				</Section>
 			</div>
 		</div>
 	);

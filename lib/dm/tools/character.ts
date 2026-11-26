@@ -8,6 +8,10 @@ import { abilityMod } from "../../rules/dice";
 import { S, tool, withState, type ToolFactory } from "../context";
 import { advanceClock, fed, isZombie, restInterruption } from "../../rules/survival";
 import { baseSecuresRest, infirmaryCare } from "../../rules/base";
+import { grantRespite, RESPITE_AFTER_ESCAPE } from "../../rules/threads";
+
+/** Checks that are about getting away: hiding from, escaping or losing pursuers (EN/ES). */
+export const ESCAPE_WORDS = /\b(hid(e|ing)|escap\w*|flee\w*|fled|evad\w*|lose (them|the|your|pursu)\w*|shake (them|off)|get away|ocult\w*|escond\w*|escap\w*|hu(ir|ye|yes)|escabull\w*|evadi\w*|despist\w*|perder(les|los|las)?|zafar\w*)/i;
 import { restSurvivors } from "../../rules/group";
 import { restCrew } from "../../rules/crew";
 import { resetDeckUses } from "../../rules/deck";
@@ -36,6 +40,8 @@ export const abilityCheck = tool<{ skill?: string; ability?: Ability; dc?: numbe
 			const r = roll(rng, `1d20${signed(mod)}`, { label, advantage: a.advantage, target: a.dc, actor: c.id });
 			r.check = check;
 			record(r);
+			// A successful escape or hide buys real time (lib/rules/threads.ts): the pursuers lose them.
+			if (a.dc !== undefined && r.success && ESCAPE_WORDS.test(label)) grantRespite(state, RESPITE_AFTER_ESCAPE, label);
 			return `${label} (${a.skill ? `${a.skill}, ` : ""}${check.ability.toUpperCase()}): ${r.total} (d20 ${r.dice.filter((d) => !d.dropped).map((d) => d.value).join("")} ${signed(mod)})${a.dc !== undefined ? ` vs DC ${a.dc}: ${r.success ? "SUCCESS" : "FAILURE"}` : ""}`;
 		}),
 );

@@ -65,7 +65,7 @@ export async function runTurn(input: TurnInput): Promise<void> {
 		const lengthNote = lastWords > budget * 1.25 ? `Your last narration was ${lastWords} words; this campaign's budget is about ${budget}. Cut hard this turn.` : "";
 		const allNotes = [...(input.systemNotes ?? []), ...(lengthNote ? [lengthNote] : [])];
 		const notes = allNotes.length ? `\n\n# ENGINE NOTES\n${allNotes.join("\n")}` : "";
-		const action = input.text ? `# PLAYER ACTION\n${input.text}` : "# OPENING\nBegin the adventure: set the opening scene (set_scene, set_ambience), introduce the hook, and end with suggest_actions.";
+		const action = input.text ? `# PLAYER ACTION\n${input.text}` : "# OPENING\nBegin the adventure: set the opening scene (set_scene, set_ambience) from the player's hook if they gave one, and show the world around them: two or three things the character could pursue here, none urgent unless the player's own hook is urgent. Don't start a chase, a countdown or an ambush. End on an open moment and suggest_actions.";
 		const langNote = state.settings.language === "es" ? "\n\n(Recuerda: escribe todo lo que ve el jugador en español.)" : "";
 		// The digest is long; end on the turn's shape so the last step isn't forgotten.
 		const message = `${action}${notes}\n\n# STATE DIGEST (authoritative)\n${digest}${langNote}\n\n(Turn: tools first, then your narration once, at most about ${budget} words, then suggest_actions as the very last step.)`;

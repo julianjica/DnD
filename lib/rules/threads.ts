@@ -1,4 +1,5 @@
 import type { GameState, PacingState, StoryThread } from "../game/types";
+import { gameMinutes } from "./survival";
 
 /**
  * Storytelling aids for the DM (any ruleset):
@@ -91,9 +92,9 @@ export function pacingNudge(state: GameState): string | undefined {
 	const since = (b: Beat) => p.turn - p.last[b];
 	const overdue = openThreads(state).filter((t) => p.turn - t.touchedTurn >= OVERDUE).sort((x, y) => x.touchedTurn - y.touchedTurn)[0];
 	if (since("action") <= 2 && p.last.action > p.last.human) return "the fight just ended: let it breathe. A quiet, human beat next (wounds tended, a companion shaking, someone saying what they really think), before anything new comes at them.";
+	// No nudges toward threats or twists: the player decides when to seek danger (the user found
+	// a game that pushed plot at them every scene tiresome). Danger comes from what they do.
 	const only = " Only if it fits what the player is doing now; if they are following their own plan, follow them and let this wait.";
-	if (since("twist") >= 25) return `the story hasn't turned in a while: a reveal or a complication could come out of what the player is doing${overdue ? ` (perhaps touching "${overdue.title}")` : ""}.${only}`;
-	if (since("threat") >= 10) return `it's been quiet for a while: some danger or dread could enter the player's current scene (a sound, a sign, a hostile face), not necessarily a fight.${only}`;
 	if (since("human") >= 12) return `room for a human moment: someone the player is with opens up, asks for something, or clashes with someone.${only}`;
 	if (overdue) return `"${overdue.title}" hasn't come up in ${p.turn - overdue.touchedTurn} turns: the world can remember it in passing (a mention, a consequence) if it fits; never pull the player toward it.`;
 	return undefined;
@@ -107,9 +108,34 @@ export function storyDigest(state: GameState): string | undefined {
 	const lines: string[] = [];
 	if (open.length) lines.push(`Open threads (the world's background: they pay off when the player engages them or as consequences of what they do; story_thread touch/resolve): ${open.map((t) => (p.turn - t.touchedTurn >= OVERDUE ? `${t.title} [${t.id}] OVERDUE: ${t.planted}` : `${t.title} [${t.id}]`)).join(" | ")}`);
 	else if (state.journal.length >= 5) lines.push("Open threads: none recorded. Record the story's open threads now with story_thread op=plant (mysteries, promises, debts, names you planted), up to 8.");
+	const respite = respiteLine(state);
+	if (respite) lines.push(respite);
 	const nudge = pacingNudge(state);
 	if (nudge) lines.push(`PACING (director, turn ${p.turn}): ${nudge}`);
 	return lines.join("\n") || undefined;
+}
+
+/** Default breathing room after a successful escape or hide, and after a fight. */
+export const RESPITE_AFTER_ESCAPE = 8 * 60;
+export const RESPITE_AFTER_FIGHT = 2 * 60;
+
+/** The player bought time: no threat or pursuer reaches them before `minutes` pass (an earlier, longer respite stands). */
+export function grantRespite(state: GameState, minutes: number, why: string): void {
+	const p = pacingOf(state);
+	const until = gameMinutes(state.time) + minutes;
+	if ((p.respiteUntil ?? 0) >= until) return;
+	p.respiteUntil = until;
+	p.respiteWhy = why;
+}
+
+/** The digest line while the player has breathing room. */
+export function respiteLine(state: GameState): string | undefined {
+	const p = pacingOf(state);
+	const now = gameMinutes(state.time);
+	if (!p.respiteUntil || p.respiteUntil <= now) return undefined;
+	const left = p.respiteUntil - now;
+	const h = Math.floor(left / 60), m = left % 60;
+	return `BREATHING ROOM (${h ? `${h} h` : ""}${h && m ? " " : ""}${m ? `${m} min` : ""} left; ${p.respiteWhy ?? "the player bought time"}): no threat, pursuer or ambush reaches the player in this time unless they go looking for it or draw attention to themselves. Let them do whatever they choose; pursuers are off-screen.`;
 }
 
 /** Voice cards for the NPCs on stage, and who still needs one. */

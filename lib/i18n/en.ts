@@ -7,8 +7,10 @@ import * as base from "./parts/base";
 import * as group from "./parts/group";
 import * as siege from "./parts/siege";
 import * as cyber from "./parts/cyber";
+import * as downtime from "./parts/downtime";
+import * as challenge from "./parts/challenge";
 
 /** English UI strings (source of truth), merged from ./parts. */
-export const en = { ...common.en, ...setup.en, ...play.en, ...enums.en, ...survival.en, ...base.en, ...group.en, ...siege.en, ...cyber.en };
+export const en = { ...common.en, ...setup.en, ...play.en, ...enums.en, ...survival.en, ...base.en, ...group.en, ...siege.en, ...cyber.en, ...downtime.en, ...challenge.en };
 
 export type Messages = { [K in keyof typeof en]: string };

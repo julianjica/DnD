@@ -9,6 +9,7 @@ import { survivorBitten, survivorForCombatant, survivorsAfterCombat, syncSurvivo
 import { isNamedFoe, recordFallen } from "../rules/fallen";
 import { cyberCombatHook } from "../rules/netrun";
 import { crewAfterCombat, syncCrewFromCombat } from "../rules/crew";
+import { grantRespite, RESPITE_AFTER_ESCAPE, RESPITE_AFTER_FIGHT } from "../rules/threads";
 
 /** Combat options bound to the current character and the SRD. */
 export function combatOpts(state: GameState): CombatOptions {
@@ -171,6 +172,9 @@ export function finishCombat(tx: StateTxn, a: { status?: "victory" | "defeat" | 
 	if (!enc) throw new Error("No encounter.");
 	let log = "";
 	if (enc.status === "active") log = applyCombatResult(tx, endCombat(combatState(state), rng, a.status ?? "ended", combatOpts(state)));
+	// After a fight the player gets breathing room; after getting away, more of it.
+	if (a.status === "fled") grantRespite(state, RESPITE_AFTER_ESCAPE, "got away from a fight");
+	else if (a.status !== "defeat") grantRespite(state, RESPITE_AFTER_FIGHT, "a fight just ended");
 	const xp = state.encounter!.xpPool;
 	if (xp > 0 && a.awardXp !== false && state.settings.structure.leveling === "xp") {
 		state.character.xp += xp;

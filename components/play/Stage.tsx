@@ -6,7 +6,7 @@ import { infectionVisual, SickVignette } from "./Survival";
 import { moraleNote } from "./Group";
 import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
-import { ArrowUpFromLine, Footprints, Map as MapIcon, Globe2, Image as ImageIcon, Swords, Wand2, Wind, ShieldHalf, HandHelping, EyeOff, FlaskConical, Zap, Hourglass, Skull, X } from "lucide-react";
+import { ArrowUpFromLine, Footprints, Map as MapIcon, Globe2, Image as ImageIcon, Swords, Wand2, Wind, ShieldHalf, HandHelping, EyeOff, FlaskConical, Zap, Hourglass, Skull, Sparkles, X } from "lucide-react";
 import type { Combatant, GameState, GridMap, MapEntity, PlayerCombatAction, SpellInfo } from "@/lib/game/types";
 import { SceneArt } from "@/components/art/SceneArt";
 import { SpriteScene } from "@/components/art/sprite/SpriteScene";
@@ -22,6 +22,7 @@ import { SiegePanel, siegeMarks, siegePostSquares } from "./SiegePanel";
 import { NetRunHud } from "./NetRunHud";
 import type { MapFxEvent, TokenStatus } from "@/components/map/BattleMap";
 import { useFightReplay } from "./FightReplay";
+import { DiscoveryToasts } from "./DiscoveryToast";
 import { useT } from "@/components/i18n/I18nProvider";
 import { Tooltip } from "@/components/ui/Tooltip";
 import { CreatureCard, CreatureTypeLine } from "./CreatureCard";
@@ -39,35 +40,48 @@ const WorldMap = dynamic(() => import("@/components/map/WorldMap"), { ssr: false
 type Point = { x: number; y: number };
 type Mode = { kind: "move" } | { kind: "attack"; itemId?: string; label: string } | { kind: "cast"; spell: SpellInfo; slotLevel: number; targets: string[] };
 
-/** BFS over passable tiles for free (out-of-combat) movement. */
+/**
+ * BFS over passable tiles for free (out-of-combat) movement. Creatures and
+ * features block (as on the server); clicking one walks up next to it.
+ */
 function explorePath(map: GridMap, from: Point, to: Point): Point[] | null {
 	const W = map.width;
 	const ok = (x: number, y: number) => x >= 0 && y >= 0 && x < W && y < map.height && map.explored[y * W + x] && isPassable(map.tiles[y * W + x]) && map.tiles[y * W + x] !== "deep_water" && map.tiles[y * W + x] !== "door_locked" && map.tiles[y * W + x] !== "secret_door";
-	if (!ok(to.x, to.y)) return null;
-	const prev = new Int32Array(W * map.height).fill(-1);
+	const taken = new Set(map.entities.filter((e) => e.kind !== "pc" && !e.dead && !e.hidden && (e.kind === "monster" || e.kind === "npc" || e.kind === "feature")).map((e) => e.y * W + e.x));
+	const free = (x: number, y: number) => ok(x, y) && !taken.has(y * W + x);
+	const goals = new Set<number>();
+	if (free(to.x, to.y)) goals.add(to.y * W + to.x);
+	else if (taken.has(to.y * W + to.x)) {
+		for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) if ((dx || dy) && free(to.x + dx, to.y + dy)) goals.add((to.y + dy) * W + to.x + dx);
+	}
 	const start = from.y * W + from.x;
+	if (!goals.size || goals.has(start)) return null;
+	const prev = new Int32Array(W * map.height).fill(-1);
 	prev[start] = start;
 	const q = [start];
-	while (q.length) {
-		const cur = q.shift()!;
-		if (cur === to.y * W + to.x) break;
+	let goal = -1;
+	for (let h = 0; h < q.length && goal < 0; h++) {
+		const cur = q[h];
 		const cx = cur % W;
 		const cy = Math.floor(cur / W);
-		for (let dy = -1; dy <= 1; dy++)
+		for (let dy = -1; dy <= 1 && goal < 0; dy++)
 			for (let dx = -1; dx <= 1; dx++) {
 				if (!dx && !dy) continue;
 				const nx = cx + dx;
 				const ny = cy + dy;
-				if (!ok(nx, ny)) continue;
+				if (!free(nx, ny)) continue;
 				if (dx && dy && (!ok(cx + dx, cy) || !ok(cx, cy + dy))) continue;
 				const n = ny * W + nx;
 				if (prev[n] !== -1) continue;
 				prev[n] = cur;
 				q.push(n);
+				if (goals.has(n)) {
+					goal = n;
+					break;
+				}
 			}
 	}
-	const goal = to.y * W + to.x;
-	if (prev[goal] === -1) return null;
+	if (goal < 0) return null;
 	const path: Point[] = [];
 	for (let c = goal; c !== start; c = prev[c]) path.unshift({ x: c % W, y: Math.floor(c / W) });
 	return path;
@@ -396,6 +410,15 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 		return { r, name: typeof r === "string" ? undefined : ts(enc.combatants[r.targetId]?.name ?? "") };
 	}, [mode, enc, map, hover, state.character, ts]);
 
+	// Exploring on foot: a glint on things with something to discover (hidden ones stay secret).
+	const glints = useMemo(() => {
+		if (!map || enc || replay.active) return undefined;
+		const out = new Set<string>();
+		for (const e of map.entities) if (e.discover && !e.discover.found && !e.hidden && !e.dead && e.kind !== "pc") out.add(`${e.x},${e.y}`);
+		return out.size ? out : undefined;
+	}, [map, enc, replay.active]);
+	const toFind = !!map && !enc && (map.entities.some((e) => e.discover && !e.discover.found && e.kind !== "pc" && !e.dead) || map.rooms.some((r) => r.discover && !r.discover.found));
+
 	const siegeOnMap = !!state.siege && !!map && state.group?.base?.mapId === map.id;
 	const postSquares = useMemo(() => (picking && siegeOnMap ? siegePostSquares(state) : undefined), [picking, siegeOnMap, state]);
 	const marks = useMemo(() => (siegeOnMap ? siegeMarks(state, state.character.name) : undefined), [siegeOnMap, state]);
@@ -425,6 +448,8 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 	};
 
 	const onTokenClick = (ent: MapEntity) => {
+		// Out of combat, clicking a token walks up to it (and finds what it holds).
+		if (!enc && !picking) return onSquareClick({ x: ent.x, y: ent.y });
 		if (busy || !enc || !myTurn || !ent.combatantId) return;
 		if (mode.kind === "attack") {
 			act({ type: "attack", targetId: ent.combatantId, itemId: mode.itemId });
@@ -479,6 +504,7 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 						status={replay.active ? replay.status : status}
 						notes={replay.active ? undefined : notes}
 						exits={replay.active ? undefined : exits}
+						glints={glints}
 						marks={replay.active ? undefined : marks}
 						highlights={replay.active ? undefined : (reach ?? postSquares)}
 						highlightColor={postSquares && !reach ? 0xd9503f : 0x5b8fb9}
@@ -496,6 +522,12 @@ export function Stage(props: { state: GameState; busy: boolean; fx: FxItem[]; ac
 				)}
 				{view === "map" && (replay.active || (map && state.fight?.mapId === map.id)) && replay.panel}
 				{sick && view === "map" && <SickVignette stage={sick} />}
+				<DiscoveryToasts fx={props.fx} />
+				{view === "scene" && toFind && spriteMap && !busy && (
+					<button className="panel absolute bottom-4 left-1/2 z-20 flex max-w-[calc(100%-2rem)] -translate-x-1/2 items-center gap-2 whitespace-nowrap px-3 py-1.5 text-sm text-parchment transition hover:border-gold/60" onClick={() => props.setView("map")} data-testid="explore-hint">
+						<Sparkles size={14} className="text-gold-2" /> <span className="text-dim">{t("play.discover.hint")}</span> <span className="font-semibold text-gold-2">{t("play.discover.open")}</span>
+					</button>
+				)}
 				{view === "map" && state.siege && !enc && props.siege && <SiegePanel state={state} busy={busy} send={props.siege} picking={picking} setPicking={setPicking} move={siegeMove} setMove={setSiegeMove} />}
 				{view === "world" && (
 					<div className="h-full w-full bg-bg">

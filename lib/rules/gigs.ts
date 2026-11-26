@@ -99,6 +99,16 @@ export function takeGig(state: GameState, ref: string): { gig: Gig; text: string
 	return { gig: g, text: `Taken: ${gigLine(g)}. Play the job; close it with complete_gig (done or failed).` };
 }
 
+/** The player turns down an offer (exact id): it leaves the board like an expired one, no Heat, no Hat. */
+export function declineGig(state: GameState, id: string): { gig: Gig; text: string } {
+	const g = (state.cyber?.gigs ?? []).find((x) => x.id === id);
+	if (!g) throw new Error(`No gig '${id}'.`);
+	if (g.status !== "offered") throw new Error(`"${g.title}" is ${g.status}, not on offer.`);
+	g.status = "expired";
+	prune(gigsOf(state));
+	return { gig: g, text: `Declined: "${g.title}" for ${g.client}; it's off the board.` };
+}
+
 /** Closes a taken (or offered) gig: done pays, shifts Hat, adds Heat, La Tía's cut while in debt; failed pays nothing and makes half the noise. */
 export function completeGig(state: GameState, ref: string, outcome: "done" | "failed", why = ""): { gig: Gig; paid: number; cut: number; text: string } {
 	const g = findGig(state, ref);

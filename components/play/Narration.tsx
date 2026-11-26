@@ -106,6 +106,16 @@ function Entry({ e }: { e: LogEntry }) {
 		);
 	if (e.role === "roll") return e.roll ? <RollChip roll={e.roll} /> : null;
 	if (e.role === "system") return <div className="text-center text-xs uppercase tracking-widest text-faint">{e.text}</div>;
+	if (e.role === "discovery") {
+		// "Name: what they see (+ item)", written by the DM in the campaign language.
+		const cut = e.text.indexOf(": ");
+		return (
+			<div className="flex items-start gap-2 rounded-md border border-gold/20 bg-gold/5 px-3 py-1.5 text-sm text-parchment" data-testid="log-discovery">
+				<Sparkles size={14} className="mt-0.5 shrink-0 text-gold-2" />
+				<span>{cut > 0 ? <><span className="font-semibold text-gold-2">{e.text.slice(0, cut)}</span> · <span className="font-serif italic">{e.text.slice(cut + 2)}</span></> : <span className="font-serif italic">{e.text}</span>}</span>
+			</div>
+		);
+	}
 	return (
 		<div>
 			{e.text && <Prose text={e.text} />}
@@ -222,7 +232,7 @@ export function Narration(props: {
 						{state.pendingRoll.dc ? <span className="opacity-70">{t("play.narr.dc", { n: state.pendingRoll.dc })}</span> : null}
 					</button>
 				)}
-				{!busy && state.suggestions.length > 0 && !inCombat && (
+				{!busy && state.suggestions.length > 0 && !inCombat && state.challenge?.status !== "active" && (
 					<div className="mb-2.5 flex flex-wrap gap-1.5">
 						{state.suggestions.map((s) => (
 							<button key={s} className="chip hover:border-gold hover:text-gold-2" onClick={() => submit(s)}>

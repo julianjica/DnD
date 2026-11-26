@@ -18,9 +18,11 @@ import { denDigest } from "../rules/den";
 import { gigDigest } from "../rules/gigs";
 import { crewDigest } from "../rules/crew";
 import { raidDigest } from "../rules/raid";
+import { challengeDigest } from "../rules/challenge";
 import { rulesetLabelEn } from "../i18n/ruleset-labels";
 import { getClass, getSpecies, getSubclass } from "../srd/index";
 import { compassOf, mapDistance, travelDaysIn, travelText } from "../maps/geography";
+import { discoverTag } from "./discover";
 
 /**
  * A compact, authoritative summary of the game state injected into every DM
@@ -87,6 +89,8 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 	if (crew) lines.push(crew);
 	const raid = rs === "cyberpunk" ? raidDigest(s) : undefined;
 	if (raid) lines.push(raid);
+	const challenge = challengeDigest(s);
+	if (challenge) lines.push(challenge);
 	if (c.hp === 0) lines.push(`Death saves: ${c.deathSaves.successes} successes / ${c.deathSaves.failures} failures`);
 	if (c.spellcasting) {
 		const sl = c.spellcasting.slots
@@ -130,9 +134,9 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 		const m = s.maps[s.activeMapId];
 		const ents = m.entities.map((e) => {
 			const room = e.kind === "pc" || e.kind === "monster" || e.kind === "npc" ? roomOf(m, e) : undefined;
-			return `${e.name}[${e.id}]@${e.x},${e.y}${room ? ` in ${room}` : ""}${e.hidden ? " hidden" : ""}${e.dead ? " DEAD" : ""}`;
+			return `${e.name}[${e.id}]@${e.x},${e.y}${room ? ` in ${room}` : ""}${e.hidden ? " hidden" : ""}${e.dead ? " DEAD" : ""}${discoverTag(e.discover)}`;
 		});
-		lines.push(`Active map: ${m.name} [${m.id}] ${m.kind} ${m.width}x${m.height}, ${m.lighting}. Rooms: ${m.rooms.map((r) => `${r.id}${r.tag ? `(${r.tag})` : ""}${r.name ? ` "${r.name}"` : ""}`).join(", ")}`);
+		lines.push(`Active map: ${m.name} [${m.id}] ${m.kind} ${m.width}x${m.height}, ${m.lighting}. Rooms: ${m.rooms.map((r) => `${r.id}${r.tag ? `(${r.tag})` : ""}${r.name ? ` "${r.name}"` : ""}${discoverTag(r.discover)}`).join(", ")}`);
 		lines.push(`Entities: ${ents.join(", ")}`);
 		const doors = doorSummary(m);
 		if (doors) lines.push(`Doors (closed ones open when walked through; locked ones need set_tile): ${doors}`);
@@ -167,7 +171,9 @@ export function stateDigest(s: GameState, opts: { recentLog?: LogEntry[]; ac?: n
 		for (const e of opts.recentLog) {
 			if (e.role === "roll") continue;
 			const text = e.text.length > 400 ? `${e.text.slice(0, 400)}…` : e.text;
-			lines.push(`${e.role.toUpperCase()}: ${text}`);
+			// The player's own downtime (lib/dm/downtime.ts): the engine's facts ride on the system line.
+			const facts = e.role === "system" ? e.tools?.find((x) => x.name === "downtime")?.summary?.replace(/\s*\n\s*/g, " ") : undefined;
+			lines.push(`${e.role.toUpperCase()}: ${text}${facts ? ` [engine, already applied: ${facts.length > 1200 ? `${facts.slice(0, 1200)}…` : facts}]` : ""}`);
 		}
 	}
 	const story = storyDigest(s);

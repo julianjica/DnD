@@ -440,8 +440,8 @@ export function Sidebar({ state, onLevelUp, actions }: { state: GameState; onLev
 				{tab === "quests" && <QuestsTab state={state} />}
 				{tab === "journal" && <JournalTab state={state} />}
 				{tab === "codex" && <CodexTab state={state} />}
-				{tab === "group" && zombie && <GroupTab state={state} expeditions={{ busy: actions.busy, send: actions.expedition, recall: actions.expedition }} />}
-				{tab === "group" && cyber && <CrewPanel state={state} />}
+				{tab === "group" && zombie && <GroupTab state={state} expeditions={{ busy: actions.busy, send: actions.expedition, recall: actions.expedition }} manage={{ busy: actions.busy, onChanged: () => actions.refresh?.() }} />}
+				{tab === "group" && cyber && <CrewPanel state={state} busy={actions.busy} onChanged={() => actions.refresh?.()} />}
 				{tab === "radio" && zombie && <RadioTab state={state} busy={actions.busy} listen={actions.listen} />}
 				{tab === "den" && cyber && <DenPanel state={state} busy={actions.busy} onChanged={() => actions.refresh?.()} />}
 			</div>

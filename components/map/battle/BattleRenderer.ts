@@ -61,6 +61,8 @@ export interface RenderInput {
 	exits?: Record<string, string>;
 	/** The Quiet: siege posts, keyed "x,y": who holds them (hover label). */
 	marks?: Record<string, string>;
+	/** Squares ("x,y") with something to discover: a soft twinkle while in sight. */
+	glints?: Set<string>;
 	/** Root Access net maps (theme "net", always pixel-drawn): the run's node state and a style override. */
 	net?: NetOpts;
 }
@@ -130,6 +132,7 @@ export class BattleRenderer {
 	private floatLayer: PIXI.Container;
 	private label: PIXI.Text;
 	private selRing: PIXI.Graphics;
+	private glint: PIXI.Graphics;
 
 	private T = 64;
 	private map?: GridMap;
@@ -166,6 +169,7 @@ export class BattleRenderer {
 		this.tokenLayer.sortableChildren = true;
 		this.floatLayer = new Container();
 		this.selRing = new Graphics();
+		this.glint = new Graphics();
 		this.label = new Text({
 			text: "",
 			style: { fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 15, fill: 0xfdf6e3, fontWeight: "600", stroke: { color: 0x120d08, width: 4 }, dropShadow: { color: 0x000000, alpha: 0.6, blur: 3, distance: 1, angle: Math.PI / 2 } },
@@ -173,7 +177,7 @@ export class BattleRenderer {
 		this.label.anchor.set(0.5, 1);
 		this.label.visible = false;
 		app.stage.addChild(this.world);
-		this.world.addChild(this.base, this.fx, this.propLayer, this.glowLayer, this.grid, this.overlay, this.hover, this.pathLayer, this.selRing, this.tokenLayer, this.floatLayer, this.label);
+		this.world.addChild(this.base, this.fx, this.propLayer, this.glowLayer, this.grid, this.overlay, this.hover, this.pathLayer, this.selRing, this.tokenLayer, this.glint, this.floatLayer, this.label);
 		this.glowTex = this.makeGlowTexture();
 		app.ticker.add(this.tick);
 		this.bindInput();
@@ -824,6 +828,17 @@ export class BattleRenderer {
 				const a = a0 + (i * Math.PI) / 2;
 				this.selRing.moveTo(p.x + Math.cos(a) * (r + 10), p.y + Math.sin(a) * (r + 10)).arc(p.x, p.y, r + 10, a, a + 0.8).stroke({ width: 3, color: 0xffd36b, alpha: 0.9 });
 			}
+		}
+		// discoveries: a small four-point star twinkling at the top corner of each square in sight
+		this.glint.clear();
+		for (const k of this.input?.glints ?? []) {
+			if (!this.visibleNow.has(k)) continue;
+			const q = parseKey(k);
+			const ph = (q.x * 7 + q.y * 13) % 10;
+			const tw = 0.5 + 0.5 * Math.sin(this.time / 520 + ph);
+			const cx = (q.x + 0.8) * T, cy = (q.y + 0.2) * T, r = T * (0.12 + tw * 0.1), w = r * 0.26;
+			this.glint.poly([cx, cy - r, cx + w, cy - w, cx + r, cy, cx + w, cy + w, cx, cy + r, cx - w, cy + w, cx - r, cy, cx - w, cy - w]).fill({ color: 0xfff3c4, alpha: 0.35 + tw * 0.6 });
+			this.glint.circle(cx, cy, r * 0.9).fill({ color: 0xffd36b, alpha: 0.06 + tw * 0.16 });
 		}
 		// floaters
 		for (let i = this.floaters.length - 1; i >= 0; i--) {

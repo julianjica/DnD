@@ -28,6 +28,11 @@ export interface FxItem extends Omit<FxEvent, "kind"> {
 	amount?: number;
 	sound?: string;
 	level?: number;
+	/** kind "discover": what was found and its caption. */
+	name?: string;
+	text?: string;
+	significant?: boolean;
+	item?: string;
 }
 
 let fxCounter = 0;
@@ -162,6 +167,8 @@ export function useGame(id: string) {
 	const listen = useCallback((station: RadioStation, label: string) => stream(`/api/campaigns/${id}/radio`, { station, label }, { showPlayer: label }), [id, stream]);
 	/** The Quiet: siege controls (posts, lights, the next wave). */
 	const siege = useCallback((op: SiegeOp) => stream(`/api/campaigns/${id}/siege`, op), [id, stream]);
+	/** Timed challenges: pick an approach, break off, close the result. */
+	const challenge = useCallback((op: ChallengeOp) => stream(`/api/campaigns/${id}/challenge`, op), [id, stream]);
 	const abort = useCallback(() => fetch(`/api/campaigns/${id}/turn`, { method: "DELETE" }), [id]);
 
 	const patchSettings = useCallback(
@@ -174,10 +181,13 @@ export function useGame(id: string) {
 		[id, t],
 	);
 
-	return { state, setState, log, live, busy, error, setError, rollQueue, fx, loaded, refresh, send, act, rollPending, listen, siege, expedition, abort, patchSettings };
+	return { state, setState, log, live, busy, error, setError, rollQueue, fx, loaded, refresh, send, act, rollPending, listen, siege, challenge, expedition, abort, patchSettings };
 }
 
 export type Game = ReturnType<typeof useGame>;
 
 /** A siege control sent to /api/campaigns/[id]/siege. */
 export type SiegeOp = { op: "assign"; who: string; x?: number; y?: number } | { op: "lights"; on: boolean } | { op: "wave"; action?: "shoot" | "hack" | "repair" | "hold"; moveTo?: { x: number; y: number } };
+
+/** A Challenge panel move sent to /api/campaigns/[id]/challenge. */
+export type ChallengeOp = { op: "pick"; stage: number; approach: number } | { op: "abandon" } | { op: "dismiss" };

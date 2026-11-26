@@ -79,7 +79,7 @@ test("story threads: plant, touch, resolve; capped; overdue flagged; hidden from
 	assert.equal(m.client.clientState(st).pacing, undefined);
 });
 
-test("pacing director: breathe after a fight, then threat, twist and human nudges", () => {
+test("pacing director: breathe after a fight and human moments, never a push toward threats or twists", () => {
 	const id = newGame();
 	const st = m.loadState(id);
 	const p = m.th.pacingOf(st);
@@ -87,15 +87,27 @@ test("pacing director: breathe after a fight, then threat, twist and human nudge
 	p.turn = 30;
 	p.last = { threat: 30, action: 29, human: 25, twist: 29 };
 	assert.match(m.th.pacingNudge(st)!, /breathe/);
-	p.last = { threat: 19, action: 19, human: 29, twist: 28 };
-	assert.match(m.th.pacingNudge(st)!, /quiet for a while/);
-	p.last = { threat: 29, action: 20, human: 29, twist: 5 };
-	assert.match(m.th.pacingNudge(st)!, /reveal or a complication/);
-	assert.match(m.th.pacingNudge(st)!, /follow them and let this wait/, "advice, never an order");
+	p.last = { threat: 1, action: 1, human: 29, twist: 1 };
+	assert.equal(m.th.pacingNudge(st), undefined, "a long quiet stretch brings no danger: the player decides when to seek it");
 	p.last = { threat: 29, action: 20, human: 10, twist: 29 };
 	assert.match(m.th.pacingNudge(st)!, /human moment/);
+	assert.match(m.th.pacingNudge(st)!, /follow them and let this wait/, "advice, never an order");
 	m.th.markBeat(st, "action");
 	assert.equal(p.last.threat, 30, "action counts as threat");
+});
+
+test("breathing room: an escape or a fight buys time, and the digest tells the DM pursuers are off-screen", () => {
+	const id = newGame();
+	const st = m.loadState(id);
+	assert.equal(m.th.respiteLine(st), undefined);
+	m.th.grantRespite(st, m.th.RESPITE_AFTER_ESCAPE, "hid in the brambles");
+	const line = m.th.respiteLine(st)!;
+	assert.match(line, /BREATHING ROOM \(8 h left; hid in the brambles\)/);
+	assert.match(line, /pursuers are off-screen/);
+	m.th.grantRespite(st, m.th.RESPITE_AFTER_FIGHT, "a fight ended");
+	assert.match(m.th.respiteLine(st)!, /8 h left/, "a shorter respite never cuts a longer one");
+	st.time = { ...st.time, day: st.time.day + 1 };
+	assert.equal(m.th.respiteLine(st), undefined, "it runs out with game time");
 });
 
 test("mark_beat validates; a new player turn advances the counter", async () => {

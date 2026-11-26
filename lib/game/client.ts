@@ -1,14 +1,48 @@
-import type { GameState, GroupState, Survivor, TownState } from "./types";
+import type { GameState, GroupState, MapDiscovery, Survivor, TownState } from "./types";
 
 /**
  * The state as the browser may see it: engine secrets stripped (the hour a
  * bitten character or companion turns is rolled in secret and known only to the DM).
  */
 export function clientState(state: GameState): GameState {
-	const out = hideNetSecrets(hideDmNotes(hideExpeditions(hideProfiles(hideInfection(state)))));
+	const out = hideChallenge(hideDiscoveries(hideNetSecrets(hideDmNotes(hideExpeditions(hideProfiles(hideInfection(state)))))));
 	const shown = state.town ? { ...out, town: clientTown(state.town) } : out;
 	// The siege's end-of-night summary is the DM's instruction (it may name a secret infection).
 	return shown.siege?.summary ? { ...shown, siege: { ...shown.siege, summary: undefined } } : shown;
+}
+
+/**
+ * A timed challenge as the player may see it: the stages still ahead stay
+ * blank (only their number shows), complications that haven't hit stay
+ * secret, and the end summary is the DM's instruction.
+ */
+function hideChallenge(state: GameState): GameState {
+	const ch = state.challenge;
+	if (!ch) return state;
+	const stages = ch.stages.map((st, i) => (i <= ch.stage || ch.status !== "active" ? st : { prompt: "", approaches: [] }));
+	const { summary: _s, pending: _p, ...rest } = ch;
+	void _s, void _p;
+	return { ...state, challenge: { ...rest, pending: [], stages, complications: ch.complications.filter((c) => c.fired) } };
+}
+
+/**
+ * Map discoveries not found yet: the client only learns that something is
+ * there (for the glint), never what it is or what it holds.
+ */
+function hideDiscoveries(state: GameState): GameState {
+	const hide = <T extends { discover?: MapDiscovery }>(x: T): T => (x.discover && !x.discover.found ? { ...x, discover: { text: "", ...(x.discover.significant ? { significant: true } : {}) } } : x);
+	if (!state.maps) return state;
+	let changed = false;
+	const maps: GameState["maps"] = {};
+	for (const [id, m] of Object.entries(state.maps)) {
+		if (!m.entities?.some((e) => e.discover && !e.discover.found) && !m.rooms?.some((r) => r.discover && !r.discover.found)) {
+			maps[id] = m;
+			continue;
+		}
+		changed = true;
+		maps[id] = { ...m, entities: m.entities.map(hide), rooms: (m.rooms ?? []).map(hide) };
+	}
+	return changed ? { ...state, maps } : state;
 }
 
 /**

@@ -8,6 +8,8 @@ import * as base from "./parts/base";
 import * as group from "./parts/group";
 import * as siege from "./parts/siege";
 import * as cyber from "./parts/cyber";
+import * as downtime from "./parts/downtime";
+import * as challenge from "./parts/challenge";
 
 /** Spanish UI strings, merged from ./parts (each part is type-checked against its English twin). */
-export const es: Messages = { ...common.es, ...setup.es, ...play.es, ...enums.es, ...survival.es, ...base.es, ...group.es, ...siege.es, ...cyber.es };
+export const es: Messages = { ...common.es, ...setup.es, ...play.es, ...enums.es, ...survival.es, ...base.es, ...group.es, ...siege.es, ...cyber.es, ...downtime.es, ...challenge.es };

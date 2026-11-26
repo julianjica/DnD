@@ -1,11 +1,11 @@
 import type { NextRequest } from "next/server";
 import type { PlayerCombatAction } from "@/lib/game/types";
-import { appendLog, campaignExists } from "@/lib/store/campaigns";
-import { newId } from "@/lib/dm/context";
+import { campaignExists } from "@/lib/store/campaigns";
 import { isTurnRunning, runTurn } from "@/lib/dm/turn";
 import { withState, type ClientEvent } from "@/lib/dm/context";
 import { isPcTurn, playerCombatAction } from "@/lib/dm/combat";
-import { exploreMove } from "@/lib/dm/explore";
+import { exploreFollowUp, exploreStep } from "@/lib/dm/explore";
+import type { Found } from "@/lib/dm/discover";
 import { castSpell, spendFeatureUse, consumeItem } from "@/lib/dm/resources";
 import { jsonError, sseResponse } from "@/lib/server/sse";
 
@@ -29,11 +29,11 @@ export async function POST(req: NextRequest, ctx: RouteContext<"/api/campaigns/[
 		let notes: string[] = [];
 		try {
 			let used: string | undefined;
-			let crossedTo: string | undefined;
+			let moved: { crossedTo?: string; found: Found[] } | undefined;
 			const exploring = await withState(tctx, (tx) => {
 				if (tx.state.encounter?.status !== "active") {
 					// Out of combat: free movement, or spending a resource from the sheet.
-					if (action.type === "move") crossedTo = exploreMove(tx.state, action.path).crossedTo;
+					if (action.type === "move") moved = exploreStep(tx, action.path);
 					else if (action.type === "use_item") used = consumeItem(tx, { item: action.itemId });
 					else if (action.type === "use_feature") used = spendFeatureUse(tx, { feature: action.featureId });
 					else if (action.type === "cast") used = castSpell(tx, { spell: action.spell, slotLevel: action.slotLevel || undefined });
@@ -65,8 +65,8 @@ export async function POST(req: NextRequest, ctx: RouteContext<"/api/campaigns/[
 				return;
 			}
 			if (exploring) {
-				// Walked through a connected door: a marker in the chat (and the DM's history).
-				if (crossedTo) appendLog(id, { id: newId("l"), role: "system", text: `→ ${crossedTo}`, ts: Date.now() });
+				// Door markers and discoveries go to the log; only a significant discovery calls the DM.
+				if (moved && (await exploreFollowUp(id, emit, moved))) return;
 				emit({ type: "done" });
 				return;
 			}
