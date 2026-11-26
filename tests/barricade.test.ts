@@ -8,7 +8,6 @@ import { blocksSight as combatBlocksSight, blocksCover, findPath, hasLineOfSight
 import { startCombat } from "../lib/rules/combat/encounter";
 import { blocksSight, canStand, computeFov, isPassable } from "../lib/maps/grid";
 import { drawMap } from "../lib/maps/draw";
-import { stateDigest } from "../lib/dm/digest";
 import type { GameState, GridMap } from "../lib/game/types";
 
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), "dh-barricade-"));
@@ -20,6 +19,7 @@ let m: {
 	allTools: typeof import("../lib/dm/tools").allTools;
 	loadState: typeof import("../lib/store/campaigns").loadState;
 	saveState: typeof import("../lib/store/campaigns").saveState;
+	stateDigest: typeof import("../lib/dm/digest").stateDigest;
 };
 before(async () => {
 	m = {
@@ -28,6 +28,8 @@ before(async () => {
 		allTools: (await import("../lib/dm/tools")).allTools,
 		loadState: (await import("../lib/store/campaigns")).loadState,
 		saveState: (await import("../lib/store/campaigns")).saveState,
+		// Imported here, after DH_DATA_DIR is set: a top-level import loads the config first and the test games land in the real data folder.
+		stateDigest: (await import("../lib/dm/digest")).stateDigest,
 	};
 });
 after(() => fs.rmSync(dir, { recursive: true, force: true }));
@@ -139,7 +141,7 @@ test("damage_barricade: hp drops, at 0 it becomes rubble; build on it repairs", 
 	const b = await call(id, "build_barricade", { x: 5, y: 3, material: "furniture" });
 	assert.notEqual(b.isError, true, b.text);
 	assert.deepEqual(activeMap(m.loadState(id)).barricades, { "5,3": { hp: 15, max: 15 } });
-	assert.match(stateDigest(m.loadState(id)), /Barricades \(.*\): \(5,3\) 15\/15/);
+	assert.match(m.stateDigest(m.loadState(id)), /Barricades \(.*\): \(5,3\) 15\/15/);
 
 	const hit = await call(id, "damage_barricade", { x: 5, y: 3, amount: 9 });
 	assert.match(hit.text, /6\/15 HP left \(badly damaged/);
