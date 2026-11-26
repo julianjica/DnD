@@ -47,10 +47,10 @@ const MODERN = {
 	last: ["Miller", "Novak", "Garcia", "Reyes", "Okafor", "Brennan", "Kowalski", "Nguyen", "Price", "Delgado", "Harper", "Chen", "Walsh", "Moreno", "Lindqvist", "Dawson", "Patel", "Hale", "Ruiz", "Sorensen"],
 };
 
-/** Root Access: names from Marea, a Latin American megacity (origins are all human). */
+/** Root Access: names from Marea, a Latin American port megacity where every heritage has landed (origins are all human). */
 const MAREA = {
-	first: ["Valeria", "Mateo", "Ximena", "Iker", "Camila", "Joaquín", "Renata", "Diego", "Itzel", "Bruno", "Luz", "Emiliano", "Paloma", "Tomás", "Yara", "Rafa", "Inés", "Gael", "Nayeli", "Óscar", "Abril", "Leo", "Maite", "Chuy"],
-	last: ["Quispe", "Ochoa", "Barrios", "Salazar", "Mendoza", "Arce", "Villalobos", "Ibarra", "Cárdenas", "Tapia", "Rojas", "Medina", "Paredes", "Cruz", "Lozano", "Fuentes", "Ríos", "Aguilar", "Nieves", "Ortega"],
+	first: ["Valeria", "Mateo", "Ximena", "Iker", "Camila", "Joaquín", "Renata", "Diego", "Itzel", "Bruno", "Luz", "Emiliano", "Paloma", "Tomás", "Yara", "Rafa", "Inés", "Gael", "Nayeli", "Óscar", "Abril", "Leo", "Maite", "Chuy", "Kenji", "Hana", "Wei", "Yasmín", "Omar", "Ingrid", "Amara", "Malik", "Sun-hee", "Nadia", "Bruna", "Kofi", "Greta", "Jae", "Lucía", "Amaru"],
+	last: ["Quispe", "Ochoa", "Barrios", "Salazar", "Mendoza", "Arce", "Villalobos", "Ibarra", "Cárdenas", "Tapia", "Rojas", "Medina", "Paredes", "Cruz", "Lozano", "Fuentes", "Ríos", "Aguilar", "Nieves", "Ortega", "Mamani", "Condori", "Wong", "Chen", "Higa", "Nakamura", "Haddad", "Saab", "Ferraro", "Bianchi", "Bauer", "Schmidt", "Park", "Okafor", "Mbeki", "Levy", "O'Neill", "Petrović"],
 };
 
 export function randomName(speciesId: string, rand: () => number = Math.random): string {
