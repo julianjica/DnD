@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { campaignExists, deleteCampaign, loadState, readLog } from "@/lib/store/campaigns";
 import { isTurnRunning } from "@/lib/dm/turn";
 import { jsonError } from "@/lib/server/sse";
+import { getEngine } from "@/lib/engines";
 
 /** GET → { state, log, running } */
 export async function GET(_req: NextRequest, ctx: RouteContext<"/api/campaigns/[id]">) {
@@ -14,5 +15,13 @@ export async function GET(_req: NextRequest, ctx: RouteContext<"/api/campaigns/[
 export async function DELETE(_req: NextRequest, ctx: RouteContext<"/api/campaigns/[id]">) {
 	const { id } = await ctx.params;
 	deleteCampaign(id);
+	// Forget the DM's conversation for this campaign too, whichever engine ran it.
+	for (const provider of ["claude-code", "codex", "api"] as const) {
+		try {
+			getEngine(provider).resetSession(id);
+		} catch {
+			// An engine that isn't configured has nothing to forget.
+		}
+	}
 	return Response.json({ ok: true });
 }
