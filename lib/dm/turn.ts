@@ -2,7 +2,7 @@ import type { EngineConfig, LogEntry } from "../game/types";
 import { nextTurn } from "../rules/threads";
 import { getEngine } from "../engines";
 import { appendLog, loadState, readLog, mutate } from "../store/campaigns";
-import { buildSystemPrompt } from "./prompt";
+import { buildSystemPrompt, NARRATION_BUDGET, narrationWords } from "./prompt";
 import { stateDigest } from "./digest";
 import { newId, type ClientEvent, type ToolContext } from "./context";
 import { allTools } from "./tools";
@@ -58,11 +58,17 @@ export async function runTurn(input: TurnInput): Promise<void> {
 		const tools = allTools(ctx);
 		const recent = readLog(campaignId, { limit: 12 });
 		const digest = stateDigest(state, { recentLog: recent, ac: derivedAc(state.character) });
-		const notes = input.systemNotes?.length ? `\n\n# ENGINE NOTES\n${input.systemNotes.join("\n")}` : "";
+		// Length feedback: the budget comes from the verbosity setting; a long last turn is pointed out.
+		const budget = NARRATION_BUDGET[state.settings.dm.verbosity as keyof typeof NARRATION_BUDGET] ?? NARRATION_BUDGET.terse;
+		const lastDm = [...recent].reverse().find((l) => l.role === "dm" && l.text.trim());
+		const lastWords = lastDm ? narrationWords(lastDm.text) : 0;
+		const lengthNote = lastWords > budget * 1.25 ? `Your last narration was ${lastWords} words; this campaign's budget is about ${budget}. Cut hard this turn.` : "";
+		const allNotes = [...(input.systemNotes ?? []), ...(lengthNote ? [lengthNote] : [])];
+		const notes = allNotes.length ? `\n\n# ENGINE NOTES\n${allNotes.join("\n")}` : "";
 		const action = input.text ? `# PLAYER ACTION\n${input.text}` : "# OPENING\nBegin the adventure: set the opening scene (set_scene, set_ambience), introduce the hook, and end with suggest_actions.";
 		const langNote = state.settings.language === "es" ? "\n\n(Recuerda: escribe todo lo que ve el jugador en español.)" : "";
 		// The digest is long; end on the turn's shape so the last step isn't forgotten.
-		const message = `${action}${notes}\n\n# STATE DIGEST (authoritative)\n${digest}${langNote}\n\n(Turn: tools first, then your narration once, then suggest_actions as the very last step.)`;
+		const message = `${action}${notes}\n\n# STATE DIGEST (authoritative)\n${digest}${langNote}\n\n(Turn: tools first, then your narration once, at most about ${budget} words, then suggest_actions as the very last step.)`;
 
 		const config: EngineConfig = state.settings.engine;
 		const engine = getEngine(config.provider);

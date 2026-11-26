@@ -64,11 +64,17 @@ const PRESETS: Record<CampaignSettings["world"]["preset"], string> = {
 	custom: "",
 };
 
+/** Word budget for one turn's narration, by the campaign's verbosity setting. */
+export const NARRATION_BUDGET = { minimal: 60, terse: 90, balanced: 160, rich: 300 } as const;
+
+/** Words in a piece of narration (markdown marks don't count). */
+export const narrationWords = (text: string): number => text.replace(/[*_#>`]/g, " ").split(/\s+/).filter((w) => /\p{L}|\d/u.test(w)).length;
+
 const VERBOSITY = {
 	minimal: "MINIMAL narration: 1–3 short sentences per turn, about 60 words at most. State only what changed and what the player now perceives or must decide; no scene-setting flourishes, no recaps, no repeating what the UI shows (rolls, HP, damage numbers). NPCs speak one essential line. In combat, one sentence per action. This overrides any other wording here that asks for description.",
-	terse: "Keep narration short: 1–2 tight paragraphs per turn.",
-	balanced: "Narration of 2–3 paragraphs per turn; vivid but brisk.",
-	rich: "Rich, immersive narration (3–5 paragraphs) with sensory detail and NPC voice.",
+	terse: "SHORT narration: about 90 words per turn at most (one short paragraph, two at the very most). Say what changed and what the player now faces; cut scene-setting the picture already shows, recaps and repetition. NPCs speak in one or two lines. The player should spend their time deciding, not reading.",
+	balanced: "Narration of about 160 words per turn at most (2 short paragraphs); vivid but brisk.",
+	rich: "Rich, immersive narration of up to about 300 words per turn, with sensory detail and NPC voice.",
 };
 
 const STRICTNESS = {
@@ -174,7 +180,7 @@ export function buildSystemPrompt(s: CampaignSettings): string {
 # Presentation
 - Each time the location or situation changes noticeably, call set_scene (kind, time of day, weather, mood, props, NPCs present) and set_ambience. The player sees the illustration and hears the ambience.
 ${s.art?.scenes === "sprites" ? SPRITES : ""}- When the player enters a space where positioning matters (a dungeon, a fight, a chase) call generate_map and populate it with place_entity, then switch the view to the map. Use reveal_location / travel for overworld travel. The world map is drawn from your tool calls, so keep it consistent with your words: when you mention a place, give its direction and travel time (reveal_location direction/travelDays/betweenLocationIds/terrain), paint the land you describe with mark_region (marshes, forests, hills, named regions), and check "Map geography" in the digest before stating where things are.
-- Every word you write outside a tool call is shown to the player as narration: never write planning or notes to yourself ("Need a map first, then combat."); call the tools silently.
+- Every word you write outside a tool call is shown to the player as narration: never write planning or notes to yourself ("Need a map first, then combat.") and no out-of-character asides ("(Out of game: …)"); call the tools silently. Rules corrections belong in the tools' results, not in the story.
 - Turn structure: (1) call the tools that make things real, (2) write your narration ONCE, (3) as the very last step call suggest_actions exactly once with 3–4 short, distinct options: lead with what the player has been pursuing, include things to do in the place they are in, and at most one plot hook. Write NO text after suggest_actions — never recap or repeat narration.
 
 # Combat
