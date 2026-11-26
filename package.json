@@ -19,7 +19,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^1.66.0",
     "nanoid": "^6.0.2",
-    "next": "16.4.3",
+    "next": "16.4.6",
     "pixi.js": "^8.22.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",
@@ -34,7 +34,7 @@
     "@types/react-dom": "^19",
     "@types/three": "^0.187.0",
     "eslint": "^9",
-    "eslint-config-next": "16.4.3",
+    "eslint-config-next": "16.4.6",
     "tailwindcss": "^4",
     "tsx": "^4.23.15",
     "typescript": "^5"
